@@ -577,7 +577,9 @@ export default {
         campaignAge: this.campaignAge,
         campaignDevice: this.campaignDevice,
         campaignConversionCounting: this.campaignConversionCounting,
-        scheduleType: this.scheduleType
+        scheduleType: this.scheduleType,
+        campaignStartDate: this.campaignStartDate,
+        campaignEndDate: this.campaignEndDate
       }
       this.postData = {...this.postData, ...step1Data }
       this.currentStep = 2
