@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Token;
 use Laravel\Socialite\Facades\Socialite;
 
 class AccountController extends Controller
@@ -28,41 +29,65 @@ class AccountController extends Controller
 
     public function advertisers()
     {
+        $data = [];
         $provider = Provider::where('slug', request('provider'))->first();
         $user_info = auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first();
         try {
-            $client = new Client();
-            $response = $client->get(env('BASE_URL') . '/v3/rest/advertiser', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $user_info->token
-                ]
-            ]);
-            return json_decode($response->getBody(), true);
+            $data = $this->getAdvertisers($user_info);
         } catch (Exception $e) {
-            dd($e);
+            if ($e->getCode() == 401) {
+                Token::refresh($user_info, function() use ($user_info, &$data) {
+                    $data = $this->getAdvertisers($user_info);
+                });
+            }
         }
+
+        return $data;
+    }
+
+    private function getAdvertisers($user_info)
+    {
+        $client = new Client();
+        $response = $client->get(env('BASE_URL') . '/v3/rest/advertiser', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token
+            ]
+        ]);
+        return json_decode($response->getBody(), true);
     }
 
     public function signUp()
     {
+        $data = [];
         $provider = Provider::where('slug', request('provider'))->first();
         $user_info = auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first();
         try {
-            $client = new Client();
-            $response = $client->request('POST', env('BASE_URL') . '/v3/rest/advertisersignup', [
-                'body' => json_encode([
-                    'advertiserName' => request('name')
-                ]),
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $user_info->token,
-                    'Content-Type' => 'application/json'
-                ]
-            ]);
-
-            return json_decode($response->getBody(), true);
+            $data = $this->signUpAdvertiser($user_info);
         } catch (Exception $e) {
-            dd($e);
+            if ($e->getCode() == 401) {
+                Token::refresh($user_info, function() use ($user_info, &$data) {
+                    $data = $this->signUpAdvertiser($user_info);
+                });
+            }
         }
+
+        return $data;
+    }
+
+    private function signUpAdvertiser($user_info)
+    {
+        $client = new Client();
+        $response = $client->request('POST', env('BASE_URL') . '/v3/rest/advertisersignup', [
+            'body' => json_encode([
+                'advertiserName' => request('name')
+            ]),
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($response->getBody(), true);
     }
 
     public function trafficSources()

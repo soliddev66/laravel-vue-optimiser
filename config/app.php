@@ -166,6 +166,7 @@ return [
          * Package Service Providers...
          */
         App\Socialite\SocialiteServiceProvider::class,
+        App\Providers\TokenServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -227,7 +228,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-
+        'Token' => App\Vngodev\TokenFacade::class,
     ],
 
 ];

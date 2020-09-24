@@ -24,6 +24,7 @@ Vue.component('traffic-sources', require('./components/TrafficSources.vue').defa
 Vue.component('trackers', require('./components/Trackers.vue').default);
 Vue.component('campaigns', require('./components/Campaigns.vue').default);
 Vue.component('campaign-creator', require('./components/CampaignCreator.vue').default);
+Vue.component('select2', require('./plugins/Select2.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

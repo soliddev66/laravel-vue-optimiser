@@ -2,6 +2,7 @@
 
 namespace App\Vngodev;
 
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 
@@ -10,14 +11,12 @@ use GuzzleHttp\ClientInterface;
  */
 class Token
 {
-    public $db_provider;
-
-    function __construct($db_provider)
+    function __construct()
     {
-        $this->db_provider = $db_provider;
+        //
     }
 
-    public function refresh()
+    public function refresh($user_info, callable $callback = null)
     {
         $postKey = (version_compare(ClientInterface::MAJOR_VERSION, '6') === 1) ? 'form_params' : 'body';
         $client = new Client();
@@ -33,12 +32,19 @@ class Token
                 'client_id' => env('YAHOO_CLIENT_ID'),
                 'client_secret' => env('YAHOO_CLIENT_SECRET'),
                 'redirect_uri' => env('YAHOO_REDIRECT'),
-                'refresh_token' => $this->db_provider->refresh_token,
+                'refresh_token' => $user_info->refresh_token,
                 'grant_type' => 'refresh_token'
             ]
         ]);
 
         $data = json_decode($response->getBody(), true);
-        return $data;
+        $user_info->token = $data['access_token'];
+        $user_info->refresh_token = $data['refresh_token'];
+        $user_info->expires_in = Carbon::now()->addSeconds($data['expires_in']);
+        $user_info->save();
+
+        if ($callback) {
+            $callback();
+        }
     }
 }
