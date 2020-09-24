@@ -2356,6 +2356,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
 
 
 
@@ -47798,33 +47802,49 @@ var render = function() {
                                 [_vm._v("Display Url")]
                               ),
                               _vm._v(" "),
-                              _c("div", { staticClass: "col-sm-8" }, [
-                                _c("input", {
-                                  directives: [
-                                    {
-                                      name: "model",
-                                      rawName: "v-model",
-                                      value: _vm.displayUrl,
-                                      expression: "displayUrl"
-                                    }
-                                  ],
-                                  staticClass: "form-control",
-                                  attrs: {
-                                    type: "text",
-                                    name: "display_url",
-                                    placeholder: "Enter a url"
-                                  },
-                                  domProps: { value: _vm.displayUrl },
-                                  on: {
-                                    input: function($event) {
-                                      if ($event.target.composing) {
-                                        return
+                              _c(
+                                "div",
+                                { staticClass: "col-sm-8 text-center" },
+                                [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.displayUrl,
+                                        expression: "displayUrl"
                                       }
-                                      _vm.displayUrl = $event.target.value
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      type: "text",
+                                      name: "display_url",
+                                      placeholder: "Enter a url"
+                                    },
+                                    domProps: { value: _vm.displayUrl },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.displayUrl = $event.target.value
+                                      }
                                     }
-                                  }
-                                })
-                              ])
+                                  }),
+                                  _vm._v(" "),
+                                  _vm.displayUrl && !_vm.displayUrlState
+                                    ? _c(
+                                        "small",
+                                        { staticClass: "text-danger" },
+                                        [
+                                          _vm._v(
+                                            "URL is invalid. You might need http/https at the beginning."
+                                          )
+                                        ]
+                                      )
+                                    : _vm._e()
+                                ]
+                              )
                             ]),
                             _vm._v(" "),
                             _c("div", { staticClass: "form-group row" }, [
@@ -47837,33 +47857,49 @@ var render = function() {
                                 [_vm._v("Target Url")]
                               ),
                               _vm._v(" "),
-                              _c("div", { staticClass: "col-sm-8" }, [
-                                _c("input", {
-                                  directives: [
-                                    {
-                                      name: "model",
-                                      rawName: "v-model",
-                                      value: _vm.targetUrl,
-                                      expression: "targetUrl"
-                                    }
-                                  ],
-                                  staticClass: "form-control",
-                                  attrs: {
-                                    type: "text",
-                                    name: "target_url",
-                                    placeholder: "Enter a url"
-                                  },
-                                  domProps: { value: _vm.targetUrl },
-                                  on: {
-                                    input: function($event) {
-                                      if ($event.target.composing) {
-                                        return
+                              _c(
+                                "div",
+                                { staticClass: "col-sm-8 text-center" },
+                                [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.targetUrl,
+                                        expression: "targetUrl"
                                       }
-                                      _vm.targetUrl = $event.target.value
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      type: "text",
+                                      name: "target_url",
+                                      placeholder: "Enter a url"
+                                    },
+                                    domProps: { value: _vm.targetUrl },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.targetUrl = $event.target.value
+                                      }
                                     }
-                                  }
-                                })
-                              ])
+                                  }),
+                                  _vm._v(" "),
+                                  _vm.targetUrl && !_vm.targetUrlState
+                                    ? _c(
+                                        "small",
+                                        { staticClass: "text-danger" },
+                                        [
+                                          _vm._v(
+                                            "URL is invalid. You might need http/https at the beginning."
+                                          )
+                                        ]
+                                      )
+                                    : _vm._e()
+                                ]
+                              )
                             ]),
                             _vm._v(" "),
                             _c("div", { staticClass: "form-group row" }, [
@@ -47876,33 +47912,49 @@ var render = function() {
                                 [_vm._v("Image HQ URL")]
                               ),
                               _vm._v(" "),
-                              _c("div", { staticClass: "col-sm-8" }, [
-                                _c("input", {
-                                  directives: [
-                                    {
-                                      name: "model",
-                                      rawName: "v-model",
-                                      value: _vm.imageUrlHQ,
-                                      expression: "imageUrlHQ"
-                                    }
-                                  ],
-                                  staticClass: "form-control",
-                                  attrs: {
-                                    type: "text",
-                                    name: "image_hq_url",
-                                    placeholder: "Enter a url"
-                                  },
-                                  domProps: { value: _vm.imageUrlHQ },
-                                  on: {
-                                    input: function($event) {
-                                      if ($event.target.composing) {
-                                        return
+                              _c(
+                                "div",
+                                { staticClass: "col-sm-8 text-center" },
+                                [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.imageUrlHQ,
+                                        expression: "imageUrlHQ"
                                       }
-                                      _vm.imageUrlHQ = $event.target.value
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      type: "text",
+                                      name: "image_hq_url",
+                                      placeholder: "Enter a url"
+                                    },
+                                    domProps: { value: _vm.imageUrlHQ },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.imageUrlHQ = $event.target.value
+                                      }
                                     }
-                                  }
-                                })
-                              ])
+                                  }),
+                                  _vm._v(" "),
+                                  _vm.imageUrlHQ && !_vm.imageUrlHQState
+                                    ? _c(
+                                        "small",
+                                        { staticClass: "text-danger" },
+                                        [
+                                          _vm._v(
+                                            "URL is invalid. You might need http/https at the beginning."
+                                          )
+                                        ]
+                                      )
+                                    : _vm._e()
+                                ]
+                              )
                             ]),
                             _vm._v(" "),
                             _c("div", { staticClass: "form-group row" }, [
@@ -47915,33 +47967,49 @@ var render = function() {
                                 [_vm._v("Image URL")]
                               ),
                               _vm._v(" "),
-                              _c("div", { staticClass: "col-sm-8" }, [
-                                _c("input", {
-                                  directives: [
-                                    {
-                                      name: "model",
-                                      rawName: "v-model",
-                                      value: _vm.imageUrl,
-                                      expression: "imageUrl"
-                                    }
-                                  ],
-                                  staticClass: "form-control",
-                                  attrs: {
-                                    type: "text",
-                                    name: "image_url",
-                                    placeholder: "Enter a url"
-                                  },
-                                  domProps: { value: _vm.imageUrl },
-                                  on: {
-                                    input: function($event) {
-                                      if ($event.target.composing) {
-                                        return
+                              _c(
+                                "div",
+                                { staticClass: "col-sm-8 text-center" },
+                                [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.imageUrl,
+                                        expression: "imageUrl"
                                       }
-                                      _vm.imageUrl = $event.target.value
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      type: "text",
+                                      name: "image_url",
+                                      placeholder: "Enter a url"
+                                    },
+                                    domProps: { value: _vm.imageUrl },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.imageUrl = $event.target.value
+                                      }
                                     }
-                                  }
-                                })
-                              ])
+                                  }),
+                                  _vm._v(" "),
+                                  _vm.imageUrl && !_vm.imageUrlState
+                                    ? _c(
+                                        "small",
+                                        { staticClass: "text-danger" },
+                                        [
+                                          _vm._v(
+                                            "URL is invalid. You might need http/https at the beginning."
+                                          )
+                                        ]
+                                      )
+                                    : _vm._e()
+                                ]
+                              )
                             ])
                           ]),
                           _vm._v(" "),
@@ -48233,7 +48301,7 @@ var render = function() {
             : _vm._e(),
           _vm._v(" "),
           _c("div", { staticClass: "card-footer d-flex justify-content-end" }, [
-            _vm.currentStep < 4 && _vm.currentStep > 1
+            _vm.currentStep < 5 && _vm.currentStep > 1
               ? _c(
                   "div",
                   { staticClass: "d-flex justify-content-start flex-grow-1" },

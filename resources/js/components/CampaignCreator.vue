@@ -223,26 +223,30 @@
                     </div>
                     <div class="form-group row">
                       <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
-                      <div class="col-sm-8">
+                      <div class="col-sm-8 text-center">
                         <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="displayUrl" />
+                        <small class="text-danger" v-if="displayUrl && !displayUrlState">URL is invalid. You might need http/https at the beginning.</small>
                       </div>
                     </div>
                     <div class="form-group row">
                       <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
-                      <div class="col-sm-8">
+                      <div class="col-sm-8 text-center">
                         <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="targetUrl" />
+                        <small class="text-danger" v-if="targetUrl && !targetUrlState">URL is invalid. You might need http/https at the beginning.</small>
                       </div>
                     </div>
                     <div class="form-group row">
                       <label for="image_hq_url" class="col-sm-4 control-label mt-2">Image HQ URL</label>
-                      <div class="col-sm-8">
+                      <div class="col-sm-8 text-center">
                         <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="imageUrlHQ" />
+                        <small class="text-danger" v-if="imageUrlHQ && !imageUrlHQState">URL is invalid. You might need http/https at the beginning.</small>
                       </div>
                     </div>
                     <div class="form-group row">
                       <label for="image_url" class="col-sm-4 control-label mt-2">Image URL</label>
-                      <div class="col-sm-8">
+                      <div class="col-sm-8 text-center">
                         <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="imageUrl" />
+                        <small class="text-danger" v-if="imageUrl && !imageUrlState">URL is invalid. You might need http/https at the beginning.</small>
                       </div>
                     </div>
                   </div>
@@ -312,7 +316,7 @@
             </div>
           </div>
           <div class="card-footer d-flex justify-content-end">
-            <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 4 && currentStep > 1">
+            <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 1">
