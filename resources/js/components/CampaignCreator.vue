@@ -1,5 +1,8 @@
 <template>
   <div class="container">
+    <div class="vld-parent">
+      <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+    </div>
     <div class="row justify-content-center">
       <div class="col-md-12">
         <div class="card">
@@ -340,8 +343,11 @@
 
 <script>
 import _ from 'lodash'
-import Select2 from 'v-select2-component';
+import Select2 from 'v-select2-component'
+import Loading from 'vue-loading-overlay'
 import axios from 'axios'
+
+import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
   props: {
@@ -359,6 +365,7 @@ export default {
     }
   },
   components: {
+    Loading,
     Select2
   },
   computed: {
@@ -435,6 +442,8 @@ export default {
   },
   data() {
     return {
+      isLoading: false,
+      fullPage: true,
       postData: {},
       currentStep: 1,
       saveAdvertiser: true,
@@ -484,6 +493,7 @@ export default {
       return !!pattern.test(str);
     },
     loadPreview() {
+      this.isLoading = true
       axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
         title: this.title,
         displayUrl: this.displayUrl,
@@ -497,6 +507,8 @@ export default {
         this.previewData = response.data.replace('height="800"', 'height="450"').replace('width="400"', 'width="100%"')
       }).catch(err => {
         console.log(err)
+      }).finally(() => {
+        this.isLoading = false
       })
     },
     selectedAccountChanged() {
@@ -505,6 +517,7 @@ export default {
       this.getAdvertisers()
     },
     getLanguages() {
+      this.isLoading = true
       axios.get(`/general/languages?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
         this.languages = response.data.response.map(language => {
           return {
@@ -514,9 +527,12 @@ export default {
         })
       }).catch(err => {
         console.log(err)
+      }).finally(() => {
+        this.isLoading = false
       })
     },
     getCountries() {
+      this.isLoading = true
       axios.get(`/general/countries?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
         this.countries = response.data.response.map(country => {
           return {
@@ -526,6 +542,8 @@ export default {
         })
       }).catch(err => {
         console.log(err)
+      }).finally(() => {
+        this.isLoading = false
       })
     },
     removeAttibute(index) {
@@ -540,16 +558,20 @@ export default {
     },
     getAdvertisers() {
       if (this.selectedAccount) {
+        this.isLoading = true
         axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
           this.advertisers = response.data.response
         }).catch(err => {
           console.log(err)
+        }).finally(() => {
+          this.isLoading = false
         })
       } else {
         this.advertisers = []
       }
     },
     signUp() {
+      this.isLoading = true
       axios.post('/account/sign-up', {
         provider: this.selectedProvider,
         account: this.selectedAccount,
@@ -561,6 +583,8 @@ export default {
         this.getAdvertisers()
       }).catch(err => {
         console.log(err)
+      }).finally(() => {
+        this.isLoading = false
       })
     },
     submitStep1() {
@@ -614,6 +638,7 @@ export default {
       this.currentStep = 4
     },
     submitStep4() {
+      this.isLoading = true
       axios.post('/campaigns', this.postData).then(response => {
         if (response.data.errors) {
           alert(response.data.errors[0])
@@ -622,6 +647,8 @@ export default {
         }
       }).catch(error => {
         console.log(error)
+      }).finally(() => {
+        this.isLoading = false
       })
     }
   }

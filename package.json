@@ -25,6 +25,7 @@
     },
     "dependencies": {
         "v-select2-component": "^0.4.3",
-        "vue": "^2.6.12"
+        "vue": "^2.6.12",
+        "vue-loading-overlay": "^3.4.1"
     }
 }
