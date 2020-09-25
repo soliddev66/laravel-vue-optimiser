@@ -240,16 +240,28 @@
                     </div>
                     <div class="form-group row">
                       <label for="image_hq_url" class="col-sm-4 control-label mt-2">Image HQ URL</label>
-                      <div class="col-sm-8 text-center">
+                      <div class="col-sm-8">
                         <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="imageUrlHQ" />
+                      </div>
+                      <div class="col-sm-8 offset-sm-4">
+                        <input type="file" ref="imageHQ" @change="selectedHQFile" accept="image/*">
+                      </div>
+                      <div class="col-sm-8 offset-sm-4 text-center">
                         <small class="text-danger" v-if="imageUrlHQ && !imageUrlHQState">URL is invalid. You might need http/https at the beginning.</small>
+                        <small class="text-danger" v-if="imageHQ.size && !imageHQState">Image is invalid. You might need an 1200x627 image.</small>
                       </div>
                     </div>
                     <div class="form-group row">
                       <label for="image_url" class="col-sm-4 control-label mt-2">Image URL</label>
-                      <div class="col-sm-8 text-center">
+                      <div class="col-sm-8">
                         <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="imageUrl" />
+                      </div>
+                      <div class="col-sm-8 offset-sm-4">
+                        <input type="file" ref="image" @change="selectedFile" accept="image/*">
+                      </div>
+                      <div class="col-sm-8 offset-sm-4 text-center">
                         <small class="text-danger" v-if="imageUrl && !imageUrlState">URL is invalid. You might need http/https at the beginning.</small>
+                        <small class="text-danger" v-if="image.size && !imageState">Image is invalid. You might need an 627x627 image.</small>
                       </div>
                     </div>
                   </div>
@@ -406,10 +418,16 @@ export default {
       return this.targetUrl !== '' && this.validURL(this.targetUrl)
     },
     imageUrlHQState() {
-      return this.imageUrlHQ !== '' && this.validURL(this.imageUrlHQ)
+      return (this.imageUrlHQ !== '' && this.validURL(this.imageUrlHQ)) || this.imageHQState
+    },
+    imageHQState() {
+      return this.imageHQ.size !== '' && this.validSize(this.imageHQ, 'HQ')
     },
     imageUrlState() {
-      return this.imageUrl !== '' && this.validURL(this.imageUrl)
+      return (this.imageUrl !== '' && this.validURL(this.imageUrl)) || this.imageState
+    },
+    imageState() {
+      return this.image.size !== '' && this.validSize(this.image, '')
     }
   },
   mounted() {
@@ -477,7 +495,17 @@ export default {
       description: '',
       brandname: '',
       imageUrlHQ: '',
+      imageHQ: {
+        size: '',
+        height: '',
+        width: ''
+      },
       imageUrl: '',
+      image: {
+        size: '',
+        height: '',
+        width: ''
+      },
       previewData: '',
       attributes: []
     }
@@ -491,6 +519,82 @@ export default {
         '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
         '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
       return !!pattern.test(str);
+    },
+    validSize(image, type) {
+      if (type === 'HQ') {
+        if (image.width === 1200 && image.height === 627) {
+          return true;
+        }
+      } else {
+        if (image.width === 627 && image.height === 627) {
+          return true
+        }
+      }
+      return false;
+    },
+    selectedHQFile() {
+      let file = this.$refs.imageHQ.files[0];
+      if (!file || file.type.indexOf('image/') !== 0) return;
+      this.imageHQ.size = file.size;
+      let reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = evt => {
+        let img = new Image();
+        img.onload = () => {
+          this.imageHQ.width = img.width;
+          this.imageHQ.height = img.height;
+          if (this.validSize(this.imageHQ, 'HQ')) {
+            let formData = new FormData();
+            formData.append('file', this.$refs.imageHQ.files[0]);
+            axios.post('/general/upload-files', formData, {
+                headers: {
+                  'Content-Type': 'multipart/form-data'
+                }
+              }).then((response) => {
+                this.imageUrlHQ = response.data.path.replace('public', 'storage')
+              })
+              .catch((err) => {
+                alert(err);
+              });
+          }
+        }
+        img.src = evt.target.result;
+      }
+      reader.onerror = evt => {
+        console.error(evt);
+      }
+    },
+    selectedFile() {
+      let file = this.$refs.image.files[0];
+      if (!file || file.type.indexOf('image/') !== 0) return;
+      this.image.size = file.size;
+      let reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = evt => {
+        let img = new Image();
+        img.onload = () => {
+          this.image.width = img.width;
+          this.image.height = img.height;
+          if (this.validSize(this.image, '')) {
+            let formData = new FormData();
+            formData.append('file', this.$refs.image.files[0]);
+            axios.post('/general/upload-files', formData, {
+                headers: {
+                  'Content-Type': 'multipart/form-data'
+                }
+              }).then((response) => {
+                this.imageUrl = response.data.path.replace('public', 'storage')
+              })
+              .catch((err) => {
+                alert(err);
+              });
+          }
+        }
+        img.src = evt.target.result;
+      }
+      reader.onerror = evt => {
+        console.error(evt);
+      }
     },
     loadPreview() {
       this.isLoading = true

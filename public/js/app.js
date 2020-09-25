@@ -2367,6 +2367,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -2429,10 +2441,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       return this.targetUrl !== '' && this.validURL(this.targetUrl);
     },
     imageUrlHQState: function imageUrlHQState() {
-      return this.imageUrlHQ !== '' && this.validURL(this.imageUrlHQ);
+      return this.imageUrlHQ !== '' && this.validURL(this.imageUrlHQ) || this.imageHQState;
+    },
+    imageHQState: function imageHQState() {
+      return this.imageHQ.size !== '' && this.validSize(this.imageHQ, 'HQ');
     },
     imageUrlState: function imageUrlState() {
-      return this.imageUrl !== '' && this.validURL(this.imageUrl);
+      return this.imageUrl !== '' && this.validURL(this.imageUrl) || this.imageState;
+    },
+    imageState: function imageState() {
+      return this.image.size !== '' && this.validSize(this.image, '');
     }
   },
   mounted: function mounted() {
@@ -2500,7 +2518,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       description: '',
       brandname: '',
       imageUrlHQ: '',
+      imageHQ: {
+        size: '',
+        height: '',
+        width: ''
+      },
       imageUrl: '',
+      image: {
+        size: '',
+        height: '',
+        width: ''
+      },
       previewData: '',
       attributes: []
     };
@@ -2516,8 +2544,97 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       return !!pattern.test(str);
     },
-    loadPreview: function loadPreview() {
+    validSize: function validSize(image, type) {
+      if (type === 'HQ') {
+        if (image.width === 1200 && image.height === 627) {
+          return true;
+        }
+      } else {
+        if (image.width === 627 && image.height === 627) {
+          return true;
+        }
+      }
+
+      return false;
+    },
+    selectedHQFile: function selectedHQFile() {
       var _this = this;
+
+      var file = this.$refs.imageHQ.files[0];
+      if (!file || file.type.indexOf('image/') !== 0) return;
+      this.imageHQ.size = file.size;
+      var reader = new FileReader();
+      reader.readAsDataURL(file);
+
+      reader.onload = function (evt) {
+        var img = new Image();
+
+        img.onload = function () {
+          _this.imageHQ.width = img.width;
+          _this.imageHQ.height = img.height;
+
+          if (_this.validSize(_this.imageHQ, 'HQ')) {
+            var formData = new FormData();
+            formData.append('file', _this.$refs.imageHQ.files[0]);
+            axios__WEBPACK_IMPORTED_MODULE_3___default.a.post('/general/upload-files', formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            }).then(function (response) {
+              _this.imageUrlHQ = response.data.path.replace('public', 'storage');
+            })["catch"](function (err) {
+              alert(err);
+            });
+          }
+        };
+
+        img.src = evt.target.result;
+      };
+
+      reader.onerror = function (evt) {
+        console.error(evt);
+      };
+    },
+    selectedFile: function selectedFile() {
+      var _this2 = this;
+
+      var file = this.$refs.image.files[0];
+      if (!file || file.type.indexOf('image/') !== 0) return;
+      this.image.size = file.size;
+      var reader = new FileReader();
+      reader.readAsDataURL(file);
+
+      reader.onload = function (evt) {
+        var img = new Image();
+
+        img.onload = function () {
+          _this2.image.width = img.width;
+          _this2.image.height = img.height;
+
+          if (_this2.validSize(_this2.image, '')) {
+            var formData = new FormData();
+            formData.append('file', _this2.$refs.image.files[0]);
+            axios__WEBPACK_IMPORTED_MODULE_3___default.a.post('/general/upload-files', formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            }).then(function (response) {
+              _this2.imageUrl = response.data.path.replace('public', 'storage');
+            })["catch"](function (err) {
+              alert(err);
+            });
+          }
+        };
+
+        img.src = evt.target.result;
+      };
+
+      reader.onerror = function (evt) {
+        console.error(evt);
+      };
+    },
+    loadPreview: function loadPreview() {
+      var _this3 = this;
 
       this.isLoading = true;
       axios__WEBPACK_IMPORTED_MODULE_3___default.a.post("/general/preview?provider=".concat(this.selectedProvider, "&account=").concat(this.selectedAccount), {
@@ -2530,11 +2647,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         imageUrl: this.imageUrl,
         campaignLanguage: this.campaignLanguage
       }).then(function (response) {
-        _this.previewData = response.data.replace('height="800"', 'height="450"').replace('width="400"', 'width="100%"');
+        _this3.previewData = response.data.replace('height="800"', 'height="450"').replace('width="400"', 'width="100%"');
       })["catch"](function (err) {
         console.log(err);
       })["finally"](function () {
-        _this.isLoading = false;
+        _this3.isLoading = false;
       });
     },
     selectedAccountChanged: function selectedAccountChanged() {
@@ -2543,11 +2660,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.getAdvertisers();
     },
     getLanguages: function getLanguages() {
-      var _this2 = this;
+      var _this4 = this;
 
       this.isLoading = true;
       axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/general/languages?provider=".concat(this.selectedProvider, "&account=").concat(this.selectedAccount)).then(function (response) {
-        _this2.languages = response.data.response.map(function (language) {
+        _this4.languages = response.data.response.map(function (language) {
           return {
             id: language.value,
             text: language.name.toUpperCase()
@@ -2556,15 +2673,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       })["catch"](function (err) {
         console.log(err);
       })["finally"](function () {
-        _this2.isLoading = false;
+        _this4.isLoading = false;
       });
     },
     getCountries: function getCountries() {
-      var _this3 = this;
+      var _this5 = this;
 
       this.isLoading = true;
       axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/general/countries?provider=".concat(this.selectedProvider, "&account=").concat(this.selectedAccount)).then(function (response) {
-        _this3.countries = response.data.response.map(function (country) {
+        _this5.countries = response.data.response.map(function (country) {
           return {
             id: country.woeid,
             text: country.name
@@ -2573,7 +2690,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       })["catch"](function (err) {
         console.log(err);
       })["finally"](function () {
-        _this3.isLoading = false;
+        _this5.isLoading = false;
       });
     },
     removeAttibute: function removeAttibute(index) {
@@ -2587,23 +2704,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       });
     },
     getAdvertisers: function getAdvertisers() {
-      var _this4 = this;
+      var _this6 = this;
 
       if (this.selectedAccount) {
         this.isLoading = true;
         axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/account/advertisers?provider=".concat(this.selectedProvider, "&account=").concat(this.selectedAccount)).then(function (response) {
-          _this4.advertisers = response.data.response;
+          _this6.advertisers = response.data.response;
         })["catch"](function (err) {
           console.log(err);
         })["finally"](function () {
-          _this4.isLoading = false;
+          _this6.isLoading = false;
         });
       } else {
         this.advertisers = [];
       }
     },
     signUp: function signUp() {
-      var _this5 = this;
+      var _this7 = this;
 
       this.isLoading = true;
       axios__WEBPACK_IMPORTED_MODULE_3___default.a.post('/account/sign-up', {
@@ -2612,14 +2729,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         name: this.advertiserName
       }).then(function (response) {
         alert('New advertiser has been saved!');
-        _this5.advertiserName = '';
-        _this5.saveAdvertiser = true;
+        _this7.advertiserName = '';
+        _this7.saveAdvertiser = true;
 
-        _this5.getAdvertisers();
+        _this7.getAdvertisers();
       })["catch"](function (err) {
         console.log(err);
       })["finally"](function () {
-        _this5.isLoading = false;
+        _this7.isLoading = false;
       });
     },
     submitStep1: function submitStep1() {
@@ -2673,7 +2790,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.currentStep = 4;
     },
     submitStep4: function submitStep4() {
-      var _this6 = this;
+      var _this8 = this;
 
       this.isLoading = true;
       axios__WEBPACK_IMPORTED_MODULE_3___default.a.post('/campaigns', this.postData).then(function (response) {
@@ -2685,7 +2802,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       })["catch"](function (error) {
         console.log(error);
       })["finally"](function () {
-        _this6.isLoading = false;
+        _this8.isLoading = false;
       });
     }
   }
@@ -47983,36 +48100,53 @@ var render = function() {
                                 [_vm._v("Image HQ URL")]
                               ),
                               _vm._v(" "),
+                              _c("div", { staticClass: "col-sm-8" }, [
+                                _c("input", {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: _vm.imageUrlHQ,
+                                      expression: "imageUrlHQ"
+                                    }
+                                  ],
+                                  staticClass: "form-control",
+                                  attrs: {
+                                    type: "text",
+                                    name: "image_hq_url",
+                                    placeholder: "Enter a url"
+                                  },
+                                  domProps: { value: _vm.imageUrlHQ },
+                                  on: {
+                                    input: function($event) {
+                                      if ($event.target.composing) {
+                                        return
+                                      }
+                                      _vm.imageUrlHQ = $event.target.value
+                                    }
+                                  }
+                                })
+                              ]),
+                              _vm._v(" "),
                               _c(
                                 "div",
-                                { staticClass: "col-sm-8 text-center" },
+                                { staticClass: "col-sm-8 offset-sm-4" },
                                 [
                                   _c("input", {
-                                    directives: [
-                                      {
-                                        name: "model",
-                                        rawName: "v-model",
-                                        value: _vm.imageUrlHQ,
-                                        expression: "imageUrlHQ"
-                                      }
-                                    ],
-                                    staticClass: "form-control",
-                                    attrs: {
-                                      type: "text",
-                                      name: "image_hq_url",
-                                      placeholder: "Enter a url"
-                                    },
-                                    domProps: { value: _vm.imageUrlHQ },
-                                    on: {
-                                      input: function($event) {
-                                        if ($event.target.composing) {
-                                          return
-                                        }
-                                        _vm.imageUrlHQ = $event.target.value
-                                      }
-                                    }
-                                  }),
-                                  _vm._v(" "),
+                                    ref: "imageHQ",
+                                    attrs: { type: "file", accept: "image/*" },
+                                    on: { change: _vm.selectedHQFile }
+                                  })
+                                ]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "div",
+                                {
+                                  staticClass:
+                                    "col-sm-8 offset-sm-4 text-center"
+                                },
+                                [
                                   _vm.imageUrlHQ && !_vm.imageUrlHQState
                                     ? _c(
                                         "small",
@@ -48020,6 +48154,18 @@ var render = function() {
                                         [
                                           _vm._v(
                                             "URL is invalid. You might need http/https at the beginning."
+                                          )
+                                        ]
+                                      )
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  _vm.imageHQ.size && !_vm.imageHQState
+                                    ? _c(
+                                        "small",
+                                        { staticClass: "text-danger" },
+                                        [
+                                          _vm._v(
+                                            "Image is invalid. You might need an 1200x627 image."
                                           )
                                         ]
                                       )
@@ -48038,36 +48184,53 @@ var render = function() {
                                 [_vm._v("Image URL")]
                               ),
                               _vm._v(" "),
+                              _c("div", { staticClass: "col-sm-8" }, [
+                                _c("input", {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: _vm.imageUrl,
+                                      expression: "imageUrl"
+                                    }
+                                  ],
+                                  staticClass: "form-control",
+                                  attrs: {
+                                    type: "text",
+                                    name: "image_url",
+                                    placeholder: "Enter a url"
+                                  },
+                                  domProps: { value: _vm.imageUrl },
+                                  on: {
+                                    input: function($event) {
+                                      if ($event.target.composing) {
+                                        return
+                                      }
+                                      _vm.imageUrl = $event.target.value
+                                    }
+                                  }
+                                })
+                              ]),
+                              _vm._v(" "),
                               _c(
                                 "div",
-                                { staticClass: "col-sm-8 text-center" },
+                                { staticClass: "col-sm-8 offset-sm-4" },
                                 [
                                   _c("input", {
-                                    directives: [
-                                      {
-                                        name: "model",
-                                        rawName: "v-model",
-                                        value: _vm.imageUrl,
-                                        expression: "imageUrl"
-                                      }
-                                    ],
-                                    staticClass: "form-control",
-                                    attrs: {
-                                      type: "text",
-                                      name: "image_url",
-                                      placeholder: "Enter a url"
-                                    },
-                                    domProps: { value: _vm.imageUrl },
-                                    on: {
-                                      input: function($event) {
-                                        if ($event.target.composing) {
-                                          return
-                                        }
-                                        _vm.imageUrl = $event.target.value
-                                      }
-                                    }
-                                  }),
-                                  _vm._v(" "),
+                                    ref: "image",
+                                    attrs: { type: "file", accept: "image/*" },
+                                    on: { change: _vm.selectedFile }
+                                  })
+                                ]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "div",
+                                {
+                                  staticClass:
+                                    "col-sm-8 offset-sm-4 text-center"
+                                },
+                                [
                                   _vm.imageUrl && !_vm.imageUrlState
                                     ? _c(
                                         "small",
@@ -48075,6 +48238,18 @@ var render = function() {
                                         [
                                           _vm._v(
                                             "URL is invalid. You might need http/https at the beginning."
+                                          )
+                                        ]
+                                      )
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  _vm.image.size && !_vm.imageState
+                                    ? _c(
+                                        "small",
+                                        { staticClass: "text-danger" },
+                                        [
+                                          _vm._v(
+                                            "Image is invalid. You might need an 627x627 image."
                                           )
                                         ]
                                       )
@@ -61199,14 +61374,15 @@ __webpack_require__.r(__webpack_exports__);
 /*!*****************************************************!*\
   !*** ./resources/js/components/CampaignCreator.vue ***!
   \*****************************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CampaignCreator_vue_vue_type_template_id_08f6f361___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./CampaignCreator.vue?vue&type=template&id=08f6f361& */ "./resources/js/components/CampaignCreator.vue?vue&type=template&id=08f6f361&");
 /* harmony import */ var _CampaignCreator_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CampaignCreator.vue?vue&type=script&lang=js& */ "./resources/js/components/CampaignCreator.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _CampaignCreator_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CampaignCreator.vue?vue&type=style&index=0&lang=css& */ "./resources/js/components/CampaignCreator.vue?vue&type=style&index=0&lang=css&");
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _CampaignCreator_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _CampaignCreator_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+/* harmony import */ var _CampaignCreator_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CampaignCreator.vue?vue&type=style&index=0&lang=css& */ "./resources/js/components/CampaignCreator.vue?vue&type=style&index=0&lang=css&");
 /* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
@@ -61238,7 +61414,7 @@ component.options.__file = "resources/js/components/CampaignCreator.vue"
 /*!******************************************************************************!*\
   !*** ./resources/js/components/CampaignCreator.vue?vue&type=script&lang=js& ***!
   \******************************************************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

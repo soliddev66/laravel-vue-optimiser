@@ -121,4 +121,13 @@ class GeneralController extends Controller
 
         return json_decode($response->getBody(), true);
     }
+
+    public function uploadFiles()
+    {
+        $path = request()->file('file')->store('public/images');
+
+        return response()->json([
+            'path' => env('APP_URL') . '/' . $path
+        ]);
+    }
 }

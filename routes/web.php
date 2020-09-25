@@ -28,6 +28,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'general'], function() {
     Route::get('/languages', [App\Http\Controllers\GeneralController::class, 'languages'])->name('general.languages');
     Route::get('/countries', [App\Http\Controllers\GeneralController::class, 'countries'])->name('general.countries');
     Route::post('/preview', [App\Http\Controllers\GeneralController::class, 'preview'])->name('general.preview');
+    Route::post('/upload-files', [App\Http\Controllers\GeneralController::class, 'uploadFiles'])->name('general.upload_files');
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
