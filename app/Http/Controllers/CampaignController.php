@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Campaign;
 use App\Models\Provider;
 use Carbon\Carbon;
 use Exception;
@@ -13,22 +14,21 @@ class CampaignController extends Controller
 {
     public function index()
     {
-        $campaigns = [];
-        foreach (auth()->user()->providers as $key => $provider) {
-            try {
-                $data = $this->getCampaigns($provider);
-                $campaigns += $data['response'];
-            } catch (Exception $e) {
-                if ($e->getCode() == 401) {
-                    Token::refresh($provider, function() use ($provider, &$campaigns) {
-                        $data = $this->getCampaigns($provider);
-                        $campaigns += $data['response'];
-                    });
-                }
-            }
-        }
+        $campaigns = Campaign::with('redtrackReport')->get();
 
         return view('campaigns.index', compact('campaigns'));
+    }
+
+    public function search()
+    {
+        $end = Carbon::now()->format('Y-m-d');
+        $campaigns = Campaign::with(['redtrackReport' => function($q) use ($end) {
+            $q->whereBetween('date', [request('start'), !request('end') ? $end : request('end')]);
+        }])->get();
+
+        return response()->json([
+            'campaigns' => $campaigns
+        ]);
     }
 
     private function getCampaigns($provider)

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Campaign;
 use App\Models\Provider;
 use App\Models\Tracker;
 use App\Models\UserProvider;
@@ -66,5 +67,10 @@ class User extends Authenticatable
     public function trackers()
     {
         return $this->hasMany(UserTracker::class);
+    }
+
+    public function campaigns()
+    {
+        return $this->hasMany(Campaign::class);
     }
 }
