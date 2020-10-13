@@ -35,6 +35,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/', [App\Http\Controllers\CampaignController::class, 'index'])->name('campaigns.index');
     Route::post('/', [App\Http\Controllers\CampaignController::class, 'store'])->name('campaigns.store');
     Route::get('/create', [App\Http\Controllers\CampaignController::class, 'create'])->name('campaigns.create');
+    Route::get('/update/{id}', [App\Http\Controllers\CampaignController::class, 'update'])->name('campaigns.update');
 });
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

@@ -7,7 +7,7 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <label class="p-2" :class="{ 'bg-primary': currentStep === 1 }">Create Campaign</label>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 1 }">Campaign</label>
             <i class="fas fa-arrow-right"></i>
             <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">Add Contents</label>
             <i class="fas fa-arrow-right"></i>
@@ -371,6 +371,14 @@ export default {
       type: Array,
       default: []
     },
+    instance: {
+      type: Array,
+      default: []
+    },
+    action: {
+        type: String,
+        default: 'create'
+    },
     step: {
       type: Number,
       default: 1
@@ -471,7 +479,7 @@ export default {
       countries: [],
       advertisers: [],
       selectedProvider: 'yahoo',
-      selectedAccount: '',
+      selectedAccount: this.instance.open_id,
       selectedAdvertiser: '',
       campaignName: '',
       campaignType: 'SEARCH_AND_NATIVE',

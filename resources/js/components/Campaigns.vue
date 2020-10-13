@@ -31,7 +31,11 @@
               <tbody>
                 <tr v-for="campaign in campaigns">
                   <td>{{ campaign.id }}</td>
-                  <td></td>
+                  <td>
+                    <a>Show</a>
+                    <a :href="'/campaigns/update/' + campaign.id">Update</a>
+                    <a :href="'/campaigns/delete/' + campaign.id">Delete</a>
+                  </td>
                   <td>{{ campaign.id }}</td>
                   <td>{{ campaign.campaignName }}</td>
                   <td>{{ campaign.status }}</td>

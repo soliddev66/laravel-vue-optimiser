@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Provider;
+use App\Models\Campaign;
+
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
@@ -31,6 +33,18 @@ class CampaignController extends Controller
         return view('campaigns.index', compact('campaigns'));
     }
 
+    private function getCampaign($user_info, $campaign_id)
+    {
+        $client = new Client();
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/campaign/' . $campaign_id, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+        return json_decode($response->getBody(), true)['response'];
+    }
+
     private function getCampaigns($provider)
     {
         $client = new Client();
@@ -45,7 +59,40 @@ class CampaignController extends Controller
 
     public function create()
     {
-        return view('campaigns.create');
+        return view('campaigns.form');
+    }
+
+    public function update($id)
+    {
+        $campaign = Campaign::where('code', $id)->first();
+
+        if (!$campaign) {
+            return;
+        }
+
+        $provider = Provider::find($campaign['provider_id'])->first();
+
+        $user_info = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
+
+        if (!$user_info) {
+            return;
+        }
+
+        try {
+            $instance = $this->getCampaign($user_info, $id);
+        } catch (Exception $e) {
+            if ($e->getCode() == 401) {
+                Token::refresh($user_info, function() use ($user_info, $id, &$instance) {
+                    $instance = $this->getCampaign($user_info, $id);
+                });
+            } else {
+                return;
+            }
+        }
+
+        $instance['open_id'] = $campaign['open_id'];
+
+        return view('campaigns.form', compact('instance', 'provider'));
     }
 
     public function store()
@@ -94,6 +141,16 @@ class CampaignController extends Controller
         $client = new Client();
         $campaign_data = $this->createAdCampaign($client, $user_info);
         $ad_group_data = $this->createAdGroup($client, $user_info, $campaign_data);
+
+        $campaign = new Campaign;
+
+        $campaign->code = $campaign_data['response']['id'];
+
+        $campaign->provider_id = $provider->id;
+        $campaign->open_id = $user_info->open_id;
+
+        $campaign->save();
+
         $ad = $this->createAd($client, $user_info, $campaign_data, $ad_group_data);
         $this->createAttributes($client, $user_info, $campaign_data);
 
