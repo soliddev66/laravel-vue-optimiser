@@ -279,6 +279,7 @@ return [
             'text' => 'Account Wizard',
             'icon' => 'fas fa-magic',
             'url' => 'account-wizard?step=1',
+            'active' => ['account-wizard*'],
         ],
         [
             'text' => 'Traffic Sources',

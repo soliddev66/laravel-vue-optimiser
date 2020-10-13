@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\PullCampaign;
 use App\Models\Provider;
 use App\Models\Tracker;
 use App\Models\UserProvider;
@@ -10,8 +11,8 @@ use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Token;
 use Laravel\Socialite\Facades\Socialite;
+use Token;
 
 class AccountController extends Controller
 {
@@ -128,6 +129,7 @@ class AccountController extends Controller
                 'email' => $tracker_user['email'],
                 'name' => $tracker_user['firstname'] . ' ' . $tracker_user['lastname']
             ]);
+            $this->pullCampaign();
 
             return redirect('account-wizard?step=3');
         }
@@ -162,7 +164,13 @@ class AccountController extends Controller
         if (session('use_tracker')) {
             return redirect('account-wizard?step=2');
         } else {
+            $this->pullCampaign();
             return redirect('account-wizard?step=3');
         }
+    }
+
+    private function pullCampaign()
+    {
+        return PullCampaign::dispatch(auth()->user());
     }
 }
