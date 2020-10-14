@@ -8,8 +8,8 @@
 
 @section('content')
     <campaign-creator
-        :instance="{{ json_encode($instance ?? '[]') }}"
-        :provider="{{ json_encode($provider ?? '[]') }}"
+        :instance="{{ json_encode($instance ?? null) }}"
+        :provider="{{ json_encode($provider ?? null) }}"
         :action="{{ request()->route()->getActionMethod() }}"
         :providers="{{ App\Models\Provider::all() }}"
         :trackers="{{ App\Models\Tracker::all() }}"

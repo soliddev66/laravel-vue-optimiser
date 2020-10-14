@@ -372,8 +372,8 @@ export default {
       default: []
     },
     instance: {
-      type: Array,
-      default: []
+      type: Object,
+      default: null
     },
     action: {
         type: String,
@@ -441,6 +441,9 @@ export default {
   mounted() {
     console.log('Component mounted.')
     this.currentStep = this.step
+    this.getLanguages()
+    this.getCountries()
+    this.getAdvertisers()
     console.log(this.providers)
   },
   watch: {
@@ -479,21 +482,21 @@ export default {
       countries: [],
       advertisers: [],
       selectedProvider: 'yahoo',
-      selectedAccount: this.instance.open_id,
-      selectedAdvertiser: '',
-      campaignName: '',
-      campaignType: 'SEARCH_AND_NATIVE',
-      campaignLanguage: 'en',
+      selectedAccount: this.instance ? this.instance.open_id : '',
+      selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
+      campaignName: this.instance ? this.instance.campaignName : '',
+      campaignType: this.instance ? this.instance.channel : 'SEARCH_AND_NATIVE',
+      campaignLanguage: this.instance ? this.instance.language : 'en',
       campaignLocation: [],
       campaignGender: '',
       campaignAge: '',
       campaignDevice: '',
-      campaignBudget: '',
+      campaignBudget: this.instance ? this.instance.budget : '',
       campaignStartDate: '',
       campaignEndDate: '',
-      campaignBudgetType: 'DAILY',
-      campaignStrategy: 'OPT_ENHANCED_CPC',
-      campaignConversionCounting: 'ALL_PER_INTERACTION',
+      campaignBudgetType: this.instance ? this.instance.budgetType : 'DAILY',
+      campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_ENHANCED_CPC',
+      campaignConversionCounting: this.instance ? this.instance.conversionRuleConfig.conversionCounting : 'ALL_PER_INTERACTION',
       adGroupName: '',
       bidAmount: '0.05',
       scheduleType: 'IMMEDIATELY',

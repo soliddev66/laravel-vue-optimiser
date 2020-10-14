@@ -40,7 +40,7 @@
                   <td>{{ campaign.id }}</td>
                   <td>
                     <a>Show</a>
-                    <a :href="'/campaigns/update/' + campaign.id">Update</a>
+                    <a :href="'/campaigns/edit/' + campaign.id">Update</a>
                     <a :href="'/campaigns/delete/' + campaign.id">Delete</a>
                   </td>
                   <td>{{ campaign.campaign_id }}</td>

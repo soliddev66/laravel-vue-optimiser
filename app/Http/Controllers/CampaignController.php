@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Campaign;
 use App\Models\Provider;
-use App\Models\Campaign;
 
 use Carbon\Carbon;
 use Exception;
@@ -30,6 +29,7 @@ class CampaignController extends Controller
                 'Content-Type' => 'application/json'
             ]
         ]);
+
         return json_decode($response->getBody(), true)['response'];
     }
 
@@ -54,6 +54,7 @@ class CampaignController extends Controller
                 'Content-Type' => 'application/json'
             ]
         ]);
+
         return json_decode($response->getBody(), true);
     }
 
@@ -62,28 +63,18 @@ class CampaignController extends Controller
         return view('campaigns.form');
     }
 
-    public function update($id)
+    public function edit(Campaign $campaign)
     {
-        $campaign = Campaign::where('code', $id)->first();
-
-        if (!$campaign) {
-            return;
-        }
-
-        $provider = Provider::find($campaign['provider_id'])->first();
-
         $user_info = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
 
-        if (!$user_info) {
-            return;
-        }
+        $provider = $campaign->provider;
 
         try {
-            $instance = $this->getCampaign($user_info, $id);
+            $instance = $this->getCampaign($user_info, $campaign->campaign_id);
         } catch (Exception $e) {
             if ($e->getCode() == 401) {
-                Token::refresh($user_info, function() use ($user_info, $id, &$instance) {
-                    $instance = $this->getCampaign($user_info, $id);
+                Token::refresh($user_info, function() use ($user_info, $campaign, &$instance) {
+                    $instance = $this->getCampaign($user_info, $campaign->campaign_id);
                 });
             } else {
                 return;

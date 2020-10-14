@@ -40,6 +40,8 @@ class CreateCampaignsTable extends Migration
             $table->string('is_deep_link')->nullable();
             $table->string('created_date')->nullable();
             $table->string('last_update_date')->nullable();
+            $table->integer('provider_id')->nullable();
+            $table->string('open_id')->nullable();
             $table->timestamps();
         });
     }
