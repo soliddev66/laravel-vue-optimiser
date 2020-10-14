@@ -143,12 +143,11 @@ class CampaignController extends Controller
         $campaign_data = $this->createAdCampaign($client, $user_info);
         $ad_group_data = $this->createAdGroup($client, $user_info, $campaign_data);
 
-        $campaign = new Campaign;
-
-        $campaign->code = $campaign_data['response']['id'];
-
-        $campaign->provider_id = $provider->id;
-        $campaign->open_id = $user_info->open_id;
+        Campaign::firstOrNew([
+            'campaign_id' => $campaign_data['response']['id'],
+            'provider_id' => $provider->id,
+            'open_id' => $user_info->open_id
+        ]);
 
         $campaign->save();
 

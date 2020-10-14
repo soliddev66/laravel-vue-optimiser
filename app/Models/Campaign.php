@@ -38,8 +38,7 @@ class Campaign extends Model
         'sub_channel',
         'editorial_status',
         'is_deep_link',
-        'tag_id'
-
+        'tag_id',
         'provider_id',
         'open_id'
     ];
