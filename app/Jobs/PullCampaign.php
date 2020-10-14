@@ -38,12 +38,12 @@ class PullCampaign implements ShouldQueue
         foreach ($this->user->providers as $key => $provider) {
             try {
                 $data = $this->getCampaigns($provider);
-                $this->saveCampaigns($data['response']);
+                $this->saveCampaigns($data['response'], $provider);
             } catch (Exception $e) {
                 if ($e->getCode() == 401) {
                     Token::refresh($provider, function () use ($provider) {
                         $data = $this->getCampaigns($provider);
-                        $this->saveCampaigns($data['response']);
+                        $this->saveCampaigns($data['response'], $provider);
                     });
                 }
             }
@@ -63,7 +63,7 @@ class PullCampaign implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private function saveCampaigns($campaigns)
+    private function saveCampaigns($campaigns, $provider)
     {
         foreach ($campaigns as $key => $campaign) {
             $data = collect($campaign)->keyBy(function ($value, $key) {
@@ -71,6 +71,8 @@ class PullCampaign implements ShouldQueue
             });
             $data['user_id'] = $this->user->id;
             $data['campaign_id'] = $data['id'];
+            $data['provider_id'] = $provider->id;
+            $data['open_id'] = $provider->open_id;
             $data['name'] = $data['campaign_name'];
             $data = $data->toArray();
             unset($data['campaign_name']);

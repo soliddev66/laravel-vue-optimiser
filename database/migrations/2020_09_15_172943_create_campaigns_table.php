@@ -15,7 +15,9 @@ class CreateCampaignsTable extends Migration
     {
         Schema::create('campaigns', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id');
+            $table->integer('user_id')->unsigned();
+            $table->integer('provider_id')->unsigned();
+            $table->string('open_id')->nullable();
             $table->string('campaign_id')->nullable();
             $table->string('name')->nullable();
             $table->string('status')->nullable();
@@ -30,7 +32,7 @@ class CreateCampaignsTable extends Migration
             $table->string('effective_status')->nullable();
             $table->string('budget_type')->nullable();
             $table->json('conversion_rule_config')->nullable();
-            $table->float('budget')->nullable();
+            $table->double('budget')->nullable();
             $table->string('channel')->nullable();
             $table->string('is_partner_network')->nullable();
             $table->string('sub_channel_modifier')->nullable();
@@ -38,6 +40,7 @@ class CreateCampaignsTable extends Migration
             $table->string('sub_channel')->nullable();
             $table->string('editorial_status')->nullable();
             $table->string('is_deep_link')->nullable();
+            $table->string('tag_id')->nullable();
             $table->string('created_date')->nullable();
             $table->string('last_update_date')->nullable();
             $table->integer('provider_id')->nullable();

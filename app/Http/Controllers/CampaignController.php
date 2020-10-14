@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Campaign;
+use App\Models\FailedJob;
+use App\Models\Job;
 use App\Models\Provider;
 
 use Carbon\Carbon;
@@ -31,6 +33,14 @@ class CampaignController extends Controller
         ]);
 
         return json_decode($response->getBody(), true)['response'];
+    }
+
+    public function queue()
+    {
+        $queues = Job::all();
+        $failed_queues = FailedJob::all();
+
+        return view('campaigns.queue', compact('queues', 'failed_queues'));
     }
 
     public function search()

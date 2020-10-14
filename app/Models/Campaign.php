@@ -12,6 +12,8 @@ class Campaign extends Model
 
     protected $fillable = [
         'user_id',
+        'provider_id',
+        'open_id',
         'campaign_id',
         'name',
         'status',
@@ -36,6 +38,8 @@ class Campaign extends Model
         'sub_channel',
         'editorial_status',
         'is_deep_link',
+        'tag_id'
+
         'provider_id',
         'open_id'
     ];
