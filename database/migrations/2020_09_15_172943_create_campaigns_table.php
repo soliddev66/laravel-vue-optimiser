@@ -40,6 +40,7 @@ class CreateCampaignsTable extends Migration
             $table->string('sub_channel')->nullable();
             $table->string('editorial_status')->nullable();
             $table->string('is_deep_link')->nullable();
+            $table->string('tag_id')->nullable();
             $table->string('created_date')->nullable();
             $table->string('last_update_date')->nullable();
             $table->timestamps();

@@ -37,7 +37,8 @@ class Campaign extends Model
         'custom_parameters',
         'sub_channel',
         'editorial_status',
-        'is_deep_link'
+        'is_deep_link',
+        'tag_id'
     ];
 
     /**
