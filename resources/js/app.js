@@ -23,6 +23,7 @@ Vue.component('account-wizard', require('./components/AccountWizard.vue').defaul
 Vue.component('traffic-sources', require('./components/TrafficSources.vue').default);
 Vue.component('trackers', require('./components/Trackers.vue').default);
 Vue.component('campaigns', require('./components/Campaigns.vue').default);
+Vue.component('queues', require('./components/Queues.vue').default);
 Vue.component('campaign-creator', require('./components/CampaignCreator.vue').default);
 Vue.component('select2', require('./plugins/Select2.vue').default);
 

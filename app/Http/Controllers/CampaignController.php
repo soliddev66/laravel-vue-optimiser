@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Campaign;
+use App\Models\FailedJob;
+use App\Models\Job;
 use App\Models\Provider;
 use Carbon\Carbon;
 use Exception;
@@ -17,6 +19,14 @@ class CampaignController extends Controller
         $campaigns = Campaign::with('redtrackReport')->get();
 
         return view('campaigns.index', compact('campaigns'));
+    }
+
+    public function queue()
+    {
+        $queues = Job::all();
+        $failed_queues = FailedJob::all();
+
+        return view('campaigns.queue', compact('queues', 'failed_queues'));
     }
 
     public function search()
