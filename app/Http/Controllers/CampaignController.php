@@ -35,6 +35,19 @@ class CampaignController extends Controller
         return json_decode($response->getBody(), true)['response'];
     }
 
+    private function getCampaignAttribute($user_info, $campaign_id)
+    {
+        $client = new Client();
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/targetingattribute?pt=CAMPAIGN&pi=' . $campaign_id, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($response->getBody(), true)['response'];
+    }
+
     public function queue()
     {
         $queues = Job::all();
@@ -82,14 +95,25 @@ class CampaignController extends Controller
         try {
             $instance = $this->getCampaign($user_info, $campaign->campaign_id);
         } catch (Exception $e) {
+            exit;
             if ($e->getCode() == 401) {
                 Token::refresh($user_info, function() use ($user_info, $campaign, &$instance) {
                     $instance = $this->getCampaign($user_info, $campaign->campaign_id);
                 });
-            } else {
-                return;
             }
         }
+
+        try {
+            $attributes = $this->getCampaignAttribute($user_info, $campaign->campaign_id);
+        } catch (Exception $e) {
+            if ($e->getCode() == 401) {
+                Token::refresh($user_info, function() use ($user_info, $campaign, &$attributes) {
+                    $attributes = $this->getCampaignAttribute($user_info, $campaign->campaign_id);
+                });
+            }
+        }
+
+        var_dump($attributes);
 
         $instance['open_id'] = $campaign['open_id'];
 
