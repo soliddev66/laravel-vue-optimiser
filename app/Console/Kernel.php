@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Jobs\PullCampaign;
+use App\Models\User;
 use App\Vngodev\RedTrack;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -28,6 +30,11 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->call(function () {
             RedTrack::crawl();
+        })->everyMinute();
+        $schedule->call(function () {
+            foreach (User::all() as $key => $user) {
+                PullCampaign::dispatch($user);
+            }
         })->everyMinute();
     }
 
