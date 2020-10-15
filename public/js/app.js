@@ -2467,7 +2467,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     this.getLanguages();
     this.getCountries();
     this.getAdvertisers();
-    console.log(this.action);
+    this.loadPreview();
   },
   watch: {
     title: lodash__WEBPACK_IMPORTED_MODULE_0___default.a.debounce(function (newVal) {
@@ -2497,7 +2497,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         campaignAge = '',
         campaignDevice = '',
         adGroupName = '',
-        bidAmount = '0.05';
+        bidAmount = '0.05',
+        campaignLocation = [];
 
     if (this.instance) {
       this.instance.attributes.forEach(function (attribute) {
@@ -2507,6 +2508,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           campaignAge = attribute.value;
         } else if (attribute.type === 'DEVICE') {
           campaignDevice = attribute.value;
+        } else if (attribute.type === 'WOEID') {
+          campaignLocation.push(attribute.value);
         }
       });
 
@@ -2537,7 +2540,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       campaignName: this.instance ? this.instance.campaignName : '',
       campaignType: this.instance ? this.instance.channel : 'SEARCH_AND_NATIVE',
       campaignLanguage: this.instance ? this.instance.language : 'en',
-      campaignLocation: [],
+      campaignLocation: campaignLocation,
       campaignGender: campaignGender,
       campaignAge: campaignAge,
       campaignDevice: campaignDevice,
@@ -2550,18 +2553,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       adGroupName: adGroupName,
       bidAmount: bidAmount,
       scheduleType: 'IMMEDIATELY',
-      title: this.instance.ads.length > 0 ? this.instance.ads[0]['title'] : '',
-      displayUrl: this.instance.ads.length > 0 ? this.instance.ads[0]['displayUrl'] : '',
-      targetUrl: this.instance.ads.length > 0 ? this.instance.ads[0]['landingUrl'] : '',
-      description: this.instance.ads.length > 0 ? this.instance.ads[0]['description'] : '',
-      brandname: this.instance.ads.length > 0 ? this.instance.ads[0]['sponsoredBy'] : '',
-      imageUrlHQ: this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrlHQ'] : '',
+      title: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['title'] : '',
+      displayUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['displayUrl'] : '',
+      targetUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['landingUrl'] : '',
+      description: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['description'] : '',
+      brandname: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['sponsoredBy'] : '',
+      imageUrlHQ: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrlHQ'] : '',
       imageHQ: {
         size: '',
         height: '',
         width: ''
       },
-      imageUrl: this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrl'] : '',
+      imageUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrl'] : '',
       image: {
         size: '',
         height: '',
@@ -2831,11 +2834,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this8 = this;
 
       this.isLoading = true;
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.post('/campaigns', this.postData).then(function (response) {
+      var url = '/campaigns';
+
+      if (this.action == 'edit') {
+        url += '/update/' + this.instance.instance_id;
+      }
+
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.post(url, this.postData).then(function (response) {
         if (response.data.errors) {
           alert(response.data.errors[0]);
         } else {
-          alert('Campaign created!');
+          alert('Save successfully!');
         }
       })["catch"](function (error) {
         console.log(error);
@@ -73172,9 +73181,11 @@ var render = function() {
                 ]),
                 _vm._v(" "),
                 _vm._l(_vm.providers, function(provider) {
-                  return _c("option", { domProps: { value: provider.slug } }, [
-                    _vm._v(_vm._s(provider.label))
-                  ])
+                  return _c(
+                    "option",
+                    { key: provider.id, domProps: { value: provider.slug } },
+                    [_vm._v(_vm._s(provider.label))]
+                  )
                 })
               ],
               2
@@ -73220,7 +73231,7 @@ var render = function() {
                 _vm._l(_vm.accounts, function(account) {
                   return _c(
                     "option",
-                    { domProps: { value: account.open_id } },
+                    { key: account.id, domProps: { value: account.open_id } },
                     [_vm._v(_vm._s(account.open_id))]
                   )
                 })
@@ -73294,7 +73305,10 @@ var render = function() {
                                     ) {
                                       return _c(
                                         "option",
-                                        { domProps: { value: advertiser.id } },
+                                        {
+                                          key: advertiser.id,
+                                          domProps: { value: advertiser.id }
+                                        },
                                         [
                                           _vm._v(
                                             _vm._s(advertiser.id) +
@@ -73630,7 +73644,7 @@ var render = function() {
                             "div",
                             { staticClass: "col-sm-8" },
                             [
-                              _c("Select2", {
+                              _c("select2", {
                                 attrs: {
                                   name: "location",
                                   options: _vm.countries,
@@ -74843,244 +74857,260 @@ var render = function() {
                 { staticClass: "card-body" },
                 [
                   _vm._l(_vm.attributes, function(attribute, index) {
-                    return _c("div", { staticClass: "row mb-2" }, [
-                      index === 0
-                        ? _c("div", { staticClass: "col-sm-12" }, [
-                            _c("h4", [_vm._v("Main Variation")])
-                          ])
-                        : _vm._e(),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "col-sm-12" }, [
-                        _c("div", { staticClass: "form-group row" }, [
-                          _c(
-                            "label",
-                            {
-                              staticClass: "col-sm-4 control-label mt-2",
-                              attrs: { for: "gender" + index }
-                            },
-                            [_vm._v("Gender")]
-                          ),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "col-sm-8" }, [
+                    return _c(
+                      "div",
+                      { key: attribute.id, staticClass: "row mb-2" },
+                      [
+                        index === 0
+                          ? _c("div", { staticClass: "col-sm-12" }, [
+                              _c("h4", [_vm._v("Main Variation")])
+                            ])
+                          : _vm._e(),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "col-sm-12" }, [
+                          _c("div", { staticClass: "form-group row" }, [
                             _c(
-                              "select",
+                              "label",
                               {
-                                directives: [
-                                  {
-                                    name: "model",
-                                    rawName: "v-model",
-                                    value: attribute.gender,
-                                    expression: "attribute.gender"
-                                  }
-                                ],
-                                staticClass: "form-control",
-                                attrs: { name: "gender" + index },
-                                on: {
-                                  change: function($event) {
-                                    var $$selectedVal = Array.prototype.filter
-                                      .call($event.target.options, function(o) {
-                                        return o.selected
-                                      })
-                                      .map(function(o) {
-                                        var val =
-                                          "_value" in o ? o._value : o.value
-                                        return val
-                                      })
-                                    _vm.$set(
-                                      attribute,
-                                      "gender",
-                                      $event.target.multiple
-                                        ? $$selectedVal
-                                        : $$selectedVal[0]
-                                    )
-                                  }
-                                }
+                                staticClass: "col-sm-4 control-label mt-2",
+                                attrs: { for: "gender" + index }
                               },
-                              [
-                                _c("option", { attrs: { value: "" } }, [
-                                  _vm._v("All")
-                                ]),
-                                _vm._v(" "),
-                                _c("option", { attrs: { value: "MALE" } }, [
-                                  _vm._v("Male")
-                                ]),
-                                _vm._v(" "),
-                                _c("option", { attrs: { value: "FEMALE" } }, [
-                                  _vm._v("Female")
-                                ])
-                              ]
-                            )
+                              [_vm._v("Gender")]
+                            ),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-sm-8" }, [
+                              _c(
+                                "select",
+                                {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: attribute.gender,
+                                      expression: "attribute.gender"
+                                    }
+                                  ],
+                                  staticClass: "form-control",
+                                  attrs: { name: "gender" + index },
+                                  on: {
+                                    change: function($event) {
+                                      var $$selectedVal = Array.prototype.filter
+                                        .call($event.target.options, function(
+                                          o
+                                        ) {
+                                          return o.selected
+                                        })
+                                        .map(function(o) {
+                                          var val =
+                                            "_value" in o ? o._value : o.value
+                                          return val
+                                        })
+                                      _vm.$set(
+                                        attribute,
+                                        "gender",
+                                        $event.target.multiple
+                                          ? $$selectedVal
+                                          : $$selectedVal[0]
+                                      )
+                                    }
+                                  }
+                                },
+                                [
+                                  _c("option", { attrs: { value: "" } }, [
+                                    _vm._v("All")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("option", { attrs: { value: "MALE" } }, [
+                                    _vm._v("Male")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("option", { attrs: { value: "FEMALE" } }, [
+                                    _vm._v("Female")
+                                  ])
+                                ]
+                              )
+                            ])
                           ])
-                        ])
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "col-sm-12" }, [
-                        _c("div", { staticClass: "form-group row" }, [
-                          _c(
-                            "label",
-                            {
-                              staticClass: "col-sm-4 control-label mt-2",
-                              attrs: { for: "age" + index }
-                            },
-                            [_vm._v("Age")]
-                          ),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "col-sm-8" }, [
+                        ]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "col-sm-12" }, [
+                          _c("div", { staticClass: "form-group row" }, [
                             _c(
-                              "select",
+                              "label",
                               {
-                                directives: [
-                                  {
-                                    name: "model",
-                                    rawName: "v-model",
-                                    value: attribute.age,
-                                    expression: "attribute.age"
-                                  }
-                                ],
-                                staticClass: "form-control",
-                                attrs: { name: "age" + index },
-                                on: {
-                                  change: function($event) {
-                                    var $$selectedVal = Array.prototype.filter
-                                      .call($event.target.options, function(o) {
-                                        return o.selected
-                                      })
-                                      .map(function(o) {
-                                        var val =
-                                          "_value" in o ? o._value : o.value
-                                        return val
-                                      })
-                                    _vm.$set(
-                                      attribute,
-                                      "age",
-                                      $event.target.multiple
-                                        ? $$selectedVal
-                                        : $$selectedVal[0]
-                                    )
-                                  }
-                                }
+                                staticClass: "col-sm-4 control-label mt-2",
+                                attrs: { for: "age" + index }
                               },
-                              [
-                                _c("option", { attrs: { value: "" } }, [
-                                  _vm._v("All")
-                                ]),
-                                _vm._v(" "),
-                                _c("option", { attrs: { value: "18-24" } }, [
-                                  _vm._v("18-24")
-                                ]),
-                                _vm._v(" "),
-                                _c("option", { attrs: { value: "25-34" } }, [
-                                  _vm._v("25-34")
-                                ]),
-                                _vm._v(" "),
-                                _c("option", { attrs: { value: "35-44" } }, [
-                                  _vm._v("35-44")
-                                ]),
-                                _vm._v(" "),
-                                _c("option", { attrs: { value: "45-54" } }, [
-                                  _vm._v("45-54")
-                                ]),
-                                _vm._v(" "),
-                                _c("option", { attrs: { value: "55-64" } }, [
-                                  _vm._v("55-64")
-                                ]),
-                                _vm._v(" "),
-                                _c("option", { attrs: { value: "65-120" } }, [
-                                  _vm._v("65-120")
-                                ])
-                              ]
-                            )
+                              [_vm._v("Age")]
+                            ),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-sm-8" }, [
+                              _c(
+                                "select",
+                                {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: attribute.age,
+                                      expression: "attribute.age"
+                                    }
+                                  ],
+                                  staticClass: "form-control",
+                                  attrs: { name: "age" + index },
+                                  on: {
+                                    change: function($event) {
+                                      var $$selectedVal = Array.prototype.filter
+                                        .call($event.target.options, function(
+                                          o
+                                        ) {
+                                          return o.selected
+                                        })
+                                        .map(function(o) {
+                                          var val =
+                                            "_value" in o ? o._value : o.value
+                                          return val
+                                        })
+                                      _vm.$set(
+                                        attribute,
+                                        "age",
+                                        $event.target.multiple
+                                          ? $$selectedVal
+                                          : $$selectedVal[0]
+                                      )
+                                    }
+                                  }
+                                },
+                                [
+                                  _c("option", { attrs: { value: "" } }, [
+                                    _vm._v("All")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("option", { attrs: { value: "18-24" } }, [
+                                    _vm._v("18-24")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("option", { attrs: { value: "25-34" } }, [
+                                    _vm._v("25-34")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("option", { attrs: { value: "35-44" } }, [
+                                    _vm._v("35-44")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("option", { attrs: { value: "45-54" } }, [
+                                    _vm._v("45-54")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("option", { attrs: { value: "55-64" } }, [
+                                    _vm._v("55-64")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("option", { attrs: { value: "65-120" } }, [
+                                    _vm._v("65-120")
+                                  ])
+                                ]
+                              )
+                            ])
                           ])
-                        ])
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "col-sm-12 border-bottom" }, [
-                        _c("div", { staticClass: "form-group row" }, [
-                          _c(
-                            "label",
-                            {
-                              staticClass: "col-sm-4 control-label mt-2",
-                              attrs: { for: "device" + index }
-                            },
-                            [_vm._v("Device")]
-                          ),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "col-sm-8" }, [
+                        ]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "col-sm-12 border-bottom" }, [
+                          _c("div", { staticClass: "form-group row" }, [
                             _c(
-                              "select",
+                              "label",
                               {
-                                directives: [
-                                  {
-                                    name: "model",
-                                    rawName: "v-model",
-                                    value: attribute.device,
-                                    expression: "attribute.device"
-                                  }
-                                ],
-                                staticClass: "form-control",
-                                attrs: { name: "device" + index },
-                                on: {
-                                  change: function($event) {
-                                    var $$selectedVal = Array.prototype.filter
-                                      .call($event.target.options, function(o) {
-                                        return o.selected
-                                      })
-                                      .map(function(o) {
-                                        var val =
-                                          "_value" in o ? o._value : o.value
-                                        return val
-                                      })
-                                    _vm.$set(
-                                      attribute,
-                                      "device",
-                                      $event.target.multiple
-                                        ? $$selectedVal
-                                        : $$selectedVal[0]
-                                    )
-                                  }
-                                }
+                                staticClass: "col-sm-4 control-label mt-2",
+                                attrs: { for: "device" + index }
                               },
-                              [
-                                _c("option", { attrs: { value: "" } }, [
-                                  _vm._v("All")
-                                ]),
-                                _vm._v(" "),
-                                _c(
-                                  "option",
-                                  { attrs: { value: "SMARTPHONE" } },
-                                  [_vm._v("SMARTPHONE")]
-                                ),
-                                _vm._v(" "),
-                                _c("option", { attrs: { value: "TABLET" } }, [
-                                  _vm._v("TABLET")
-                                ]),
-                                _vm._v(" "),
-                                _c("option", { attrs: { value: "DESKTOP" } }, [
-                                  _vm._v("DESKTOP")
-                                ])
-                              ]
-                            )
+                              [_vm._v("Device")]
+                            ),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-sm-8" }, [
+                              _c(
+                                "select",
+                                {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: attribute.device,
+                                      expression: "attribute.device"
+                                    }
+                                  ],
+                                  staticClass: "form-control",
+                                  attrs: { name: "device" + index },
+                                  on: {
+                                    change: function($event) {
+                                      var $$selectedVal = Array.prototype.filter
+                                        .call($event.target.options, function(
+                                          o
+                                        ) {
+                                          return o.selected
+                                        })
+                                        .map(function(o) {
+                                          var val =
+                                            "_value" in o ? o._value : o.value
+                                          return val
+                                        })
+                                      _vm.$set(
+                                        attribute,
+                                        "device",
+                                        $event.target.multiple
+                                          ? $$selectedVal
+                                          : $$selectedVal[0]
+                                      )
+                                    }
+                                  }
+                                },
+                                [
+                                  _c("option", { attrs: { value: "" } }, [
+                                    _vm._v("All")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "option",
+                                    { attrs: { value: "SMARTPHONE" } },
+                                    [_vm._v("SMARTPHONE")]
+                                  ),
+                                  _vm._v(" "),
+                                  _c("option", { attrs: { value: "TABLET" } }, [
+                                    _vm._v("TABLET")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "option",
+                                    { attrs: { value: "DESKTOP" } },
+                                    [_vm._v("DESKTOP")]
+                                  )
+                                ]
+                              )
+                            ])
                           ])
-                        ])
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "col-sm-12 text-right mt-3" }, [
-                        index > 0
-                          ? _c(
-                              "button",
-                              {
-                                staticClass: "btn btn-warning btn-sm",
-                                on: {
-                                  click: function($event) {
-                                    return _vm.removeAttibute(index)
-                                  }
-                                }
-                              },
-                              [_vm._v("Remove")]
-                            )
-                          : _vm._e()
-                      ])
-                    ])
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          { staticClass: "col-sm-12 text-right mt-3" },
+                          [
+                            index > 0
+                              ? _c(
+                                  "button",
+                                  {
+                                    staticClass: "btn btn-warning btn-sm",
+                                    on: {
+                                      click: function($event) {
+                                        return _vm.removeAttibute(index)
+                                      }
+                                    }
+                                  },
+                                  [_vm._v("Remove")]
+                                )
+                              : _vm._e()
+                          ]
+                        )
+                      ]
+                    )
                   }),
                   _vm._v(" "),
                   _c(

@@ -18,11 +18,11 @@
           <div class="card-body">
             <select v-model="selectedProvider">
               <option value="">Select Traffic Source</option>
-              <option :value="provider.slug" v-for="provider in providers">{{ provider.label }}</option>
+              <option :value="provider.slug" v-for="provider in providers" :key="provider.id">{{ provider.label }}</option>
             </select>
             <select v-model="selectedAccount" @change="selectedAccountChanged()">
               <option value="">Select Account</option>
-              <option :value="account.open_id" v-for="account in accounts">{{ account.open_id }}</option>
+              <option :value="account.open_id" v-for="account in accounts" :key="account.id">{{ account.open_id }}</option>
             </select>
             <hr>
             <form class="form-horizontal" v-if="selectedProvider && selectedAccount && languages.length && countries.length">
@@ -33,7 +33,7 @@
                   <div class="col-sm-4" v-if="advertisers.length">
                     <select name="advertiser" class="form-control" v-model="selectedAdvertiser">
                       <option value="">Select Advertiser</option>
-                      <option :value="advertiser.id" v-for="advertiser in advertisers">{{ advertiser.id }} - {{ advertiser.advertiserName }}</option>
+                      <option :value="advertiser.id" v-for="advertiser in advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.advertiserName }}</option>
                     </select>
                   </div>
                   <div class="col-sm-2" v-if="!saveAdvertiser">
@@ -81,7 +81,7 @@
                 <div class="form-group row">
                   <label for="location" class="col-sm-2 control-label mt-2">Location</label>
                   <div class="col-sm-8">
-                    <Select2 name="location" v-model="campaignLocation" :options="countries" :settings="{ multiple: true }" />
+                    <select2 name="location" v-model="campaignLocation" :options="countries" :settings="{ multiple: true }" />
                   </div>
                 </div>
                 <div class="form-group row">
@@ -274,7 +274,7 @@
             </form>
           </div>
           <div class="card-body" v-if="currentStep == 3">
-            <div class="row mb-2" v-for="(attribute, index) in attributes">
+            <div class="row mb-2" v-for="(attribute, index) in attributes" :key="attribute.id">
               <div class="col-sm-12" v-if="index === 0">
                 <h4>Main Variation</h4>
               </div>
@@ -444,7 +444,7 @@ export default {
     this.getLanguages()
     this.getCountries()
     this.getAdvertisers()
-    console.log(this.action)
+    this.loadPreview()
   },
   watch: {
     title: _.debounce(function(newVal) {
@@ -470,7 +470,7 @@ export default {
     }, 2000)
   },
   data() {
-    let campaignGender = '', campaignAge = '', campaignDevice = '', adGroupName = '', bidAmount = '0.05';
+    let campaignGender = '', campaignAge = '', campaignDevice = '', adGroupName = '', bidAmount = '0.05', campaignLocation = [];
     if (this.instance) {
       this.instance.attributes.forEach(attribute => {
           if (attribute.type === 'GENDER') {
@@ -478,7 +478,9 @@ export default {
           } else if (attribute.type === 'AGE') {
             campaignAge = attribute.value;
           } else if (attribute.type === 'DEVICE') {
-              campaignDevice = attribute.value;
+            campaignDevice = attribute.value;
+          } else if (attribute.type === 'WOEID') {
+            campaignLocation.push(attribute.value);
           }
       });
 
@@ -508,7 +510,7 @@ export default {
       campaignName: this.instance ? this.instance.campaignName : '',
       campaignType: this.instance ? this.instance.channel : 'SEARCH_AND_NATIVE',
       campaignLanguage: this.instance ? this.instance.language : 'en',
-      campaignLocation: [],
+      campaignLocation: campaignLocation,
       campaignGender: campaignGender,
       campaignAge: campaignAge,
       campaignDevice: campaignDevice,
@@ -521,18 +523,18 @@ export default {
       adGroupName: adGroupName,
       bidAmount: bidAmount,
       scheduleType: 'IMMEDIATELY',
-      title: this.instance.ads.length > 0 ? this.instance.ads[0]['title'] : '',
-      displayUrl: this.instance.ads.length > 0 ? this.instance.ads[0]['displayUrl'] : '',
-      targetUrl: this.instance.ads.length > 0 ? this.instance.ads[0]['landingUrl'] : '',
-      description: this.instance.ads.length > 0 ? this.instance.ads[0]['description'] : '',
-      brandname: this.instance.ads.length > 0 ? this.instance.ads[0]['sponsoredBy'] : '',
-      imageUrlHQ: this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrlHQ'] : '',
+      title: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['title'] : '',
+      displayUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['displayUrl'] : '',
+      targetUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['landingUrl'] : '',
+      description: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['description'] : '',
+      brandname: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['sponsoredBy'] : '',
+      imageUrlHQ: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrlHQ'] : '',
       imageHQ: {
         size: '',
         height: '',
         width: ''
       },
-      imageUrl: this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrl'] : '',
+      imageUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrl'] : '',
       image: {
         size: '',
         height: '',
@@ -775,11 +777,17 @@ export default {
     },
     submitStep4() {
       this.isLoading = true
-      axios.post('/campaigns', this.postData).then(response => {
+      let url = '/campaigns';
+
+      if (this.action == 'edit') {
+        url += '/update/' + this.instance.instance_id;
+      }
+
+      axios.post(url, this.postData).then(response => {
         if (response.data.errors) {
           alert(response.data.errors[0])
         } else {
-          alert('Campaign created!');
+          alert('Save successfully!');
         }
       }).catch(error => {
         console.log(error)

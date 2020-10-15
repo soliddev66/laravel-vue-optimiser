@@ -54,4 +54,9 @@ class Campaign extends Model
     {
         return $this->hasMany(RedtrackReport::class);
     }
+
+    public function provider()
+    {
+        return $this->belongsTo('App\Models\Provider');
+    }
 }
