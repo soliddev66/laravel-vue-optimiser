@@ -470,7 +470,7 @@ export default {
     }, 2000)
   },
   data() {
-    let campaignGender = '', campaignAge = '', campaignDevice = '', adGroupName = '', bidAmount = '0.05', campaignLocation = [];
+    let campaignGender = '', campaignAge = '', campaignDevice = '', adGroupName = '', bidAmount = '0.05', campaignLocation = [], adGroupID = '';
     if (this.instance) {
       this.instance.attributes.forEach(attribute => {
           if (attribute.type === 'GENDER') {
@@ -485,6 +485,7 @@ export default {
       });
 
       if (this.instance.adGroups.length > 0) {
+        adGroupID = this.instance.adGroups[0]['id'];
         adGroupName = this.instance.adGroups[0]['adGroupName'];
 
         if (this.instance.adGroups[0]['bidSet'].length > 0 && this.instance.adGroups[0]['bidSet'][0]['bids'].length > 0) {
@@ -520,6 +521,7 @@ export default {
       campaignBudgetType: this.instance ? this.instance.budgetType : 'DAILY',
       campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_ENHANCED_CPC',
       campaignConversionCounting: this.instance ? this.instance.conversionRuleConfig.conversionCounting : 'ALL_PER_INTERACTION',
+      adGroupID: adGroupID,
       adGroupName: adGroupName,
       bidAmount: bidAmount,
       scheduleType: 'IMMEDIATELY',
@@ -733,7 +735,9 @@ export default {
         campaignBudget: this.campaignBudget,
         campaignBudgetType: this.campaignBudgetType,
         campaignName: this.campaignName,
+        adGroupID: this.adGroupID,
         adGroupName: this.adGroupName,
+        adID: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['id'] : '',
         bidAmount: this.bidAmount,
         campaignType: this.campaignType,
         campaignLanguage: this.campaignLanguage,

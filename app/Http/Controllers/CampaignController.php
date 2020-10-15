@@ -173,11 +173,11 @@ class CampaignController extends Controller
         $user_info = auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first();
 
         try {
-            $data = $this->updateCampaign($provider, $user_info, $campaign);
+            $data = $this->updateCampaign($campaign->provider, $user_info, $campaign);
         } catch (Exception $e) {
             if ($e->getCode() == 401) {
-                Token::refresh($user_info, function() use ($provider, $user_info, $campaign, &$data) {
-                    $data = $this->updateCampaign($provider, $user_info, $campaign);
+                Token::refresh($user_info, function() use ($user_info, $campaign, &$data) {
+                    $data = $this->updateCampaign($campaign->provider, $user_info, $campaign);
                 });
             } else {
                 $data = [
@@ -194,6 +194,10 @@ class CampaignController extends Controller
 
         $campaign_data = $this->updateAdCampaign($client, $user_info, $campaign);
         $ad_group_data = $this->updateAdGroup($client, $user_info, $campaign_data);
+
+        $ad = $this->updateAd($client, $user_info, $campaign_data, $ad_group_data);
+
+        return $ad;
     }
 
     private function updateAdCampaign($client, $user_info, $campaign) {
@@ -216,7 +220,7 @@ class CampaignController extends Controller
             ]
         ]);
 
-        return json_decode($campaign_response->getBody(), true)['response'];
+        return json_decode($campaign_response->getBody(), true);
     }
 
     private function updateAdGroup($client, $user_info, $campaign_data)
@@ -245,7 +249,7 @@ class CampaignController extends Controller
         }
         $ad_group_response = $client->request('PUT', env('BASE_URL') . '/v3/rest/adgroup', [
             'body' => json_encode([
-                'id' => '1',
+                'id' => request('adGroupID'),
                 'adGroupName' => request('adGroupName'),
                 'advertiserId' => request('selectedAdvertiser'),
                 'bidSet' => [
@@ -264,6 +268,32 @@ class CampaignController extends Controller
         ]);
 
         return json_decode($ad_group_response->getBody(), true);
+    }
+
+    private function updateAd($client, $user_info, $campaign_data, $ad_group_data)
+    {
+        $ad_response = $client->request('PUT', env('BASE_URL') . '/v3/rest/ad', [
+            'body' => json_encode([
+                'id' => request('adID'),
+                'adGroupId' => $ad_group_data['response']['id'],
+                'advertiserId' => request('selectedAdvertiser'),
+                'campaignId' => $campaign_data['response']['id'],
+                'description' => request('description'),
+                'displayUrl' => request('displayUrl'),
+                'landingUrl' => request('targetUrl'),
+                'sponsoredBy' => request('brandname'),
+                'imageUrlHQ' => request('imageUrlHQ'),
+                'imageUrl' => request('imageUrl'),
+                'title' => request('title'),
+                'status' => 'ACTIVE'
+            ]),
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($ad_response->getBody(), true);
     }
 
     public function store()

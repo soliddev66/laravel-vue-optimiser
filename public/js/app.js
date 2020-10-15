@@ -2498,7 +2498,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         campaignDevice = '',
         adGroupName = '',
         bidAmount = '0.05',
-        campaignLocation = [];
+        campaignLocation = [],
+        adGroupID = '';
 
     if (this.instance) {
       this.instance.attributes.forEach(function (attribute) {
@@ -2514,6 +2515,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       });
 
       if (this.instance.adGroups.length > 0) {
+        adGroupID = this.instance.adGroups[0]['id'];
         adGroupName = this.instance.adGroups[0]['adGroupName'];
 
         if (this.instance.adGroups[0]['bidSet'].length > 0 && this.instance.adGroups[0]['bidSet'][0]['bids'].length > 0) {
@@ -2550,6 +2552,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       campaignBudgetType: this.instance ? this.instance.budgetType : 'DAILY',
       campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_ENHANCED_CPC',
       campaignConversionCounting: this.instance ? this.instance.conversionRuleConfig.conversionCounting : 'ALL_PER_INTERACTION',
+      adGroupID: adGroupID,
       adGroupName: adGroupName,
       bidAmount: bidAmount,
       scheduleType: 'IMMEDIATELY',
@@ -2788,7 +2791,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         campaignBudget: this.campaignBudget,
         campaignBudgetType: this.campaignBudgetType,
         campaignName: this.campaignName,
+        adGroupID: this.adGroupID,
         adGroupName: this.adGroupName,
+        adID: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['id'] : '',
         bidAmount: this.bidAmount,
         campaignType: this.campaignType,
         campaignLanguage: this.campaignLanguage,
