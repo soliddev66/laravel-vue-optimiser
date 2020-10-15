@@ -97135,7 +97135,9 @@ var render = function() {
                       _c("td", [_vm._v(_vm._s(campaign.budget))]),
                       _vm._v(" "),
                       _c("td", [
-                        _vm._v(_vm._s(_vm.avg(campaign.redtrack_report, "cpc")))
+                        _vm._v(
+                          _vm._s(_vm.avg(campaign.redtrack_report, "cpc") || 0)
+                        )
                       ]),
                       _vm._v(" "),
                       _c("td", [
@@ -97147,37 +97149,7 @@ var render = function() {
                                   campaign.redtrack_report,
                                   "conversions"
                                 )
-                            )
-                          )
-                        )
-                      ]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _vm._v(
-                          _vm._s(_vm.count(campaign.redtrack_report, "cost"))
-                        )
-                      ]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _vm._v(
-                          _vm._s(_vm.count(campaign.redtrack_report, "cost"))
-                        )
-                      ]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _vm._v(_vm._s(_vm.avg(campaign.redtrack_report, "ctr")))
-                      ]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _vm._v(
-                          _vm._s(_vm.count(campaign.redtrack_report, "clicks"))
-                        )
-                      ]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _vm._v(
-                          _vm._s(
-                            _vm.count(campaign.redtrack_report, "prelp_clicks")
+                            ) || 0
                           )
                         )
                       ]),
@@ -97185,7 +97157,49 @@ var render = function() {
                       _c("td", [
                         _vm._v(
                           _vm._s(
-                            _vm.count(campaign.redtrack_report, "lp_clicks")
+                            _vm.count(campaign.redtrack_report, "cost") || 0
+                          )
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v(
+                          _vm._s(
+                            _vm.count(campaign.redtrack_report, "cost") || 0
+                          )
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v(
+                          _vm._s(_vm.avg(campaign.redtrack_report, "ctr") || 0)
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v(
+                          _vm._s(
+                            _vm.count(campaign.redtrack_report, "clicks") || 0
+                          )
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v(
+                          _vm._s(
+                            _vm.count(
+                              campaign.redtrack_report,
+                              "prelp_clicks"
+                            ) || 0
+                          )
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v(
+                          _vm._s(
+                            _vm.count(campaign.redtrack_report, "lp_clicks") ||
+                              0
                           )
                         )
                       ]),
@@ -97194,13 +97208,15 @@ var render = function() {
                         _vm._v(
                           _vm._s(
                             _vm.count(campaign.redtrack_report, "revenue") -
-                              _vm.count(campaign.redtrack_report, "cost")
+                              _vm.count(campaign.redtrack_report, "cost") || 0
                           )
                         )
                       ]),
                       _vm._v(" "),
                       _c("td", [
-                        _vm._v(_vm._s(_vm.avg(campaign.redtrack_report, "roi")))
+                        _vm._v(
+                          _vm._s(_vm.avg(campaign.redtrack_report, "roi") || 0)
+                        )
                       ]),
                       _vm._v(" "),
                       _c("td", [
@@ -97213,7 +97229,7 @@ var render = function() {
                                   "lp_views"
                                 )) *
                                 1000
-                            )
+                            ) || 0
                           )
                         )
                       ]),
@@ -97227,7 +97243,7 @@ var render = function() {
                                 "conversions"
                               ) /
                                 _vm.count(campaign.redtrack_report, "lp_clicks")
-                            )
+                            ) || 0
                           )
                         )
                       ]),
@@ -97238,7 +97254,7 @@ var render = function() {
                             _vm.round(
                               _vm.count(campaign.redtrack_report, "cost") /
                                 _vm.count(campaign.redtrack_report, "lp_clicks")
-                            )
+                            ) || 0
                           )
                         )
                       ])
