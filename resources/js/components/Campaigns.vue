@@ -15,7 +15,7 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Actions</th>
+                  <th colspan="3">Actions</th>
                   <th>Camp. ID</th>
                   <th>Name</th>
                   <th>Status</th>
@@ -38,28 +38,32 @@
               <tbody>
                 <tr v-for="campaign in data">
                   <td>{{ campaign.id }}</td>
+                  <td class="border-right-0">
+                    <a class="btn btn-sm btn-info" :href="'/campaigns/' + campaign.id">View</a>
+                  </td>
+                  <td class="border-right-0">
+                    <a class="btn btn-sm btn-primary" :href="'/campaigns/edit/' + campaign.id">Update</a>
+                  </td>
                   <td>
-                    <a>Show</a>
-                    <a :href="'/campaigns/edit/' + campaign.id">Update</a>
-                    <a :href="'/campaigns/delete/' + campaign.id">Delete</a>
+                    <a class="btn btn-sm btn-danger" :href="'/campaigns/delete/' + campaign.id">Delete</a>
                   </td>
                   <td>{{ campaign.campaign_id }}</td>
                   <td>{{ campaign.name }}</td>
                   <td>{{ campaign.status }}</td>
                   <td>{{ campaign.budget }}</td>
-                  <td>{{ avg(campaign.redtrack_report, 'cpc') }}</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'revenue') / count(campaign.redtrack_report, 'conversions')) }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'cost') }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'cost') }}</td>
-                  <td>{{ avg(campaign.redtrack_report, 'ctr') }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'clicks') }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'prelp_clicks') }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'lp_clicks') }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'revenue') - count(campaign.redtrack_report, 'cost') }}</td>
-                  <td>{{ avg(campaign.redtrack_report, 'roi') }}</td>
-                  <td>{{ round((count(campaign.redtrack_report, 'revenue') / count(campaign.redtrack_report, 'lp_views')) * 1000) }}</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'conversions') / count(campaign.redtrack_report, 'lp_clicks')) }}</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'cost') / count(campaign.redtrack_report, 'lp_clicks')) }}</td>
+                  <td>{{ avg(campaign.redtrack_report, 'cpc') || 0 }}</td>
+                  <td>{{ round(count(campaign.redtrack_report, 'revenue') / count(campaign.redtrack_report, 'conversions')) || 0 }}</td>
+                  <td>{{ count(campaign.redtrack_report, 'cost') || 0 }}</td>
+                  <td>{{ count(campaign.redtrack_report, 'cost') || 0 }}</td>
+                  <td>{{ avg(campaign.redtrack_report, 'ctr') || 0 }}</td>
+                  <td>{{ count(campaign.redtrack_report, 'clicks') || 0 }}</td>
+                  <td>{{ count(campaign.redtrack_report, 'prelp_clicks') || 0 }}</td>
+                  <td>{{ count(campaign.redtrack_report, 'lp_clicks') || 0 }}</td>
+                  <td>{{ count(campaign.redtrack_report, 'revenue') - count(campaign.redtrack_report, 'cost') || 0 }}</td>
+                  <td>{{ avg(campaign.redtrack_report, 'roi') || 0 }}</td>
+                  <td>{{ round((count(campaign.redtrack_report, 'revenue') / count(campaign.redtrack_report, 'lp_views')) * 1000) || 0 }}</td>
+                  <td>{{ round(count(campaign.redtrack_report, 'conversions') / count(campaign.redtrack_report, 'lp_clicks')) || 0 }}</td>
+                  <td>{{ round(count(campaign.redtrack_report, 'cost') / count(campaign.redtrack_report, 'lp_clicks')) || 0 }}</td>
                 </tr>
               </tbody>
             </table>

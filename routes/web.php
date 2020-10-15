@@ -39,6 +39,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/edit/{campaign}', [App\Http\Controllers\CampaignController::class, 'edit'])->name('campaigns.edit');
     Route::post('/update/{campaign}', [App\Http\Controllers\CampaignController::class, 'update'])->name('campaigns.update');
     Route::get('/queue', [App\Http\Controllers\CampaignController::class, 'queue'])->name('campaigns.queue');
+    Route::get('/{campaign}', [App\Http\Controllers\CampaignController::class, 'show'])->name('campaigns.show');
+    Route::get('/{campaign}/ad-groups/{ad_group_id}/ads/{ad_id}', [App\Http\Controllers\CampaignController::class, 'ad'])->name('campaigns.ad');
 });
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

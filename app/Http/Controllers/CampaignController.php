@@ -85,13 +85,38 @@ class CampaignController extends Controller
     public function search()
     {
         $end = Carbon::now()->format('Y-m-d');
-        $campaigns = Campaign::with(['redtrackReport' => function($q) use ($end) {
+        $campaigns = Campaign::with(['redtrackReport' => function ($q) use ($end) {
             $q->whereBetween('date', [request('start'), !request('end') ? $end : request('end')]);
         }])->get();
 
         return response()->json([
             'campaigns' => $campaigns
         ]);
+    }
+
+    public function show(Campaign $campaign)
+    {
+        $user_info = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
+        $ad_groups = [];
+        $ads = [];
+        try {
+            $ad_groups = $this->getAdGroups($user_info, $campaign->campaign_id);
+            $ads = $this->getAds($user_info, $campaign->campaign_id);
+        } catch (Exception $e) {
+            if ($e->getCode() == 401) {
+                Token::refresh($user_info, function () use ($campaign, $user_info, &$ad_groups, &$ads) {
+                    $ad_groups = $this->getAdGroups($user_info, $campaign->campaign_id);
+                    $ads = $this->getAds($user_info, $campaign->campaign_id);
+                });
+            }
+        }
+
+        return view('campaigns.show', compact('campaign', 'ad_groups', 'ads'));
+    }
+
+    public function ad(Campaign $campaign, $ad_group_id, $ad_id)
+    {
+        return 'I am doing preview';
     }
 
     private function getCampaigns($provider)
@@ -105,6 +130,32 @@ class CampaignController extends Controller
         ]);
 
         return json_decode($response->getBody(), true);
+    }
+
+    private function getAdGroups($user_info, $campaign_id)
+    {
+        $client = new Client();
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/adgroup/?campaignId=' . $campaign_id, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($response->getBody(), true)['response'];
+    }
+
+    private function getAds($user_info, $campaign_id)
+    {
+        $client = new Client();
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/ad/?campaignId=' . $campaign_id, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($response->getBody(), true)['response'];
     }
 
     public function create()
@@ -305,7 +356,7 @@ class CampaignController extends Controller
             $data = $this->createCampaign($provider, $user_info);
         } catch (Exception $e) {
             if ($e->getCode() == 401) {
-                Token::refresh($user_info, function() use ($provider, $user_info, &$data) {
+                Token::refresh($user_info, function () use ($provider, $user_info, &$data) {
                     $data = $this->createCampaign($provider, $user_info);
                 });
             } else {

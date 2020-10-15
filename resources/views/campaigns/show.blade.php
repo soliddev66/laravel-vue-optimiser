@@ -1,13 +1,13 @@
 @extends('adminlte::page')
 
-@section('title', 'Traffic Sources')
+@section('title', 'Campaign ' . $campaign->name)
 
 @section('content_header')
-    <h1>Traffic Sources</h1>
+    <h1>Campaign {{ $campaign->name }}</h1>
 @stop
 
 @section('content')
-    <traffic-sources :providers="{{ auth()->user()->providers }}"></traffic-sources>
+    <campaign :campaign="{{ json_encode($campaign) }}" :groups="{{ json_encode($ad_groups) }}" :ads="{{ json_encode($ads) }}"></campaign>
 @stop
 
 @section('css')
@@ -16,11 +16,11 @@
 @section('js')
     <script>
         $(document).ready(function() {
-            $('#trafficSourcesTable').DataTable({
+            $('#adGroupsTable').DataTable({
                 "paging": true,
                 "ordering": true,
                 "info": true,
-                "autoWidth": true,
+                "autoWidth": false,
                 "responsive": true,
             });
         });
