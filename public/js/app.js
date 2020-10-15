@@ -2467,7 +2467,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     this.getLanguages();
     this.getCountries();
     this.getAdvertisers();
-    console.log(this.providers);
+    console.log(this.action);
   },
   watch: {
     title: lodash__WEBPACK_IMPORTED_MODULE_0___default.a.debounce(function (newVal) {
@@ -2493,6 +2493,32 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }, 2000)
   },
   data: function data() {
+    var campaignGender = '',
+        campaignAge = '',
+        campaignDevice = '',
+        adGroupName = '',
+        bidAmount = '0.05';
+
+    if (this.instance) {
+      this.instance.attributes.forEach(function (attribute) {
+        if (attribute.type === 'GENDER') {
+          campaignGender = attribute.value;
+        } else if (attribute.type === 'AGE') {
+          campaignAge = attribute.value;
+        } else if (attribute.type === 'DEVICE') {
+          campaignDevice = attribute.value;
+        }
+      });
+
+      if (this.instance.adGroups.length > 0) {
+        adGroupName = this.instance.adGroups[0]['adGroupName'];
+
+        if (this.instance.adGroups[0]['bidSet'].length > 0 && this.instance.adGroups[0]['bidSet'][0]['bids'].length > 0) {
+          bidAmount = this.instance.adGroups[0]['bidSet'][0]['bids'][0]['value'];
+        }
+      }
+    }
+
     return {
       isLoading: false,
       fullPage: true,
@@ -2504,6 +2530,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       languages: [],
       countries: [],
       advertisers: [],
+      actionName: this.action,
       selectedProvider: 'yahoo',
       selectedAccount: this.instance ? this.instance.open_id : '',
       selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
@@ -2511,30 +2538,30 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       campaignType: this.instance ? this.instance.channel : 'SEARCH_AND_NATIVE',
       campaignLanguage: this.instance ? this.instance.language : 'en',
       campaignLocation: [],
-      campaignGender: '',
-      campaignAge: '',
-      campaignDevice: '',
+      campaignGender: campaignGender,
+      campaignAge: campaignAge,
+      campaignDevice: campaignDevice,
       campaignBudget: this.instance ? this.instance.budget : '',
       campaignStartDate: '',
       campaignEndDate: '',
       campaignBudgetType: this.instance ? this.instance.budgetType : 'DAILY',
       campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_ENHANCED_CPC',
       campaignConversionCounting: this.instance ? this.instance.conversionRuleConfig.conversionCounting : 'ALL_PER_INTERACTION',
-      adGroupName: '',
-      bidAmount: '0.05',
+      adGroupName: adGroupName,
+      bidAmount: bidAmount,
       scheduleType: 'IMMEDIATELY',
-      title: '',
-      displayUrl: '',
-      targetUrl: '',
-      description: '',
-      brandname: '',
-      imageUrlHQ: '',
+      title: this.instance.ads.length > 0 ? this.instance.ads[0]['title'] : '',
+      displayUrl: this.instance.ads.length > 0 ? this.instance.ads[0]['displayUrl'] : '',
+      targetUrl: this.instance.ads.length > 0 ? this.instance.ads[0]['landingUrl'] : '',
+      description: this.instance.ads.length > 0 ? this.instance.ads[0]['description'] : '',
+      brandname: this.instance.ads.length > 0 ? this.instance.ads[0]['sponsoredBy'] : '',
+      imageUrlHQ: this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrlHQ'] : '',
       imageHQ: {
         size: '',
         height: '',
         width: ''
       },
-      imageUrl: '',
+      imageUrl: this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrl'] : '',
       image: {
         size: '',
         height: '',
@@ -73073,7 +73100,7 @@ var render = function() {
                   staticClass: "p-2",
                   class: { "bg-primary": _vm.currentStep === 1 }
                 },
-                [_vm._v("Campaign")]
+                [_vm._v("Campaign " + _vm._s(_vm.actionName))]
               ),
               _vm._v(" "),
               _c("i", { staticClass: "fas fa-arrow-right" }),

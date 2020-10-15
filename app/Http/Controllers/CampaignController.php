@@ -35,6 +35,32 @@ class CampaignController extends Controller
         return json_decode($response->getBody(), true)['response'];
     }
 
+    private function getAdGroups($user_info, $campaign_id, $advertiser_id)
+    {
+        $client = new Client();
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/adgroup?campaignId=' . $campaign_id . '&advertiserid=' . $advertiser_id, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($response->getBody(), true)['response'];
+    }
+
+    private function getAds($user_info, $add_group_id, $advertiser_id)
+    {
+        $client = new Client();
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/ad?adGroupId=' . $add_group_id . '&advertiserid=' . $advertiser_id, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($response->getBody(), true)['response'];
+    }
+
     private function getCampaignAttribute($user_info, $campaign_id)
     {
         $client = new Client();
@@ -90,12 +116,9 @@ class CampaignController extends Controller
     {
         $user_info = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
 
-        $provider = $campaign->provider;
-
         try {
             $instance = $this->getCampaign($user_info, $campaign->campaign_id);
         } catch (Exception $e) {
-            exit;
             if ($e->getCode() == 401) {
                 Token::refresh($user_info, function() use ($user_info, $campaign, &$instance) {
                     $instance = $this->getCampaign($user_info, $campaign->campaign_id);
@@ -113,11 +136,36 @@ class CampaignController extends Controller
             }
         }
 
-        var_dump($attributes);
+        try {
+            $ad_groups = $this->getAdGroups($user_info, $campaign->campaign_id, $campaign->advertiser_id);
+        } catch (Exception $e) {
+            if ($e->getCode() == 401) {
+                Token::refresh($user_info, function() use ($user_info, $campaign, &$adGroups) {
+                    $ad_groups = $this->getAdGroups($user_info, $campaign->campaign_id, $campaign->advertiser_id);
+                });
+            }
+        }
+
+        if (count($ad_groups) > 0) {
+            try {
+                $ads = $this->getAds($user_info, $ad_groups[0]['id'], $campaign->advertiser_id);
+            } catch (Exception $e) {
+                if ($e->getCode() == 401) {
+                    Token::refresh($user_info, function() use ($user_info, $ad_groups, $campaign, &$ads) {
+                        $ads = $this->getAds($user_info, $ad_groups[0]['id'], $campaign->advertiser_id);
+                    });
+                }
+            }
+        }
+
+        var_dump($ads);
 
         $instance['open_id'] = $campaign['open_id'];
+        $instance['attributes'] = $attributes;
+        $instance['adGroups'] = $ad_groups;
+        $instance['ads'] = $ads;
 
-        return view('campaigns.form', compact('instance', 'provider'));
+        return view('campaigns.form', compact('instance'));
     }
 
     public function store()
@@ -167,10 +215,11 @@ class CampaignController extends Controller
         $campaign_data = $this->createAdCampaign($client, $user_info);
         $ad_group_data = $this->createAdGroup($client, $user_info, $campaign_data);
 
-        Campaign::firstOrNew([
+        $campaign = Campaign::firstOrNew([
             'campaign_id' => $campaign_data['response']['id'],
             'provider_id' => $provider->id,
-            'open_id' => $user_info->open_id
+            'open_id' => $user_info->open_id,
+            'user_id' => auth()->id()
         ]);
 
         $campaign->save();
