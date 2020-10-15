@@ -99,7 +99,7 @@ export default {
       targetDate: {
         start: new Date(),
         end: new Date()
-    }
+      }
     }
   },
   methods: {
@@ -120,7 +120,7 @@ export default {
         .catch((err) => {
           alert(err);
         });
-  }
+    }
   }
 }
 </script>
