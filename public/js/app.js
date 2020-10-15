@@ -97176,7 +97176,7 @@ var render = function() {
                           [_vm._v("View")]
                         )
                       ]),
-                        _vm._v(" "),
+                      _vm._v(" "),
                       _c("td", { staticClass: "border-right-0" }, [
                         _c(
                           "a",
@@ -97223,15 +97223,7 @@ var render = function() {
                                   "conversions"
                                 )
                             ) || 0
-                            )
                           )
-                      ]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _vm._v(
-                          _vm._s(
-                            _vm.count(campaign.redtrack_report, "cost") || 0
-                        )
                         )
                       ]),
                       _vm._v(" "),
@@ -97239,7 +97231,15 @@ var render = function() {
                         _vm._v(
                           _vm._s(
                             _vm.count(campaign.redtrack_report, "cost") || 0
+                          )
                         )
+                      ]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v(
+                          _vm._s(
+                            _vm.count(campaign.redtrack_report, "cost") || 0
+                          )
                         )
                       ]),
                       _vm._v(" "),
@@ -97253,7 +97253,7 @@ var render = function() {
                         _vm._v(
                           _vm._s(
                             _vm.count(campaign.redtrack_report, "clicks") || 0
-                        )
+                          )
                         )
                       ]),
                       _vm._v(" "),
@@ -97303,8 +97303,8 @@ var render = function() {
                                 )) *
                                 1000
                             ) || 0
-                            )
                           )
+                        )
                       ]),
                       _vm._v(" "),
                       _c("td", [
@@ -97317,8 +97317,8 @@ var render = function() {
                               ) /
                                 _vm.count(campaign.redtrack_report, "lp_clicks")
                             ) || 0
-                            )
                           )
+                        )
                       ]),
                       _vm._v(" "),
                       _c("td", [
@@ -97328,8 +97328,8 @@ var render = function() {
                               _vm.count(campaign.redtrack_report, "cost") /
                                 _vm.count(campaign.redtrack_report, "lp_clicks")
                             ) || 0
-                            )
                           )
+                        )
                       ])
                     ])
                   }),
