@@ -158,8 +158,6 @@ class CampaignController extends Controller
             }
         }
 
-        var_dump($ads);
-
         $instance['open_id'] = $campaign['open_id'];
         $instance['attributes'] = $attributes;
         $instance['adGroups'] = $ad_groups;
