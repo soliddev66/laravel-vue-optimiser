@@ -766,7 +766,6 @@ export default {
       this.currentStep = 2
     },
     submitStep2() {
-      console.log(this.dataAttributes)
       const step2Data = {
         displayUrl: this.displayUrl,
         targetUrl: this.targetUrl,
