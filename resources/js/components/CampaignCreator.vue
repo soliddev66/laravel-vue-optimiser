@@ -376,8 +376,8 @@ export default {
       default: null
     },
     action: {
-        type: String,
-        default: 'create'
+      type: String,
+      default: 'create'
     },
     step: {
       type: Number,
@@ -442,10 +442,10 @@ export default {
     console.log('Component mounted.')
     this.currentStep = this.step
     if (this.instance) {
-    this.getLanguages()
-    this.getCountries()
-    this.getAdvertisers()
-    this.loadPreview()
+      this.getLanguages()
+      this.getCountries()
+      this.getAdvertisers()
+      this.loadPreview()
     }
   },
   watch: {
@@ -479,19 +479,19 @@ export default {
       bidAmount = '0.05',
       campaignLocation = [],
       adGroupID = '',
-	  dataAttributes = [];
+      dataAttributes = [];
     if (this.instance) {
       this.instance.attributes.forEach(attribute => {
-          if (attribute.type === 'GENDER') {
-            campaignGender = attribute.value;
-          } else if (attribute.type === 'AGE') {
+        if (attribute.type === 'GENDER') {
+          campaignGender = attribute.value;
+        } else if (attribute.type === 'AGE') {
           campaignAge.push(attribute.value);
-          } else if (attribute.type === 'DEVICE') {
-            campaignDevice = attribute.value;
-          } else if (attribute.type === 'WOEID') {
-            campaignLocation.push(attribute.value);
-          }
-          dataAttributes.push(attribute.id);
+        } else if (attribute.type === 'DEVICE') {
+          campaignDevice = attribute.value;
+        } else if (attribute.type === 'WOEID') {
+          campaignLocation.push(attribute.value);
+        }
+        dataAttributes.push(attribute.id);
       });
 
       if (this.instance.adGroups.length > 0) {

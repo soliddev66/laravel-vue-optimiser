@@ -151,7 +151,7 @@ class CampaignController extends Controller
                 Token::refresh($user_info, function () use ($campaign, $user_info, $ad_id, &$ad) {
                     $ad = $this->getAd($user_info, $ad_id, $campaign->advertiser_id);
                 });
-    }
+            }
         }
         $ad['open_id'] = $campaign['open_id'];
 
@@ -559,22 +559,22 @@ class CampaignController extends Controller
                 }
                 if ($attribute['age']) {
                     foreach ($attribute['age'] as $index => $age) {
-                    $client->request('POST', env('BASE_URL') . '/v3/rest/targetingattribute', [
-                        'body' => json_encode([
-                            'advertiserId' => request('selectedAdvertiser'),
-                            'type' => 'AGE',
-                            'parentType' => 'CAMPAIGN',
-                            'parentId' => $campaign_data['response']['id'],
-                                'value' => $age,
-                            'status' => 'ACTIVE',
-                            'include' => 'TRUE'
-                        ]),
-                        'headers' => [
-                            'Authorization' => 'Bearer ' . $user_info->token,
-                            'Content-Type' => 'application/json'
-                        ]
-                    ]);
-                }
+                        $client->request('POST', env('BASE_URL') . '/v3/rest/targetingattribute', [
+                            'body' => json_encode([
+                                'advertiserId' => request('selectedAdvertiser'),
+                                'type' => 'AGE',
+                                'parentType' => 'CAMPAIGN',
+                                'parentId' => $campaign_data['response']['id'],
+                                    'value' => $age,
+                                'status' => 'ACTIVE',
+                                'include' => 'TRUE'
+                            ]),
+                            'headers' => [
+                                'Authorization' => 'Bearer ' . $user_info->token,
+                                'Content-Type' => 'application/json'
+                            ]
+                        ]);
+                    }
                 }
 
                 if ($attribute['device']) {
