@@ -470,7 +470,8 @@ export default {
     }, 2000)
   },
   data() {
-    let campaignGender = '', campaignAge = '', campaignDevice = '', adGroupName = '', bidAmount = '0.05', campaignLocation = [], adGroupID = '';
+    let campaignGender = '', campaignAge = '', campaignDevice = '', adGroupName = '',
+        bidAmount = '0.05', campaignLocation = [], adGroupID = '', dataAttributes = [];
     if (this.instance) {
       this.instance.attributes.forEach(attribute => {
           if (attribute.type === 'GENDER') {
@@ -482,6 +483,7 @@ export default {
           } else if (attribute.type === 'WOEID') {
             campaignLocation.push(attribute.value);
           }
+          dataAttributes.push(attribute.id);
       });
 
       if (this.instance.adGroups.length > 0) {
@@ -543,7 +545,8 @@ export default {
         width: ''
       },
       previewData: '',
-      attributes: []
+      attributes: [],
+      dataAttributes: dataAttributes
     }
   },
   methods: {
@@ -755,6 +758,7 @@ export default {
       this.currentStep = 2
     },
     submitStep2() {
+      console.log(this.dataAttributes)
       const step2Data = {
         displayUrl: this.displayUrl,
         targetUrl: this.targetUrl,
@@ -762,7 +766,8 @@ export default {
         brandname: this.brandname,
         description: this.description,
         imageUrlHQ: this.imageUrlHQ,
-        imageUrl: this.imageUrl
+        imageUrl: this.imageUrl,
+        dataAttributes: this.dataAttributes
       }
       this.postData = {...this.postData, ...step2Data }
       this.attributes[0] = {

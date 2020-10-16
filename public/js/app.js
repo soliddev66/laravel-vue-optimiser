@@ -2604,7 +2604,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         adGroupName = '',
         bidAmount = '0.05',
         campaignLocation = [],
-        adGroupID = '';
+        adGroupID = '',
+        dataAttributes = [];
 
     if (this.instance) {
       this.instance.attributes.forEach(function (attribute) {
@@ -2617,6 +2618,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         } else if (attribute.type === 'WOEID') {
           campaignLocation.push(attribute.value);
         }
+
+        dataAttributes.push(attribute.id);
       });
 
       if (this.instance.adGroups.length > 0) {
@@ -2679,7 +2682,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         width: ''
       },
       previewData: '',
-      attributes: []
+      attributes: [],
+      dataAttributes: dataAttributes
     };
   },
   methods: {
@@ -2916,6 +2920,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.currentStep = 2;
     },
     submitStep2: function submitStep2() {
+      console.log(this.dataAttributes);
       var step2Data = {
         displayUrl: this.displayUrl,
         targetUrl: this.targetUrl,
@@ -2923,7 +2928,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         brandname: this.brandname,
         description: this.description,
         imageUrlHQ: this.imageUrlHQ,
-        imageUrl: this.imageUrl
+        imageUrl: this.imageUrl,
+        dataAttributes: this.dataAttributes
       };
       this.postData = _objectSpread(_objectSpread({}, this.postData), step2Data);
       this.attributes[0] = {

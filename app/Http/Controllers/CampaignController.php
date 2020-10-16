@@ -222,6 +222,9 @@ class CampaignController extends Controller
 
         $ad = $this->updateAd($client, $user_info, $campaign_data, $ad_group_data);
 
+        $this->deleteAttributes($client, $user_info);
+        $this->createAttributes($client, $user_info, $campaign_data);
+
         return $ad;
     }
 
@@ -475,6 +478,20 @@ class CampaignController extends Controller
         ]);
 
         return json_decode($ad_group_response->getBody(), true);
+    }
+
+    private function deleteAttributes($client, $user_info)
+    {
+        if (!count(request('dataAttributes'))) {
+            return;
+        }
+
+        $client->request('DELETE', env('BASE_URL') . '/v3/rest/targetingattribute?' . implode('&', request('dataAttributes')), [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
     }
 
     private function createAttributes($client, $user_info, $campaign_data)
