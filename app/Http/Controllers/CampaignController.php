@@ -182,6 +182,7 @@ class CampaignController extends Controller
         $instance = [];
         $attributes = [];
         $ad_groups = [];
+        $ads = [];
 
         try {
             $instance = $this->getCampaign($user_info, $campaign->campaign_id);
