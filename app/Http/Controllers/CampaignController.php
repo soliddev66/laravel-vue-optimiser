@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\PullCampaign;
 use App\Models\Campaign;
 use App\Models\FailedJob;
 use App\Models\Job;
 use App\Models\Provider;
-
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
@@ -48,10 +48,36 @@ class CampaignController extends Controller
         return json_decode($response->getBody(), true)['response'];
     }
 
-    private function getAds($user_info, $add_group_id, $advertiser_id)
+    private function getAdsByCampaign($user_info, $campaign_id, $advertiser_id)
     {
         $client = new Client();
-        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/ad?adGroupId=' . $add_group_id . '&advertiserid=' . $advertiser_id, [
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/ad?campaignId=' . $campaign_id . '&advertiserid=' . $advertiser_id, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($response->getBody(), true)['response'];
+    }
+
+    private function getAd($user_info, $ad_id, $advertiser_id)
+    {
+        $client = new Client();
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/ad/' . $ad_id, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($response->getBody(), true)['response'];
+    }
+
+    private function getAds($user_info, $ad_group_id, $advertiser_id)
+    {
+        $client = new Client();
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/ad?adGroupId=' . $ad_group_id . '&advertiserid=' . $advertiser_id, [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_info->token,
                 'Content-Type' => 'application/json'
@@ -101,12 +127,12 @@ class CampaignController extends Controller
         $ads = [];
         try {
             $ad_groups = $this->getAdGroups($user_info, $campaign->campaign_id, $campaign->advertiser_id);
-            $ads = $this->getAds($user_info, $campaign->campaign_id, $campaign->advertiser_id);
+            $ads = $this->getAdsByCampaign($user_info, $campaign->campaign_id, $campaign->advertiser_id);
         } catch (Exception $e) {
             if ($e->getCode() == 401) {
                 Token::refresh($user_info, function () use ($campaign, $user_info, &$ad_groups, &$ads) {
                     $ad_groups = $this->getAdGroups($user_info, $campaign->campaign_id, $campaign->advertiser_id);
-                    $ads = $this->getAds($user_info, $campaign->campaign_id, $campaign->advertiser_id);
+                    $ads = $this->getAdsByCampaign($user_info, $campaign->campaign_id, $campaign->advertiser_id);
                 });
             }
         }
@@ -116,7 +142,20 @@ class CampaignController extends Controller
 
     public function ad(Campaign $campaign, $ad_group_id, $ad_id)
     {
-        return 'I am doing preview';
+        $ad = [];
+        $user_info = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
+        try {
+            $ad = $this->getAd($user_info, $ad_id, $campaign->advertiser_id);
+        } catch (Exception $e) {
+            if ($e->getCode() == 401) {
+                Token::refresh($user_info, function () use ($campaign, $user_info, $ad_id, &$ad) {
+                    $ad = $this->getAd($user_info, $ad_id, $campaign->advertiser_id);
+                });
+    }
+        }
+        $ad['open_id'] = $campaign['open_id'];
+
+        return view('ads.show', compact('ad'));
     }
 
     private function getCampaigns($provider)
@@ -193,10 +232,8 @@ class CampaignController extends Controller
     }
 
     public function update(Campaign $campaign) {
-        $data = [];
-
         $user_info = auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first();
-
+        $data = [];
         try {
             $data = $this->updateCampaign($campaign->provider, $user_info, $campaign);
         } catch (Exception $e) {
@@ -216,14 +253,14 @@ class CampaignController extends Controller
 
     private function updateCampaign($provider, $user_info, $campaign) {
         $client = new Client();
-
         $campaign_data = $this->updateAdCampaign($client, $user_info, $campaign);
         $ad_group_data = $this->updateAdGroup($client, $user_info, $campaign_data);
-
         $ad = $this->updateAd($client, $user_info, $campaign_data, $ad_group_data);
 
         $this->deleteAttributes($client, $user_info);
         $this->createAttributes($client, $user_info, $campaign_data);
+
+        PullCampaign::dispatch(auth()->user());
 
         return $ad;
     }
@@ -377,8 +414,8 @@ class CampaignController extends Controller
             'open_id' => $user_info->open_id,
             'user_id' => auth()->id()
         ]);
-
         $campaign->save();
+        PullCampaign::dispatch(auth()->user());
 
         $ad = $this->createAd($client, $user_info, $campaign_data, $ad_group_data);
         $this->createAttributes($client, $user_info, $campaign_data);
@@ -521,13 +558,14 @@ class CampaignController extends Controller
                     ]);
                 }
                 if ($attribute['age']) {
+                    foreach ($attribute['age'] as $index => $age) {
                     $client->request('POST', env('BASE_URL') . '/v3/rest/targetingattribute', [
                         'body' => json_encode([
                             'advertiserId' => request('selectedAdvertiser'),
                             'type' => 'AGE',
                             'parentType' => 'CAMPAIGN',
                             'parentId' => $campaign_data['response']['id'],
-                            'value' => $attribute['age'],
+                                'value' => $age,
                             'status' => 'ACTIVE',
                             'include' => 'TRUE'
                         ]),
@@ -536,6 +574,7 @@ class CampaignController extends Controller
                             'Content-Type' => 'application/json'
                         ]
                     ]);
+                }
                 }
 
                 if ($attribute['device']) {

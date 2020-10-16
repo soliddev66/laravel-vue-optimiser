@@ -15,7 +15,7 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th colspan="3">Actions</th>
+                  <th colspan="2">Actions</th>
                   <th>Camp. ID</th>
                   <th>Name</th>
                   <th>Status</th>
@@ -41,11 +41,8 @@
                   <td class="border-right-0">
                     <a class="btn btn-sm btn-info" :href="'/campaigns/' + campaign.id">View</a>
                   </td>
-                  <td class="border-right-0">
-                    <a class="btn btn-sm btn-primary" :href="'/campaigns/edit/' + campaign.id">Update</a>
-                  </td>
                   <td>
-                    <a class="btn btn-sm btn-danger" :href="'/campaigns/delete/' + campaign.id">Delete</a>
+                    <a class="btn btn-sm btn-primary" :href="'/campaigns/edit/' + campaign.id">Update</a>
                   </td>
                   <td>{{ campaign.campaign_id }}</td>
                   <td>{{ campaign.name }}</td>
