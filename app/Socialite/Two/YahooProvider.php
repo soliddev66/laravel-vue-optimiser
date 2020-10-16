@@ -67,7 +67,7 @@ class YahooProvider extends AbstractProvider implements ProviderInterface
             'id' => $user['sub'],
             'name' => $user['name'],
             'email' => $user['email'],
-            'birth_year' => $user['birthdate'],
+            'birth_year' => $user['birthdate'] ?? '',
             'gender' => $user['gender']
         ]);
     }
