@@ -565,7 +565,7 @@ class CampaignController extends Controller
                                 'type' => 'AGE',
                                 'parentType' => 'CAMPAIGN',
                                 'parentId' => $campaign_data['response']['id'],
-                                    'value' => $age,
+                                'value' => $age,
                                 'status' => 'ACTIVE',
                                 'include' => 'TRUE'
                             ]),
