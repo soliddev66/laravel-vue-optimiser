@@ -20,7 +20,7 @@
               <option value="">Select Traffic Source</option>
               <option :value="provider.slug" v-for="provider in providers" :key="provider.id">{{ provider.label }}</option>
             </select>
-            <select v-model="selectedAccount" @change="selectedAccountChanged()">
+            <select v-model="selectedAccount" @change="selectedAccountChanged()" :disabled="instance">
               <option value="">Select Account</option>
               <option :value="account.open_id" v-for="account in accounts" :key="account.id">{{ account.open_id }}</option>
             </select>
@@ -31,7 +31,7 @@
                 <div class="form-group row">
                   <label for="advertiser" class="col-sm-2 control-label mt-2">Advertiser</label>
                   <div class="col-sm-4" v-if="advertisers.length">
-                    <select name="advertiser" class="form-control" v-model="selectedAdvertiser">
+                    <select name="advertiser" class="form-control" v-model="selectedAdvertiser" :disabled="instance">
                       <option value="">Select Advertiser</option>
                       <option :value="advertiser.id" v-for="advertiser in advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.advertiserName }}</option>
                     </select>
@@ -39,7 +39,7 @@
                   <div class="col-sm-2" v-if="!saveAdvertiser">
                     <input type="text" name="advertiser_name" v-model="advertiserName" class="form-control" placeholder="Enter advertiser name...">
                   </div>
-                  <div class="col-sm-2" v-if="saveAdvertiser">
+                  <div class="col-sm-2" v-if="saveAdvertiser && !instance">
                     <button type="button" class="btn btn-primary" @click.prevent="saveAdvertiser = !saveAdvertiser">Create New</button>
                   </div>
                   <div class="col-sm-2" v-if="!saveAdvertiser && advertiserName">
@@ -75,7 +75,7 @@
                 <div class="form-group row">
                   <label for="language" class="col-sm-2 control-label mt-2">Language</label>
                   <div class="col-sm-8">
-                    <select2 name="language" :options="languages" v-model="campaignLanguage"></select2>
+                    <select2 id="language" name="language" :options="languages" v-model="campaignLanguage"></select2>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -97,7 +97,7 @@
                 <div class="form-group row">
                   <label for="age" class="col-sm-2 control-label mt-2">Age</label>
                   <div class="col-sm-8">
-                    <select name="age" class="form-control" v-model="campaignAge">
+                    <select name="age" class="form-control" v-model="campaignAge" multiple>
                       <option value="">All</option>
                       <option value="18-24">18-24</option>
                       <option value="25-34">25-34</option>
@@ -294,7 +294,7 @@
                 <div class="form-group row">
                   <label :for="`age${index}`" class="col-sm-4 control-label mt-2">Age</label>
                   <div class="col-sm-8">
-                    <select :name="`age${index}`" class="form-control" v-model="attribute.age">
+                    <select :name="`age${index}`" class="form-control" v-model="attribute.age" multiple>
                       <option value="">All</option>
                       <option value="18-24">18-24</option>
                       <option value="25-34">25-34</option>
@@ -376,8 +376,8 @@ export default {
       default: null
     },
     action: {
-        type: String,
-        default: 'create'
+      type: String,
+      default: 'create'
     },
     step: {
       type: Number,
@@ -441,10 +441,12 @@ export default {
   mounted() {
     console.log('Component mounted.')
     this.currentStep = this.step
-    this.getLanguages()
-    this.getCountries()
-    this.getAdvertisers()
-    this.loadPreview()
+    if (this.instance) {
+      this.getLanguages()
+      this.getCountries()
+      this.getAdvertisers()
+      this.loadPreview()
+    }
   },
   watch: {
     title: _.debounce(function(newVal) {
@@ -470,18 +472,24 @@ export default {
     }, 2000)
   },
   data() {
-    let campaignGender = '', campaignAge = '', campaignDevice = '', adGroupName = '', bidAmount = '0.05', campaignLocation = [], adGroupID = '';
+    let campaignGender = '',
+      campaignAge = [],
+      campaignDevice = '',
+      adGroupName = '',
+      bidAmount = '0.05',
+      campaignLocation = [],
+      adGroupID = '';
     if (this.instance) {
       this.instance.attributes.forEach(attribute => {
-          if (attribute.type === 'GENDER') {
-            campaignGender = attribute.value;
-          } else if (attribute.type === 'AGE') {
-            campaignAge = attribute.value;
-          } else if (attribute.type === 'DEVICE') {
-            campaignDevice = attribute.value;
-          } else if (attribute.type === 'WOEID') {
-            campaignLocation.push(attribute.value);
-          }
+        if (attribute.type === 'GENDER') {
+          campaignGender = attribute.value;
+        } else if (attribute.type === 'AGE') {
+          campaignAge.push(attribute.value);
+        } else if (attribute.type === 'DEVICE') {
+          campaignDevice = attribute.value;
+        } else if (attribute.type === 'WOEID') {
+          campaignLocation.push(attribute.value);
+        }
       });
 
       if (this.instance.adGroups.length > 0) {

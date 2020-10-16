@@ -349,11 +349,6 @@ return [
                 [
                     'type' => 'js',
                     'asset' => true,
-                    'location' => '//cdn.datatables.net/responsive/2.2.6/js/responsive.bootstrap4.min.js',
-                ],
-                [
-                    'type' => 'js',
-                    'asset' => true,
                     'location' => '//cdn.datatables.net/responsive/2.2.6/js/dataTables.responsive.min.js',
                 ],
                 [

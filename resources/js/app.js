@@ -25,6 +25,7 @@ Vue.component('traffic-sources', require('./components/TrafficSources.vue').defa
 Vue.component('trackers', require('./components/Trackers.vue').default);
 Vue.component('campaigns', require('./components/Campaigns.vue').default);
 Vue.component('campaign', require('./components/Campaign.vue').default);
+Vue.component('ad', require('./components/Ad.vue').default);
 Vue.component('queues', require('./components/Queues.vue').default);
 Vue.component('campaign-creator', require('./components/CampaignCreator.vue').default);
 Vue.component('select2', require('./plugins/Select2.vue').default);

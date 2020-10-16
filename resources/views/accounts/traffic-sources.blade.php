@@ -20,6 +20,7 @@
                 "paging": true,
                 "ordering": true,
                 "info": true,
+                "stateSave": true,
                 "autoWidth": true,
                 "responsive": true,
             });
