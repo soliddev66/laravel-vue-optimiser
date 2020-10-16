@@ -498,8 +498,8 @@ export default {
         adGroupID = this.instance.adGroups[0]['id'];
         adGroupName = this.instance.adGroups[0]['adGroupName'];
 
-        if (this.instance.adGroups[0]['bidSet'].length > 0 && this.instance.adGroups[0]['bidSet'][0]['bids'].length > 0) {
-          bidAmount = this.instance.adGroups[0]['bidSet'][0]['bids'][0]['value'];
+        if (this.instance.adGroups[0]['bidSet']['bids'].length > 0) {
+          bidAmount = this.instance.adGroups[0]['bidSet']['bids'][0]['value'];
         }
       }
     }
