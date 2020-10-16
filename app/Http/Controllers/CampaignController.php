@@ -132,6 +132,32 @@ class CampaignController extends Controller
         return json_decode($response->getBody(), true);
     }
 
+    private function getAdGroups($user_info, $campaign_id)
+    {
+        $client = new Client();
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/adgroup/?campaignId=' . $campaign_id, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($response->getBody(), true)['response'];
+    }
+
+    private function getAds($user_info, $campaign_id)
+    {
+        $client = new Client();
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/ad/?campaignId=' . $campaign_id, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($response->getBody(), true)['response'];
+    }
+
     public function create()
     {
         return view('campaigns.form');
