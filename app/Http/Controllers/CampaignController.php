@@ -48,12 +48,12 @@ class CampaignController extends Controller
         $ads = [];
         try {
             $ad_groups = $this->getAdGroups($user_info, $campaign->campaign_id, $campaign->advertiser_id);
-            $ads = $this->getAds($user_info, $campaign->campaign_id);
+            $ads = $this->getAds($user_info, $campaign->campaign_id, $campaign->advertiser_id);
         } catch (Exception $e) {
             if ($e->getCode() == 401) {
                 Token::refresh($user_info, function () use ($campaign, $user_info, &$ad_groups, &$ads) {
                     $ad_groups = $this->getAdGroups($user_info, $campaign->campaign_id, $campaign->advertiser_id);
-                    $ads = $this->getAds($user_info, $campaign->campaign_id);
+                    $ads = $this->getAds($user_info, $campaign->campaign_id, $campaign->advertiser_id);
                 });
             }
         }
@@ -92,10 +92,10 @@ class CampaignController extends Controller
         return json_decode($response->getBody(), true)['response'];
     }
 
-    private function getAds($user_info, $campaign_id)
+    private function getAds($user_info, $campaign_id, $advertiser_id)
     {
         $client = new Client();
-        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/ad/?campaignId=' . $campaign_id, [
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/ad/?campaignId=' . $campaign_id . '&advertiserId=' . $advertiser_id, [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_info->token,
                 'Content-Type' => 'application/json'
