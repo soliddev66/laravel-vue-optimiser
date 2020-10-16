@@ -415,10 +415,11 @@ class CampaignController extends Controller
             'user_id' => auth()->id()
         ]);
         $campaign->save();
-        PullCampaign::dispatch(auth()->user());
 
         $ad = $this->createAd($client, $user_info, $campaign_data, $ad_group_data);
         $this->createAttributes($client, $user_info, $campaign_data);
+
+        PullCampaign::dispatch(auth()->user());
 
         return $ad;
     }
