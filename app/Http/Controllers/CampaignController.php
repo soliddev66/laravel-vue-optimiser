@@ -179,6 +179,10 @@ class CampaignController extends Controller
     public function edit(Campaign $campaign)
     {
         $user_info = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
+        $instance = [];
+        $attributes = [];
+        $ad_groups = [];
+        $ads = [];
 
         try {
             $instance = $this->getCampaign($user_info, $campaign->campaign_id);
