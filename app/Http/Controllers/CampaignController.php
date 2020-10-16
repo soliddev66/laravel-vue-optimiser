@@ -261,6 +261,9 @@ class CampaignController extends Controller
         $ad_group_data = $this->updateAdGroup($client, $user_info, $campaign_data);
         $ad = $this->updateAd($client, $user_info, $campaign_data, $ad_group_data);
 
+        $this->deleteAttributes($client, $user_info);
+        $this->createAttributes($client, $user_info, $campaign_data);
+
         PullCampaign::dispatch(auth()->user());
 
         return $ad;
@@ -416,10 +419,11 @@ class CampaignController extends Controller
             'user_id' => auth()->id()
         ]);
         $campaign->save();
-        PullCampaign::dispatch(auth()->user());
 
         $ad = $this->createAd($client, $user_info, $campaign_data, $ad_group_data);
         $this->createAttributes($client, $user_info, $campaign_data);
+
+        PullCampaign::dispatch(auth()->user());
 
         return $ad;
     }
@@ -516,6 +520,20 @@ class CampaignController extends Controller
         ]);
 
         return json_decode($ad_group_response->getBody(), true);
+    }
+
+    private function deleteAttributes($client, $user_info)
+    {
+        if (!count(request('dataAttributes'))) {
+            return;
+        }
+
+        $client->request('DELETE', env('BASE_URL') . '/v3/rest/targetingattribute?' . implode('&', request('dataAttributes')), [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
     }
 
     private function createAttributes($client, $user_info, $campaign_data)
