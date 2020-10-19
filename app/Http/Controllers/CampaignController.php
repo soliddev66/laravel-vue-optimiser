@@ -235,9 +235,11 @@ class CampaignController extends Controller
         return view('campaigns.form', compact('instance'));
     }
 
-    public function update(Campaign $campaign) {
-        $user_info = auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first();
+    public function update(Campaign $campaign)
+    {
         $data = [];
+        $user_info = auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first();
+
         try {
             $data = $this->updateCampaign($campaign->provider, $user_info, $campaign);
         } catch (Exception $e) {
@@ -255,7 +257,28 @@ class CampaignController extends Controller
         return $data;
     }
 
-    private function updateCampaign($provider, $user_info, $campaign) {
+    public function delete(Campaign $campaign)
+    {
+        $data = [];
+        $user_info = auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first();
+
+        try {
+            $data = $this->deleteCampaign($campaign->provider, $user_info, $campaign);
+        } catch (Exception $e) {
+            if ($e->getCode() == 401) {
+                Token::refresh($user_info, function() use ($user_info, $campaign, &$data) {
+                    $data = $this->deleteCampaign($campaign->provider, $user_info, $campaign);
+                });
+            } else {
+                $data = [
+                    'errors' => [$e->getMessage()]
+                ];
+            }
+        }
+    }
+
+    private function updateCampaign($provider, $user_info, $campaign)
+    {
         $client = new Client();
         $campaign_data = $this->updateAdCampaign($client, $user_info, $campaign);
         $ad_group_data = $this->updateAdGroup($client, $user_info, $campaign_data);
@@ -269,7 +292,23 @@ class CampaignController extends Controller
         return $ad;
     }
 
-    private function updateAdCampaign($client, $user_info, $campaign) {
+    private function deleteCampaign($provider, $user_info, $campaign)
+    {
+        $client = new Client();
+        $campaign_response = $client->request('DELETE', env('BASE_URL') . '/v3/rest/campaign/' . $campaign->campaign_id, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        $campaign->delete();
+
+        return json_decode($campaign_response->getBody(), true);
+    }
+
+    private function updateAdCampaign($client, $user_info, $campaign)
+    {
         $campaign_response = $client->request('PUT', env('BASE_URL') . '/v3/rest/campaign', [
             'body' => json_encode([
                 'id' => $campaign->campaign_id,

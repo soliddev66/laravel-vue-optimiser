@@ -1,5 +1,8 @@
 <template>
   <div class="container">
+    <div class="vld-parent">
+      <loading :active.sync="isLoading" :can-cancel="false" :is-full-page="fullPage"></loading>
+    </div>
     <div class="row justify-content-center">
       <div class="col-md-12">
         <div class="card">
@@ -15,7 +18,7 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th colspan="2">Actions</th>
+                  <th colspan="3">Actions</th>
                   <th>Camp. ID</th>
                   <th>Name</th>
                   <th>Status</th>
@@ -36,13 +39,16 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="campaign in data">
+                <tr v-for="campaign in data" :key="campaign.id">
                   <td>{{ campaign.id }}</td>
                   <td class="border-right-0">
                     <a class="btn btn-sm btn-info" :href="'/campaigns/' + campaign.id">View</a>
                   </td>
-                  <td>
+                  <td class="border-right-0">
                     <a class="btn btn-sm btn-primary" :href="'/campaigns/edit/' + campaign.id">Update</a>
+                  </td>
+                  <td>
+                    <a class="btn btn-sm btn-danger" :href="'/campaigns/delete/' + campaign.id" @click.prevent="deleteCampaign">Delete</a>
                   </td>
                   <td>{{ campaign.campaign_id }}</td>
                   <td>{{ campaign.name }}</td>
@@ -74,7 +80,10 @@
 <script>
 import _ from 'lodash';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
+import Loading from 'vue-loading-overlay'
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
+
+import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
   props: {
@@ -84,7 +93,8 @@ export default {
     }
   },
   components: {
-    VueCtkDateTimePicker
+    VueCtkDateTimePicker,
+    Loading
   },
   mounted() {
     console.log('Component mounted.')
@@ -96,7 +106,9 @@ export default {
       targetDate: {
         start: new Date(),
         end: new Date()
-      }
+      },
+      isLoading: false,
+      fullPage: true
     }
   },
   methods: {
@@ -117,6 +129,26 @@ export default {
         .catch((err) => {
           alert(err);
         });
+    },
+    deleteCampaign(e) {
+      if (confirm('Are you sure to delete this campaign?')) {
+        this.isLoading = true;
+        axios.post(e.target.getAttribute('href'))
+        .then((response) => {
+          if (response.data.errors) {
+            alert(response.data.errors[0])
+          } else {
+            this.getData();
+            alert('Delete the campaign successfully!');
+          }
+        })
+        .catch((err) => {
+          alert(err);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+      }
     }
   }
 }

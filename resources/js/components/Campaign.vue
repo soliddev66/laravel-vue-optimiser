@@ -26,11 +26,11 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="adGroup in data" class="text-center">
+                <tr v-for="adGroup in data" class="text-center" :key="adGroup.id">
                   <td>{{ adGroup.id }}</td>
                   <td>{{ adGroup.adGroupName }}</td>
                   <td>
-                    <p v-for="ad in adsIn(adGroup)">
+                    <p v-for="ad in adsIn(adGroup)" :key="ad.id">
                       <a class="btn btn-sm btn-success" :href="`/campaigns/${campaign.id}/ad-groups/${adGroup.id}/ads/${ad.id}`">{{ ad.id }}</a>
                     </p>
                   </td>
