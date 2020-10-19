@@ -14,11 +14,11 @@
             </div>
           </div>
           <div class="card-body table-responsive">
-            <table id="campaignsTable" class="table table-bordered table-hover">
+            <table ref="campaignsTable" id="campaignsTable" class="table table-bordered table-hover text-center">
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th colspan="3">Actions</th>
+                  <th colspan="4">Actions</th>
                   <th>Camp. ID</th>
                   <th>Name</th>
                   <th>Status</th>
@@ -41,18 +41,28 @@
               <tbody>
                 <tr v-for="campaign in data" :key="campaign.id">
                   <td>{{ campaign.id }}</td>
-                  <td class="border-right-0">
-                    <a class="btn btn-sm btn-info" :href="'/campaigns/' + campaign.id">View</a>
+                  <td class="border-right-0 px-1" v-switch="campaign.status">
+                    <a v-case="'ACTIVE'" class="btn btn-sm btn-default border" @click.prevent="updateCampaignStatus(
+                    'PAUSE')"><i class="fas fa-stop"></i></a>
+                    <a v-default class="btn btn-sm btn-default border" @click.prevent="updateCampaignStatus(
+                    'ACTIVE')"><i class="fas fa-play"></i></a>
                   </td>
-                  <td class="border-right-0">
-                    <a class="btn btn-sm btn-primary" :href="'/campaigns/edit/' + campaign.id">Update</a>
+                  <td class="border-right-0 px-1">
+                    <a class="btn btn-sm btn-default border" :href="'/campaigns/edit/' + campaign.id"><i class="fas fa-edit"></i></a>
                   </td>
-                  <td>
-                    <a class="btn btn-sm btn-danger" :href="'/campaigns/delete/' + campaign.id" @click.prevent="deleteCampaign">Delete</a>
+                  <td class="border-right-0 px-1">
+                    <a class="btn btn-sm btn-default border" @click.prevent="cloneCampaign(campaign)"><i class="fas fa-clone"></i></a>
+                  </td>
+                  <td class="px-1">
+                    <a class="btn btn-sm btn-default border" :href="'/campaigns/delete/' + campaign.id" @click.prevent="deleteCampaign"><i class="fas fa-trash"></i></a>
                   </td>
                   <td>{{ campaign.campaign_id }}</td>
-                  <td>{{ campaign.name }}</td>
-                  <td>{{ campaign.status }}</td>
+                  <td><a :href="'/campaigns/' + campaign.id">{{ campaign.name }}</a></td>
+                  <td v-switch="campaign.status">
+                    <span v-case="'ACTIVE'" class="text-success">{{ campaign.status }}</span>
+                    <span v-case="'PAUSED'" class="text-danger">{{ campaign.status }}</span>
+                    <span v-default>{{ campaign.status }}</span>
+                  </td>
                   <td>{{ campaign.budget }}</td>
                   <td>{{ avg(campaign.redtrack_report, 'cpc') || 0 }}</td>
                   <td>{{ round(count(campaign.redtrack_report, 'revenue') / count(campaign.redtrack_report, 'conversions')) || 0 }}</td>
@@ -69,6 +79,27 @@
                   <td>{{ round(count(campaign.redtrack_report, 'cost') / count(campaign.redtrack_report, 'lp_clicks')) || 0 }}</td>
                 </tr>
               </tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="6" class="text-center">-</th>
+                  <th>Total:</th>
+                  <th class="text-center">-</th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -130,24 +161,28 @@ export default {
           alert(err);
         });
     },
+    updateCampaignStatus(status) {
+      // Update
+    },
     deleteCampaign(e) {
       if (confirm('Are you sure to delete this campaign?')) {
         this.isLoading = true;
         axios.post(e.target.getAttribute('href'))
-        .then((response) => {
-          if (response.data.errors) {
-            alert(response.data.errors[0])
-          } else {
-            this.getData();
-            alert('Delete the campaign successfully!');
-          }
-        })
-        .catch((err) => {
-          alert(err);
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
+          .then((response) => {
+            if (response.data.errors) {
+              alert(response.data.errors[0])
+            } else {
+              this.getData();
+              alert('Delete the campaign successfully!');
+              $('#campaignsTable').DataTable().draw('full-reset');
+            }
+          })
+          .catch((err) => {
+            alert(err);
+          })
+          .finally(() => {
+            this.isLoading = false;
+          });
       }
     }
   }

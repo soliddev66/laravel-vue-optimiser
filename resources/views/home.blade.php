@@ -7,7 +7,7 @@
 @stop
 
 @section('content')
-    <p>Welcome to this beautiful admin panel.</p>
+    <dashboard :data="{{ json_encode($data) }}"></dashboard>
 @stop
 
 @section('css')

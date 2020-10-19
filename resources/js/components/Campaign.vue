@@ -3,53 +3,74 @@
     <div class="row justify-content-center">
       <div class="col-md-12">
         <div class="card">
-          <div class="card-body table-responsive">
-            <table id="adGroupsTable" class="table table-bordered table-hover">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Ads</th>
-                  <th>Advertiser ID</th>
-                  <th>Campaign ID</th>
-                  <th>ECPA Goal</th>
-                  <th>DPA Audience Strategy</th>
-                  <th>Tracking Url</th>
-                  <th>Advanced Geo Pos</th>
-                  <th>Advanced Geo Neg</th>
-                  <th>Bidding Strategy</th>
-                  <th>Custom Parameters</th>
-                  <th>Product Set ID</th>
-                  <th>Editorial Status</th>
-                  <th>Start Date</th>
-                  <th>End Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="adGroup in data" class="text-center" :key="adGroup.id">
-                  <td>{{ adGroup.id }}</td>
-                  <td>{{ adGroup.adGroupName }}</td>
-                  <td>
-                    <p v-for="ad in adsIn(adGroup)" :key="ad.id">
-                      <a class="btn btn-sm btn-success" :href="`/campaigns/${campaign.id}/ad-groups/${adGroup.id}/ads/${ad.id}`">{{ ad.id }}</a>
-                    </p>
-                  </td>
-                  <td>{{ adGroup.advertiserId }}</td>
-                  <td>{{ adGroup.campaignId }}</td>
-                  <td>{{ adGroup.ecpaGoal }}</td>
-                  <td>{{ adGroup.dpaAudienceStrategy }}</td>
-                  <td>{{ adGroup.trackingUrl }}</td>
-                  <td>{{ adGroup.advancedGeoPos }}</td>
-                  <td>{{ adGroup.advancedGeoNeg }}</td>
-                  <td>{{ adGroup.biddingStrategy }}</td>
-                  <td>{{ adGroup.customParameters }}</td>
-                  <td>{{ adGroup.productSetId }}</td>
-                  <td>{{ adGroup.editorialStatus }}</td>
-                  <td>{{ adGroup.startDateStr }}</td>
-                  <td>{{ adGroup.endDateStr }}</td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="card-body">
+            <vue-tabs>
+              <v-tab title="Widgets">
+                <div class="table-responsive mt-3">
+                  <table id="adGroupsTable" class="table table-bordered table-hover">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Ads</th>
+                        <th>Advertiser ID</th>
+                        <th>Campaign ID</th>
+                        <th>ECPA Goal</th>
+                        <th>DPA Audience Strategy</th>
+                        <th>Tracking Url</th>
+                        <th>Advanced Geo Pos</th>
+                        <th>Advanced Geo Neg</th>
+                        <th>Bidding Strategy</th>
+                        <th>Custom Parameters</th>
+                        <th>Product Set ID</th>
+                        <th>Editorial Status</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="adGroup in data" class="text-center" :key="adGroup.id">
+                        <td>{{ adGroup.id }}</td>
+                        <td>{{ adGroup.adGroupName }}</td>
+                        <td>
+                          <p v-for="ad in adsIn(adGroup)" :key="ad.id">
+                            <a class="btn btn-sm btn-success" :href="`/campaigns/${campaign.id}/ad-groups/${adGroup.id}/ads/${ad.id}`">{{ ad.id }}</a>
+                          </p>
+                        </td>
+                        <td>{{ adGroup.advertiserId }}</td>
+                        <td>{{ adGroup.campaignId }}</td>
+                        <td>{{ adGroup.ecpaGoal }}</td>
+                        <td>{{ adGroup.dpaAudienceStrategy }}</td>
+                        <td>{{ adGroup.trackingUrl }}</td>
+                        <td>{{ adGroup.advancedGeoPos }}</td>
+                        <td>{{ adGroup.advancedGeoNeg }}</td>
+                        <td>{{ adGroup.biddingStrategy }}</td>
+                        <td>{{ adGroup.customParameters }}</td>
+                        <td>{{ adGroup.productSetId }}</td>
+                        <td>{{ adGroup.editorialStatus }}</td>
+                        <td>{{ adGroup.startDateStr }}</td>
+                        <td>{{ adGroup.endDateStr }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </v-tab>
+              <v-tab title="Contents">
+                Second tab content
+              </v-tab>
+              <v-tab title="AdGroups">
+                Third tab content
+              </v-tab>
+              <v-tab title="Domains">
+                Third tab content
+              </v-tab>
+              <v-tab title="Rules">
+                Third tab content
+              </v-tab>
+              <v-tab title="Performance">
+                Third tab content
+              </v-tab>
+            </vue-tabs>
           </div>
         </div>
       </div>
