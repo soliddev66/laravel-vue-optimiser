@@ -114529,12 +114529,7 @@ var render = function() {
                           "a",
                           {
                             staticClass: "btn btn-sm btn-default border",
-                            on: {
-                              click: function($event) {
-                                $event.preventDefault()
-                                return _vm.cloneCampaign(campaign)
-                              }
-                            }
+                            attrs: { href: "/campaign/create/" + campaign.id }
                           },
                           [_c("i", { staticClass: "fas fa-clone" })]
                         )
