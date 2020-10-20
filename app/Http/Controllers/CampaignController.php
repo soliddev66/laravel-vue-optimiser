@@ -241,11 +241,33 @@ class CampaignController extends Controller
         $user_info = auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first();
 
         try {
-            $data = $this->updateCampaign($campaign->provider, $user_info, $campaign);
+            $data = $this->updateCampaign($user_info, $campaign);
         } catch (Exception $e) {
             if ($e->getCode() == 401) {
                 Token::refresh($user_info, function() use ($user_info, $campaign, &$data) {
-                    $data = $this->updateCampaign($campaign->provider, $user_info, $campaign);
+                    $data = $this->updateCampaign($user_info, $campaign);
+                });
+            } else {
+                $data = [
+                    'errors' => [$e->getMessage()]
+                ];
+            }
+        }
+
+        return $data;
+    }
+
+    public function status(Campaign $campaign)
+    {
+        $data = [];
+        $user_info = auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first();
+
+        try {
+            $data = $this->updateCampaignStatus($user_info, $campaign);
+        } catch (Exception $e) {
+            if ($e->getCode() == 401) {
+                Token::refresh($user_info, function() use ($user_info, $campaign, &$data) {
+                    $data = $this->updateCampaignStatus($user_info, $campaign);
                 });
             } else {
                 $data = [
@@ -263,11 +285,11 @@ class CampaignController extends Controller
         $user_info = auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first();
 
         try {
-            $data = $this->deleteCampaign($campaign->provider, $user_info, $campaign);
+            $data = $this->deleteCampaign($user_info, $campaign);
         } catch (Exception $e) {
             if ($e->getCode() == 401) {
                 Token::refresh($user_info, function() use ($user_info, $campaign, &$data) {
-                    $data = $this->deleteCampaign($campaign->provider, $user_info, $campaign);
+                    $data = $this->deleteCampaign($user_info, $campaign);
                 });
             } else {
                 $data = [
@@ -277,7 +299,7 @@ class CampaignController extends Controller
         }
     }
 
-    private function updateCampaign($provider, $user_info, $campaign)
+    private function updateCampaign($user_info, $campaign)
     {
         $client = new Client();
         $campaign_data = $this->updateAdCampaign($client, $user_info, $campaign);
@@ -292,7 +314,27 @@ class CampaignController extends Controller
         return $ad;
     }
 
-    private function deleteCampaign($provider, $user_info, $campaign)
+    private function updateCampaignStatus($user_info, $campaign)
+    {
+        $client = new Client();
+        $campaign->status = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+        $campaign_response = $client->request('PUT', env('BASE_URL') . '/v3/rest/campaign', [
+            'body' => json_encode([
+                'id' => $campaign->campaign_id,
+                'status' => $campaign->status
+            ]),
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        $campaign->save();
+
+        return json_decode($campaign_response->getBody(), true);
+    }
+
+    private function deleteCampaign($user_info, $campaign)
     {
         $client = new Client();
         $campaign_response = $client->request('DELETE', env('BASE_URL') . '/v3/rest/campaign/' . $campaign->campaign_id, [
