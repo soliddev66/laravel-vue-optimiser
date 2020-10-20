@@ -35,14 +35,14 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             Gemini::checkJobs();
         })->everyMinute();
-        // $schedule->call(function () {
-        //     RedTrack::crawl();
-        // })->everyMinute();
-        // $schedule->call(function () {
-        //     foreach (User::all() as $key => $user) {
-        //         PullCampaign::dispatch($user);
-        //     }
-        // })->everyMinute();
+        $schedule->call(function () {
+            RedTrack::crawl();
+        })->everyMinute();
+        $schedule->call(function () {
+            foreach (User::all() as $key => $user) {
+                PullCampaign::dispatch($user);
+            }
+        })->everyMinute();
     }
 
     /**
