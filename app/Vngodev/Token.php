@@ -16,7 +16,7 @@ class Token
         //
     }
 
-    public function refresh($user_info, callable $callback = null)
+    public static function refresh($user_info, callable $callback = null)
     {
         $postKey = (version_compare(ClientInterface::MAJOR_VERSION, '6') === 1) ? 'form_params' : 'body';
         $client = new Client();
