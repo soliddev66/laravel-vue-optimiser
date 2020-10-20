@@ -489,9 +489,9 @@ class CampaignController extends Controller
 
     private function createCampaign($provider, $user_info)
     {
+        $data = [];
         $client = new Client();
         $campaign_data = $this->createAdCampaign($client, $user_info);
-        $ad_group_data = $this->createAdGroup($client, $user_info, $campaign_data);
 
         $campaign = Campaign::firstOrNew([
             'campaign_id' => $campaign_data['response']['id'],
@@ -499,10 +499,79 @@ class CampaignController extends Controller
             'open_id' => $user_info->open_id,
             'user_id' => auth()->id()
         ]);
+
         $campaign->save();
 
-        $ad = $this->createAd($client, $user_info, $campaign_data, $ad_group_data);
-        $this->createAttributes($client, $user_info, $campaign_data);
+        try {
+            $ad_group_data = $this->createAdGroup($client, $user_info, $campaign_data);
+        } catch (Exception $e) {
+            if ($e->getCode() == 401) {
+                Token::refresh($user_info, function () use ($client, $user_info, $campaign_data, $campaign, &$ad_group_data) {
+                    try {
+                        $ad_group_data = $this->createAdGroup($client, $user_info, $campaign_data);
+                    } catch (Exception $e) {
+                        $this->deleteCampaign($user_info, $campaign);
+                        return [
+                            'errors' => [$e->getMessage()]
+                        ];
+                    }
+                });
+            } else {
+                $this->deleteCampaign($user_info, $campaign);
+                return [
+                    'errors' => [$e->getMessage()]
+                ];
+            }
+        }
+
+        try {
+            $ad = $this->createAd($client, $user_info, $campaign_data, $ad_group_data);
+        } catch (Exception $e) {
+            if ($e->getCode() == 401) {
+                Token::refresh($user_info, function () use ($client, $user_info, $campaign_data, $campaign, $ad_group_data, &$ad) {
+                    try {
+                        $ad = $this->createAd($client, $user_info, $campaign_data, $ad_group_data);
+                    } catch (Exception $e) {
+                        $this->deleteCampaign($user_info, $campaign);
+                        $this->deleteAdGroups($user_info, [$ad_group_data['response']['id']]);
+                        return [
+                            'errors' => [$e->getMessage()]
+                        ];
+                    }
+                });
+            } else {
+                $this->deleteCampaign($user_info, $campaign);
+                $this->deleteAdGroups($user_info, [$ad_group_data['response']['id']]);
+                return [
+                    'errors' => [$e->getMessage()]
+                ];
+            }
+        }
+        try {
+            $this->createAttributes($client, $user_info, $campaign_data);
+        } catch (Exception $e) {
+            if ($e->getCode() == 401) {
+                Token::refresh($user_info, function () use ($client, $user_info, $campaign_data, $campaign) {
+                    try {
+                        $this->createAttributes($client, $user_info, $campaign_data);
+                    } catch (Exception $e) {
+                        $this->deleteCampaign($user_info, $campaign);
+                        $this->deleteAdGroups($user_info, [$ad_group_data['response']['id']]);
+                        $this->deleteAds($user_info, [$ad['response']['id']]);
+                        return [
+                            'errors' => [$e->getMessage()]
+                        ];
+                    }
+                });
+            } else {
+                $this->deleteCampaign($user_info, $campaign);
+                $this->deleteAdGroups($user_info, [$ad_group_data['response']['id']]);
+                $this->deleteAds($user_info, [$ad['response']['id']]);
+                return [
+                    'errors' => [$e->getMessage()]
+                ];
+            }
+        }
 
         PullCampaign::dispatch(auth()->user());
 
@@ -532,6 +601,19 @@ class CampaignController extends Controller
         ]);
 
         return json_decode($ad_response->getBody(), true);
+    }
+
+    private function deleteAds($user_info, $ad_ids)
+    {
+        $client = new Client();
+        $data = $client->request('DELETE', env('BASE_URL') . '/v3/rest/ad?id=' . implode('&id=', $ad_ids), [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($data->getBody(), true);
     }
 
     private function createAdCampaign($client, $user_info)
@@ -603,18 +685,33 @@ class CampaignController extends Controller
         return json_decode($ad_group_response->getBody(), true);
     }
 
+    private function deleteAdGroups($user_info, $ad_group_ids)
+    {
+        $client = new Client();
+        $data = $client->request('DELETE', env('BASE_URL') . '/v3/rest/adgroup?id=' . implode('&id=', $ad_group_ids), [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($data->getBody(), true);
+    }
+
     private function deleteAttributes($client, $user_info)
     {
         if (!count(request('dataAttributes'))) {
             return;
         }
 
-        $client->request('DELETE', env('BASE_URL') . '/v3/rest/targetingattribute?' . implode('&', request('dataAttributes')), [
+        $data = $client->request('DELETE', env('BASE_URL') . '/v3/rest/targetingattribute?id=' . implode('&id=', request('dataAttributes')), [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_info->token,
                 'Content-Type' => 'application/json'
             ]
         ]);
+
+        return json_decode($data->getBody(), true);
     }
 
     private function createAttributes($client, $user_info, $campaign_data)
