@@ -510,14 +510,14 @@ class CampaignController extends Controller
                     try {
                         $ad_group_data = $this->createAdGroup($client, $user_info, $campaign_data);
                     } catch (Exception $e) {
-                        $this->deleteCampaign($campaign->provider, $user_info, $campaign);
+                        $this->deleteCampaign($user_info, $campaign);
                         return [
                             'errors' => [$e->getMessage()]
                         ];
                     }
                 });
             } else {
-                $this->deleteCampaign($campaign->provider, $user_info, $campaign);
+                $this->deleteCampaign($user_info, $campaign);
                 return [
                     'errors' => [$e->getMessage()]
                 ];
@@ -532,14 +532,16 @@ class CampaignController extends Controller
                     try {
                         $ad = $this->createAd($client, $user_info, $campaign_data, $ad_group_data);
                     } catch (Exception $e) {
-                        $this->deleteCampaign($campaign->provider, $user_info, $campaign);
+                        $this->deleteCampaign($user_info, $campaign);
+                        $this->deleteAdGroups($user_info, [$ad_group_data['response']['id']]);
                         return [
                             'errors' => [$e->getMessage()]
                         ];
                     }
                 });
             } else {
-                $this->deleteCampaign($campaign->provider, $user_info, $campaign);
+                $this->deleteCampaign($user_info, $campaign);
+                $this->deleteAdGroups($user_info, [$ad_group_data['response']['id']]);
                 return [
                     'errors' => [$e->getMessage()]
                 ];
@@ -553,14 +555,18 @@ class CampaignController extends Controller
                     try {
                         $this->createAttributes($client, $user_info, $campaign_data);
                     } catch (Exception $e) {
-                        $this->deleteCampaign($campaign->provider, $user_info, $campaign);
+                        $this->deleteCampaign($user_info, $campaign);
+                        $this->deleteAdGroups($user_info, [$ad_group_data['response']['id']]);
+                        $this->deleteAds($user_info, [$ad['response']['id']]);
                         return [
                             'errors' => [$e->getMessage()]
                         ];
                     }
                 });
             } else {
-                $this->deleteCampaign($campaign->provider, $user_info, $campaign);
+                $this->deleteCampaign($user_info, $campaign);
+                $this->deleteAdGroups($user_info, [$ad_group_data['response']['id']]);
+                $this->deleteAds($user_info, [$ad['response']['id']]);
                 return [
                     'errors' => [$e->getMessage()]
                 ];
@@ -595,6 +601,18 @@ class CampaignController extends Controller
         ]);
 
         return json_decode($ad_response->getBody(), true);
+    }
+
+    private function deleteAds($user_info, $ad_ids)
+    {
+        $data = $client->request('DELETE', env('BASE_URL') . '/v3/rest/ad?id=' . implode('&id=', $ad_ids), [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($data->getBody(), true);
     }
 
     private function createAdCampaign($client, $user_info)
@@ -666,18 +684,32 @@ class CampaignController extends Controller
         return json_decode($ad_group_response->getBody(), true);
     }
 
+    private function deleteAdGroups($user_info, $ad_group_ids)
+    {
+        $data = $client->request('DELETE', env('BASE_URL') . '/v3/rest/adgroup?id=' . implode('&id=', $ad_group_ids), [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($data->getBody(), true);
+    }
+
     private function deleteAttributes($client, $user_info)
     {
         if (!count(request('dataAttributes'))) {
             return;
         }
 
-        $client->request('DELETE', env('BASE_URL') . '/v3/rest/targetingattribute?' . implode('&', request('dataAttributes')), [
+        $data = $client->request('DELETE', env('BASE_URL') . '/v3/rest/targetingattribute?id=' . implode('&id=', request('dataAttributes')), [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_info->token,
                 'Content-Type' => 'application/json'
             ]
         ]);
+
+        return json_decode($data->getBody(), true);
     }
 
     private function createAttributes($client, $user_info, $campaign_data)
