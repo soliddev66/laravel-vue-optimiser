@@ -3274,7 +3274,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 
 
@@ -3329,10 +3328,26 @@ __webpack_require__.r(__webpack_exports__);
         alert(err);
       });
     },
-    updateCampaignStatus: function updateCampaignStatus(status) {// Update
+    updateCampaignStatus: function updateCampaignStatus(e) {
+      var _this2 = this;
+
+      this.isLoading = true;
+      console.log(e);
+      console.log(e.target.getAttribute('href'));
+      axios.post(e.target.getAttribute('href')).then(function (response) {
+        if (response.data.errors) {
+          alert(response.data.errors[0]);
+        } else {
+          _this2.getData();
+        }
+      })["catch"](function (err) {
+        alert(err);
+      })["finally"](function () {
+        _this2.isLoading = false;
+      });
     },
     deleteCampaign: function deleteCampaign(e) {
-      var _this2 = this;
+      var _this3 = this;
 
       if (confirm('Are you sure to delete this campaign?')) {
         this.isLoading = true;
@@ -3340,7 +3355,7 @@ __webpack_require__.r(__webpack_exports__);
           if (response.data.errors) {
             alert(response.data.errors[0]);
           } else {
-            _this2.getData();
+            _this3.getData();
 
             alert('Delete the campaign successfully!');
             $('#campaignsTable').DataTable().draw('full-reset');
@@ -3348,7 +3363,7 @@ __webpack_require__.r(__webpack_exports__);
         })["catch"](function (err) {
           alert(err);
         })["finally"](function () {
-          _this2.isLoading = false;
+          _this3.isLoading = false;
         });
       }
     }
@@ -97802,60 +97817,28 @@ var render = function() {
                     return _c("tr", { key: campaign.id }, [
                       _c("td", [_vm._v(_vm._s(campaign.id))]),
                       _vm._v(" "),
-                      _c(
-                        "td",
-                        {
-                          directives: [
-                            {
-                              name: "switch",
-                              rawName: "v-switch",
-                              value: campaign.status,
-                              expression: "campaign.status"
+                      _c("td", { staticClass: "border-right-0 px-1" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "btn btn-sm btn-default border",
+                            attrs: { href: "/campaigns/status/" + campaign.id },
+                            on: {
+                              click: function($event) {
+                                $event.preventDefault()
+                                return _vm.updateCampaignStatus($event)
+                              }
                             }
-                          ],
-                          staticClass: "border-right-0 px-1"
-                        },
-                        [
-                          _c(
-                            "a",
-                            {
-                              directives: [
-                                {
-                                  name: "case",
-                                  rawName: "v-case",
-                                  value: "ACTIVE",
-                                  expression: "'ACTIVE'"
-                                }
-                              ],
-                              staticClass: "btn btn-sm btn-default border",
-                              on: {
-                                click: function($event) {
-                                  $event.preventDefault()
-                                  return _vm.updateCampaignStatus("PAUSE")
-                                }
-                              }
-                            },
-                            [_c("i", { staticClass: "fas fa-stop" })]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "a",
-                            {
-                              directives: [
-                                { name: "default", rawName: "v-default" }
-                              ],
-                              staticClass: "btn btn-sm btn-default border",
-                              on: {
-                                click: function($event) {
-                                  $event.preventDefault()
-                                  return _vm.updateCampaignStatus("ACTIVE")
-                                }
-                              }
-                            },
-                            [_c("i", { staticClass: "fas fa-play" })]
-                          )
-                        ]
-                      ),
+                          },
+                          [
+                            _c("i", {
+                              staticClass: "fas fa-play",
+                              class: { "fa-stop": campaign.status == "ACTIVE" },
+                              attrs: { "aria-hidden": "true" }
+                            })
+                          ]
+                        )
+                      ]),
                       _vm._v(" "),
                       _c("td", { staticClass: "border-right-0 px-1" }, [
                         _c(
@@ -112145,8 +112128,8 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! /Users/namhuynh/Documents/Projects/namhuynh/optimiser/resources/js/app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! /Users/namhuynh/Documents/Projects/namhuynh/optimiser/resources/sass/app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! /var/www/optimiser/resources/js/app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! /var/www/optimiser/resources/sass/app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

@@ -41,11 +41,10 @@
               <tbody>
                 <tr v-for="campaign in data" :key="campaign.id">
                   <td>{{ campaign.id }}</td>
-                  <td class="border-right-0 px-1" v-switch="campaign.status">
-                    <a v-case="'ACTIVE'" class="btn btn-sm btn-default border" @click.prevent="updateCampaignStatus(
-                    'PAUSE')"><i class="fas fa-stop"></i></a>
-                    <a v-default class="btn btn-sm btn-default border" @click.prevent="updateCampaignStatus(
-                    'ACTIVE')"><i class="fas fa-play"></i></a>
+                  <td class="border-right-0 px-1">
+                    <a class="btn btn-sm btn-default border" :href="'/campaigns/status/' + campaign.id" @click.prevent="updateCampaignStatus">
+                      <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': campaign.status == 'ACTIVE' }"></i>
+                    </a>
                   </td>
                   <td class="border-right-0 px-1">
                     <a class="btn btn-sm btn-default border" :href="'/campaigns/edit/' + campaign.id"><i class="fas fa-edit"></i></a>
@@ -161,8 +160,24 @@ export default {
           alert(err);
         });
     },
-    updateCampaignStatus(status) {
-      // Update
+    updateCampaignStatus(e) {
+      this.isLoading = true;
+      console.log(e)
+      console.log(e.target.getAttribute('href'))
+      axios.post(e.target.getAttribute('href'))
+        .then((response) => {
+        if (response.data.errors) {
+          alert(response.data.errors[0])
+        } else {
+          this.getData();
+        }
+        })
+        .catch((err) => {
+          alert(err);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
     deleteCampaign(e) {
       if (confirm('Are you sure to delete this campaign?')) {
