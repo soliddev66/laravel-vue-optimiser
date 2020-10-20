@@ -10,6 +10,9 @@ class Campaign extends Model
 {
     use HasFactory;
 
+    const STATUS_ACTIVE = 'ACTIVE';
+    const STATUS_PAUSED = 'PAUSED';
+
     protected $fillable = [
         'user_id',
         'provider_id',
