@@ -8,8 +8,12 @@
         <div class="card">
           <div class="card-header">
             <div class="row">
-              <div class="col-6">
+              <div class="col-md-6 col-12">
                 <VueCtkDateTimePicker v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData"></VueCtkDateTimePicker>
+              </div>
+              <div class="col-md-6 col-12">
+                <button class="btn btn-default border">Download CSV</button>
+                <button class="btn btn-default border">Download Excel</button>
               </div>
             </div>
           </div>
@@ -57,10 +61,11 @@
                   </td>
                   <td>{{ campaign.campaign_id }}</td>
                   <td><a :href="'/campaigns/' + campaign.id">{{ campaign.name }}</a></td>
-                  <td v-switch="campaign.status">
-                    <span v-case="'ACTIVE'" class="text-success">{{ campaign.status }}</span>
-                    <span v-case="'PAUSED'" class="text-danger">{{ campaign.status }}</span>
-                    <span v-default>{{ campaign.status }}</span>
+                  <td v-if="campaign.status === 'ACTIVE'" class="text-success">
+                    {{ campaign.status }}
+                  </td>
+                  <td v-else class="text-danger">
+                    {{ campaign.status }}
                   </td>
                   <td>{{ campaign.budget }}</td>
                   <td>{{ avg(campaign.redtrack_report, 'cpc') || 0 }}</td>
@@ -164,11 +169,11 @@ export default {
       this.isLoading = true;
       axios.post(e.target.getAttribute('href'))
         .then((response) => {
-        if (response.data.errors) {
-          alert(response.data.errors[0])
-        } else {
-          this.getData();
-        }
+          if (response.data.errors) {
+            alert(response.data.errors[0])
+          } else {
+            this.getData();
+          }
         })
         .catch((err) => {
           alert(err);
