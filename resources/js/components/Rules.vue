@@ -7,6 +7,21 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-body table-responsive">
+            <div class="row">
+              <div class="col">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Dropdown button
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
+                </div>
+
+              </div>
+            </div>
             <table ref="rulesTable" id="rulesTable" class="table table-bordered table-hover text-center">
               <thead>
                 <tr>
@@ -34,8 +49,8 @@
                   <td class="px-1">
                     <a class="btn btn-sm btn-default border" :href="'/rules/delete/' + rule.id"><i class="fas fa-trash"></i></a>
                   </td>
-                  <td>OK</td>
-                  <td><a :href="'/rules/' + rule.id">OK</a></td>
+                  <td></td>
+                  <td><a :href="'/rules/' + rule.id"></a></td>
                   <td v-switch="rule.status">
                     <span v-case="'ACTIVE'" class="text-success">{{ rule.status }}</span>
                     <span v-case="'PAUSED'" class="text-danger">{{ rule.status }}</span>

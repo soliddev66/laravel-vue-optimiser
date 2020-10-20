@@ -3657,6 +3657,21 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -98557,6 +98572,8 @@ var render = function() {
       _c("div", { staticClass: "col-md-12" }, [
         _c("div", { staticClass: "card" }, [
           _c("div", { staticClass: "card-body table-responsive" }, [
+            _vm._m(0),
+            _vm._v(" "),
             _c(
               "table",
               {
@@ -98565,7 +98582,7 @@ var render = function() {
                 attrs: { id: "rulesTable" }
               },
               [
-                _vm._m(0),
+                _vm._m(1),
                 _vm._v(" "),
                 _c(
                   "tbody",
@@ -98601,7 +98618,7 @@ var render = function() {
                         )
                       ]),
                       _vm._v(" "),
-                      _vm._m(1, true),
+                      _vm._m(2, true),
                       _vm._v(" "),
                       _c("td", { staticClass: "px-1" }, [
                         _c(
@@ -98614,12 +98631,10 @@ var render = function() {
                         )
                       ]),
                       _vm._v(" "),
-                      _c("td", [_vm._v("OK")]),
+                      _c("td"),
                       _vm._v(" "),
                       _c("td", [
-                        _c("a", { attrs: { href: "/rules/" + rule.id } }, [
-                          _vm._v("OK")
-                        ])
+                        _c("a", { attrs: { href: "/rules/" + rule.id } })
                       ]),
                       _vm._v(" "),
                       _c(
@@ -98691,6 +98706,56 @@ var render = function() {
   ])
 }
 var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col" }, [
+        _c("div", { staticClass: "dropdown" }, [
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-sm btn-secondary dropdown-toggle",
+              attrs: {
+                type: "button",
+                id: "dropdownMenuButton",
+                "data-toggle": "dropdown",
+                "aria-haspopup": "true",
+                "aria-expanded": "false"
+              }
+            },
+            [
+              _vm._v(
+                "\n                      Dropdown button\n                  "
+              )
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "div",
+            {
+              staticClass: "dropdown-menu",
+              attrs: { "aria-labelledby": "dropdownMenuButton" }
+            },
+            [
+              _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
+                _vm._v("Action")
+              ]),
+              _vm._v(" "),
+              _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
+                _vm._v("Another action")
+              ]),
+              _vm._v(" "),
+              _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
+                _vm._v("Something else here")
+              ])
+            ]
+          )
+        ])
+      ])
+    ])
+  },
   function() {
     var _vm = this
     var _h = _vm.$createElement
