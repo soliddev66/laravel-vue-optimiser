@@ -3332,8 +3332,6 @@ __webpack_require__.r(__webpack_exports__);
       var _this2 = this;
 
       this.isLoading = true;
-      console.log(e);
-      console.log(e.target.getAttribute('href'));
       axios.post(e.target.getAttribute('href')).then(function (response) {
         if (response.data.errors) {
           alert(response.data.errors[0]);

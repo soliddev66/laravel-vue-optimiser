@@ -162,8 +162,6 @@ export default {
     },
     updateCampaignStatus(e) {
       this.isLoading = true;
-      console.log(e)
-      console.log(e.target.getAttribute('href'))
       axios.post(e.target.getAttribute('href'))
         .then((response) => {
         if (response.data.errors) {
