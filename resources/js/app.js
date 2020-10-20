@@ -11,6 +11,7 @@ import Vue from 'vue';
 import VuejsDialog from 'vuejs-dialog';
 import VSwitch from 'v-switch-case';
 import VueTabs from 'vue-nav-tabs';
+import moment from './plugins/moment.js';
 
 import 'vuejs-dialog/dist/vuejs-dialog.min.css';
 import 'vue-nav-tabs/themes/vue-tabs.css';
@@ -18,6 +19,7 @@ import 'vue-nav-tabs/themes/vue-tabs.css';
 Vue.use(VuejsDialog);
 Vue.use(VSwitch);
 Vue.use(VueTabs);
+Vue.use(moment);
 
 /**
  * The following block of code may be used to automatically register your
