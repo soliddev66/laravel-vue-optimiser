@@ -45,6 +45,10 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/{campaign}/ad-groups/{ad_group_id}/ads/{ad_id}', [App\Http\Controllers\CampaignController::class, 'ad'])->name('campaigns.ad');
 });
 
+Route::group(['middleware' => 'auth', 'prefix' => 'rules'], function() {
+    Route::get('/', [App\Http\Controllers\RuleController::class, 'index'])->name('rules.index');
+});
+
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/account-wizard', [App\Http\Controllers\AccountController::class, 'wizard'])->name('account_wizard');
 Route::get('/account/advertisers', [App\Http\Controllers\AccountController::class, 'advertisers'])->name('account_wizard');
