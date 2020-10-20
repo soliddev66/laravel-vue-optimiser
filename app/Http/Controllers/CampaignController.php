@@ -605,6 +605,7 @@ class CampaignController extends Controller
 
     private function deleteAds($user_info, $ad_ids)
     {
+        $client = new Client();
         $data = $client->request('DELETE', env('BASE_URL') . '/v3/rest/ad?id=' . implode('&id=', $ad_ids), [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_info->token,
@@ -686,6 +687,7 @@ class CampaignController extends Controller
 
     private function deleteAdGroups($user_info, $ad_group_ids)
     {
+        $client = new Client();
         $data = $client->request('DELETE', env('BASE_URL') . '/v3/rest/adgroup?id=' . implode('&id=', $ad_group_ids), [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_info->token,
