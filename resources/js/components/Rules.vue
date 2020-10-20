@@ -7,19 +7,25 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-body table-responsive">
-            <div class="row">
+            <div class="row mb-3">
               <div class="col">
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Dropdown button
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <div class="btn-toolbar" role="toolbar">
+                  <div class="btn-group mr-3" role="group">
+                    <div class="dropdown">
+                      <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-plus"></i> Rule
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <a class="dropdown-item" href="#">Action</a>
                         <a class="dropdown-item" href="#">Another action</a>
                         <a class="dropdown-item" href="#">Something else here</a>
+                      </div>
                     </div>
+                  </div>
+                  <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-light"><i class="far fa-folder-open"></i> Load from template</button>
+                  </div>
                 </div>
-
               </div>
             </div>
             <table ref="rulesTable" id="rulesTable" class="table table-bordered table-hover text-center">
