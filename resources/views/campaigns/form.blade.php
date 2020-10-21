@@ -17,8 +17,9 @@
 @stop
 
 @section('css')
+<link rel="stylesheet" href="{{ asset('vendor/file-manager/css/file-manager.css') }}">
 @stop
 
 @section('js')
-    <script></script>
+<script src="{{ asset('vendor/file-manager/js/file-manager.js') }}"></script>
 @stop

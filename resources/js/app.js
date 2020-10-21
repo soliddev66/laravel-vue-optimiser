@@ -8,17 +8,26 @@ require('./bootstrap');
 require('moment');
 
 import Vue from 'vue';
+import Vuex from 'vuex';
 import VuejsDialog from 'vuejs-dialog';
 import VSwitch from 'v-switch-case';
 import VueTabs from 'vue-nav-tabs';
+import FileManager from 'lv-file-manager';
+import VModal from 'vue-js-modal';
+
 import moment from './plugins/moment.js';
 
 import 'vuejs-dialog/dist/vuejs-dialog.min.css';
 import 'vue-nav-tabs/themes/vue-tabs.css';
 
+Vue.use(Vuex);
+const store = new Vuex.Store();
+
 Vue.use(VuejsDialog);
 Vue.use(VSwitch);
 Vue.use(VueTabs);
+Vue.use(FileManager, {store});
+Vue.use(VModal);
 Vue.use(moment);
 
 /**
@@ -37,6 +46,7 @@ Vue.component('traffic-sources', require('./components/TrafficSources.vue').defa
 Vue.component('trackers', require('./components/Trackers.vue').default);
 
 Vue.component('campaigns', require('./components/Campaigns.vue').default);
+Vue.component('rules', require('./components/Rules.vue').default);
 Vue.component('campaign', require('./components/Campaign.vue').default);
 Vue.component('campaign-creator', require('./components/CampaignCreator.vue').default);
 
@@ -56,4 +66,5 @@ Vue.component('select2', require('./plugins/Select2.vue').default);
 
 const app = new Vue({
     el: '#app',
+    store
 });
