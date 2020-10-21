@@ -178,7 +178,11 @@ class CampaignController extends Controller
         if ($campaign) {
             $instance = $this->getInstanceData($campaign);
 
-            $instance['campaignName'] = $instance['campaignName'] . ' - Copy';
+            if (isset($instance['id'])) {
+                $instance['campaignName'] = $instance['campaignName'] . ' - Copy';
+            } else {
+                $instance = null;
+            }
         }
 
         return view('campaigns.form', compact('instance'));
@@ -187,6 +191,10 @@ class CampaignController extends Controller
     public function edit(Campaign $campaign)
     {
         $instance = $this->getInstanceData($campaign);
+
+        if (!isset($instance['id'])) {
+            abort('404');
+        }
 
         return view('campaigns.form', compact('instance'));
     }
