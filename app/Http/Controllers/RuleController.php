@@ -8,4 +8,9 @@ class RuleController extends Controller
     {
         return view('rules.index');
     }
+
+    public function create()
+    {
+        return view('rules.form');
+    }
 }

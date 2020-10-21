@@ -47,6 +47,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
 
 Route::group(['middleware' => 'auth', 'prefix' => 'rules'], function() {
     Route::get('/', [App\Http\Controllers\RuleController::class, 'index'])->name('rules.index');
+    Route::get('/create', [App\Http\Controllers\RuleController::class, 'create'])->name('rules.create');
 });
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
