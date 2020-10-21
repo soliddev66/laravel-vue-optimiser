@@ -193,7 +193,9 @@ class CampaignController extends Controller
         $instance = $this->getInstanceData($campaign);
 
         if (!isset($instance['id'])) {
-            abort('404');
+            return view('error', [
+                'title' => 'There is no compaign was found. Please contact Administrator for this case.'
+            ]);
         }
 
         return view('campaigns.form', compact('instance'));
