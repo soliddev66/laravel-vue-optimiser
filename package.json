@@ -26,14 +26,17 @@
     "dependencies": {
         "babel-helper-vue-jsx-merge-props": "^2.0.3",
         "chart.js": "^2.9.4",
+        "lv-file-manager": "^1.0.17",
         "moment": "^2.29.1",
         "v-select2-component": "^0.4.3",
         "v-switch-case": "^1.0.3",
         "vue": "^2.6.12",
         "vue-chartjs": "^3.5.1",
         "vue-ctk-date-time-picker": "^2.5.0",
+        "vue-js-modal": "^2.0.0-rc.6",
         "vue-loading-overlay": "^3.4.1",
         "vue-nav-tabs": "finalblast/vue-tabs#master",
-        "vuejs-dialog": "^1.4.2"
+        "vuejs-dialog": "^1.4.2",
+        "vuex": "^3.5.1"
     }
 }

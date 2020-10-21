@@ -244,7 +244,8 @@
                         <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="imageUrlHQ" />
                       </div>
                       <div class="col-sm-8 offset-sm-4">
-                        <input type="file" ref="imageHQ" @change="selectedHQFile" accept="image/*">
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('hqModal')">Choose File</button>
+                        <!-- <input type="file" ref="imageHQ" @change="selectedHQFile" accept="image/*"> -->
                       </div>
                       <div class="col-sm-8 offset-sm-4 text-center">
                         <small class="text-danger" v-if="imageUrlHQ && !imageUrlHQState">URL is invalid. You might need http/https at the beginning.</small>
@@ -257,7 +258,8 @@
                         <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="imageUrl" />
                       </div>
                       <div class="col-sm-8 offset-sm-4">
-                        <input type="file" ref="image" @change="selectedFile" accept="image/*">
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal')">Choose File</button>
+                        <!-- <input type="file" ref="image" @change="selectedFile" accept="image/*"> -->
                       </div>
                       <div class="col-sm-8 offset-sm-4 text-center">
                         <small class="text-danger" v-if="imageUrl && !imageUrlState">URL is invalid. You might need http/https at the beginning.</small>
@@ -350,6 +352,20 @@
         </div>
       </div>
     </div>
+    <modal width="60%" height="80%" name="hqModal">
+      <file-manager v-bind:settings="settings" :props="{
+          upload: true,
+          viewType: 'grid',
+          selectionType: 'single'
+      }"></file-manager>
+    </modal>
+    <modal width="60%" height="80%" name="imageModal">
+      <file-manager v-bind:settings="settings" :props="{
+          upload: true,
+          viewType: 'grid',
+          selectionType: 'single'
+      }"></file-manager>
+    </modal>
   </div>
 </template>
 
@@ -440,6 +456,17 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
+    let vm = this
+    this.$root.$on('fm-selected-items', (value) => {
+      const selectedFilePath = value[0].path
+      if (this.openingFileSelector === 'hqModal') {
+        this.imageUrlHQ = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+      }
+      if (this.openingFileSelector === 'imageModal') {
+        this.imageUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+      }
+      vm.$modal.hide(this.openingFileSelector)
+    });
     this.currentStep = this.step
     if (this.instance) {
       this.getLanguages()
@@ -554,10 +581,20 @@ export default {
       },
       previewData: '',
       attributes: [],
-      dataAttributes: dataAttributes
+      dataAttributes: dataAttributes,
+      openingFileSelector: '',
+      settings: {
+        baseUrl: '/file-manager', // overwrite base url Axios
+        windowsConfig: 2, // overwrite config
+        lang: 'end'
+      }
     }
   },
   methods: {
+    openChooseFile(name) {
+      this.openingFileSelector = name
+      this.$modal.show(name)
+    },
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
