@@ -54,7 +54,7 @@
                     <a class="btn btn-sm btn-default border" :href="'/campaigns/edit/' + campaign.id"><i class="fas fa-edit"></i></a>
                   </td>
                   <td class="border-right-0 px-1">
-                    <a class="btn btn-sm btn-default border" :href="'/campaign/create/' + campaign.id"><i class="fas fa-clone"></i></a>
+                    <a class="btn btn-sm btn-default border" :href="'/campaigns/create/' + campaign.id"><i class="fas fa-clone"></i></a>
                   </td>
                   <td class="px-1">
                     <a class="btn btn-sm btn-default border" :href="'/campaigns/delete/' + campaign.id" @click.prevent="deleteCampaign"><i class="fas fa-trash"></i></a>
