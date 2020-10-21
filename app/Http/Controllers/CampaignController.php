@@ -171,13 +171,27 @@ class CampaignController extends Controller
         return json_decode($response->getBody(), true);
     }
 
-    public function create()
+    public function create(Campaign $campaign = null)
     {
-        return view('campaigns.form');
+        $instance = null;
+
+        if ($campaign) {
+            $instance = $this->getInstanceData($campaign);
+
+            $instance['campaignName'] = $instance['campaignName'] . ' - Copy';
+        }
+
+        return view('campaigns.form', compact('instance'));
     }
 
     public function edit(Campaign $campaign)
     {
+        $instance = $this->getInstanceData($campaign);
+
+        return view('campaigns.form', compact('instance'));
+    }
+
+    private function getInstanceData(Campaign $campaign) {
         $user_info = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
         $instance = [];
         $attributes = [];
@@ -232,7 +246,7 @@ class CampaignController extends Controller
         $instance['adGroups'] = $ad_groups;
         $instance['ads'] = $ads;
 
-        return view('campaigns.form', compact('instance'));
+        return $instance;
     }
 
     public function update(Campaign $campaign)
