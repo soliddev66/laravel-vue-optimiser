@@ -293,6 +293,47 @@ class CampaignController extends Controller
         return $data;
     }
 
+    public function adGroupStatus(Campaign $campaign, $ad_group_id)
+    {
+        $data = [];
+        $user_info = auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first();
+
+        try {
+            $data = $this->updateAdGroupStatus($user_info, $ad_group_id, request('status'));
+        } catch (Exception $e) {
+            if ($e->getCode() == 401) {
+                Token::refresh($user_info, function() use ($user_info, $ad_group_id, &$data) {
+                    $data = $this->updateAdGroupStatus($user_info, $ad_group_id, request('status'));
+                });
+            } else {
+                $data = [
+                    'errors' => [$e->getMessage()]
+                ];
+            }
+        }
+
+        return $data;
+    }
+
+    public function adGroupData(Campaign $campaign)
+    {
+        $user_info = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
+        $ad_groups = [];
+        try {
+            $ad_groups = $this->getAdGroups($user_info, $campaign->campaign_id, $campaign->advertiser_id);
+        } catch (Exception $e) {
+            if ($e->getCode() == 401) {
+                Token::refresh($user_info, function () use ($campaign, $user_info, &$ad_groups, &$ads) {
+                    $ad_groups = $this->getAdGroups($user_info, $campaign->campaign_id, $campaign->advertiser_id);
+                });
+            }
+        }
+
+        return response()->json([
+            'adGroups' => $ad_groups
+        ]);
+    }
+
     public function delete(Campaign $campaign)
     {
         $data = [];
@@ -346,6 +387,23 @@ class CampaignController extends Controller
         $campaign->save();
 
         return json_decode($campaign_response->getBody(), true);
+    }
+
+    private function updateAdGroupStatus($user_info, $ad_group_id, $ad_status)
+    {
+        $client = new Client();
+        $ad_group_response = $client->request('PUT', env('BASE_URL') . '/v3/rest/adgroup', [
+            'body' => json_encode([
+                'id' => $ad_group_id,
+                'status' => $ad_status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE
+            ]),
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($ad_group_response->getBody(), true);
     }
 
     private function deleteCampaign($user_info, $campaign)
