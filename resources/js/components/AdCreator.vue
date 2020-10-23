@@ -5,90 +5,103 @@
     </div>
     <div class="row justify-content-center">
       <div class="col-md-12">
-          <div class="card">
-            <div class="card-header">
-              <h2 class="mb-0">New Ad</h2>
-            </div>
-            <div class="card-body">
-              <form class="form-horizontal">
-                <h2 class="pb-2">General information</h2>
-                <div class="row">
-                  <div class="col-sm-6">
-                    <div class="form-group row">
-                      <label for="title" class="col-sm-4 control-label mt-2">Title</label>
-                      <div class="col-sm-8">
-                        <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title" />
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
-                      <div class="col-sm-8">
-                        <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="brandname" />
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="description" class="col-sm-4 control-label mt-2">Description</label>
-                      <div class="col-sm-8">
-                        <textarea class="form-control" rows="3" placeholder="Enter description" v-model="description"></textarea>
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
-                      <div class="col-sm-8 text-center">
-                        <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="displayUrl" />
-                        <small class="text-danger" v-if="displayUrl && !displayUrlState">URL is invalid. You might need http/https at the beginning.</small>
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
-                      <div class="col-sm-8 text-center">
-                        <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="targetUrl" />
-                        <small class="text-danger" v-if="targetUrl && !targetUrlState">URL is invalid. You might need http/https at the beginning.</small>
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="image_hq_url" class="col-sm-4 control-label mt-2">Image HQ URL</label>
-                      <div class="col-sm-8">
-                        <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="imageUrlHQ" />
-                      </div>
-                      <div class="col-sm-8 offset-sm-4">
-                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('hqModal')">Choose File</button>
-                        <!-- <input type="file" ref="imageHQ" @change="selectedHQFile" accept="image/*"> -->
-                      </div>
-                      <div class="col-sm-8 offset-sm-4 text-center">
-                        <small class="text-danger" v-if="imageUrlHQ && !imageUrlHQState">URL is invalid. You might need http/https at the beginning.</small>
-                        <small class="text-danger" v-if="imageHQ.size && !imageHQState">Image is invalid. You might need an 1200x627 image.</small>
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="image_url" class="col-sm-4 control-label mt-2">Image URL</label>
-                      <div class="col-sm-8">
-                        <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="imageUrl" />
-                      </div>
-                      <div class="col-sm-8 offset-sm-4">
-                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal')">Choose File</button>
-                        <!-- <input type="file" ref="image" @change="selectedFile" accept="image/*"> -->
-                      </div>
-                      <div class="col-sm-8 offset-sm-4 text-center">
-                        <small class="text-danger" v-if="imageUrl && !imageUrlState">URL is invalid. You might need http/https at the beginning.</small>
-                        <small class="text-danger" v-if="image.size && !imageState">Image is invalid. You might need an 627x627 image.</small>
-                      </div>
+        <div class="card">
+          <div class="card-header">
+            <h2 class="mb-0">New Ad</h2>
+          </div>
+          <div class="card-body">
+            <form class="form-horizontal">
+              <h2 class="pb-2">General information</h2>
+              <div class="row">
+                <div class="col-sm-6">
+                  <div class="form-group row">
+                    <label for="title" class="col-sm-4 control-label mt-2">Title</label>
+                    <div class="col-sm-8">
+                      <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title" />
                     </div>
                   </div>
-                  <div class="col-sm-6">
-                    <h1>Preview</h1>
-                    <div v-html="previewData"></div>
+                  <div class="form-group row">
+                    <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
+                    <div class="col-sm-8">
+                      <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="brandname" />
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="description" class="col-sm-4 control-label mt-2">Description</label>
+                    <div class="col-sm-8">
+                      <textarea class="form-control" rows="3" placeholder="Enter description" v-model="description"></textarea>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
+                    <div class="col-sm-8 text-center">
+                      <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="displayUrl" />
+                      <small class="text-danger" v-if="displayUrl && !displayUrlState">URL is invalid. You might need http/https at the beginning.</small>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
+                    <div class="col-sm-8 text-center">
+                      <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="targetUrl" />
+                      <small class="text-danger" v-if="targetUrl && !targetUrlState">URL is invalid. You might need http/https at the beginning.</small>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="image_hq_url" class="col-sm-4 control-label mt-2">Image HQ URL</label>
+                    <div class="col-sm-8">
+                      <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="imageUrlHQ" />
+                    </div>
+                    <div class="col-sm-8 offset-sm-4">
+                      <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('hqModal')">Choose File</button>
+                      <!-- <input type="file" ref="imageHQ" @change="selectedHQFile" accept="image/*"> -->
+                    </div>
+                    <div class="col-sm-8 offset-sm-4 text-center">
+                      <small class="text-danger" v-if="imageUrlHQ && !imageUrlHQState">URL is invalid. You might need http/https at the beginning.</small>
+                      <small class="text-danger" v-if="imageHQ.size && !imageHQState">Image is invalid. You might need an 1200x627 image.</small>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="image_url" class="col-sm-4 control-label mt-2">Image URL</label>
+                    <div class="col-sm-8">
+                      <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="imageUrl" />
+                    </div>
+                    <div class="col-sm-8 offset-sm-4">
+                      <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal')">Choose File</button>
+                      <!-- <input type="file" ref="image" @change="selectedFile" accept="image/*"> -->
+                    </div>
+                    <div class="col-sm-8 offset-sm-4 text-center">
+                      <small class="text-danger" v-if="imageUrl && !imageUrlState">URL is invalid. You might need http/https at the beginning.</small>
+                      <small class="text-danger" v-if="image.size && !imageState">Image is invalid. You might need an 627x627 image.</small>
+                    </div>
                   </div>
                 </div>
-              </form>
-            </div>
-
-            <div class="card-footer d-flex justify-content-end">
-              <button type="button" class="btn btn-primary" @click.prevent="submit" :disabled="!titleState || !brandnameState || !descriptionState || !displayUrlState || !targetUrlState || !imageUrlHQState || !imageUrlState">Save</button>
-            </div>
+                <div class="col-sm-6">
+                  <h1>Preview</h1>
+                  <div v-html="previewData"></div>
+                </div>
+              </div>
+            </form>
           </div>
+          <div class="card-footer d-flex justify-content-end">
+            <button type="button" class="btn btn-primary" @click.prevent="submit" :disabled="!titleState || !brandnameState || !descriptionState || !displayUrlState || !targetUrlState || !imageUrlHQState || !imageUrlState">Save</button>
+          </div>
+        </div>
       </div>
     </div>
+    <modal width="60%" height="80%" name="hqModal">
+      <file-manager v-bind:settings="settings" :props="{
+          upload: true,
+          viewType: 'grid',
+          selectionType: 'single'
+      }"></file-manager>
+    </modal>
+    <modal width="60%" height="80%" name="imageModal">
+      <file-manager v-bind:settings="settings" :props="{
+          upload: true,
+          viewType: 'grid',
+          selectionType: 'single'
+      }"></file-manager>
+    </modal>
   </div>
 </template>
 
@@ -146,7 +159,17 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
-    console.log(this.adGroupId)
+    let vm = this
+    this.$root.$on('fm-selected-items', (value) => {
+      const selectedFilePath = value[0].path
+      if (this.openingFileSelector === 'hqModal') {
+        this.imageUrlHQ = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+      }
+      if (this.openingFileSelector === 'imageModal') {
+        this.imageUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+      }
+      vm.$modal.hide(this.openingFileSelector)
+    });
   },
   watch: {
     title: _.debounce(function(newVal) {
@@ -196,6 +219,12 @@ export default {
         width: ''
       },
       previewData: '',
+      openingFileSelector: '',
+      settings: {
+        baseUrl: '/file-manager', // overwrite base url Axios
+        windowsConfig: 2, // overwrite config
+        lang: 'end'
+      }
     }
   },
   methods: {
