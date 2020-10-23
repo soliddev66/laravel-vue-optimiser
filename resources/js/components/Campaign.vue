@@ -14,7 +14,7 @@
                     <thead>
                       <tr>
                         <th>ID</th>
-                        <th>Actions</th>
+                        <th colspan="2">Actions</th>
                         <th>Name</th>
                         <th>Ads</th>
                         <th>Advertiser ID</th>
@@ -35,9 +35,14 @@
                     <tbody>
                       <tr v-for="adGroup in data" class="text-center" :key="adGroup.id">
                         <td>{{ adGroup.id }}</td>
-                        <td class="px-1">
+                        <td class="border-right-0 px-1">
                           <a class="btn btn-sm btn-default border" :data-status="adGroup.status" :href="`/campaigns/${campaign.id}/ad-groups/status/${adGroup.id}`" @click.prevent="updateAdGroupStatus">
                             <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': adGroup.status == 'ACTIVE' }"></i>
+                          </a>
+                        </td>
+                        <td class="px-1">
+                          <a class="btn btn-sm btn-default border" :data-status="adGroup.status" :href="`/campaigns/${campaign.id}/ad-groups/${adGroup.id}/ads/create`">
+                            <i aria-hidden="true" title="Create new ad" class="fas fa-plus"></i>
                           </a>
                         </td>
                         <td>{{ adGroup.adGroupName }}</td>
