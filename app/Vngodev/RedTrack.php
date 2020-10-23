@@ -22,7 +22,7 @@ class RedTrack
     {
         foreach (User::all() as $key => $user) {
             foreach ($user->campaigns as $index => $campaign) {
-                $tracker = UserTracker::where('provider_id', $campaign->provider_id)->where('provider_open_id', $campaign->open_id)->exists();
+                $tracker = UserTracker::where('provider_id', $campaign->provider_id)->where('provider_open_id', $campaign->open_id)->first();
                 if ($tracker) {
                     $client = new Client();
                     $date = Carbon::now()->format('Y-m-d');

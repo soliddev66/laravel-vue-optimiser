@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Campaign;
 use App\Models\User;
+use App\Vngodev\Token;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -36,18 +37,11 @@ class PullCampaign implements ShouldQueue
     public function handle()
     {
         foreach ($this->user->providers as $key => $provider) {
-            try {
+            Token::refresh($provider, function () use ($provider) {
                 $data = $this->getCampaigns($provider);
                 $this->saveCampaigns($data['response'], $provider);
                 $this->cleanData($data['response'], $provider);
-            } catch (Exception $e) {
-                if ($e->getCode() == 401) {
-                    Token::refresh($provider, function () use ($provider) {
-                        $data = $this->getCampaigns($provider);
-                        $this->saveCampaigns($data['response'], $provider);
-                    });
-                }
-            }
+            });
         }
     }
 
@@ -88,6 +82,19 @@ class PullCampaign implements ShouldQueue
 
     private function cleanData($campaigns, $provider)
     {
-        //
+        $user_campaigns = $this->user->campaigns->toArray();
+        if (count($campaigns) !== count($user_campaigns)) {
+            foreach ($user_campaigns as $key => $user_campaign) {
+                $should_delete = true;
+                foreach ($campaigns as $campaign) {
+                    if ($campaign['id'] == $user_campaign['campaign_id']) {
+                        $should_delete = false;
+                    }
+                }
+                if ($should_delete) {
+                    Campaign::where('campaign_id', $user_campaign['campaign_id'])->first()->delete();
+                }
+            }
+        }
     }
 }
