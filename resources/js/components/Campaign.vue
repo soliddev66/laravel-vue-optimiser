@@ -44,6 +44,9 @@
                         <td>
                           <p v-for="ad in adsIn(adGroup)" :key="ad.id">
                             <a class="btn btn-sm btn-success" :href="`/campaigns/${campaign.id}/ad-groups/${adGroup.id}/ads/${ad.id}`">{{ ad.id }}</a>
+                            <a class="btn btn-sm btn-default border" :data-status="ad.status" :href="`/campaigns/${campaign.id}/ad-groups/${adGroup.id}/ads/status/${ad.id}`" @click.prevent="updateAdStatus">
+                              <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': ad.status == 'ACTIVE' }"></i>
+                            </a>
                           </p>
                         </td>
                         <td>{{ adGroup.advertiserId }}</td>
@@ -112,6 +115,7 @@ export default {
     console.log('Component mounted.')
     console.log(this.groups)
     this.data = this.groups
+    this.adData = this.ads
   },
   data() {
     return {
@@ -122,7 +126,7 @@ export default {
   },
   methods: {
     adsIn(adGroup) {
-      return this.ads.filter((ad) => {
+      return this.adData.filter((ad) => {
         return ad.adGroupId === adGroup.id
       })
     },
@@ -130,7 +134,8 @@ export default {
       this.isLoading = true;
       axios.post('/campaigns/' + this.campaign.id + '/ad-groups/data')
         .then((response) => {
-          this.data = response.data.adGroups
+          this.data = response.data.adGroups,
+          this.adData = response.data.ads
         })
         .catch((err) => {
           alert(err);
@@ -139,6 +144,20 @@ export default {
         });
     },
     updateAdGroupStatus(e) {
+      this.isLoading = true;
+      axios.post(e.target.getAttribute('href'), {
+        status: e.target.dataset.status
+      }).then((response) => {
+        if (response.data.errors) {
+          alert(response.data.errors[0])
+        } else {
+          this.getData();
+        }
+      }).catch((err) => {
+        alert(err);
+      });
+    },
+    updateAdStatus(e) {
       this.isLoading = true;
       axios.post(e.target.getAttribute('href'), {
         status: e.target.dataset.status
