@@ -12,6 +12,8 @@ class UserTracker extends Model
     protected $fillable = [
         'user_id',
         'tracker_id',
+        'provider_id',
+        'provider_open_id',
         'open_id',
         'api_key',
         'email',
