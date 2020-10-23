@@ -39,6 +39,7 @@ class PullCampaign implements ShouldQueue
             try {
                 $data = $this->getCampaigns($provider);
                 $this->saveCampaigns($data['response'], $provider);
+                $this->cleanData($data['response'], $provider);
             } catch (Exception $e) {
                 if ($e->getCode() == 401) {
                     Token::refresh($provider, function () use ($provider) {
@@ -83,5 +84,10 @@ class PullCampaign implements ShouldQueue
             }
             $new_campaign->save();
         }
+    }
+
+    private function cleanData($campaigns, $provider)
+    {
+        //
     }
 }

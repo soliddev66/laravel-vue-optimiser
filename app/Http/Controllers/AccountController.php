@@ -124,6 +124,8 @@ class AccountController extends Controller
             UserTracker::firstOrCreate([
                 'user_id' => auth()->id(),
                 'tracker_id' => $db_tracker->id,
+                'provider_id' => session('provider_id'),
+                'provider_open_id' => session('provider_open_id'),
                 'open_id' => $tracker_user['id'],
                 'api_key' => $tracker_user['api_key'],
                 'email' => $tracker_user['email'],
@@ -162,6 +164,8 @@ class AccountController extends Controller
         $user_provider->save();
 
         if (session('use_tracker')) {
+            session()->put('provider_id', $db_provider->id);
+            session()->put('provider_open_id', $open_id);
             return redirect('account-wizard?step=2');
         } else {
             $this->pullCampaign();
