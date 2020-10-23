@@ -1,5 +1,8 @@
 <template>
   <div class="container">
+    <div class="vld-parent">
+      <loading :active.sync="isLoading" :can-cancel="false" :is-full-page="fullPage"></loading>
+    </div>
     <div class="row justify-content-center">
       <div class="col-md-12">
         <div class="card">
@@ -11,6 +14,7 @@
                     <thead>
                       <tr>
                         <th>ID</th>
+                        <th>Actions</th>
                         <th>Name</th>
                         <th>Ads</th>
                         <th>Advertiser ID</th>
@@ -31,6 +35,11 @@
                     <tbody>
                       <tr v-for="adGroup in data" class="text-center" :key="adGroup.id">
                         <td>{{ adGroup.id }}</td>
+                        <td class="px-1">
+                          <a class="btn btn-sm btn-default border" :data-status="adGroup.status" :href="`/campaigns/${campaign.id}/ad-groups/status/${adGroup.id}`" @click.prevent="updateAdGroupStatus">
+                            <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': adGroup.status == 'ACTIVE' }"></i>
+                          </a>
+                        </td>
                         <td>{{ adGroup.adGroupName }}</td>
                         <td>
                           <p v-for="ad in adsIn(adGroup)" :key="ad.id">
@@ -80,6 +89,8 @@
 
 <script>
 import _ from 'lodash';
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
   props: {
@@ -94,6 +105,9 @@ export default {
       type: Array
     }
   },
+  components: {
+    Loading
+  },
   mounted() {
     console.log('Component mounted.')
     console.log(this.groups)
@@ -101,7 +115,9 @@ export default {
   },
   data() {
     return {
-      data: []
+      data: [],
+      isLoading: false,
+      fullPage: true
     }
   },
   methods: {
@@ -109,6 +125,32 @@ export default {
       return this.ads.filter((ad) => {
         return ad.adGroupId === adGroup.id
       })
+    },
+    getData() {
+      this.isLoading = true;
+      axios.post('/campaigns/' + this.campaign.id + '/ad-groups/data')
+        .then((response) => {
+          this.data = response.data.adGroups
+        })
+        .catch((err) => {
+          alert(err);
+        }).finally(() => {
+          this.isLoading = false;
+        });
+    },
+    updateAdGroupStatus(e) {
+      this.isLoading = true;
+      axios.post(e.target.getAttribute('href'), {
+        status: e.target.dataset.status
+      }).then((response) => {
+        if (response.data.errors) {
+          alert(response.data.errors[0])
+        } else {
+          this.getData();
+        }
+      }).catch((err) => {
+        alert(err);
+      });
     }
   }
 }
