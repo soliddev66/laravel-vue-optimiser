@@ -74,10 +74,10 @@ class CampaignController extends Controller
         return json_decode($response->getBody(), true)['response'];
     }
 
-    private function getAds($user_info, $ad_group_id, $advertiser_id)
+    private function getAds($user_info, array $ad_group_requests, $advertiser_id)
     {
         $client = new Client();
-        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/ad?adGroupId=' . $ad_group_id . '&advertiserid=' . $advertiser_id, [
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/ad?&adGroupId=' . implode('&adGroupId=', $ad_group_requests) . '&advertiserid=' . $advertiser_id, [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_info->token,
                 'Content-Type' => 'application/json'
@@ -409,11 +409,60 @@ class CampaignController extends Controller
                 'Content-Type' => 'application/json'
             ]
         ]);
-
+        $ad_groups = $this->getAdGroups($user_info, $campaign->campaign_id, $campaign->advertiser_id);
+        $ad_group_requests = [];
+        $ad_group_request_ids = [];
+        $ad_requests = [];
+        $ad_request_ids = [];
+        for ($i = 0; $i < count($ad_groups); $i++) {
+            $ad_group_requests[$i]['id'] = $ad_groups[$i]['id'];
+            $ad_group_requests[$i]['status'] = $ad_groups[$i]['status'] == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+        }
+        $this->updateAdGroupsStatus($user_info, $ad_group_requests);
+        for ($i = 0; $i < count($ad_group_requests); $i++) {
+            $ad_requests[] = $ad_group_requests[$i]['id'];
+        }
+        foreach ($ad_group_requests as $ad_group_request) {
+            $ad_group_request_ids[] = $ad_group_request['id'];
+        }
+        $ads = $this->getAds($user_info, $ad_group_request_ids, $campaign->advertiser_id);
+        for ($i = 0; $i < count($ads); $i++) {
+            $ad_request_ids[$i]['adGroupId'] = $ads[$i]['adGroupId'];
+            $ad_request_ids[$i]['id'] = $ads[$i]['id'];
+            $ad_request_ids[$i]['status'] = $ads[$i]['status'] == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+        }
+        $this->updateAdsStatus($user_info, $ad_request_ids);
         $campaign->save();
-
         return json_decode($campaign_response->getBody(), true);
     }
+
+    private function updateAdGroupsStatus($user_info, array $request)
+    {
+        $client = new Client();
+        $ad_group_response = $client->request('PUT', env('BASE_URL') . '/v3/rest/adgroup', [
+            'body' => json_encode($request),
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+        return json_decode($ad_group_response->getBody(), true);
+    }
+
+    private function updateAdsStatus($user_info, array $request)
+    {
+        $client = new Client();
+        $ad_response = $client->request('PUT', env('BASE_URL') . '/v3/rest/ad', [
+            'body' => json_encode($request),
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_info->token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        return json_decode($ad_response->getBody(), true);
+    }
+
 
     private function updateAdGroupStatus($user_info, $ad_group_id, $ad_status)
     {
