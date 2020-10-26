@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Models;
+namespace App\Endpoints;
 
-use App\Helper\GeminiAPI;
+use App\Helpers\GeminiClient;
 
-class Gemini
+class GeminiAPI
 {
     private $gemini;
 
     public function __construct($user_info) {
-        $this->gemini = new GeminiAPI($user_info);
+        $this->gemini = new GeminiClient($user_info);
     }
 
     public function getCampaign($campaign_id) {

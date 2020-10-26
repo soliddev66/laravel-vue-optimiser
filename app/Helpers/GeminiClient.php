@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Helper;
+namespace App\Helpers;
 
 use Token;
 use GuzzleHttp\Client;
 
-class GeminiAPI
+class GeminiClient
 {
     private $user_info;
 

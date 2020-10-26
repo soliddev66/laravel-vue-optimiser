@@ -8,10 +8,11 @@ use Exception;
 use App\Jobs\PullCampaign;
 
 use App\Models\Job;
-use App\Models\Gemini;
 use App\Models\Campaign;
 use App\Models\Provider;
 use App\Models\FailedJob;
+
+use App\Endpoints\GeminiAPI;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -202,7 +203,7 @@ class CampaignController extends Controller
         $data = [];
         $user_info = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
 
-        $gemini = new Gemini($user_info);
+        $gemini = new GeminiAPI($user_info);
 
         try {
             $campaign_data = $gemini->getCampaign($campaign->campaign_id);
