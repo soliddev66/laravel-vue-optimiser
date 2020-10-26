@@ -426,7 +426,7 @@ class CampaignController extends Controller
         $ad_request_ids = [];
         for ($i = 0; $i < count($ad_groups); $i++) {
             $ad_group_requests[$i]['id'] = $ad_groups[$i]['id'];
-            $ad_group_requests[$i]['status'] = $ad_groups[$i]['status'] == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+            $ad_group_requests[$i]['status'] = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_ACTIVE : Campaign::STATUS_PAUSED;
         }
         $this->updateAdGroupsStatus($user_info, $ad_group_requests);
         for ($i = 0; $i < count($ad_group_requests); $i++) {
@@ -439,7 +439,7 @@ class CampaignController extends Controller
         for ($i = 0; $i < count($ads); $i++) {
             $ad_request_ids[$i]['adGroupId'] = $ads[$i]['adGroupId'];
             $ad_request_ids[$i]['id'] = $ads[$i]['id'];
-            $ad_request_ids[$i]['status'] = $ads[$i]['status'] == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+            $ad_request_ids[$i]['status'] = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_ACTIVE : Campaign::STATUS_PAUSED;
         }
         $this->updateAdsStatus($user_info, $ad_request_ids);
         $campaign->save();
