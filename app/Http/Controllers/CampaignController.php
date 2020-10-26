@@ -530,6 +530,7 @@ class CampaignController extends Controller
             ];
         }
         $this->updateAdsStatus($user_info, $ad_request_ids);
+
         $campaign->save();
 
         return json_decode($campaign_response->getBody(), true);
