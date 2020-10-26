@@ -3,6 +3,8 @@
 namespace App\Helpers;
 
 use Token;
+use Exception;
+
 use GuzzleHttp\Client;
 
 class GeminiClient
@@ -13,8 +15,10 @@ class GeminiClient
         $this->user_info = $user_info;
     }
 
-    public function call($method, $url, $body = null) {
+    public function call($method, $endpoint, $body = null) {
         $client = new Client();
+
+        $url = env('BASE_URL') . '/v3/rest/' . $endpoint;
 
         $requestBody = [
             'headers' => [
@@ -40,6 +44,6 @@ class GeminiClient
             }
         }
 
-        return json_decode($response->getBody(), true);
+        return json_decode($response->getBody(), true)['response'];
     }
 }
