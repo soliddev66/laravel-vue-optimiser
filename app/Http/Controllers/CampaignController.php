@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\PullCampaign;
-use App\Models\Campaign;
-use App\Models\FailedJob;
-use App\Models\Job;
-use App\Models\Provider;
-use Carbon\Carbon;
+use Token;
 use Exception;
+
+use App\Jobs\PullCampaign;
+
+use App\Models\Job;
+use App\Models\Gemini;
+use App\Models\Campaign;
+use App\Models\Provider;
+use App\Models\FailedJob;
+
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Token;
 
 class CampaignController extends Controller
 {
@@ -20,19 +24,6 @@ class CampaignController extends Controller
         $campaigns = Campaign::with('redtrackReport')->get();
 
         return view('campaigns.index', compact('campaigns'));
-    }
-
-    private function getCampaign($user_info, $campaign_id)
-    {
-        $client = new Client();
-        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/campaign/' . $campaign_id, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $user_info->token,
-                'Content-Type' => 'application/json'
-            ]
-        ]);
-
-        return json_decode($response->getBody(), true);
     }
 
     private function getAdGroups($user_info, $campaign_id, $advertiser_id)
@@ -211,23 +202,17 @@ class CampaignController extends Controller
         $data = [];
         $user_info = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
 
-        $campaign_data = $this->getCampaign($user_info, $campaign->campaign_id);
-        $ad_group = $this->getAdGroup($user_info, $ad_group_id);
-
-        $client = new Client();
+        $gemini = new Gemini($user_info);
 
         try {
-            $data = $this->createAd($client, $user_info, $campaign_data, $ad_group);
+            $campaign_data = $gemini->getCampaign($campaign->campaign_id);
+            $ad_group = $gemini->getAdGroup($user_info, $ad_group_id);
+
+            $data = $gemini->createAd($campaign_data, $ad_group);
         }  catch (Exception $e) {
-            if ($e->getCode() == 401) {
-                Token::refresh($user_info, function () use ($client, $user_info, $campaign_data, $ad_group, &$ad) {
-                    $data = $this->createAd($client, $user_info, $campaign_data, $ad_group);
-                });
-            } else {
-                $data = [
-                    'errors' => [$e->getMessage()]
-                ];
-            }
+            $data = [
+                'errors' => [$e->getMessage()]
+            ];
         }
 
         return $data;
@@ -747,31 +732,6 @@ class CampaignController extends Controller
         PullCampaign::dispatch(auth()->user());
 
         return $ad;
-    }
-
-    private function createAd($client, $user_info, $campaign_data, $ad_group_data)
-    {
-        $ad_response = $client->request('POST', env('BASE_URL') . '/v3/rest/ad', [
-            'body' => json_encode([
-                'adGroupId' => $ad_group_data['response']['id'],
-                'advertiserId' => request('selectedAdvertiser'),
-                'campaignId' => $campaign_data['response']['id'],
-                'description' => request('description'),
-                'displayUrl' => request('displayUrl'),
-                'landingUrl' => request('targetUrl'),
-                'sponsoredBy' => request('brandname'),
-                'imageUrlHQ' => request('imageUrlHQ'),
-                'imageUrl' => request('imageUrl'),
-                'title' => request('title'),
-                'status' => 'ACTIVE'
-            ]),
-            'headers' => [
-                'Authorization' => 'Bearer ' . $user_info->token,
-                'Content-Type' => 'application/json'
-            ]
-        ]);
-
-        return json_decode($ad_response->getBody(), true);
     }
 
     private function deleteAds($user_info, $ad_ids)
