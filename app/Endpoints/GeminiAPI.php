@@ -144,7 +144,7 @@ class GeminiAPI
 
         if (count(request('campaignLocation'))) {
             foreach (request('campaignLocation') as $key => $location) {
-                $request_body[] = $body + ['type' => 'GENDER', 'value' => $location];
+                $request_body[] = $body + ['type' => 'WOEID', 'value' => $location];
             }
         }
 
@@ -165,6 +165,8 @@ class GeminiAPI
                 }
             }
         }
+
+        var_dump($request_body);
 
         return $this->gemini->call('POST', 'targetingattribute', $request_body);
     }
