@@ -35,7 +35,7 @@
                       <tr v-for="adGroup in data" class="text-center" :key="adGroup.id">
                         <td>{{ adGroup.id }}</td>
                         <td class="border-right-0 px-1">
-                          <a class="btn btn-sm btn-default border" :data-status="adGroup.status" :href="`/campaigns/${campaign.id}/ad-groups/status/${adGroup.id}`" @click.prevent="updateAdGroupStatus">
+                          <a class="btn btn-sm btn-default border" :data-status="adGroup.status" :href="`/campaigns/${campaign.id}/ad-groups/${adGroup.id}/status`" @click.prevent="updateAdGroupStatus">
                             <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': adGroup.status == 'ACTIVE' }"></i>
                           </a>
                         </td>
