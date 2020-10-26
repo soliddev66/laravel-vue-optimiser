@@ -54,6 +54,8 @@ Vue.component('rules', require('./components/Rules.vue').default);
 Vue.component('rule-creator', require('./components/RuleCreator.vue').default);
 
 Vue.component('ad', require('./components/Ad.vue').default);
+Vue.component('ad-creator', require('./components/AdCreator.vue').default);
+
 Vue.component('queues', require('./components/Queues.vue').default);
 Vue.component('dashboard', require('./components/Dashboard.vue').default);
 Vue.component('select2', require('./plugins/Select2.vue').default);

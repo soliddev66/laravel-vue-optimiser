@@ -28,15 +28,9 @@ class Gemini
                 if (!GeminiJob::where('user_id', $user->id)->where('campaign_id', $campaign->campaign_id)->where('advertiser_id', $campaign->advertiser_id)->where('status', 'submitted')->exists()) {
                     $job = [];
                     $user_info = $user->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first();
-                    try {
+                    Token::refresh($user_info, function () use ($campaign, $user_info, $date, &$job) {
                         $job = self::getDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    } catch (Exception $e) {
-                        if ($e->getCode() == 401) {
-                            Token::refresh($user_info, function () use ($campaign, $user_info, $date, &$job) {
-                                $job = self::getDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                            });
-                        }
-                    }
+                    });
                     $gemini_job = GeminiJob::firstOrNew([
                         'user_id' => $user->id,
                         'campaign_id' => $campaign->campaign_id,
@@ -64,6 +58,12 @@ class Gemini
             $job->status = $job_status['response']['status'];
             $job->job_response = $job_status['response']['jobResponse'];
             $job->save();
+
+            if ($job->status === 'completed') {
+                $report_file = file_get_contents($job->job_response);
+                $file_name = $job->user_id . '_' . $job->campaign_id . '_' . $job->advertiser_id . '_' . $job->job_id . '.csv';
+                file_put_contents(public_path('reports/' . $file_name), $report_file);
+            }
         }
     }
 
@@ -76,7 +76,20 @@ class Gemini
                 'fields' => [
                     ['field' => 'Ad ID'],
                     ['field' => 'Day'],
-                    ['field' => 'Impressions']
+                    ['field' => 'Advertiser ID'],
+                    ['field' => 'Advertiser Timezone'],
+                    ['field' => 'Device Type'],
+                    ['field' => 'Post Click Conversions'],
+                    ['field' => 'Post Impression Conversions'],
+                    ['field' => 'CTR'],
+                    ['field' => 'Average CPC'],
+                    ['field' => 'Average CPM'],
+                    ['field' => 'Fact Conversion Counting'],
+                    ['field' => 'Impressions'],
+                    ['field' => 'Clicks'],
+                    ['field' => 'Conversions'],
+                    ['field' => 'Spend'],
+                    ['field' => 'Native Bid']
                 ],
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
