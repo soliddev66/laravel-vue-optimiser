@@ -354,16 +354,56 @@ class CampaignController extends Controller
         $user_info = auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first();
 
         try {
-            $data = $this->updateAdGroupStatus($user_info, $ad_group_id, request('status'));
+            $ad_group = $this->updateAdGroupStatus($user_info, $ad_group_id, request('status'));
         } catch (Exception $e) {
             if ($e->getCode() == 401) {
                 Token::refresh($user_info, function() use ($user_info, $ad_group_id, &$data) {
-                    $data = $this->updateAdGroupStatus($user_info, $ad_group_id, request('status'));
+                    $ad_group = $this->updateAdGroupStatus($user_info, $ad_group_id, request('status'));
                 });
             } else {
                 $data = [
                     'errors' => [$e->getMessage()]
                 ];
+            }
+        }
+
+        if (!isset($data['errors'])) {
+            try {
+                $ads = $this->getAds($user_info, [$ad_group_id], $campaign->advertiser_id);
+            } catch (Exception $e) {
+                if ($e->getCode() == 401) {
+                    Token::refresh($user_info, function() use ($user_info, $ad_group_id, $campaign, &$ad) {
+                        $ads = $this->getAds($user_info, [$ad_group_id], $campaign->advertiser_id);
+                    });
+                } else {
+                    $data = [
+                        'errors' => [$e->getMessage()]
+                    ];
+                }
+            }
+
+            if (isset($ads) && count($ads) > 0) {
+                foreach ($ads as $ad) {
+                    $ad_request_body[] = [
+                        'adGroupId' => $ad['adGroupId'],
+                        'id' => $ad['id'],
+                        'status' => $ad_group['response']['status']
+                    ];
+                }
+            }
+
+            try {
+                $this->updateAdsStatus($user_info, $ad_request_body);
+            } catch (Exception $e) {
+                if ($e->getCode() == 401) {
+                    Token::refresh($user_info, function() use ($user_info, $ad_request_body) {
+                        $this->updateAdsStatus($user_info, $ad_request_body);
+                    });
+                } else {
+                    $data = [
+                        'errors' => [$e->getMessage()]
+                    ];
+                }
             }
         }
 
@@ -523,13 +563,13 @@ class CampaignController extends Controller
     }
 
 
-    private function updateAdGroupStatus($user_info, $ad_group_id, $ad_status)
+    private function updateAdGroupStatus($user_info, $ad_group_id, $status)
     {
         $client = new Client();
         $ad_group_response = $client->request('PUT', env('BASE_URL') . '/v3/rest/adgroup', [
             'body' => json_encode([
                 'id' => $ad_group_id,
-                'status' => $ad_status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE
+                'status' => $status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE
             ]),
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_info->token,
