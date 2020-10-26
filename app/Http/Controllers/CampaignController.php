@@ -180,6 +180,7 @@ class CampaignController extends Controller
         $instance['instance_id'] = $campaign['id'];
 
         $instance['attributes'] = $gemini->getCampaignAttribute($campaign->campaign_id);
+
         $instance['adGroups'] = $gemini->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
 
         if (count($instance['adGroups']) > 0) {
@@ -461,226 +462,56 @@ class CampaignController extends Controller
         return json_decode($ad_response->getBody(), true);
     }
 
-    private function deleteCampaign($user_info, $campaign)
-    {
-        $client = new Client();
-        $campaign_response = $client->request('DELETE', env('BASE_URL') . '/v3/rest/campaign/' . $campaign->campaign_id, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $user_info->token,
-                'Content-Type' => 'application/json'
-            ]
-        ]);
-
-        $campaign->delete();
-
-        return json_decode($campaign_response->getBody(), true);
-    }
-
     public function store()
     {
         $data = [];
         $provider = Provider::where('slug', request('provider'))->first();
         $user_info = auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first();
+        $gemini = new GeminiAPI($user_info);
+
         try {
-            $data = $this->createCampaign($provider, $user_info);
-        } catch (Exception $e) {
-            if ($e->getCode() == 401) {
-                Token::refresh($user_info, function () use ($provider, $user_info, &$data) {
-                    $data = $this->createCampaign($provider, $user_info);
-                });
-            } else {
-                $data = [
-                    'errors' => [$e->getMessage()]
-                ];
+            $campaign_data = $gemini->createAdCampaign();
+
+            $campaign = Campaign::firstOrNew([
+                'campaign_id' => $campaign_data['id'],
+                'provider_id' => $provider->id,
+                'open_id' => $user_info->open_id,
+                'user_id' => auth()->id()
+            ]);
+
+            $campaign->save();
+
+            try {
+                $ad_group_data = $gemini->createAdGroup($campaign_data);
+            } catch (Exception $e) {
+                $gemini->deleteCampaign($campaign);
+                throw $e;
             }
+
+            try {
+                $ad = $gemini->createAd($campaign_data, $ad_group_data);
+            } catch (Exception $e) {
+                $gemini->deleteCampaign($campaign);
+                $gemini->deleteAdGroups([$ad_group_data['id']]);
+                throw $e;
+            }
+
+            try {
+                $gemini->createAttributes($campaign_data);
+            } catch (Exception $e) {
+                $gemini->deleteCampaign($campaign);
+                $gemini->deleteAdGroups([$ad_group_data['id']]);
+                $gemini->deleteAds([$ad['id']]);
+                throw $e;
+            }
+
+            PullCampaign::dispatch(auth()->user());
+        } catch (Exception $e) {
+            $data = [
+                'errors' => [$e->getMessage()]
+            ];
         }
 
         return $data;
-    }
-
-    private function createCampaign($provider, $user_info)
-    {
-        $data = [];
-        $client = new Client();
-        $campaign_data = $this->createAdCampaign($client, $user_info);
-
-        $campaign = Campaign::firstOrNew([
-            'campaign_id' => $campaign_data['response']['id'],
-            'provider_id' => $provider->id,
-            'open_id' => $user_info->open_id,
-            'user_id' => auth()->id()
-        ]);
-
-        $campaign->save();
-
-        try {
-            $ad_group_data = $this->createAdGroup($client, $user_info, $campaign_data);
-        } catch (Exception $e) {
-            if ($e->getCode() == 401) {
-                Token::refresh($user_info, function () use ($client, $user_info, $campaign_data, $campaign, &$ad_group_data) {
-                    try {
-                        $ad_group_data = $this->createAdGroup($client, $user_info, $campaign_data);
-                    } catch (Exception $e) {
-                        $this->deleteCampaign($user_info, $campaign);
-                        return [
-                            'errors' => [$e->getMessage()]
-                        ];
-                    }
-                });
-            } else {
-                $this->deleteCampaign($user_info, $campaign);
-                return [
-                    'errors' => [$e->getMessage()]
-                ];
-            }
-        }
-
-        try {
-            $ad = $this->createAd($client, $user_info, $campaign_data, $ad_group_data);
-        } catch (Exception $e) {
-            if ($e->getCode() == 401) {
-                Token::refresh($user_info, function () use ($client, $user_info, $campaign_data, $campaign, $ad_group_data, &$ad) {
-                    try {
-                        $ad = $this->createAd($client, $user_info, $campaign_data, $ad_group_data);
-                    } catch (Exception $e) {
-                        $this->deleteCampaign($user_info, $campaign);
-                        $this->deleteAdGroups($user_info, [$ad_group_data['response']['id']]);
-                        return [
-                            'errors' => [$e->getMessage()]
-                        ];
-                    }
-                });
-            } else {
-                $this->deleteCampaign($user_info, $campaign);
-                $this->deleteAdGroups($user_info, [$ad_group_data['response']['id']]);
-                return [
-                    'errors' => [$e->getMessage()]
-                ];
-            }
-        }
-        try {
-            $this->createAttributes($client, $user_info, $campaign_data);
-        } catch (Exception $e) {
-            if ($e->getCode() == 401) {
-                Token::refresh($user_info, function () use ($client, $user_info, $campaign_data, $campaign) {
-                    try {
-                        $this->createAttributes($client, $user_info, $campaign_data);
-                    } catch (Exception $e) {
-                        $this->deleteCampaign($user_info, $campaign);
-                        $this->deleteAdGroups($user_info, [$ad_group_data['response']['id']]);
-                        $this->deleteAds($user_info, [$ad['response']['id']]);
-                        return [
-                            'errors' => [$e->getMessage()]
-                        ];
-                    }
-                });
-            } else {
-                $this->deleteCampaign($user_info, $campaign);
-                $this->deleteAdGroups($user_info, [$ad_group_data['response']['id']]);
-                $this->deleteAds($user_info, [$ad['response']['id']]);
-                return [
-                    'errors' => [$e->getMessage()]
-                ];
-            }
-        }
-
-        PullCampaign::dispatch(auth()->user());
-
-        return $ad;
-    }
-
-    private function deleteAds($user_info, $ad_ids)
-    {
-        $client = new Client();
-        $data = $client->request('DELETE', env('BASE_URL') . '/v3/rest/ad?id=' . implode('&id=', $ad_ids), [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $user_info->token,
-                'Content-Type' => 'application/json'
-            ]
-        ]);
-
-        return json_decode($data->getBody(), true);
-    }
-
-    private function createAdCampaign($client, $user_info)
-    {
-        $campaign_response = $client->request('POST', env('BASE_URL') . '/v3/rest/campaign', [
-            'body' => json_encode([
-                'advertiserId' => request('selectedAdvertiser'),
-                'budget' => request('campaignBudget'),
-                'budgetType' => request('campaignBudgetType'),
-                'campaignName' => request('campaignName'),
-                'channel' => request('campaignType'),
-                'language' => request('campaignLanguage'),
-                'biddingStrategy' => request('campaignStrategy'),
-                'conversionRuleConfig' => ['conversionCounting' => request('campaignConversionCounting')],
-                'status' => 'ACTIVE'
-            ]),
-            'headers' => [
-                'Authorization' => 'Bearer ' . $user_info->token,
-                'Content-Type' => 'application/json'
-            ]
-        ]);
-
-        return json_decode($campaign_response->getBody(), true);
-    }
-
-    private function createAdGroup($client, $user_info, $campaign_data)
-    {
-        if (request('campaignType') === 'SEARCH_AND_NATIVE') {
-            $bids = [
-                [
-                    'priceType' => 'CPC',
-                    'value' => request('bidAmount'),
-                    'channel' => 'SEARCH'
-                ],
-                [
-                    'priceType' => 'CPC',
-                    'value' => request('bidAmount'),
-                    'channel' => 'NATIVE'
-                ]
-            ];
-        } else {
-            $bids = [
-                [
-                    'priceType' => 'CPC',
-                    'value' => request('bidAmount'),
-                    'channel' => request('campaignType')
-                ]
-            ];
-        }
-        $ad_group_response = $client->request('POST', env('BASE_URL') . '/v3/rest/adgroup', [
-            'body' => json_encode([
-                'adGroupName' => request('adGroupName'),
-                'advertiserId' => request('selectedAdvertiser'),
-                'bidSet' => [
-                    'bids' => $bids
-                ],
-                'campaignId' => $campaign_data['response']['id'],
-                'biddingStrategy' => request('campaignStrategy'),
-                'startDateStr' => request('scheduleType') === 'IMMEDIATELY' ? Carbon::now()->format('Y-m-d') : request('campaignStartDate'),
-                'endDateStr' => request('scheduleType') === 'IMMEDIATELY' ? '' : request('campaignEndDate'),
-                'status' => 'ACTIVE'
-            ]),
-            'headers' => [
-                'Authorization' => 'Bearer ' . $user_info->token,
-                'Content-Type' => 'application/json'
-            ]
-        ]);
-
-        return json_decode($ad_group_response->getBody(), true);
-    }
-
-    private function deleteAdGroups($user_info, $ad_group_ids)
-    {
-        $client = new Client();
-        $data = $client->request('DELETE', env('BASE_URL') . '/v3/rest/adgroup?id=' . implode('&id=', $ad_group_ids), [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $user_info->token,
-                'Content-Type' => 'application/json'
-            ]
-        ]);
-
-        return json_decode($data->getBody(), true);
     }
 }

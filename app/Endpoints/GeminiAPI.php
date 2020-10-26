@@ -41,6 +41,10 @@ class GeminiAPI
         ]);
     }
 
+    public function deleteAds($ad_ids) {
+        return $this->gemini->call('DELETE', 'ad?id=' . implode('&id=', $ad_ids));
+    }
+
     public function getCampaignAttribute($campaign_id) {
         return $this->gemini->call('GET', 'targetingattribute?pt=CAMPAIGN&pi=' . $campaign_id);
     }
@@ -51,6 +55,20 @@ class GeminiAPI
 
     public function getAdsByCampaign($campaign_id, $advertiser_id) {
         return $this->gemini->call('GET', 'ad?campaignId=' . $campaign_id . '&advertiserid=' . $advertiser_id);
+    }
+
+    public function createAdCampaign() {
+        return $this->gemini->call('POST', 'campaign', [
+            'advertiserId' => request('selectedAdvertiser'),
+            'budget' => request('campaignBudget'),
+            'budgetType' => request('campaignBudgetType'),
+            'campaignName' => request('campaignName'),
+            'channel' => request('campaignType'),
+            'language' => request('campaignLanguage'),
+            'biddingStrategy' => request('campaignStrategy'),
+            'conversionRuleConfig' => ['conversionCounting' => request('campaignConversionCounting')],
+            'status' => 'ACTIVE'
+        ]);
     }
 
     public function updateAdCampaign($campaign) {
@@ -68,9 +86,16 @@ class GeminiAPI
         ]);
     }
 
-    public function updateAdGroup($campaign_data) {
+    public function deleteCampaign($campaign) {
+        $response = $this->gemini->call('DELETE', 'campaign/' . $campaign->campaign_id);
+        $campaign->delete();
+
+        return $response;
+    }
+
+    private function getBids() {
         if (request('campaignType') === 'SEARCH_AND_NATIVE') {
-            $bids = [
+            return [
                 [
                     'priceType' => 'CPC',
                     'value' => request('bidAmount'),
@@ -83,7 +108,7 @@ class GeminiAPI
                 ]
             ];
         } else {
-            $bids = [
+            return [
                 [
                     'priceType' => 'CPC',
                     'value' => request('bidAmount'),
@@ -91,13 +116,14 @@ class GeminiAPI
                 ]
             ];
         }
+    }
 
-        return $this->gemini->call('PUT', 'adgroup', [
-            'id' => request('adGroupID'),
+    public function createAdGroup($campaign_data) {
+        return $this->gemini->call('POST', 'adgroup', [
             'adGroupName' => request('adGroupName'),
             'advertiserId' => request('selectedAdvertiser'),
             'bidSet' => [
-                'bids' => $bids
+                'bids' => $this->getBids()
             ],
             'campaignId' => $campaign_data['id'],
             'biddingStrategy' => request('campaignStrategy'),
@@ -105,6 +131,26 @@ class GeminiAPI
             'endDateStr' => request('scheduleType') === 'IMMEDIATELY' ? '' : request('campaignEndDate'),
             'status' => 'ACTIVE'
         ]);
+    }
+
+    public function updateAdGroup($campaign_data) {
+        return $this->gemini->call('PUT', 'adgroup', [
+            'id' => request('adGroupID'),
+            'adGroupName' => request('adGroupName'),
+            'advertiserId' => request('selectedAdvertiser'),
+            'bidSet' => [
+                'bids' => $this->getBids()
+            ],
+            'campaignId' => $campaign_data['id'],
+            'biddingStrategy' => request('campaignStrategy'),
+            'startDateStr' => request('scheduleType') === 'IMMEDIATELY' ? Carbon::now()->format('Y-m-d') : request('campaignStartDate'),
+            'endDateStr' => request('scheduleType') === 'IMMEDIATELY' ? '' : request('campaignEndDate'),
+            'status' => 'ACTIVE'
+        ]);
+    }
+
+    public function deleteAdGroups($ad_group_ids) {
+        return $this->gemini->call('DELETE', 'adgroup?id=' . implode('&id=', $ad_group_ids));
     }
 
     public function updateAd($campaign_data, $ad_group_data) {
@@ -165,8 +211,6 @@ class GeminiAPI
                 }
             }
         }
-
-        var_dump($request_body);
 
         return $this->gemini->call('POST', 'targetingattribute', $request_body);
     }
