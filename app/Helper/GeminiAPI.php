@@ -18,7 +18,7 @@ class GeminiAPI
 
         $requestBody = [
             'headers' => [
-                'Authorization' => 'Bearer ' . $user_info->token,
+                'Authorization' => 'Bearer ' . $this->user_info->token,
                 'Content-Type' => 'application/json'
             ]
         ];
@@ -31,8 +31,8 @@ class GeminiAPI
             $response = $client->request($method, $url, $requestBody);
         } catch (Exception $e) {
             if ($e->getCode() == 401) {
-                Token::refresh(function () use ($client, $method, $url, $requestBody, &$response) {
-                    $requestBody['headers']['Authorization'] = 'Bearer ' . $user_info->token;
+                Token::refresh($this->user_info, function () use ($client, $method, $url, $requestBody, &$response) {
+                    $requestBody['headers']['Authorization'] = 'Bearer ' . $this->user_info->token;
                     $response = $client->request($method, $url, $requestBody);
                 });
             } else {

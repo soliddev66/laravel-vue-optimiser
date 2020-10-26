@@ -206,8 +206,7 @@ class CampaignController extends Controller
 
         try {
             $campaign_data = $gemini->getCampaign($campaign->campaign_id);
-            $ad_group = $gemini->getAdGroup($user_info, $ad_group_id);
-
+            $ad_group = $gemini->getAdGroup($ad_group_id);
             $data = $gemini->createAd($campaign_data, $ad_group);
         }  catch (Exception $e) {
             $data = [
