@@ -74,10 +74,10 @@ class CampaignController extends Controller
         return json_decode($response->getBody(), true)['response'];
     }
 
-    private function getAds($user_info, array $ad_group_requests, $advertiser_id)
+    private function getAds($user_info, $ad_group_ids, $advertiser_id)
     {
         $client = new Client();
-        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/ad?&adGroupId=' . implode('&adGroupId=', $ad_group_requests) . '&advertiserid=' . $advertiser_id, [
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/ad?adGroupId=' . implode('&adGroupId=', $ad_group_ids) . '&advertiserid=' . $advertiser_id, [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_info->token,
                 'Content-Type' => 'application/json'
@@ -240,11 +240,11 @@ class CampaignController extends Controller
 
         if (count($ad_groups) > 0) {
             try {
-                $ads = $this->getAds($user_info, $ad_groups[0]['id'], $campaign->advertiser_id);
+                $ads = $this->getAds($user_info, [$ad_groups[0]['id']], $campaign->advertiser_id);
             } catch (Exception $e) {
                 if ($e->getCode() == 401) {
                     Token::refresh($user_info, function() use ($user_info, $ad_groups, $campaign, &$ads) {
-                        $ads = $this->getAds($user_info, $ad_groups[0]['id'], $campaign->advertiser_id);
+                        $ads = $this->getAds($user_info, [$ad_groups[0]['id']], $campaign->advertiser_id);
                     });
                 }
             }
@@ -419,38 +419,42 @@ class CampaignController extends Controller
                 'Content-Type' => 'application/json'
             ]
         ]);
-        $ad_groups = $this->getAdGroups($user_info, $campaign->campaign_id, $campaign->advertiser_id);
+
         $ad_group_requests = [];
         $ad_group_request_ids = [];
-        $ad_requests = [];
         $ad_request_ids = [];
-        for ($i = 0; $i < count($ad_groups); $i++) {
-            $ad_group_requests[$i]['id'] = $ad_groups[$i]['id'];
-            $ad_group_requests[$i]['status'] = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_ACTIVE : Campaign::STATUS_PAUSED;
+
+        $ad_groups = $this->getAdGroups($user_info, $campaign->campaign_id, $campaign->advertiser_id);
+
+        foreach ($ad_groups as $ad_group) {
+            $ad_group_requests[] = [
+                'id' => $ad_group['id'],
+                'status' => $campaign->status
+            ];
+            $ad_group_request_ids[] = $ad_group['id'];
         }
         $this->updateAdGroupsStatus($user_info, $ad_group_requests);
-        for ($i = 0; $i < count($ad_group_requests); $i++) {
-            $ad_requests[] = $ad_group_requests[$i]['id'];
-        }
-        foreach ($ad_group_requests as $ad_group_request) {
-            $ad_group_request_ids[] = $ad_group_request['id'];
-        }
+
         $ads = $this->getAds($user_info, $ad_group_request_ids, $campaign->advertiser_id);
-        for ($i = 0; $i < count($ads); $i++) {
-            $ad_request_ids[$i]['adGroupId'] = $ads[$i]['adGroupId'];
-            $ad_request_ids[$i]['id'] = $ads[$i]['id'];
-            $ad_request_ids[$i]['status'] = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_ACTIVE : Campaign::STATUS_PAUSED;
+
+        foreach ($ads as $ad) {
+            $ad_request_ids[] = [
+                'adGroupId' => $ad['adGroupId'],
+                'id' => $ad['id'],
+                'status' => $campaign->status
+            ];
         }
         $this->updateAdsStatus($user_info, $ad_request_ids);
         $campaign->save();
+
         return json_decode($campaign_response->getBody(), true);
     }
 
-    private function updateAdGroupsStatus($user_info, array $request)
+    private function updateAdGroupsStatus($user_info, $body)
     {
         $client = new Client();
         $ad_group_response = $client->request('PUT', env('BASE_URL') . '/v3/rest/adgroup', [
-            'body' => json_encode($request),
+            'body' => json_encode($body),
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_info->token,
                 'Content-Type' => 'application/json'
@@ -459,11 +463,11 @@ class CampaignController extends Controller
         return json_decode($ad_group_response->getBody(), true);
     }
 
-    private function updateAdsStatus($user_info, array $request)
+    private function updateAdsStatus($user_info, $body)
     {
         $client = new Client();
         $ad_response = $client->request('PUT', env('BASE_URL') . '/v3/rest/ad', [
-            'body' => json_encode($request),
+            'body' => json_encode($body),
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_info->token,
                 'Content-Type' => 'application/json'
