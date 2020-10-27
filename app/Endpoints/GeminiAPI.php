@@ -9,23 +9,33 @@ class GeminiAPI
 {
     private $gemini;
 
-    public function __construct($user_info) {
+    public function __construct($user_info)
+    {
         $this->gemini = new GeminiClient($user_info);
     }
 
-    public function getCampaign($campaign_id) {
+    public function getCampaign($campaign_id)
+    {
         return $this->gemini->call('GET', 'campaign/' . $campaign_id);
     }
 
-    public function getAdGroup($ad_group_id) {
+    public function getAdGroup($ad_group_id)
+    {
         return $this->gemini->call('GET', 'adgroup/' . $ad_group_id);
     }
 
-    public function getAds($ad_group_ids, $advertiser_id) {
+    public function getAd($ad_id)
+    {
+        return $this->gemini->call('GET', 'ad/' . $ad_id);
+    }
+
+    public function getAds($ad_group_ids, $advertiser_id)
+    {
         return $this->gemini->call('GET', 'ad?adGroupId=' . implode('&adGroupId=', $ad_group_ids) . '&advertiserid=' . $advertiser_id);
     }
 
-    public function createAd($campaign_data, $ad_group_data) {
+    public function createAd($campaign_data, $ad_group_data)
+    {
         return $this->gemini->call('POST', 'ad', [
             'adGroupId' => $ad_group_data['id'],
             'advertiserId' => request('selectedAdvertiser'),
@@ -41,23 +51,42 @@ class GeminiAPI
         ]);
     }
 
-    public function deleteAds($ad_ids) {
+    public function updateAdStatus($ad_group_id, $ad_id, $status)
+    {
+        return $this->gemini->call('PUT', 'ad', [
+            'adGroupId' => $ad_group_id,
+            'id' => $ad_id,
+            'status' => $status
+        ]);
+    }
+
+    public function deleteAds($ad_ids)
+    {
         return $this->gemini->call('DELETE', 'ad?id=' . implode('&id=', $ad_ids));
     }
 
-    public function getCampaignAttribute($campaign_id) {
+    public function getCampaignAttribute($campaign_id)
+    {
         return $this->gemini->call('GET', 'targetingattribute?pt=CAMPAIGN&pi=' . $campaign_id);
     }
 
-    public function getAdGroups($campaign_id, $advertiser_id) {
+    public function getAdGroups($campaign_id, $advertiser_id)
+    {
         return $this->gemini->call('GET', 'adgroup?campaignId=' . $campaign_id . '&advertiserid=' . $advertiser_id);
     }
 
-    public function getAdsByCampaign($campaign_id, $advertiser_id) {
+    public function getAdsByCampaign($campaign_id, $advertiser_id)
+    {
         return $this->gemini->call('GET', 'ad?campaignId=' . $campaign_id . '&advertiserid=' . $advertiser_id);
     }
 
-    public function createAdCampaign() {
+    public function updateAds($body)
+    {
+        return $this->gemini->call('PUT', 'ad', $body);
+    }
+
+    public function createAdCampaign()
+    {
         return $this->gemini->call('POST', 'campaign', [
             'advertiserId' => request('selectedAdvertiser'),
             'budget' => request('campaignBudget'),
@@ -71,7 +100,8 @@ class GeminiAPI
         ]);
     }
 
-    public function updateAdCampaign($campaign) {
+    public function updateAdCampaign($campaign)
+    {
         return $this->gemini->call('PUT', 'campaign', [
             'id' => $campaign->campaign_id,
             'advertiserId' => request('selectedAdvertiser'),
@@ -86,39 +116,42 @@ class GeminiAPI
         ]);
     }
 
-    public function deleteCampaign($campaign) {
-        $response = $this->gemini->call('DELETE', 'campaign/' . $campaign->campaign_id);
-        $campaign->delete();
-
-        return $response;
+    public function deleteCampaign($campaign)
+    {
+        return $this->gemini->call('DELETE', 'campaign/' . $campaign->campaign_id);
     }
 
-    private function getBids() {
+    public function updateCampaignStatus($campaign)
+    {
+        return $this->gemini->call('PUT', 'campaign', [
+            'id' => $campaign->campaign_id,
+            'status' => $campaign->status
+        ]);
+    }
+
+    private function getBids()
+    {
         if (request('campaignType') === 'SEARCH_AND_NATIVE') {
-            return [
-                [
-                    'priceType' => 'CPC',
-                    'value' => request('bidAmount'),
-                    'channel' => 'SEARCH'
-                ],
-                [
-                    'priceType' => 'CPC',
-                    'value' => request('bidAmount'),
-                    'channel' => 'NATIVE'
-                ]
-            ];
+            return [[
+                'priceType' => 'CPC',
+                'value' => request('bidAmount'),
+                'channel' => 'SEARCH'
+            ], [
+                'priceType' => 'CPC',
+                'value' => request('bidAmount'),
+                'channel' => 'NATIVE'
+            ]];
         } else {
-            return [
-                [
-                    'priceType' => 'CPC',
-                    'value' => request('bidAmount'),
-                    'channel' => request('campaignType')
-                ]
-            ];
+            return [[
+                'priceType' => 'CPC',
+                'value' => request('bidAmount'),
+                'channel' => request('campaignType')
+            ]];
         }
     }
 
-    public function createAdGroup($campaign_data) {
+    public function createAdGroup($campaign_data)
+    {
         return $this->gemini->call('POST', 'adgroup', [
             'adGroupName' => request('adGroupName'),
             'advertiserId' => request('selectedAdvertiser'),
@@ -133,7 +166,8 @@ class GeminiAPI
         ]);
     }
 
-    public function updateAdGroup($campaign_data) {
+    public function updateAdGroup($campaign_data)
+    {
         return $this->gemini->call('PUT', 'adgroup', [
             'id' => request('adGroupID'),
             'adGroupName' => request('adGroupName'),
@@ -149,11 +183,26 @@ class GeminiAPI
         ]);
     }
 
-    public function deleteAdGroups($ad_group_ids) {
+    public function updateAdGroups($body)
+    {
+        return $this->gemini->call('PUT', 'adgroup', $body);
+    }
+
+    public function updateAdGroupStatus($ad_group_id, $status)
+    {
+        return $this->gemini->call('PUT', 'adgroup', [
+            'id' => $ad_group_id,
+            'status' => $status
+        ]);
+    }
+
+    public function deleteAdGroups($ad_group_ids)
+    {
         return $this->gemini->call('DELETE', 'adgroup?id=' . implode('&id=', $ad_group_ids));
     }
 
-    public function updateAd($campaign_data, $ad_group_data) {
+    public function updateAd($campaign_data, $ad_group_data)
+    {
         return $this->gemini->call('PUT', 'ad', [
             'id' => request('adID'),
             'adGroupId' => $ad_group_data['id'],
@@ -170,15 +219,16 @@ class GeminiAPI
         ]);
     }
 
-    public function deleteAttributes() {
-        if (!count(request('dataAttributes'))) {
+    public function deleteAttributes()
+    {
+        if (!count(request('dataAttributes')))
             return;
-        }
 
         return $this->gemini->call('DELETE', 'targetingattribute?id=' . implode('&id=', request('dataAttributes')));
     }
 
-    public function createAttributes($campaign_data) {
+    public function createAttributes($campaign_data)
+    {
         $request_body = [];
         $body = [
             'advertiserId' => request('selectedAdvertiser'),

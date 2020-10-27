@@ -20,12 +20,10 @@ class GeminiClient
 
         $url = env('BASE_URL') . '/v3/rest/' . $endpoint;
 
-        $requestBody = [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->user_info->token,
-                'Content-Type' => 'application/json'
-            ]
-        ];
+        $requestBody = ['headers' => [
+            'Authorization' => 'Bearer ' . $this->user_info->token,
+            'Content-Type' => 'application/json'
+        ]];
 
         if ($body) {
             $requestBody['body'] = json_encode($body);

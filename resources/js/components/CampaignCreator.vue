@@ -468,7 +468,6 @@ export default {
       vm.$modal.hide(this.openingFileSelector)
     });
     this.currentStep = this.step
-    console.log(this.instance.open_id);
     if (this.instance) {
       this.getLanguages()
       this.getCountries()
