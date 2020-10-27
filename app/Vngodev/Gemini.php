@@ -2,11 +2,13 @@
 
 namespace App\Vngodev;
 
+use App\Imports\GeminiReportImport;
 use App\Models\Campaign;
 use App\Models\GeminiJob;
 use App\Models\User;
 use App\Vngodev\Token;
 use Carbon\Carbon;
+use Excel;
 use Exception;
 use GuzzleHttp\Client;
 
@@ -63,6 +65,7 @@ class Gemini
                 $report_file = file_get_contents($job->job_response);
                 $file_name = $job->user_id . '_' . $job->campaign_id . '_' . $job->advertiser_id . '_' . $job->job_id . '.csv';
                 file_put_contents(public_path('reports/' . $file_name), $report_file);
+                Excel::queueImport(new GeminiReportImport, public_path('reports/' . $file_name));
             }
         }
     }
@@ -74,11 +77,17 @@ class Gemini
             'body' => json_encode([
                 'cube' => 'performance_stats',
                 'fields' => [
-                    ['field' => 'Ad ID'],
-                    ['field' => 'Day'],
                     ['field' => 'Advertiser ID'],
-                    ['field' => 'Advertiser Timezone'],
+                    ['field' => 'Campaign ID'],
+                    ['field' => 'Ad Group ID'],
+                    ['field' => 'Ad ID'],
+                    ['field' => 'Month'],
+                    ['field' => 'Week'],
+                    ['field' => 'Day'],
+                    ['field' => 'Hour'],
+                    ['field' => 'Pricing Type'],
                     ['field' => 'Device Type'],
+                    ['field' => 'Source Name'],
                     ['field' => 'Post Click Conversions'],
                     ['field' => 'Post Impression Conversions'],
                     ['field' => 'CTR'],
@@ -88,6 +97,10 @@ class Gemini
                     ['field' => 'Impressions'],
                     ['field' => 'Clicks'],
                     ['field' => 'Conversions'],
+                    ['field' => 'Total Conversions'],
+                    ['field' => 'Average Position'],
+                    ['field' => 'Max Bid'],
+                    ['field' => 'Ad Extn Impressions'],
                     ['field' => 'Spend'],
                     ['field' => 'Native Bid']
                 ],
