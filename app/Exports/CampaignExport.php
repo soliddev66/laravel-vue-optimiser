@@ -54,17 +54,28 @@ class CampaignExport implements FromCollection
         }])->get();
 
         foreach($campaigns as $campaign) {
+            $sum_conversions = $this->sum($campaign->redtrackReport, 'conversions');
+            $sum_cost = $this->sum($campaign->redtrackReport, 'cost');
+            $avg_cpc = $this->avg($campaign->redtrackReport, 'cpc');
+            $sum_revenue = $this->sum($campaign->redtrackReport, 'revenue');
+            $avg_ctr = $this->avg($campaign->redtrackReport, 'ctr');
+            $sum_clicks = $this->sum($campaign->redtrackReport, 'clicks');
+            $sum_prelp_clicks = $this->sum($campaign->redtrackReport, 'prelp_clicks');
+            $sum_lp_clicks = $this->sum($campaign->redtrackReport, 'lp_clicks');
+            $avg_roi = $this->avg($campaign->redtrackReport, 'roi');
+            $sum_lp_views = $this->sum($campaign->redtrackReport, 'lp_views');
+
             $result[] = [
                 '_',
                 $campaign->campaign_id,
                 $campaign->name,
                 $campaign->status,
                 $campaign->budget,
-                isset($campaign->redtrackReport['cpc']) ? array_sum($campaign->redtrackReport['cpc']) / count($campaign->redtrackReport['cpc']) : '0',
-                isset($campaign->redtrackReport['revenue']) && isset($campaign->redtrackReport['conversions']) ? round(count($campaign->redtrackReport['revenue']) / count($campaign->redtrackReport['conversions']), 2) : '0',
-                isset($campaign->redtrackReport['cost']) ? count($campaign->redtrackReport['cost']) : '0',
-                isset($campaign->redtrackReport['cost']) ? count($campaign->redtrackReport['cost']) : '0',
-                isset($campaign->redtrackReport['ctr']) ? array_sum($campaign->redtrackReport['ctr']) / count($campaign->redtrackReport['ctr']) : '0',
+                strval(round($avg_cpc, 2)),
+                strval($sum_conversions != 0 ? round($sum_revenue / $sum_conversions, 2) : 0),
+                strval(round($sum_cost, 2)),
+                strval(round($sum_cost, 2)),
+                strval(round($avg_ctr, 2)),
                 '_',
                 '_',
                 '_',
@@ -72,26 +83,60 @@ class CampaignExport implements FromCollection
                 '_',
                 '_',
                 '_',
-                isset($campaign->redtrackReport['clicks']) ? count($campaign->redtrackReport['clicks']) : '0',
-                isset($campaign->redtrackReport['prelp_clicks']) ? count($campaign->redtrackReport['prelp_clicks']) : '0',
-                isset($campaign->redtrackReport['lp_clicks']) ? count($campaign->redtrackReport['lp_clicks']) : '0',
+                strval(round($sum_clicks, 2)),
+                strval(round($sum_prelp_clicks, 2)),
+                strval(round($sum_lp_clicks, 2)),
                 '_',
                 '_',
                 '_',
                 '_',
                 '_',
-                isset($campaign->redtrackReport['revenue']) && isset($campaign->redtrackReport['cost']) ? (count($campaign->redtrackReport['revenue']) - count($campaign->redtrackReport['cost'])) : '0',
-                isset($campaign->redtrackReport['roi']) ? array_sum($campaign->redtrackReport['roi']) / count($campaign->redtrackReport['roi']) : '0',
+                strval(round($sum_revenue - $sum_cost, 2)),
+                strval(round($avg_roi, 2)),
                 '_',
                 '_',
                 '_',
                 '_',
-                isset($campaign->redtrackReport['revenue']) && isset($campaign->redtrackReport['lp_views']) ? round(count($campaign->redtrackReport['revenue']) / (count($campaign->redtrackReport['lp_views']) * 1000), 2) : '0',
-                isset($campaign->redtrackReport['conversions']) && isset($campaign->redtrackReport['lp_clicks']) ? round(count($campaign->redtrackReport['conversions']) / count($campaign->redtrackReport['lp_clicks']), 2) : '0',
-                isset($campaign->redtrackReport['cost']) && isset($campaign->redtrackReport['lp_clicks']) ? round(count($campaign->redtrackReport['cost']) / count($campaign->redtrackReport['lp_clicks']), 2) : '0'
+                strval($sum_lp_views != 0 ? round($sum_revenue / $sum_lp_views * 1000, 2) : 0),
+                strval($sum_lp_clicks != 0 ? round($sum_conversions / $sum_lp_clicks, 2) : 0),
+                strval($sum_lp_clicks != 0 ? round($sum_cost / $sum_lp_clicks, 2) : 0)
             ];
         }
 
         return collect($result);
+    }
+
+    private function avg($redtrackReports, $attribute)
+    {
+        $length = count($redtrackReports);
+
+        if ($length == 0) {
+            return 0;
+        }
+
+        $total = 0;
+
+        foreach ($redtrackReports as $redtrackReport) {
+            $total += !empty($redtrackReport[$attribute]) ? $redtrackReport[$attribute] : 0;
+        }
+
+        return round($total / $length, 2);
+    }
+
+    private function sum($redtrackReports, $attribute)
+    {
+        $length = count($redtrackReports);
+
+        if ($length == 0) {
+            return 0;
+        }
+
+        $total = 0;
+
+        foreach ($redtrackReports as $redtrackReport) {
+            $total += !empty($redtrackReport[$attribute]) ? $redtrackReport[$attribute] : 0;
+        }
+
+        return round($total, 2);
     }
 }
