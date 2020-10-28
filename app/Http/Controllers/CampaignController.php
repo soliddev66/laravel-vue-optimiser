@@ -10,8 +10,10 @@ use App\Models\Job;
 use App\Models\Campaign;
 use App\Models\Provider;
 use App\Models\FailedJob;
+use App\Exports\CampaignExport;
 
 use App\Endpoints\GeminiAPI;
+use Maatwebsite\Excel\Facades\Excel;
 
 use Carbon\Carbon;
 
@@ -326,5 +328,13 @@ class CampaignController extends Controller
         }
 
         return $data;
+    }
+
+    public function exportExcel() {
+        return Excel::download(new CampaignExport, 'campaigns' . Carbon::now()->format('Y-m-d-H-i-s') . '.xlsx', \Maatwebsite\Excel\Excel::XLSX);
+    }
+
+    public function exportCsv() {
+        return Excel::download(new CampaignExport, 'campaigns' . Carbon::now()->format('Y-m-d-H-i-s') . '.csv', \Maatwebsite\Excel\Excel::CSV);
     }
 }
