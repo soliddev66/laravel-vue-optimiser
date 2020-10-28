@@ -12,8 +12,8 @@
                 <VueCtkDateTimePicker v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData"></VueCtkDateTimePicker>
               </div>
               <div class="col-md-6 col-12">
-                <button class="btn btn-default border">Download CSV</button>
-                <button class="btn btn-default border">Download Excel</button>
+                <button class="btn btn-default border" @click.prevent="exportCsv">Download CSV</button>
+                <button class="btn btn-default border" @click.prevent="exportExcel">Download Excel</button>
               </div>
             </div>
           </div>
@@ -164,6 +164,12 @@ export default {
         .catch((err) => {
           alert(err);
         });
+    },
+    exportExcel() {
+      location.href = '/campaigns/export-excel?start=' + this.targetDate.start + '&end=' + this.targetDate.end
+    },
+    exportCsv() {
+      location.href = '/campaigns/export-csv?start=' + this.targetDate.start + '&end=' + this.targetDate.end
     },
     updateCampaignStatus(e) {
       this.isLoading = true;
