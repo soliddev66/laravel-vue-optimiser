@@ -14,8 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    Excel::queueImport(new \App\Imports\GeminiDomainPerformanceImport, public_path('reports/1_399238543_1961466_domain_performance_stats_3313d433f6938f4439b1e9e61922cf7838e0f43223fbcf4be8f14b7db6c0dd2908bbfab4.csv'));
-    // return redirect('/home');
+    return redirect('/home');
 });
 
 Route::get('/login/{provider}', [App\Http\Controllers\AccountController::class, 'redirectToProvider'])->name('redirect_to_provider');

@@ -95,7 +95,8 @@ class PullReport implements ShouldQueue
                     Excel::queueImport(new GeminiCallExtensionImport, public_path('reports/' . $file_name));
                     break;
                 case 'user_stats':
-                    Excel::queueImport(new GeminiUserImport, public_path('reports/' . $file_name));
+                    // WON'T DO IT!!!!
+                    // Excel::queueImport(new GeminiUserImport, public_path('reports/' . $file_name));
                     break;
                 case 'product_ads':
                     Excel::queueImport(new GeminiProductAdsImport, public_path('reports/' . $file_name));
