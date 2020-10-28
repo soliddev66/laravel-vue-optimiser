@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container-fluid">
     <div class="vld-parent">
       <loading :active.sync="isLoading" :can-cancel="false" :is-full-page="fullPage"></loading>
     </div>

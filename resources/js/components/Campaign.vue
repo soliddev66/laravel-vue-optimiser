@@ -10,57 +10,6 @@
             <vue-tabs>
               <v-tab title="Widgets">
                 <div class="table-responsive mt-3">
-                  <table id="adGroupsTable" class="table table-bordered table-hover">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th colspan="2">Actions</th>
-                        <th>Name</th>
-                        <th>Advertiser ID</th>
-                        <th>Campaign ID</th>
-                        <th>ECPA Goal</th>
-                        <th>DPA Audience Strategy</th>
-                        <th>Tracking Url</th>
-                        <th>Advanced Geo Pos</th>
-                        <th>Advanced Geo Neg</th>
-                        <th>Bidding Strategy</th>
-                        <th>Custom Parameters</th>
-                        <th>Product Set ID</th>
-                        <th>Editorial Status</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="adGroup in data" class="text-center" :key="adGroup.id">
-                        <td>{{ adGroup.id }}</td>
-                        <td class="border-right-0 px-1">
-                          <a class="btn btn-sm btn-default border" :data-status="adGroup.status" :href="`/campaigns/${campaign.id}/ad-groups/${adGroup.id}/status`" @click.prevent="updateAdGroupStatus">
-                            <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': adGroup.status == 'ACTIVE' }"></i>
-                          </a>
-                        </td>
-                        <td class="px-1">
-                          <a class="btn btn-sm btn-default border" :data-status="adGroup.status" :href="`/campaigns/${campaign.id}/ad-groups/${adGroup.id}/ads/create`">
-                            <i aria-hidden="true" title="Create new ad" class="fas fa-plus"></i>
-                          </a>
-                        </td>
-                        <td>{{ adGroup.adGroupName }}</td>
-                        <td>{{ adGroup.advertiserId }}</td>
-                        <td>{{ adGroup.campaignId }}</td>
-                        <td>{{ adGroup.ecpaGoal }}</td>
-                        <td>{{ adGroup.dpaAudienceStrategy }}</td>
-                        <td>{{ adGroup.trackingUrl }}</td>
-                        <td>{{ adGroup.advancedGeoPos }}</td>
-                        <td>{{ adGroup.advancedGeoNeg }}</td>
-                        <td>{{ adGroup.biddingStrategy }}</td>
-                        <td>{{ adGroup.customParameters }}</td>
-                        <td>{{ adGroup.productSetId }}</td>
-                        <td>{{ adGroup.editorialStatus }}</td>
-                        <td>{{ adGroup.startDateStr }}</td>
-                        <td>{{ adGroup.endDateStr }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
                 </div>
               </v-tab>
               <v-tab title="Contents">
@@ -99,7 +48,7 @@
                     <thead>
                       <tr>
                         <th>ID</th>
-                        <th>Actions</th>
+                        <th colspan="2">Actions</th>
                         <th>Name</th>
                         <th>Advertiser ID</th>
                         <th>Campaign ID</th>
@@ -119,9 +68,14 @@
                     <tbody>
                       <tr v-for="adGroup in data" class="text-center" :key="adGroup.id">
                         <td>{{ adGroup.id }}</td>
-                        <td class="px-1">
-                          <a class="btn btn-sm btn-default border" :data-status="adGroup.status" :href="`/campaigns/${campaign.id}/ad-groups/status/${adGroup.id}`" @click.prevent="updateAdGroupStatus">
+                        <td class="border-right-0 px-1">
+                          <a class="btn btn-sm btn-default border" :data-status="adGroup.status" :href="`/campaigns/${campaign.id}/ad-groups/${adGroup.id}/status`" @click.prevent="updateAdGroupStatus">
                             <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': adGroup.status == 'ACTIVE' }"></i>
+                          </a>
+                        </td>
+                        <td class="border-left-0 px-1">
+                          <a class="btn btn-sm btn-default border" :data-status="adGroup.status" :href="`/campaigns/${campaign.id}/ad-groups/${adGroup.id}/ads/create`">
+                            <i aria-hidden="true" title="Create new ad" class="fas fa-plus"></i>
                           </a>
                         </td>
                         <td>{{ adGroup.adGroupName }}</td>

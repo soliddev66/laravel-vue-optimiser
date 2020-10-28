@@ -20,6 +20,7 @@ class CreateGeminiJobsTable extends Migration
             $table->integer('advertiser_id')->unsigned();
             $table->string('job_id');
             $table->string('status');
+            $table->string('name');
             $table->string('job_response')->nullable();
             $table->timestamp('submited_at')->nullable();
             $table->timestamps();

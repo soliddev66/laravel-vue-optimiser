@@ -15,6 +15,7 @@ class GeminiJob extends Model
         'advertiser_id',
         'job_id',
         'status',
+        'name',
         'job_response',
         'submited_at'
     ];

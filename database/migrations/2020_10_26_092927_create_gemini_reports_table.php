@@ -61,8 +61,8 @@ class CreateGeminiReportsTable extends Migration
             $table->float('forwards')->nullable();
             $table->float('forward_rate')->nullable();
             $table->float('click_outs')->nullable();
-            $table->float('click_out_rate')->nullable();
-            $table->float('fast_conversion_counting')->nullable();
+            $table->float('click_outs_rate')->nullable();
+            $table->string('fact_conversion_counting')->nullable();
             $table->string('interactions')->nullable();
             $table->string('interaction_rate')->nullable();
             $table->float('interactive_impressions_rate')->nullable();
@@ -115,7 +115,7 @@ class CreateGeminiReportsTable extends Migration
             $table->float('ctr')->nullable();
             $table->float('average_cpc')->nullable();
             $table->float('average_cpm')->nullable();
-            $table->float('fast_conversion_counting')->nullable();
+            $table->string('fact_conversion_counting')->nullable();
             $table->timestamps();
         });
 
@@ -140,7 +140,7 @@ class CreateGeminiReportsTable extends Migration
             $table->float('cost')->nullable();
             $table->float('ctr')->nullable();
             $table->float('average_cpc')->nullable();
-            $table->float('fast_conversion_counting')->nullable();
+            $table->string('fact_conversion_counting')->nullable();
             $table->timestamps();
         });
 
@@ -220,7 +220,7 @@ class CreateGeminiReportsTable extends Migration
             $table->float('forward_rate')->nullable();
             $table->float('click_outs')->nullable();
             $table->float('click_out_rate')->nullable();
-            $table->float('fast_conversion_counting')->nullable();
+            $table->string('fact_conversion_counting')->nullable();
             $table->timestamps();
         });
 
@@ -399,7 +399,7 @@ class CreateGeminiReportsTable extends Migration
             $table->float('ad_extn_spend')->nullable();
             $table->float('average_position')->nullable();
             $table->string('landing_page_type')->nullable();
-            $table->float('fast_conversion_counting')->nullable();
+            $table->string('fact_conversion_counting')->nullable();
             $table->timestamps();
         });
 
@@ -461,13 +461,16 @@ class CreateGeminiReportsTable extends Migration
             $table->float('in_app_post_view_convs')->nullable();
             $table->float('in_app_post_install_convs')->nullable();
             $table->string('landing_page_type')->nullable();
-            $table->float('fast_conversion_counting')->nullable();
+            $table->string('fact_conversion_counting')->nullable();
             $table->timestamps();
         });
 
         Schema::create('gemini_domain_performance_stats', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('advertiser_id');
+            $table->integer('campaign_id');
+            $table->bigInteger('ad_group_id');
+            $table->date('day')->nullable();
             $table->float('clicks')->nullable();
             $table->float('spend')->nullable();
             $table->float('impressions')->nullable();

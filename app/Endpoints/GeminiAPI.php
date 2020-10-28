@@ -152,23 +152,26 @@ class GeminiAPI
 
     public function createAdGroup($campaign_data)
     {
-        return $this->gemini->call('POST', 'adgroup', [
+        $data = [
             'adGroupName' => request('adGroupName'),
             'advertiserId' => request('selectedAdvertiser'),
             'bidSet' => [
                 'bids' => $this->getBids()
             ],
             'campaignId' => $campaign_data['id'],
-            'biddingStrategy' => request('campaignStrategy'),
             'startDateStr' => request('scheduleType') === 'IMMEDIATELY' ? Carbon::now()->format('Y-m-d') : request('campaignStartDate'),
             'endDateStr' => request('scheduleType') === 'IMMEDIATELY' ? '' : request('campaignEndDate'),
             'status' => 'ACTIVE'
-        ]);
+        ];
+        if (in_array(request('campaignStrategy'), ['OPT_ENHANCED_CPC', 'OPT_POST_INSTALL', 'OPT_CONVERSION'])) {
+            $data['biddingStrategy'] = request('campaignStrategy');
+        }
+        return $this->gemini->call('POST', 'adgroup', $data);
     }
 
     public function updateAdGroup($campaign_data)
     {
-        return $this->gemini->call('PUT', 'adgroup', [
+        $data = [
             'id' => request('adGroupID'),
             'adGroupName' => request('adGroupName'),
             'advertiserId' => request('selectedAdvertiser'),
@@ -176,11 +179,14 @@ class GeminiAPI
                 'bids' => $this->getBids()
             ],
             'campaignId' => $campaign_data['id'],
-            'biddingStrategy' => request('campaignStrategy'),
             'startDateStr' => request('scheduleType') === 'IMMEDIATELY' ? Carbon::now()->format('Y-m-d') : request('campaignStartDate'),
             'endDateStr' => request('scheduleType') === 'IMMEDIATELY' ? '' : request('campaignEndDate'),
             'status' => 'ACTIVE'
-        ]);
+        ];
+        if (in_array(request('campaignStrategy'), ['OPT_ENHANCED_CPC', 'OPT_POST_INSTALL', 'OPT_CONVERSION'])) {
+            $data['biddingStrategy'] = request('campaignStrategy');
+        }
+        return $this->gemini->call('PUT', 'adgroup', $data);
     }
 
     public function updateAdGroups($body)
