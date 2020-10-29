@@ -4,16 +4,62 @@
       <loading :active.sync="isLoading" :can-cancel="false" :is-full-page="fullPage"></loading>
     </div>
     <div class="row justify-content-center">
+      <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box">
+          <div class="info-box-content">
+            <span class="info-box-text">Total Cost</span>
+            <span class="info-box-number">{{ round(summaryData.total_cost, 2) || 0 }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box">
+          <div class="info-box-content">
+            <span class="info-box-text">Total Revenue</span>
+            <span class="info-box-number">{{ round(summaryData.total_revenue, 2) || 0 }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box">
+          <div class="info-box-content">
+            <span class="info-box-text">Total NET</span>
+            <span class="info-box-number">{{ round(summaryData.total_net, 2) || 0 }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box">
+          <div class="info-box-content">
+            <span class="info-box-text">Total ROI</span>
+            <span class="info-box-number">{{ round(summaryData.avg_roi, 2) || 0 }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row justify-content-center">
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
             <div class="row">
-              <div class="col-md-6 col-12">
-                <VueCtkDateTimePicker v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData"></VueCtkDateTimePicker>
+              <div class="col-md-3 col-12">
+                <VueCtkDateTimePicker position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData"></VueCtkDateTimePicker>
               </div>
-              <div class="col-md-6 col-12">
-                <button class="btn btn-default border" @click.prevent="exportCsv">Download CSV</button>
-                <button class="btn btn-default border" @click.prevent="exportExcel">Download Excel</button>
+              <div class="col-md-3 col-12">
+                <select class="form-control" v-model="selectedProvider">
+                  <option v-for="provider in providers" :value="provider.slug">{{ provider.label }}</option>
+                </select>
+              </div>
+              <div class="col-md-3 col-12">
+                <select class="form-control" v-model="selectedAccount">
+                  <option v-for="account in accounts" :value="account.id">{{ account.open_id }}</option>
+                </select>
+              </div>
+              <div class="col-md-3 col-12">
+                <select class="form-control" v-model="selectedTracker">
+                  <option value="">-</option>
+                  <option v-for="tracker in trackers" :value="tracker.slug">{{ tracker.label }}</option>
+                </select>
               </div>
             </div>
           </div>
@@ -27,18 +73,25 @@
                   <th>Name</th>
                   <th>Status</th>
                   <th>Budget</th>
-                  <th>Avg. CPC</th>
+                  <th>Traffic Source</th>
                   <th>Payout</th>
-                  <th>Cost</th>
-                  <th>Live Spent</th>
-                  <th>TR Conv.</th>
-                  <th>TS Clicks</th>
-                  <th>TRK Clicks</th>
+                  <th>Clicks</th>
+                  <th>LP View</th>
                   <th>LP Clicks</th>
-                  <th>TS NET</th>
-                  <th>TS ROI</th>
-                  <th>eCPM</th>
-                  <th>LP CR</th>
+                  <th>Conversion</th>
+                  <th>Total Actions</th>
+                  <th>Total Actions CR</th>
+                  <th>CR</th>
+                  <th>Total Revenue</th>
+                  <th>Cost</th>
+                  <th>Profit</th>
+                  <th>ROI</th>
+                  <th>CPC</th>
+                  <th>CPA</th>
+                  <th>EPC</th>
+                  <th>LP CTR</th>
+                  <th>LP Views CR</th>
+                  <th>LP Clicks CR</th>
                   <th>LP CPC</th>
                 </tr>
               </thead>
@@ -68,18 +121,25 @@
                     {{ campaign.status }}
                   </td>
                   <td>{{ campaign.budget }}</td>
-                  <td>{{ avg(campaign.redtrack_report, 'cpc') || 0 }}</td>
+                  <td class="text-capitalize">{{ selectedProvider }}</td>
                   <td>{{ round(count(campaign.redtrack_report, 'revenue') / count(campaign.redtrack_report, 'conversions')) || 0 }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'cost') || 0 }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'cost') || 0 }}</td>
-                  <td>{{ avg(campaign.redtrack_report, 'ctr') || 0 }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'clicks') || 0 }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'prelp_clicks') || 0 }}</td>
+                  <td>{{ count(campaign.redtrack_report, 'clicks') || count(campaign.performance_stats, 'clicks') || 0 }}</td>
+                  <td>{{ count(campaign.redtrack_report, 'lp_views') || 0 }}</td>
                   <td>{{ count(campaign.redtrack_report, 'lp_clicks') || 0 }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'revenue') - count(campaign.redtrack_report, 'cost') || 0 }}</td>
-                  <td>{{ avg(campaign.redtrack_report, 'roi') || 0 }}</td>
-                  <td>{{ round((count(campaign.redtrack_report, 'revenue') / count(campaign.redtrack_report, 'lp_views')) * 1000) || 0 }}</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'conversions') / count(campaign.redtrack_report, 'lp_clicks')) || 0 }}</td>
+                  <td>{{ count(campaign.redtrack_report, 'conversions') || count(campaign.performance_stats, 'conversions') || 0 }}</td>
+                  <td>{{ count(campaign.redtrack_report, 'total_conversions') || count(campaign.performance_stats, 'total_conversions') || 0 }}</td>
+                  <td>{{ round(count(campaign.redtrack_report, 'conversions') / count(campaign.redtrack_report, 'clicks') * 100) || round(count(campaign.performance_stats, 'conversions') / count(campaign.performance_stats, 'clicks') * 100) || 0 }}%</td>
+                  <td>{{ round(count(campaign.redtrack_report, 'total_conversions') / count(campaign.redtrack_report, 'clicks') * 100) || round(count(campaign.performance_stats, 'total_conversions') / count(campaign.performance_stats, 'clicks') * 100) || 0 }}%</td>
+                  <td>{{ count(campaign.redtrack_report, 'total_revenue') || 0 }}</td>
+                  <td>{{ count(campaign.redtrack_report, 'cost') || count(campaign.performance_stats, 'spend') || 0 }}</td>
+                  <td>{{ round(count(campaign.redtrack_report, 'total_revenue') - count(campaign.redtrack_report, 'cost')) || round(0 - count(campaign.performance_stats, 'spend')) || 0 }}</td>
+                  <td>{{ round(count(campaign.redtrack_report, 'profit') / count(campaign.redtrack_report, 'cost') * 100) || round((0 - count(campaign.performance_stats, 'spend')) / count(campaign.performance_stats, 'spend') * 100) || 0 }}%</td>
+                  <td>{{ round(count(campaign.redtrack_report, 'cost') / count(campaign.redtrack_report, 'clicks')) || round(count(campaign.performance_stats, 'spend') / count(campaign.performance_stats, 'clicks')) || 0 }}</td>
+                  <td>{{ round(count(campaign.redtrack_report, 'cost') / count(campaign.redtrack_report, 'total_conversions')) || round(count(campaign.performance_stats, 'spend') / count(campaign.performance_stats, 'total_conversions')) || 0 }}</td>
+                  <td>{{ round(count(campaign.redtrack_report, 'total_revenue') / count(campaign.redtrack_report, 'clicks')) || 0 }}</td>
+                  <td>{{ round(count(campaign.redtrack_report, 'lp_clicks') / count(campaign.redtrack_report, 'lp_views') * 100) || 0 }}%</td>
+                  <td>{{ round(count(campaign.redtrack_report, 'total_conversions') / count(campaign.redtrack_report, 'lp_views') * 100) || 0 }}%</td>
+                  <td>{{ round(count(campaign.redtrack_report, 'total_conversions') / count(campaign.redtrack_report, 'lp_clicks') * 100) || 0 }}%</td>
                   <td>{{ round(count(campaign.redtrack_report, 'cost') / count(campaign.redtrack_report, 'lp_clicks')) || 0 }}</td>
                 </tr>
               </tbody>
@@ -88,6 +148,13 @@
                   <th colspan="6" class="text-center">-</th>
                   <th>Total:</th>
                   <th class="text-center">-</th>
+                  <th>-</th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
                   <th></th>
                   <th></th>
                   <th></th>
@@ -105,6 +172,14 @@
                 </tr>
               </tfoot>
             </table>
+          </div>
+          <div class="card-footer">
+            <div class="row justify-content-center">
+              <div class="col-12">
+                <button class="btn btn-default border" @click.prevent="exportCsv">Download CSV</button>
+                <button class="btn btn-default border" @click.prevent="exportExcel">Download Excel</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -125,6 +200,18 @@ export default {
     campaigns: {
       type: Array,
       default: []
+    },
+    providers: {
+      type: Array,
+      default: []
+    },
+    accounts: {
+      type: Array,
+      default: []
+    },
+    trackers: {
+      type: Array,
+      default: []
     }
   },
   components: {
@@ -134,13 +221,28 @@ export default {
   mounted() {
     console.log('Component mounted.')
     this.data = this.campaigns
+    this.getData()
+  },
+  watch: {
+    selectedTracker() {
+      this.getData()
+    }
   },
   data() {
     return {
       data: [],
+      summaryData: {
+        total_cost: 0,
+        total_revenue: 0,
+        total_net: 0,
+        avg_roi: 0
+      },
+      selectedProvider: 'yahoo',
+      selectedAccount: 1,
+      selectedTracker: 'redtrack',
       targetDate: {
-        start: new Date().toJSON(),
-        end: new Date().toJSON()
+        start: this.$moment().format('YYYY-MM-DD'),
+        end: this.$moment().format('YYYY-MM-DD')
       },
       isLoading: false,
       fullPage: true
@@ -148,18 +250,28 @@ export default {
   },
   methods: {
     avg(array, key) {
-      return _.round(_.meanBy(array, (value) => value[key]), 2)
+      if (array !== undefined) {
+        return _.round(_.meanBy(array, (value) => value[key]), 2)
+      }
+      return 0
     },
     count(array, key) {
-      return _.round(_.sumBy(array, (value) => value[key]), 2)
+      if (array !== undefined) {
+        return _.round(_.sumBy(array, (value) => value[key]), 2)
+      }
+      return 0
     },
     round(value) {
-      return _.round(value, 2)
+      if (value !== undefined) {
+        return _.round(value, 2)
+      }
+      return 0
     },
     getData() {
-      axios.post('/campaigns/search', this.targetDate)
+      axios.post('/campaigns/search', {...this.targetDate, ... { tracker: this.selectedTracker } })
         .then((response) => {
-          this.data = response.data.campaigns
+          this.data = response.data.campaigns;
+          this.summaryData = response.data.summary_data;
         })
         .catch((err) => {
           alert(err);

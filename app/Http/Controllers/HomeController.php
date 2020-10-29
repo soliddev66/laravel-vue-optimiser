@@ -46,22 +46,22 @@ class HomeController extends Controller
                 DB::raw('SUM(cost) as total_cost'),
                 DB::raw('SUM(profit) as total_net'),
                 DB::raw('SUM(clicks) as total_clicks'),
-                DB::raw('SUM(cpa)/COUNT(*) as avg_cpa'),
+                DB::raw('SUM(cost)/SUM(total_conversions) as cpa'),
                 DB::raw('SUM(total_revenue) as total_revenue'),
-                DB::raw('SUM(roi)/COUNT(*) as avg_roi'),
+                DB::raw('(SUM(profit)/SUM(cost)) * 100 as roi'),
                 DB::raw('SUM(total_conversions) as total_conversions'),
-                DB::raw('SUM(epc)/COUNT(*) as avg_epc'),
+                DB::raw('SUM(total_revenue)/SUM(clicks) as epc')
             )->whereBetween('date', [$start_date, $end_date]);
         } else {
             return RedtrackReport::select(
                 DB::raw('SUM(cost) as total_cost'),
                 DB::raw('SUM(profit) as total_net'),
                 DB::raw('SUM(clicks) as total_clicks'),
-                DB::raw('SUM(cpa)/COUNT(*) as avg_cpa'),
+                DB::raw('SUM(cost)/SUM(total_conversions) as cpa'),
                 DB::raw('SUM(total_revenue) as total_revenue'),
-                DB::raw('SUM(roi)/COUNT(*) as avg_roi'),
+                DB::raw('(SUM(profit)/SUM(cost)) * 100 as roi'),
                 DB::raw('SUM(total_conversions) as total_conversions'),
-                DB::raw('SUM(epc)/COUNT(*) as avg_epc'),
+                DB::raw('SUM(total_revenue)/SUM(clicks) as epc')
             )->whereBetween('date', [$start_date, $end_date]);
         }
     }
