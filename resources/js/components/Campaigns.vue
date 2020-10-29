@@ -139,8 +139,8 @@ export default {
     return {
       data: [],
       targetDate: {
-        start: new Date(),
-        end: new Date()
+        start: new Date().toJSON(),
+        end: new Date().toJSON()
       },
       isLoading: false,
       fullPage: true
@@ -166,10 +166,10 @@ export default {
         });
     },
     exportExcel() {
-      location.href = '/campaigns/export-excel?start=' + this.targetDate.start + '&end=' + this.targetDate.end
+      location.href = '/campaigns/export-excel?start=' + this.targetDate.start.split('T')[0] + '&end=' + this.targetDate.end.split('T')[0]
     },
     exportCsv() {
-      location.href = '/campaigns/export-csv?start=' + this.targetDate.start + '&end=' + this.targetDate.end
+      location.href = '/campaigns/export-csv?start=' + this.targetDate.start.split('T')[0] + '&end=' + this.targetDate.end.split('T')[0]
     },
     updateCampaignStatus(e) {
       this.isLoading = true;
