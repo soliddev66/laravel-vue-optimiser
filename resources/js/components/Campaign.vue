@@ -10,11 +10,71 @@
             <vue-tabs>
               <v-tab title="Widgets">
                 <div class="table-responsive mt-3">
+                  <table id="widgetsTable" class="table table-bordered table-hover">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Actions</th>
+                        <th>Widget ID</th>
+                        <th>Bid Modifier</th>
+                        <th>Calc. CPC</th>
+                        <th>Avg. CPC</th>
+                        <th>Cost</th>
+                        <th>TR Conv.</th>
+                        <th>TR Rev.</th>
+                        <th>TR NET</th>
+                        <th>TR ROI</th>
+                        <th>TR EPC</th>
+                        <th>EPC</th>
+                        <th>TR CPA</th>
+                        <th>Imp.</th>
+                        <th>TS Clicks</th>
+                        <th>TRK Clicks</th>
+                        <th>LP Clicks</th>
+                        <th>LP CTR</th>
+                        <th>CTR</th>
+                        <th>TR CVR</th>
+                        <th>eCPM</th>
+                        <th>LP CR</th>
+                        <th>LP CPC</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="widget in widgets" class="text-center" :key="widget.id">
+                        <td>{{ widget.id }}</td>
+                        <td class="px-1">-</td>
+                        <td>
+                          {{ widget.external_site_name }}|{{ widget.device_type }}
+                        </td>
+                        <td>{{ widget.bid_modifier }}</td>
+                        <td>{{ widget.id }}</td>
+                        <td>{{ round(widget.spend / widget.clicks) || 0 }}</td>
+                        <td>{{ round(widget.spend) || 0 }}</td>
+                        <td>{{ round(widget.conversions) || 0 }}</td>
+                        <td>{{ round(widget.conversions) || 0 }}</td>
+                        <td>{{ round(0 - widget.spend) || 0 }}</td>
+                        <td>{{ round(((0 - widget.spend)/widget.spend) * 100) || 0 }}%</td>
+                        <td>{{ round(widget.conversions) || 0 }}</td>
+                        <td>{{ round(widget.conversions) || 0 }}</td>
+                        <td>{{ round(widget.conversions) || 0 }}</td>
+                        <td>{{ round(widget.impressions) || 0 }}</td>
+                        <td>{{ round(widget.clicks) || 0 }}</td>
+                        <td>{{ round(widget.conversions) || 0 }}</td>
+                        <td>{{ round(widget.conversions) || 0 }}</td>
+                        <td>{{ round(widget.conversions) || 0 }}</td>
+                        <td>{{ round(widget.clicks/widget.impressions * 100) || 0 }}%</td>
+                        <td>{{ round(widget.conversions) || 0 }}</td>
+                        <td>{{ round(widget.spend/widget.impressions * 1000) || 0 }}</td>
+                        <td>{{ round(widget.conversions) || 0 }}</td>
+                        <td>{{ round(widget.conversions) || 0 }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </v-tab>
               <v-tab title="Contents">
                 <div class="table-responsive mt-3">
-                  <table id="adGroupsTable" class="table table-bordered table-hover">
+                  <table id="adsTable" class="table table-bordered table-hover">
                     <thead>
                       <tr>
                         <th>ID</th>
@@ -98,7 +158,64 @@
                 </div>
               </v-tab>
               <v-tab title="Domains">
-                Redtrack sub1
+                <div class="table-responsive mt-3">
+                  <table id="domainsTable" class="table table-bordered table-hover">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Actions</th>
+                        <th>Domain ID</th>
+                        <th>Avg. CPC</th>
+                        <th>Cost</th>
+                        <th>TR Conv.</th>
+                        <th>TR Rev.</th>
+                        <th>TR NET</th>
+                        <th>TR ROI</th>
+                        <th>TR EPC</th>
+                        <th>EPC</th>
+                        <th>TR CPA</th>
+                        <th>Imp.</th>
+                        <th>TS Clicks</th>
+                        <th>TRK Clicks</th>
+                        <th>LP Clicks</th>
+                        <th>LP CTR</th>
+                        <th>CTR</th>
+                        <th>TR CVR</th>
+                        <th>eCPM</th>
+                        <th>LP CR</th>
+                        <th>LP CPC</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="domain in domains" class="text-center" :key="domain.id">
+                        <td>{{ domain.id }}</td>
+                        <td class="px-1">-</td>
+                        <td>
+                          {{ domain.top_domain || domain.package_name }}
+                        </td>
+                        <td>{{ round(domain.spend / domain.clicks) || 0 }}</td>
+                        <td>{{ round(domain.spend) || 0 }}</td>
+                        <td>{{ round(domain.conversions) || 0 }}</td>
+                        <td>{{ round(domain.conversions) || 0 }}</td>
+                        <td>{{ round(0 - domain.spend) || 0 }}</td>
+                        <td>{{ round(((0 - domain.spend)/domain.spend) * 100) || 0 }}%</td>
+                        <td>{{ round(domain.conversions) || 0 }}</td>
+                        <td>{{ round(domain.conversions) || 0 }}</td>
+                        <td>{{ round(domain.conversions) || 0 }}</td>
+                        <td>{{ round(domain.impressions) || 0 }}</td>
+                        <td>{{ round(domain.clicks) || 0 }}</td>
+                        <td>{{ round(domain.conversions) || 0 }}</td>
+                        <td>{{ round(domain.conversions) || 0 }}</td>
+                        <td>{{ round(domain.conversions) || 0 }}</td>
+                        <td>{{ round(domain.clicks/domain.impressions * 100) || 0 }}%</td>
+                        <td>{{ round(domain.conversions) || 0 }}</td>
+                        <td>{{ round(domain.spend/domain.impressions * 1000) || 0 }}</td>
+                        <td>{{ round(domain.conversions) || 0 }}</td>
+                        <td>{{ round(domain.conversions) || 0 }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </v-tab>
               <v-tab title="Rules">
                 Rules
@@ -140,20 +257,66 @@ export default {
     console.log(this.groups)
     this.data = this.groups
     this.adData = this.ads.filter(ad => ad.adGroupId === this.data[0].id)
+    this.getWidgetData()
+    this.getDomainData()
   },
   data() {
     return {
       data: [],
+      widgets: [],
+      domains: [],
       adData: [],
       isLoading: false,
       fullPage: true
     }
   },
   methods: {
+    round(value) {
+      if (value !== undefined) {
+        return _.round(value, 2)
+      }
+      return 0
+    },
     adsIn(adGroup) {
       return this.adData.filter((ad) => {
         return ad.adGroupId === adGroup.id
       })
+    },
+    getWidgetData() {
+      axios.get(`/campaigns/${this.campaign.id}/widgets`)
+        .then((response) => {
+          this.widgets = response.data.widgets;
+        })
+        .catch((err) => {
+          alert(err);
+        }).finally(() => {
+          $('#widgetsTable').DataTable({
+            "paging": true,
+            "ordering": true,
+            "info": true,
+            "stateSave": true,
+            "autoWidth": false,
+            "responsive": true,
+          });
+        });
+    },
+    getDomainData() {
+      axios.get(`/campaigns/${this.campaign.id}/domains`)
+        .then((response) => {
+          this.domains = response.data.domains;
+        })
+        .catch((err) => {
+          alert(err);
+        }).finally(() => {
+          $('#domainsTable').DataTable({
+            "paging": true,
+            "ordering": true,
+            "info": true,
+            "stateSave": true,
+            "autoWidth": false,
+            "responsive": true,
+          });
+        });
     },
     getData() {
       this.isLoading = true;

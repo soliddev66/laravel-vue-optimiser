@@ -7,7 +7,9 @@ use App\Exports\CampaignExport;
 use App\Jobs\PullCampaign;
 use App\Models\Campaign;
 use App\Models\FailedJob;
+use App\Models\GeminiDomainPerformanceStat;
 use App\Models\GeminiPerformanceStat;
+use App\Models\GeminiSitePerformanceStat;
 use App\Models\Job;
 use App\Models\Provider;
 use App\Models\RedtrackReport;
@@ -31,6 +33,28 @@ class CampaignController extends Controller
         $failed_queues = FailedJob::all();
 
         return view('campaigns.queue', compact('queues', 'failed_queues'));
+    }
+
+    public function widgets(Campaign $campaign)
+    {
+        $start = Carbon::now()->format('Y-m-d');
+        $end = Carbon::now()->format('Y-m-d');
+        $widgets = GeminiSitePerformanceStat::where('campaign_id', $campaign->campaign_id)->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])->get();
+
+        return response()->json([
+            'widgets' => $widgets
+        ]);
+    }
+
+    public function domains(Campaign $campaign)
+    {
+        $start = Carbon::now()->format('Y-m-d');
+        $end = Carbon::now()->format('Y-m-d');
+        $domains = GeminiDomainPerformanceStat::where('campaign_id', $campaign->campaign_id)->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])->get();
+
+        return response()->json([
+            'domains' => $domains
+        ]);
     }
 
     public function search()
