@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rule;
+use App\Models\RuleConditionType;
 
 class RuleController extends Controller
 {
@@ -15,7 +16,8 @@ class RuleController extends Controller
     private function loadFormData()
     {
         return [
-            'rule_groups' => auth()->user()->ruleGroups
+            'rule_groups' => auth()->user()->ruleGroups,
+            'rule_condition_types' => RuleConditionType::all()
         ];
     }
 

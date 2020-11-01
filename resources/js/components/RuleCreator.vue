@@ -22,7 +22,7 @@
                 <div class="form-group row">
                   <label for="rule_group" class="col-sm-2 control-label mt-2">Rule Group</label>
                   <div class="col-sm-4">
-                    <select name="rule_group" class="form-control">
+                    <select name="rule_group" class="form-control" v-model="selectedRuleGroup">
                       <option value="">Select Group</option>
                       <option :value="ruleGroup.id" v-for="ruleGroup in ruleGroups" :key="ruleGroup.id">{{ ruleGroup.name }}</option>
                     </select>
@@ -44,54 +44,79 @@
                 <div class="form-group row">
                   <label for="dataFrom" class="col-sm-2 control-label">Considering data from</label>
                   <div class="col-sm-3">
-                    <input type="number" name="dataFrom" class="form-control" />
+                    <select name="data_from" class="form-control" v-model="selectedDataFrom">
+                      <option value="">Select</option>
+                      <option value="1">Option 1</option>
+                      <option value="2">Option 2</option>
+                      <option value="3">Option 3</option>
+                    </select>
                   </div>
                   <label for="exclude" class="col-sm-2 control-label">Exclude days from interval</label>
                   <div class="col-sm-3">
-                    <input type="number" name="exclude" class="form-control" />
+                    <select name="excluded_days" class="form-control" v-model="selectedExcludedDays">
+                      <option value="">Select</option>
+                      <option value="1">Option 1</option>
+                      <option value="2">Option 2</option>
+                      <option value="3">Option 3</option>
+                    </select>
                   </div>
                 </div>
 
                 <h2 class="pd-2">Rule Conditions</h2>
-                <div class="form-group row">
-                  <div class="col-sm-3">
-                    <div class="input-group mb-2">
-                      <div class="input-group-prepend">
-                        <div class="input-group-text">IF</div>
+                <fieldset class="mb-3">
+                  <fieldset class="mb-2" v-for="(ruleCondition, index) in ruleConditions" :key="ruleCondition.id">
+                    <div class="form-group row" v-for="(condition, indexY) in ruleCondition" :key="condition.id">
+                      <div class="col-sm-4">
+                        <div class="input-group mb-2">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text">IF</div>
+                          </div>
+                          <select name="rule_condition_type" class="form-control" v-model="selectedConditionType">
+                            <option value="">Select Rule Condition Type</option>
+                            <option :value="ruleConditionType.id" v-for="ruleConditionType in ruleConditionTypes" :key="ruleConditionType.id">{{ ruleConditionType.name }}</option>
+                          </select>
+                          <div class="input-group-append">
+                            <div class="input-group-text">is</div>
+                          </div>
+                        </div>
                       </div>
-                      <select name="condition1" class="form-control">
-                        <option value="">Select Group</option>
-                        <option>Sample</option>
-                      </select>
-                      <div class="input-group-append">
-                        <div class="input-group-text">is</div>
+                      <div class="col-sm-4">
+                        <div class="input-group mb-2">
+                          <input type="number" name="condition2" class="form-control" />
+                          <div class="input-group-append">
+                            <div class="input-group-text">THAN</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm-3">
+                        <div class="input-group mb-2">
+                          <input type="text" name="name" class="form-control" />
+                          <input type="number" name="condition2" placeholder="..." class="form-control" />
+                        </div>
+                      </div>
+                      <div class="col-sm-1">
+                        <button type="button" class="btn btn-light" @click.prevent="removeAndRuleCondition(index, indexY)" v-if="indexY > 0"><i class="fa fa-minus"></i></button>
                       </div>
                     </div>
-                  </div>
-                  <div class="col-sm-3">
-                    <div class="input-group mb-2">
-                      <input type="number" name="condition2" class="form-control" />
-                      <div class="input-group-append">
-                        <div class="input-group-text">THAN</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-3">
-                    <div class="input-group mb-2">
-                      <input type="text" name="name" class="form-control" />
-                      <input type="number" name="condition2" placeholder="..." class="form-control" />
-                    </div>
-                  </div>
-                  <div class="col-sm-3">
-                    <button type="button" class="btn btn-light"><i class="fa fa-minus"></i></button>
-                  </div>
-                </div>
 
-                <div class="form-group row">
-                  <div class="col">
-                    <button type="button" class="btn btn-primary">Add</button>
+                    <div class="form-group row">
+                      <div class="col">
+                        <button type="button" class="btn btn-primary" @click="addAndRuleConditon(index)">AND</button>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col text-right mt-3">
+                        <button class="btn btn-warning btn-sm" @click.prevent="removeOrRuleCondition(index)" v-if="index > 0">Remove</button>
+                      </div>
+                      </div>
+                  </fieldset>
+
+                  <div class="form-group row pt-2">
+                    <div class="col">
+                      <button type="button" class="btn btn-primary" @click="addOrRuleConditon()">OR</button>
+                    </div>
                   </div>
-                </div>
+                </fieldset>
 
                 <div class="row">
                   <div class="col-6">
@@ -174,7 +199,7 @@
             </div>
 
             <div class="card-footer d-flex justify-content-end">
-              <button type="button" class="btn btn-primary">Save</button>
+              <button type="button" class="btn btn-primary" :disabled="!selectedRuleGroupState || !selectedDataFromState || !selectedExcludedDaysState">Save</button>
             </div>
           </div>
       </div>
@@ -200,12 +225,28 @@ export default {
       type: Array,
       default: []
     },
+    ruleConditionTypes: {
+      type: Array,
+      default: []
+    },
   },
   components: {
     Loading,
     Select2
   },
   computed: {
+    selectedRuleGroupState() {
+      return this.selectedRuleGroup !== ''
+    },
+    selectedDataFromState() {
+      return this.selectedDataFrom !== ''
+    },
+    selectedExcludedDaysState() {
+      return this.selectedExcludedDays !== ''
+    },
+    selectedConditionTypeState() {
+      return this.selectedConditionType !== ''
+    }
   },
   mounted() {
     console.log('Component mounted.')
@@ -219,7 +260,15 @@ export default {
       postData: {},
       saveRuleGroup: true,
       ruleGroupName: '',
-      options: [{ id: 1, text: "Hello" }, { id: 2, text: "World" }]
+      selectedRuleGroup: '',
+      selectedDataFrom: '',
+      selectedExcludedDays: '',
+      selectedConditionType: '',
+      ruleConditions: [
+        [
+          {ruleConditionType: '', operation: '', amount: '', unit: ''}
+        ]
+      ]
     }
   },
   methods: {
@@ -251,6 +300,20 @@ export default {
       }).finally(() => {
         this.isLoading = false
       })
+    },
+    addOrRuleConditon () {
+      this.ruleConditions.push([
+        {ruleConditionType: '', operation: '', amount: '', unit: ''}
+      ])
+    },
+    removeOrRuleCondition (index) {
+      this.ruleConditions.splice(index, 1);
+    },
+    addAndRuleConditon (index) {
+      this.ruleConditions[index].push({ruleConditionType: '', operation: '', amount: '', unit: ''});
+    },
+    removeAndRuleCondition (index, indexY) {
+      this.ruleConditions[index].splice(indexY, 1);
     }
   }
 }

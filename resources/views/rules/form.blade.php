@@ -7,7 +7,9 @@
 @stop
 
 @section('content')
-    <rule-creator :rule="{{ json_encode($rule ?? null) }}" :rule-groups="{{ json_encode($rule_groups ?? null) }}">
+    <rule-creator :rule="{{ json_encode($rule ?? null) }}"
+        :rule-groups="{{ json_encode($rule_groups ?? null) }}"
+        :rule-condition-types="{{ json_encode($rule_condition_types ?? null) }}">
     </rule-creator>
 @stop
 
