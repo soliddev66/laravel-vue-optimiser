@@ -17,11 +17,12 @@ class CreateRulesTable extends Migration
             $table->id();
             $table->string('name');
             $table->integer('rule_group_id')->unsigned();
-            $table->integer('from')->unsigned();
-            $table->integer('exclude_day')->unsigned();
-            $table->integer('run_type')->unsigned(); // Alert, Execute, Execute & Alert
+            $table->integer('from')->unsigned()->nullable();
+            $table->integer('exclude_day')->unsigned()->nullable();
+            $table->integer('run_type')->unsigned()->nullable(); // Alert, Execute, Execute & Alert
             $table->integer('interval_amount')->unsigned();
             $table->integer('interval_unit')->unsigned();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

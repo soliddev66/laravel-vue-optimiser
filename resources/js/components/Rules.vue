@@ -16,7 +16,7 @@
                         <i class="fa fa-plus"></i> Rule
                       </button>
                       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="/rules/create">Create</a>
                         <a class="dropdown-item" href="#">Another action</a>
                         <a class="dropdown-item" href="#">Something else here</a>
                       </div>
@@ -33,7 +33,6 @@
                 <tr>
                   <th>ID</th>
                   <th colspan="4">Actions</th>
-                  <th>Camp. ID</th>
                   <th>Name</th>
                   <th>Status</th>
                 </tr>
@@ -55,8 +54,7 @@
                   <td class="px-1">
                     <a class="btn btn-sm btn-default border" :href="'/rules/delete/' + rule.id"><i class="fas fa-trash"></i></a>
                   </td>
-                  <td></td>
-                  <td><a :href="'/rules/' + rule.id"></a></td>
+                  <td>{{ rule.name }}</td>
                   <td v-switch="rule.status">
                     <span v-case="'ACTIVE'" class="text-success">{{ rule.status }}</span>
                     <span v-case="'PAUSED'" class="text-danger">{{ rule.status }}</span>

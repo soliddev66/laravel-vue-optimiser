@@ -16,6 +16,7 @@ class CreateRuleCampaignsTable extends Migration
         Schema::create('rule_campaigns', function (Blueprint $table) {
             $table->id();
             $table->integer('rule_id')->unsigned();
+            $table->integer('campaign_id')->unsigned();
             $table->timestamps();
         });
     }
