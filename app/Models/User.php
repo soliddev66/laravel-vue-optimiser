@@ -73,4 +73,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Campaign::class);
     }
+
+    public function rules()
+    {
+        return $this->hasMany(Rule::class);
+    }
+
+    public function ruleGroups()
+    {
+        return $this->hasMany(RuleGroup::class);
+    }
 }

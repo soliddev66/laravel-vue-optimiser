@@ -15,6 +15,7 @@ class CreateRulesTable extends Migration
     {
         Schema::create('rules', function (Blueprint $table) {
             $table->id();
+            $table->integer('user_id')->unsigned();
             $table->string('name');
             $table->integer('rule_group_id')->unsigned();
             $table->integer('from')->unsigned()->nullable();

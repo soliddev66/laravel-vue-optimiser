@@ -32,7 +32,7 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th colspan="4">Actions</th>
+                  <th colspan="3">Actions</th>
                   <th>Name</th>
                   <th>Status</th>
                 </tr>
@@ -47,9 +47,6 @@
                   </td>
                   <td class="border-right-0 px-1">
                     <a class="btn btn-sm btn-default border" :href="'/rules/edit/' + rule.id"><i class="fas fa-edit"></i></a>
-                  </td>
-                  <td class="border-right-0 px-1">
-                    <a class="btn btn-sm btn-default border"><i class="fas fa-clone"></i></a>
                   </td>
                   <td class="px-1">
                     <a class="btn btn-sm btn-default border" :href="'/rules/delete/' + rule.id"><i class="fas fa-trash"></i></a>

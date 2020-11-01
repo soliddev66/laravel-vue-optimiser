@@ -59,6 +59,11 @@ Route::group(['middleware' => 'auth', 'prefix' => 'rules'], function() {
     Route::get('/create', [App\Http\Controllers\RuleController::class, 'create'])->name('rules.create');
 });
 
+Route::group(['middleware' => 'auth', 'prefix' => 'rule-groups'], function() {
+    Route::post('/', [App\Http\Controllers\RuleGroupController::class, 'store'])->name('rulegroups.store');
+    Route::get('/selection-data', [App\Http\Controllers\RuleGroupController::class, 'selectionData'])->name('rules.selectionData');
+});
+
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/account-wizard', [App\Http\Controllers\AccountController::class, 'wizard'])->name('account_wizard');
 Route::get('/account/advertisers', [App\Http\Controllers\AccountController::class, 'advertisers'])->name('account_wizard');

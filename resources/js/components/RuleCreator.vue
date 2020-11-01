@@ -20,15 +20,24 @@
                 </div>
 
                 <div class="form-group row">
-                  <label for="group" class="col-sm-2 control-label mt-2">Rule Group</label>
+                  <label for="rule_group" class="col-sm-2 control-label mt-2">Rule Group</label>
                   <div class="col-sm-4">
-                    <select name="group" class="form-control">
+                    <select name="rule_group" class="form-control">
                       <option value="">Select Group</option>
-                      <option>Sample</option>
+                      <option :value="ruleGroup.id" v-for="ruleGroup in ruleGroups" :key="ruleGroup.id">{{ ruleGroup.name }}</option>
                     </select>
                   </div>
-                  <div class="col-sm-2">
-                    <button type="button" class="btn btn-primary">Create New</button>
+                  <div class="col-sm-2" v-if="!saveRuleGroup">
+                    <input type="text" name="rule_group_name" v-model="ruleGroupName" class="form-control" placeholder="Enter rule group name...">
+                  </div>
+                  <div class="col-sm-2" v-if="saveRuleGroup">
+                    <button type="button" class="btn btn-primary" @click.prevent="saveRuleGroup = !saveRuleGroup">Create New</button>
+                  </div>
+                  <div class="col-sm-1" v-if="!saveRuleGroup && ruleGroupName">
+                    <button type="button" class="btn btn-success" @click.prevent="createRuleGroup()">Save</button>
+                  </div>
+                  <div class="col-sm-1" v-if="!saveRuleGroup">
+                    <button type="button" class="btn btn-warning" @click.prevent="saveRuleGroup = !saveRuleGroup">Cancel</button>
                   </div>
                 </div>
 
@@ -183,6 +192,14 @@ import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
   props: {
+    rule: {
+      type: Object,
+      default: null
+    },
+    ruleGroups: {
+      type: Array,
+      default: []
+    },
   },
   components: {
     Loading,
@@ -200,10 +217,41 @@ export default {
       isLoading: false,
       fullPage: true,
       postData: {},
+      saveRuleGroup: true,
+      ruleGroupName: '',
       options: [{ id: 1, text: "Hello" }, { id: 2, text: "World" }]
     }
   },
   methods: {
+    createRuleGroup () {
+      this.isLoading = true
+      axios.post('/rule-groups', {
+        name: this.ruleGroupName
+      }).then(response => {
+         if (response.data.errors) {
+          alert(response.data.errors[0])
+        } else {
+          alert('New rule group has been created!')
+          this.ruleGroupName = ''
+          this.saveRuleGroup = true
+          this.getRuleGroups()
+        }
+      }).catch(err => {
+        console.log(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
+    },
+    getRuleGroups () {
+      this.isLoading = true
+      axios.get('/rule-groups/selection-data').then(response => {
+        this.ruleGroups = response.data
+      }).catch(err => {
+        console.log(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
+    }
   }
 }
 </script>
