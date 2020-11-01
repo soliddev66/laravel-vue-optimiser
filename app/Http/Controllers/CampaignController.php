@@ -2,26 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
-
-use App\Jobs\PullCampaign;
-
-use App\Models\Job;
-use App\Models\Campaign;
-use App\Models\Provider;
-use App\Models\FailedJob;
-use App\Exports\CampaignExport;
-
 use App\Endpoints\GeminiAPI;
-use Maatwebsite\Excel\Facades\Excel;
-
+use App\Exports\CampaignExport;
+use App\Jobs\PullCampaign;
+use App\Models\Campaign;
+use App\Models\FailedJob;
+use App\Models\GeminiDomainPerformanceStat;
+use App\Models\GeminiPerformanceStat;
+use App\Models\GeminiSitePerformanceStat;
+use App\Models\Job;
+use App\Models\Provider;
+use App\Models\RedtrackReport;
 use Carbon\Carbon;
+use DB;
+use Exception;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CampaignController extends Controller
 {
     public function index()
     {
-        $campaigns = Campaign::with('redtrackReport')->get();
+        $campaigns = Campaign::all();
 
         return view('campaigns.index', compact('campaigns'));
     }
@@ -34,15 +35,61 @@ class CampaignController extends Controller
         return view('campaigns.queue', compact('queues', 'failed_queues'));
     }
 
-    public function search()
+    public function widgets(Campaign $campaign)
     {
+        $start = Carbon::now()->format('Y-m-d');
         $end = Carbon::now()->format('Y-m-d');
-        $campaigns = Campaign::with(['redtrackReport' => function ($q) use ($end) {
-            $q->whereBetween('date', [request('start'), !request('end') ? $end : request('end')]);
-        }])->get();
+        $widgets = GeminiSitePerformanceStat::where('campaign_id', $campaign->campaign_id)->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])->get();
 
         return response()->json([
-            'campaigns' => $campaigns
+            'widgets' => $widgets
+        ]);
+    }
+
+    public function domains(Campaign $campaign)
+    {
+        $start = Carbon::now()->format('Y-m-d');
+        $end = Carbon::now()->format('Y-m-d');
+        $domains = GeminiDomainPerformanceStat::where('campaign_id', $campaign->campaign_id)->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])->get();
+
+        return response()->json([
+            'domains' => $domains
+        ]);
+    }
+
+    public function search()
+    {
+        $start = Carbon::now()->format('Y-m-d');
+        $end = Carbon::now()->format('Y-m-d');
+        if (request('tracker')) {
+            $campaigns = Campaign::with(['redtrackReport' => function ($q) use ($end) {
+                $q->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
+            }])->get();
+            $summary_data = RedtrackReport::select(
+                DB::raw('SUM(cost) as total_cost'),
+                DB::raw('SUM(total_revenue) as total_revenue'),
+                DB::raw('SUM(profit) as total_net'),
+                DB::raw('SUM(roi)/COUNT(*) as avg_roi')
+            )
+            ->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
+            ->first();
+        } else {
+            $campaigns = Campaign::with(['performanceStats' => function ($q) use ($end) {
+                $q->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
+            }])->get();
+            $summary_data = GeminiPerformanceStat::select(
+                DB::raw('SUM(spend) as total_cost'),
+                DB::raw('0 as total_revenue'),
+                DB::raw('0 - SUM(spend) as total_net'),
+                DB::raw('-100 as avg_roi')
+            )
+            ->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
+            ->first();
+        }
+
+        return response()->json([
+            'campaigns' => $campaigns,
+            'summary_data' => $summary_data
         ]);
     }
 

@@ -37,7 +37,7 @@
         <div class="info-box">
           <div class="info-box-content">
             <span class="info-box-text">CPA</span>
-            <span class="info-box-number">{{ round(summaryData.avg_cpa, 2) || 0 }}</span>
+            <span class="info-box-number">{{ round(summaryData.cpa, 2) || 0 }}</span>
           </div>
         </div>
       </div>
@@ -55,7 +55,7 @@
         <div class="info-box">
           <div class="info-box-content">
             <span class="info-box-text">ROI</span>
-            <span class="info-box-number">{{ round(summaryData.avg_roi, 2) || 0 }}</span>
+            <span class="info-box-number">{{ round(summaryData.roi, 2) || 0 }}%</span>
           </div>
         </div>
       </div>
@@ -71,7 +71,7 @@
         <div class="info-box">
           <div class="info-box-content">
             <span class="info-box-text">EPC</span>
-            <span class="info-box-number">{{ round(summaryData.avg_epc, 2) || 0 }}</span>
+            <span class="info-box-number">{{ round(summaryData.epc, 2) || 0 }}</span>
           </div>
         </div>
       </div>
@@ -90,9 +90,9 @@
         <h3>Performace by Traffic Source</h3>
       </div>
       <div class="col-md-6 col-12">
-        <select class="form-control">
+        <select class="form-control" v-model="selectedProvider">
           <option value="">Traffic Source</option>
-          <option v-for="provider in providers" :value="provider.id">{{ provider.label }}</option>
+          <option v-for="provider in providers" :value="provider.slug">{{ provider.label }}</option>
         </select>
       </div>
       <div class="col-12 mt-3">
@@ -118,7 +118,7 @@
                   <td>{{ round(summaryData.total_cost, 2) || 0 }}</td>
                   <td>{{ round(summaryData.total_revenue, 2) || 0 }}</td>
                   <td>{{ round(summaryData.total_net, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.avg_roi, 2) || 0 }}</td>
+                  <td>{{ round(summaryData.roi, 2) || 0 }}%</td>
                 </tr>
               </tbody>
             </table>
@@ -158,7 +158,7 @@
                   <td>{{ round(summaryData.total_cost, 2) || 0 }}</td>
                   <td>{{ round(summaryData.total_revenue, 2) || 0 }}</td>
                   <td>{{ round(summaryData.total_net, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.avg_roi, 2) || 0 }}</td>
+                  <td>{{ round(summaryData.roi, 2) || 0 }}%</td>
                 </tr>
               </tbody>
             </table>
@@ -188,7 +188,7 @@
                   <td>{{ round(summaryData.total_cost, 2) || 0 }}</td>
                   <td>{{ round(summaryData.total_revenue, 2) || 0 }}</td>
                   <td>{{ round(summaryData.total_net, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.avg_roi, 2) || 0 }}</td>
+                  <td>{{ round(summaryData.roi, 2) || 0 }}%</td>
                 </tr>
               </tbody>
             </table>
@@ -234,6 +234,7 @@ export default {
   },
   data() {
     return {
+      selectedProvider: 'yahoo',
       targetDate: {
         start: this.$moment().subtract('30', 'days'),
         end: this.$moment()
@@ -242,11 +243,11 @@ export default {
         total_cost: 0,
         total_net: 0,
         total_clicks: 0,
-        avg_cpa: 0,
+        cpa: 0,
         total_revenue: 0,
-        avg_roi: 0,
+        roi: 0,
         total_conversions: 0,
-        avg_epc: 0
+        epc: 0
       },
       dataByDate: null
     }
@@ -306,7 +307,7 @@ export default {
           if (data.date === date) {
             datasets[0].data[index] = data.total_net
             datasets[1].data[index] = data.total_clicks
-            datasets[2].data[index] = data.avg_roi
+            datasets[2].data[index] = data.roi
             datasets[3].data[index] = data.total_revenue
             datasets[4].data[index] = data.total_cost
           }

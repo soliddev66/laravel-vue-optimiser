@@ -13,6 +13,7 @@ use App\Imports\GeminiPerformanceImport;
 use App\Imports\GeminiProductAdPerformanceImport;
 use App\Imports\GeminiProductAdsImport;
 use App\Imports\GeminiSearchImport;
+use App\Imports\GeminiSitePerformanceImport;
 use App\Imports\GeminiSlotPerformanceImport;
 use App\Imports\GeminiStructuredSnippetExtensionPerformanceImport;
 use App\Imports\GeminiUserImport;
@@ -69,6 +70,9 @@ class PullReport implements ShouldQueue
                     break;
                 case 'slot_performance_stats':
                     Excel::queueImport(new GeminiSlotPerformanceImport, public_path('reports/' . $file_name));
+                    break;
+                case 'site_performance_stats':
+                    Excel::queueImport(new GeminiSitePerformanceImport, public_path('reports/' . $file_name));
                     break;
                 case 'campaign_bid_performance_stats':
                     Excel::queueImport(new GeminiCampaignBidPerformanceImport, public_path('reports/' . $file_name));

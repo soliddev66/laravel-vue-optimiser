@@ -11,6 +11,7 @@
                   <th>Queue</th>
                   <th>Payload</th>
                   <th>Status</th>
+                  <th>Exception</th>
                 </tr>
               </thead>
               <tbody>
@@ -19,6 +20,7 @@
                   <td>{{ queue.queue }}</td>
                   <td>{{ JSON.parse(queue.payload).displayName }}</td>
                   <td>{{ queue.failed_at ? 'Failed' : 'Pending' }}</td>
+                  <td>{{ queue.exception }}</td>
                 </tr>
               </tbody>
             </table>

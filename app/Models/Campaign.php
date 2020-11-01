@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\GeminiPerformanceStat;
 use App\Models\RedtrackReport;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -56,6 +57,11 @@ class Campaign extends Model
     public function redtrackReport()
     {
         return $this->hasMany(RedtrackReport::class);
+    }
+
+    public function performanceStats()
+    {
+        return $this->hasMany(GeminiPerformanceStat::class, 'campaign_id', 'campaign_id');
     }
 
     public function provider()

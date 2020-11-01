@@ -27,8 +27,11 @@ class Gemini
     {
         $date = Carbon::now()->format('Y-m-d');
         foreach (User::all() as $key => $user) {
-            foreach ($user->campaigns as $index => $campaign) {
-                if (!GeminiJob::where('user_id', $user->id)->where('campaign_id', $campaign->campaign_id)->where('advertiser_id', $campaign->advertiser_id)->where('status', 'submitted')->exists()) {
+            foreach ($user->campaigns()->where('status', 'ACTIVE')->get() as $index => $campaign) {
+                $existing = GeminiJob::where('user_id', $user->id)->where('campaign_id', $campaign->campaign_id)->where('advertiser_id', $campaign->advertiser_id)->where(function ($q) {
+                    $q->where('status', 'submitted')->orWhere('status', 'running');
+                })->exists();
+                if (!$existing) {
                     $jobs = [];
                     $user_info = $user->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first();
                     Token::refresh($user_info, function () use ($campaign, $user_info, $date, &$jobs) {
@@ -37,6 +40,9 @@ class Gemini
                         array_push($jobs, $job);
                         $job = self::getSlotPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
                         $job['name'] = 'slot_performance_stats';
+                        array_push($jobs, $job);
+                        $job = self::getSitePerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+                        $job['name'] = 'site_performance_stats';
                         array_push($jobs, $job);
                         $job = self::getCampaignBidPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
                         $job['name'] = 'campaign_bid_performance_stats';

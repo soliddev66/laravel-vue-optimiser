@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->call(function () {
             Gemini::crawl();
-        })->everyThirtyMinutes();
+        })->everyMinute();
         $schedule->call(function () {
             Gemini::checkJobs();
         })->everyMinute();

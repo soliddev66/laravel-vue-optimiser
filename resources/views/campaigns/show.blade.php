@@ -16,7 +16,7 @@
 @section('js')
     <script>
         $(document).ready(function() {
-            $('#adGroupsTable').DataTable({
+            $('#adGroupsTable, #adGroupsTable').DataTable({
                 "paging": true,
                 "ordering": true,
                 "info": true,
