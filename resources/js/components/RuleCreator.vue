@@ -71,7 +71,7 @@
                           <div class="input-group-prepend">
                             <div class="input-group-text">IF</div>
                           </div>
-                          <select name="rule_condition_type" class="form-control" v-model="condition.ruleConditionType">
+                          <select name="rule_condition_type" class="form-control" v-model="condition.type">
                             <option value="">Select Rule Condition Type</option>
                             <option :value="ruleConditionType.id" v-for="ruleConditionType in ruleConditionTypes" :key="ruleConditionType.id">{{ ruleConditionType.name }}</option>
                           </select>
@@ -95,7 +95,7 @@
                       </div>
                       <div class="col-sm-3">
                         <div class="input-group mb-2">
-                          <input type="text" :name="`rule_condition_amount${index}`" class="form-control" v-model="condition.amount" />
+                          <input type="number" :name="`rule_condition_amount${index}`" class="form-control" v-model="condition.amount" />
                           <input type="number" :name="`rule_condition_unit${index}`" placeholder="..." class="form-control" v-model="condition.unit" />
                         </div>
                       </div>
@@ -211,7 +211,7 @@
             </div>
 
             <div class="card-footer d-flex justify-content-end">
-              <button type="button" class="btn btn-primary" :disabled="!selectedRuleGroupState || !selectedDataFromState || !ruleIntervalAmountState || !ruleIntervalUnitState" @click.prevent="saveRule">Save</button>
+              <button type="button" class="btn btn-primary" :disabled="!ruleConditionsState" @click.prevent="saveRule">Save</button>
             </div>
           </div>
       </div>
@@ -251,6 +251,9 @@ export default {
     Select2
   },
   computed: {
+    ruleNameState() {
+      return this.ruleName !== ''
+    },
     selectedRuleGroupState() {
       return this.selectedRuleGroup !== ''
     },
@@ -265,6 +268,19 @@ export default {
     },
     ruleIntervalUnitState() {
       return this.ruleIntervalUnit !== ''
+    },
+    ruleCampaignsState() {
+      return this.ruleCampaigns.length
+    },
+    ruleConditionsState() {
+      for (let i = 0; i < this.ruleConditions.length; i++) {
+        for (let j = 0; j < this.ruleConditions[i].length; j++) {
+          if (!this.ruleConditions[i][j].type || !this.ruleConditions[i][j].operation || !this.ruleConditions[i][j].amount || !this.ruleConditions[i][j].unit) {
+            return false
+          }
+        }
+      }
+      return true
     }
   },
   mounted() {
@@ -295,7 +311,7 @@ export default {
       }),
       ruleConditions: [
         [
-          {ruleConditionType: '', operation: '', amount: '', unit: ''}
+          {type: '', operation: '', amount: '', unit: ''}
         ]
       ]
     }
@@ -332,14 +348,14 @@ export default {
     },
     addOrRuleConditon () {
       this.ruleConditions.push([
-        {ruleConditionType: '', operation: '', amount: '', unit: ''}
+        {type: '', operation: '', amount: '', unit: ''}
       ])
     },
     removeOrRuleCondition (index) {
       this.ruleConditions.splice(index, 1);
     },
     addAndRuleConditon (index) {
-      this.ruleConditions[index].push({ruleConditionType: '', operation: '', amount: '', unit: ''});
+      this.ruleConditions[index].push({type: '', operation: '', amount: '', unit: ''});
     },
     removeAndRuleCondition (index, indexY) {
       this.ruleConditions[index].splice(indexY, 1);
