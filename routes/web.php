@@ -56,6 +56,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
 
 Route::group(['middleware' => 'auth', 'prefix' => 'rules'], function() {
     Route::get('/', [App\Http\Controllers\RuleController::class, 'index'])->name('rules.index');
+    Route::post('/', [App\Http\Controllers\RuleController::class, 'store'])->name('rules.store');
     Route::get('/create', [App\Http\Controllers\RuleController::class, 'create'])->name('rules.create');
 });
 

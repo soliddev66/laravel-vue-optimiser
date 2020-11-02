@@ -15,7 +15,7 @@
                 <div class="form-group row">
                   <label for="name" class="col-sm-2 control-label mt-2">Rule Name</label>
                   <div class="col-sm-10">
-                    <input type="text" name="name" placeholder="Enter a name" class="form-control" />
+                    <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="ruleName" />
                   </div>
                 </div>
 
@@ -71,7 +71,7 @@
                           <div class="input-group-prepend">
                             <div class="input-group-text">IF</div>
                           </div>
-                          <select name="rule_condition_type" class="form-control" v-model="selectedConditionType">
+                          <select name="rule_condition_type" class="form-control" v-model="condition.ruleConditionType">
                             <option value="">Select Rule Condition Type</option>
                             <option :value="ruleConditionType.id" v-for="ruleConditionType in ruleConditionTypes" :key="ruleConditionType.id">{{ ruleConditionType.name }}</option>
                           </select>
@@ -82,7 +82,12 @@
                       </div>
                       <div class="col-sm-4">
                         <div class="input-group mb-2">
-                          <input type="number" name="condition2" class="form-control" />
+                          <select name="rule_condition_operation" class="form-control" v-model="condition.operation">
+                            <option value="">Select Operation</option>
+                            <option value="1">Less than</option>
+                            <option value="2">Greater than</option>
+                            <option value="3">Equal</option>
+                          </select>
                           <div class="input-group-append">
                             <div class="input-group-text">THAN</div>
                           </div>
@@ -90,8 +95,8 @@
                       </div>
                       <div class="col-sm-3">
                         <div class="input-group mb-2">
-                          <input type="text" name="name" class="form-control" />
-                          <input type="number" name="condition2" placeholder="..." class="form-control" />
+                          <input type="text" :name="`rule_condition_unit${index}`" class="form-control" />
+                          <input type="number" :name="`rule_condition_unit${index}`" placeholder="..." class="form-control" />
                         </div>
                       </div>
                       <div class="col-sm-1">
@@ -113,7 +118,7 @@
 
                   <div class="form-group row pt-2">
                     <div class="col">
-                      <button type="button" class="btn btn-primary" @click="addOrRuleConditon()">OR</button>
+                      <button type="button" class="btn btn-primary" @click="addOrRuleConditon">OR</button>
                     </div>
                   </div>
                 </fieldset>
@@ -199,7 +204,7 @@
             </div>
 
             <div class="card-footer d-flex justify-content-end">
-              <button type="button" class="btn btn-primary" :disabled="!selectedRuleGroupState || !selectedDataFromState || !selectedExcludedDaysState">Save</button>
+              <button type="button" class="btn btn-primary" :disabled="!selectedRuleGroupState || !selectedDataFromState || !selectedExcludedDaysState" @click.prevent="saveRule">Save</button>
             </div>
           </div>
       </div>
@@ -259,6 +264,7 @@ export default {
       fullPage: true,
       postData: {},
       saveRuleGroup: true,
+      ruleName: '',
       ruleGroupName: '',
       selectedRuleGroup: '',
       selectedDataFrom: '',
@@ -314,6 +320,24 @@ export default {
     },
     removeAndRuleCondition (index, indexY) {
       this.ruleConditions[index].splice(indexY, 1);
+    },
+    saveRule () {
+      this.postData = {
+        name: this.ruleName,
+        ruleConditions: this.ruleConditions
+      }
+
+      axios.post('/rules', this.postData).then(response => {
+        if (response.data.errors) {
+          alert(response.data.errors[0])
+        } else {
+          alert('Save successfully!');
+        }
+      }).catch(error => {
+        console.log(error)
+      }).finally(() => {
+        this.isLoading = false
+      })
     }
   }
 }

@@ -25,4 +25,9 @@ class RuleController extends Controller
     {
         return view('rules.form', $this->loadFormData());
     }
+
+    public function store()
+    {
+
+    }
 }
