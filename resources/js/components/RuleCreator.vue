@@ -53,7 +53,7 @@
                   </div>
                   <label for="exclude" class="col-sm-2 control-label">Exclude days from interval</label>
                   <div class="col-sm-3">
-                    <select name="excluded_days" class="form-control" v-model="selectedExcludedDays">
+                    <select name="excluded_days" class="form-control" v-model="selectedExcludedDay">
                       <option value="">Select</option>
                       <option value="1">Option 1</option>
                       <option value="2">Option 2</option>
@@ -95,8 +95,8 @@
                       </div>
                       <div class="col-sm-3">
                         <div class="input-group mb-2">
-                          <input type="text" :name="`rule_condition_unit${index}`" class="form-control" />
-                          <input type="number" :name="`rule_condition_unit${index}`" placeholder="..." class="form-control" />
+                          <input type="text" :name="`rule_condition_amount${index}`" class="form-control" v-model="condition.amount" />
+                          <input type="number" :name="`rule_condition_unit${index}`" placeholder="..." class="form-control" v-model="condition.unit" />
                         </div>
                       </div>
                       <div class="col-sm-1">
@@ -156,12 +156,9 @@
                 <div class="form-group row">
                   <label for="group" class="col-sm-2 control-label">Apply rule to campaigns</label>
                   <div class="col-sm-7">
-                    <select name="group" class="form-control">
-                      <option value="">Search campaigns...</option>
-                      <option>Sample</option>
-                    </select>
+                    <select2 name="campaigns" v-model="ruleCampaigns" :options="campaignSelections" :settings="{ multiple: true }" />
                   </div>
-                  <div class="col-sm-3">
+                  <!-- <div class="col-sm-3">
                     <div class="btn-group mr-3" role="group">
                       <div class="dropdown">
                         <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -174,29 +171,39 @@
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </div> -->
                 </div>
 
                 <div class="form-group row">
                   <label for="group" class="col-sm-2 control-label">Run this rule every</label>
-                  <div class="col-sm-10">
-                    <input type="number" name="interval" class="form-control" />
+                  <div class="col-sm-5">
+                    <input type="number" name="interval_amount" class="form-control" v-model="ruleIntervalAmount" />
+                  </div>
+                  <div class="col-sm-5">
+                    <select name="interval_unit" class="form-control" v-model="ruleIntervalUnit">
+                      <option value="1">Minutes</option>
+                      <option value="2">Hours</option>
+                      <option value="3">Days</option>
+                      <option value="4">Weeks</option>
+                      <option value="5">Months</option>
+                      <option value="6">Years</option>
+                    </select>
                   </div>
                 </div>
 
                 <div class="form-group row">
                   <div class="col">
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="alert" id="inlineRadio1" value="option1">
-                      <label class="form-check-label" for="inlineRadio1">Alert Only</label>
+                      <input class="form-check-input" type="radio" name="alert" id="runType1" value="1" v-model="ruleRunType">
+                      <label class="form-check-label" for="runType1">Alert Only</label>
                     </div>
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="alert" id="inlineRadio2" value="option2">
-                      <label class="form-check-label" for="inlineRadio2">Execute</label>
+                      <input class="form-check-input" type="radio" name="alert" id="runType2" value="2" v-model="ruleRunType">
+                      <label class="form-check-label" for="runType2">Execute</label>
                     </div>
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="alert" id="inlineRadio3" value="option3">
-                      <label class="form-check-label" for="inlineRadio3">Execute & Alert</label>
+                      <input class="form-check-input" type="radio" name="alert" id="runType3" value="3" v-model="ruleRunType">
+                      <label class="form-check-label" for="runType3">Execute & Alert</label>
                     </div>
                   </div>
                 </div>
@@ -204,7 +211,7 @@
             </div>
 
             <div class="card-footer d-flex justify-content-end">
-              <button type="button" class="btn btn-primary" :disabled="!selectedRuleGroupState || !selectedDataFromState || !selectedExcludedDaysState" @click.prevent="saveRule">Save</button>
+              <button type="button" class="btn btn-primary" :disabled="!selectedRuleGroupState || !selectedDataFromState || !ruleIntervalAmountState || !ruleIntervalUnitState" @click.prevent="saveRule">Save</button>
             </div>
           </div>
       </div>
@@ -226,6 +233,10 @@ export default {
       type: Object,
       default: null
     },
+    campaigns: {
+      type: Array,
+      default: []
+    },
     ruleGroups: {
       type: Array,
       default: []
@@ -246,11 +257,14 @@ export default {
     selectedDataFromState() {
       return this.selectedDataFrom !== ''
     },
-    selectedExcludedDaysState() {
-      return this.selectedExcludedDays !== ''
+    selectedExcludedDayState() {
+      return this.selectedExcludedDay !== ''
     },
-    selectedConditionTypeState() {
-      return this.selectedConditionType !== ''
+    ruleIntervalAmountState() {
+      return this.ruleIntervalAmount !== ''
+    },
+    ruleIntervalUnitState() {
+      return this.ruleIntervalUnit !== ''
     }
   },
   mounted() {
@@ -268,8 +282,17 @@ export default {
       ruleGroupName: '',
       selectedRuleGroup: '',
       selectedDataFrom: '',
-      selectedExcludedDays: '',
-      selectedConditionType: '',
+      selectedExcludedDay: '',
+      ruleIntervalAmount: '',
+      ruleIntervalUnit: '',
+      ruleRunType: 1,
+      ruleCampaigns: [],
+      campaignSelections: this.campaigns.map(campaign => {
+        return {
+          id: campaign.id,
+          text: campaign.name
+        }
+      }),
       ruleConditions: [
         [
           {ruleConditionType: '', operation: '', amount: '', unit: ''}
@@ -324,7 +347,14 @@ export default {
     saveRule () {
       this.postData = {
         name: this.ruleName,
-        ruleConditions: this.ruleConditions
+        ruleGroup: this.selectedRuleGroup,
+        dataFrom: this.selectedDataFrom,
+        excludedDay: this.selectedExcludedDay,
+        ruleConditions: this.ruleConditions,
+        ruleCampaigns: this.ruleCampaigns,
+        ruleIntervalAmount: this.ruleIntervalAmount,
+        ruleIntervalUnit: this.ruleIntervalUnit,
+        ruleRunType: this.ruleRunType
       }
 
       axios.post('/rules', this.postData).then(response => {

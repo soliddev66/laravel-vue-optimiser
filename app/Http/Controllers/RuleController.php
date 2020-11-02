@@ -17,7 +17,8 @@ class RuleController extends Controller
     {
         return [
             'rule_groups' => auth()->user()->ruleGroups,
-            'rule_condition_types' => RuleConditionType::all()
+            'rule_condition_types' => RuleConditionType::all(),
+            'campaigns' => auth()->user()->campaigns
         ];
     }
 
@@ -28,6 +29,6 @@ class RuleController extends Controller
 
     public function store()
     {
-
+        var_dump(request('ruleConditions'));
     }
 }
