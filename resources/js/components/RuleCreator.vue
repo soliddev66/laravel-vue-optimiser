@@ -211,7 +211,7 @@
             </div>
 
             <div class="card-footer d-flex justify-content-end">
-              <button type="button" class="btn btn-primary" :disabled="!ruleConditionsState" @click.prevent="saveRule">Save</button>
+              <button type="button" class="btn btn-primary" :disabled="!ruleNameState || !selectedRuleGroupState || !selectedDataFromState || !ruleIntervalAmountState || !ruleIntervalUnitState || !ruleCampaignsState || !ruleConditionsState" @click.prevent="saveRule">Save</button>
             </div>
           </div>
       </div>

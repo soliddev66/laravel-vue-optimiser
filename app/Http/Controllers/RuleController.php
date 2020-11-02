@@ -29,6 +29,6 @@ class RuleController extends Controller
 
     public function store()
     {
-        var_dump(request('ruleConditions'));
+
     }
 }
