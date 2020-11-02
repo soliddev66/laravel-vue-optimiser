@@ -65,8 +65,8 @@
 
                 <h2 class="pd-2">Rule Conditions</h2>
                 <fieldset class="mb-3 p-3 rounded border">
-                  <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCondition, index) in ruleConditions" :key="ruleCondition.id">
-                    <div class="form-group row" v-for="(condition, indexY) in ruleCondition" :key="condition.id">
+                  <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCondition, index) in ruleConditions" :key="index">
+                    <div class="form-group row" v-for="(condition, indexY) in ruleCondition" :key="indexY">
                       <div class="col-sm-4">
                         <div class="input-group">
                           <div class="input-group-prepend">
@@ -97,7 +97,11 @@
                       <div class="col-sm-3">
                         <div class="input-group">
                           <input type="number" :name="`rule_condition_amount${index}`" class="form-control" v-model="condition.amount" />
-                          <input type="number" :name="`rule_condition_unit${index}`" placeholder="..." class="form-control" v-model="condition.unit" />
+                          <select :name="`rule_condition_unit${index}`" class="form-control" v-model="condition.unit">
+                            <option value="1">...</option>
+                            <option value="2">Option 2</option>
+                            <option value="3">Option 3</option>
+                          </select>
                         </div>
                       </div>
                       <div class="col-sm-1">
@@ -290,6 +294,8 @@ export default {
   watch: {
   },
   data() {
+    let tempRuleCondition = {type: '', operation: '', amount: '', unit: '1'};
+
     return {
       errors: {},
       isLoading: false,
@@ -305,17 +311,14 @@ export default {
       ruleIntervalUnit: '',
       ruleRunType: 1,
       ruleCampaigns: [],
+      tempRuleCondition: tempRuleCondition,
       campaignSelections: this.campaigns.map(campaign => {
         return {
           id: campaign.id,
           text: campaign.name
         }
       }),
-      ruleConditions: [
-        [
-          {type: '', operation: '', amount: '', unit: ''}
-        ]
-      ]
+      ruleConditions: [[{...tempRuleCondition}]]
     }
   },
   methods: {
@@ -351,15 +354,13 @@ export default {
       })
     },
     addOrRuleConditon () {
-      this.ruleConditions.push([
-        {type: '', operation: '', amount: '', unit: ''}
-      ])
+      this.ruleConditions.push([{...this.tempRuleCondition}])
     },
     removeOrRuleCondition (index) {
       this.ruleConditions.splice(index, 1);
     },
     addAndRuleConditon (index) {
-      this.ruleConditions[index].push({type: '', operation: '', amount: '', unit: ''});
+      this.ruleConditions[index].push({...this.tempRuleCondition});
     },
     removeAndRuleCondition (index, indexY) {
       this.ruleConditions[index].splice(indexY, 1);
