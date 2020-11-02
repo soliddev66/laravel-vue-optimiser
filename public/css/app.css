@@ -10903,9 +10903,12 @@ a i {
   pointer-events: none;
 }
 
+<<<<<<< HEAD
 fieldset {
   border: 1px solid #ced4da;
   padding: 15px 15px 0 15px;
   border-radius: 0.25rem;
 }
 
+=======
+>>>>>>> master

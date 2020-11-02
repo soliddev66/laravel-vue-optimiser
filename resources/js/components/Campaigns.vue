@@ -3,40 +3,7 @@
     <div class="vld-parent">
       <loading :active.sync="isLoading" :can-cancel="false" :is-full-page="fullPage"></loading>
     </div>
-    <div class="row justify-content-center">
-      <div class="col-md-3 col-sm-6 col-12">
-        <div class="info-box">
-          <div class="info-box-content">
-            <span class="info-box-text">Total Cost</span>
-            <span class="info-box-number">{{ round(summaryData.total_cost, 2) || 0 }}</span>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-sm-6 col-12">
-        <div class="info-box">
-          <div class="info-box-content">
-            <span class="info-box-text">Total Revenue</span>
-            <span class="info-box-number">{{ round(summaryData.total_revenue, 2) || 0 }}</span>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-sm-6 col-12">
-        <div class="info-box">
-          <div class="info-box-content">
-            <span class="info-box-text">Total NET</span>
-            <span class="info-box-number">{{ round(summaryData.total_net, 2) || 0 }}</span>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-sm-6 col-12">
-        <div class="info-box">
-          <div class="info-box-content">
-            <span class="info-box-text">Total ROI</span>
-            <span class="info-box-number">{{ round(summaryData.avg_roi, 2) || 0 }}%</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <summary-data :summaryData="summaryData"></summary-data>
     <div class="row justify-content-center">
       <div class="col-md-12">
         <div class="card">
@@ -46,17 +13,17 @@
                 <VueCtkDateTimePicker position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData"></VueCtkDateTimePicker>
               </div>
               <div class="col-md-3 col-12">
-                <select class="form-control" v-model="selectedProvider">
+                <select class="form-control" v-model="selectedProvider" @change="getData">
                   <option v-for="provider in providers" :value="provider.slug">{{ provider.label }}</option>
                 </select>
               </div>
               <div class="col-md-3 col-12">
-                <select class="form-control" v-model="selectedAccount">
+                <select class="form-control" v-model="selectedAccount" @change="getData">
                   <option v-for="account in accounts" :value="account.id">{{ account.open_id }}</option>
                 </select>
               </div>
               <div class="col-md-3 col-12">
-                <select class="form-control" v-model="selectedTracker">
+                <select class="form-control" v-model="selectedTracker" @change="getData">
                   <option value="">-</option>
                   <option v-for="tracker in trackers" :value="tracker.slug">{{ tracker.label }}</option>
                 </select>
@@ -191,9 +158,9 @@
 import _ from 'lodash';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import Loading from 'vue-loading-overlay'
-import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
 
-import 'vue-loading-overlay/dist/vue-loading.css'
+import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
+import 'vue-loading-overlay/dist/vue-loading.css';
 
 export default {
   props: {

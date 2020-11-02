@@ -12,9 +12,11 @@ use App\Models\GeminiPerformanceStat;
 use App\Models\GeminiSitePerformanceStat;
 use App\Models\Job;
 use App\Models\Provider;
+use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use Carbon\Carbon;
 use DB;
+use DataTables;
 use Exception;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -35,22 +37,46 @@ class CampaignController extends Controller
         return view('campaigns.queue', compact('queues', 'failed_queues'));
     }
 
-    public function widgets(Campaign $campaign)
+    public function widgets(Campaign $campaign, $start, $end, $tracker = '')
     {
-        $start = Carbon::now()->format('Y-m-d');
-        $end = Carbon::now()->format('Y-m-d');
-        $widgets = GeminiSitePerformanceStat::where('campaign_id', $campaign->campaign_id)->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])->get();
+        $widgets = GeminiSitePerformanceStat::select([
+            '*',
+            DB::raw('CONCAT(external_site_name, "|", device_type) as widget_id'),
+            DB::raw('ROUND(spend / clicks, 2) as calc_cpc'),
+            DB::raw('conversions as tr_conv'),
+            DB::raw('conversions as tr_rev'),
+            DB::raw('ROUND(0 - spend, 2) as tr_net'),
+            DB::raw('CONCAT(ROUND(((0 - spend) / spend) * 100, 2), "%") as tr_roi'),
+            DB::raw('conversions as tr_epc'),
+            DB::raw('conversions as epc'),
+            DB::raw('conversions as tr_cpa'),
+            DB::raw('clicks as ts_clicks'),
+            DB::raw('conversions as trk_clicks'),
+            DB::raw('conversions as lp_clicks'),
+            DB::raw('conversions as lp_ctr'),
+            DB::raw('CONCAT(ROUND(clicks / impressions * 100, 2), "%") as ctr'),
+            DB::raw('conversions as tr_cvr'),
+            DB::raw('ROUND(spend / impressions * 1000, 2) as ecpm'),
+            DB::raw('conversions as lp_cr'),
+            DB::raw('conversions as lp_cpc'),
+        ])
+        ->where('campaign_id', $campaign->campaign_id)
+        ->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
 
-        return response()->json([
-            'widgets' => $widgets
-        ]);
+        return DataTables::eloquent($widgets)
+            ->addColumn('actions', '-')
+            ->make();
     }
 
     public function domains(Campaign $campaign)
     {
         $start = Carbon::now()->format('Y-m-d');
         $end = Carbon::now()->format('Y-m-d');
-        $domains = GeminiDomainPerformanceStat::where('campaign_id', $campaign->campaign_id)->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])->get();
+        if (request('tracker')) {
+            $domains = RedtrackDomainStat::where('campaign_id', $campaign->id)->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])->get();
+        } else {
+            $domains = GeminiDomainPerformanceStat::where('campaign_id', $campaign->campaign_id)->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])->get();
+        }
 
         return response()->json([
             'domains' => $domains
@@ -71,8 +97,8 @@ class CampaignController extends Controller
                 DB::raw('SUM(profit) as total_net'),
                 DB::raw('SUM(roi)/COUNT(*) as avg_roi')
             )
-            ->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
-            ->first();
+                ->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
+                ->first();
         } else {
             $campaigns = Campaign::with(['performanceStats' => function ($q) use ($end) {
                 $q->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
@@ -83,8 +109,8 @@ class CampaignController extends Controller
                 DB::raw('0 - SUM(spend) as total_net'),
                 DB::raw('-100 as avg_roi')
             )
-            ->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
-            ->first();
+                ->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
+                ->first();
         }
 
         return response()->json([
@@ -95,12 +121,7 @@ class CampaignController extends Controller
 
     public function show(Campaign $campaign)
     {
-        $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first());
-
-        $ad_groups = $gemini->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
-        $ads = $gemini->getAdsByCampaign($campaign->campaign_id, $campaign->advertiser_id);
-
-        return view('campaigns.show', compact('campaign', 'ad_groups', 'ads'));
+        return view('campaigns.show', compact('campaign'));
     }
 
     public function ad(Campaign $campaign, $ad_group_id, $ad_id)
@@ -145,7 +166,7 @@ class CampaignController extends Controller
             $campaign_data = $gemini->getCampaign($campaign->campaign_id);
             $ad_group = $gemini->getAdGroup($ad_group_id);
             $data = $gemini->createAd($campaign_data, $ad_group);
-        }  catch (Exception $e) {
+        } catch (Exception $e) {
             $data = [
                 'errors' => [$e->getMessage()]
             ];
@@ -167,7 +188,8 @@ class CampaignController extends Controller
         return view('campaigns.form', compact('instance'));
     }
 
-    private function getInstanceData(Campaign $campaign) {
+    private function getInstanceData(Campaign $campaign)
+    {
         $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first());
 
         $instance = $gemini->getCampaign($campaign->campaign_id);
@@ -300,11 +322,35 @@ class CampaignController extends Controller
 
     public function adGroupData(Campaign $campaign)
     {
+        $start = Carbon::now()->format('Y-m-d');
+        $end = Carbon::now()->format('Y-m-d');
         $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first());
+        if (request('tracker')) {
+            $summary_data = RedtrackReport::select(
+                DB::raw('SUM(cost) as total_cost'),
+                DB::raw('SUM(total_revenue) as total_revenue'),
+                DB::raw('SUM(profit) as total_net'),
+                DB::raw('SUM(roi)/COUNT(*) as avg_roi')
+            )
+            ->where('sub6', $campaign->campaign_id)
+            ->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
+            ->first();
+        } else {
+            $summary_data = GeminiPerformanceStat::select(
+                DB::raw('SUM(spend) as total_cost'),
+                DB::raw('0 as total_revenue'),
+                DB::raw('0 - SUM(spend) as total_net'),
+                DB::raw('-100 as avg_roi')
+            )
+            ->where('campaign_id', $campaign->campaign_id)
+            ->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
+            ->first();
+        }
 
         return response()->json([
-            'adGroups' => $gemini->getAdGroups($campaign->campaign_id, $campaign->advertiser_id),
-            'ads' => $gemini->getAdsByCampaign($campaign->campaign_id, $campaign->advertiser_id)
+            'ad_groups' => $gemini->getAdGroups($campaign->campaign_id, $campaign->advertiser_id),
+            'ads' => $gemini->getAdsByCampaign($campaign->campaign_id, $campaign->advertiser_id),
+            'summary_data' => $summary_data
         ]);
     }
 
@@ -377,11 +423,13 @@ class CampaignController extends Controller
         return $data;
     }
 
-    public function exportExcel() {
-        return Excel::download(new CampaignExport, 'campaigns' . Carbon::now()->format('Y-m-d-H-i-s') . '.xlsx', \Maatwebsite\Excel\Excel::XLSX);
+    public function exportExcel()
+    {
+        return Excel::download(new CampaignExport(), 'campaigns' . Carbon::now()->format('Y-m-d-H-i-s') . '.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
 
-    public function exportCsv() {
-        return Excel::download(new CampaignExport, 'campaigns' . Carbon::now()->format('Y-m-d-H-i-s') . '.csv', \Maatwebsite\Excel\Excel::CSV);
+    public function exportCsv()
+    {
+        return Excel::download(new CampaignExport(), 'campaigns' . Carbon::now()->format('Y-m-d-H-i-s') . '.csv', \Maatwebsite\Excel\Excel::CSV);
     }
 }
