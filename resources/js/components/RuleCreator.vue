@@ -10,6 +10,7 @@
               <h2 class="mb-0">New Rule</h2>
             </div>
             <div class="card-body">
+              <errors :errors="errors" v-if="errors.errors"></errors>
               <form class="form-horizontal">
                 <h2 class="pb-2">General information</h2>
                 <div class="form-group row">
@@ -33,7 +34,7 @@
                   <div class="col-sm-2" v-if="saveRuleGroup">
                     <button type="button" class="btn btn-primary" @click.prevent="saveRuleGroup = !saveRuleGroup">Create New</button>
                   </div>
-                  <div class="col-sm-1" v-if="!saveRuleGroup && ruleGroupName">
+                  <div class="col-sm-1" v-if="!saveRuleGroup">
                     <button type="button" class="btn btn-success" @click.prevent="createRuleGroup()">Save</button>
                   </div>
                   <div class="col-sm-1" v-if="!saveRuleGroup">
@@ -63,11 +64,11 @@
                 </div>
 
                 <h2 class="pd-2">Rule Conditions</h2>
-                <fieldset class="mb-3">
-                  <fieldset class="mb-2" v-for="(ruleCondition, index) in ruleConditions" :key="ruleCondition.id">
+                <fieldset class="mb-3 p-3 rounded border">
+                  <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCondition, index) in ruleConditions" :key="ruleCondition.id">
                     <div class="form-group row" v-for="(condition, indexY) in ruleCondition" :key="condition.id">
                       <div class="col-sm-4">
-                        <div class="input-group mb-2">
+                        <div class="input-group">
                           <div class="input-group-prepend">
                             <div class="input-group-text">IF</div>
                           </div>
@@ -81,7 +82,7 @@
                         </div>
                       </div>
                       <div class="col-sm-4">
-                        <div class="input-group mb-2">
+                        <div class="input-group">
                           <select name="rule_condition_operation" class="form-control" v-model="condition.operation">
                             <option value="">Select Operation</option>
                             <option value="1">Less than</option>
@@ -94,7 +95,7 @@
                         </div>
                       </div>
                       <div class="col-sm-3">
-                        <div class="input-group mb-2">
+                        <div class="input-group">
                           <input type="number" :name="`rule_condition_amount${index}`" class="form-control" v-model="condition.amount" />
                           <input type="number" :name="`rule_condition_unit${index}`" placeholder="..." class="form-control" v-model="condition.unit" />
                         </div>
@@ -104,19 +105,19 @@
                       </div>
                     </div>
 
-                    <div class="form-group row">
+                    <div class="form-group row mb-0">
                       <div class="col">
                         <button type="button" class="btn btn-primary" @click="addAndRuleConditon(index)">AND</button>
                       </div>
                     </div>
-                    <div class="row">
-                      <div class="col text-right mt-3">
-                        <button class="btn btn-warning btn-sm" @click.prevent="removeOrRuleCondition(index)" v-if="index > 0">Remove</button>
+                    <div class="row" v-if="index > 0">
+                      <div class="col text-right">
+                        <button class="btn btn-warning btn-sm" @click.prevent="removeOrRuleCondition(index)">Remove</button>
                       </div>
                       </div>
                   </fieldset>
 
-                  <div class="form-group row pt-2">
+                  <div class="form-group row mb-0">
                     <div class="col">
                       <button type="button" class="btn btn-primary" @click="addOrRuleConditon">OR</button>
                     </div>
@@ -290,6 +291,7 @@ export default {
   },
   data() {
     return {
+      errors: {},
       isLoading: false,
       fullPage: true,
       postData: {},
@@ -330,8 +332,10 @@ export default {
           this.saveRuleGroup = true
           this.getRuleGroups()
         }
-      }).catch(err => {
-        console.log(err)
+      }).catch(error => {
+        if (error.response.status == 422) {
+          this.errors = error.response.data;
+        }
       }).finally(() => {
         this.isLoading = false
       })

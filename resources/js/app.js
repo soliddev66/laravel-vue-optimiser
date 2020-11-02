@@ -61,6 +61,8 @@ Vue.component('dashboard', require('./components/Dashboard.vue').default);
 Vue.component('select2', require('./plugins/Select2.vue').default);
 Vue.component('summary-data', require('./components/SummaryData.vue').default);
 
+Vue.component('errors', require('./components/Errors.vue').default);
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
