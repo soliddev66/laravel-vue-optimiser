@@ -59,6 +59,7 @@ Vue.component('ad-creator', require('./components/AdCreator.vue').default);
 Vue.component('queues', require('./components/Queues.vue').default);
 Vue.component('dashboard', require('./components/Dashboard.vue').default);
 Vue.component('select2', require('./plugins/Select2.vue').default);
+Vue.component('summary-data', require('./components/SummaryData.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

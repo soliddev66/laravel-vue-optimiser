@@ -29,7 +29,7 @@ class GeminiSitePerformanceImport implements OnEachRow, WithChunkReading, Should
             'device_type' => $row['device_type'],
             'bid_modifier' => $row['bid_modifier'],
             'average_bid' => $row['average_bid'],
-            'modified_bid' => $row['modified_bid']
+            'modified_bid' => $row['modified_bid')
         ]);
 
         foreach (array_keys($row) as $array_key) {

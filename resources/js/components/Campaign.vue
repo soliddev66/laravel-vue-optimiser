@@ -3,9 +3,33 @@
     <div class="vld-parent">
       <loading :active.sync="isLoading" :can-cancel="false" :is-full-page="fullPage"></loading>
     </div>
+    <summary-data :summaryData="summaryData"></summary-data>
     <div class="row justify-content-center">
       <div class="col-md-12">
         <div class="card">
+          <div class="card-header">
+            <div class="row">
+              <div class="col-md-3 col-12">
+                <VueCtkDateTimePicker id="targetDate" position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData"></VueCtkDateTimePicker>
+              </div>
+              <div class="col-md-3 col-12">
+                <select id="provider" class="form-control" v-model="selectedProvider" @change="getData">
+                  <option v-for="provider in providers" :value="provider.slug">{{ provider.label }}</option>
+                </select>
+              </div>
+              <div class="col-md-3 col-12">
+                <select id="account" class="form-control" v-model="selectedAccount" @change="getData">
+                  <option v-for="account in accounts" :value="account.id">{{ account.open_id }}</option>
+                </select>
+              </div>
+              <div class="col-md-3 col-12">
+                <select id="tracker" class="form-control" v-model="selectedTracker" @change="getData">
+                  <option value="">-</option>
+                  <option v-for="tracker in trackers" :value="tracker.slug">{{ tracker.label }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
           <div class="card-body">
             <vue-tabs>
               <v-tab title="Widgets">
@@ -40,34 +64,6 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="widget in widgets" class="text-center" :key="widget.id">
-                        <td>{{ widget.id }}</td>
-                        <td class="px-1">-</td>
-                        <td>
-                          {{ widget.external_site_name }}|{{ widget.device_type }}
-                        </td>
-                        <td>{{ widget.bid_modifier }}</td>
-                        <td>{{ widget.id }}</td>
-                        <td>{{ round(widget.spend / widget.clicks) || 0 }}</td>
-                        <td>{{ round(widget.spend) || 0 }}</td>
-                        <td>{{ round(widget.conversions) || 0 }}</td>
-                        <td>{{ round(widget.conversions) || 0 }}</td>
-                        <td>{{ round(0 - widget.spend) || 0 }}</td>
-                        <td>{{ round(((0 - widget.spend)/widget.spend) * 100) || 0 }}%</td>
-                        <td>{{ round(widget.conversions) || 0 }}</td>
-                        <td>{{ round(widget.conversions) || 0 }}</td>
-                        <td>{{ round(widget.conversions) || 0 }}</td>
-                        <td>{{ round(widget.impressions) || 0 }}</td>
-                        <td>{{ round(widget.clicks) || 0 }}</td>
-                        <td>{{ round(widget.conversions) || 0 }}</td>
-                        <td>{{ round(widget.conversions) || 0 }}</td>
-                        <td>{{ round(widget.conversions) || 0 }}</td>
-                        <td>{{ round(widget.clicks/widget.impressions * 100) || 0 }}%</td>
-                        <td>{{ round(widget.conversions) || 0 }}</td>
-                        <td>{{ round(widget.spend/widget.impressions * 1000) || 0 }}</td>
-                        <td>{{ round(widget.conversions) || 0 }}</td>
-                        <td>{{ round(widget.conversions) || 0 }}</td>
-                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -191,7 +187,7 @@
                         <td>{{ domain.id }}</td>
                         <td class="px-1">-</td>
                         <td>
-                          {{ domain.top_domain || domain.package_name }}
+                          {{ domain.sub1 || domain.top_domain || domain.package_name }}
                         </td>
                         <td>{{ round(domain.spend / domain.clicks) || 0 }}</td>
                         <td>{{ round(domain.spend) || 0 }}</td>
@@ -233,8 +229,11 @@
 
 <script>
 import _ from 'lodash';
+import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import Loading from 'vue-loading-overlay'
-import 'vue-loading-overlay/dist/vue-loading.css'
+
+import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
+import 'vue-loading-overlay/dist/vue-loading.css';
 
 export default {
   props: {
@@ -242,30 +241,46 @@ export default {
       type: Object,
       default: null
     },
-    groups: {
-      type: Array
+    providers: {
+      type: Array,
+      default: []
     },
-    ads: {
-      type: Array
+    accounts: {
+      type: Array,
+      default: []
+    },
+    trackers: {
+      type: Array,
+      default: []
     }
   },
   components: {
+    VueCtkDateTimePicker,
     Loading
   },
   mounted() {
     console.log('Component mounted.')
     console.log(this.groups)
-    this.data = this.groups
-    this.adData = this.ads.filter(ad => ad.adGroupId === this.data[0].id)
-    this.getWidgetData()
-    this.getDomainData()
+    this.getData()
   },
   data() {
     return {
       data: [],
-      widgets: [],
+      summaryData: {
+        total_cost: 0,
+        total_revenue: 0,
+        total_net: 0,
+        avg_roi: 0
+      },
       domains: [],
       adData: [],
+      selectedProvider: 'yahoo',
+      selectedAccount: 1,
+      selectedTracker: 'redtrack',
+      targetDate: {
+        start: this.$moment().format('YYYY-MM-DD'),
+        end: this.$moment().format('YYYY-MM-DD')
+      },
       isLoading: false,
       fullPage: true
     }
@@ -282,26 +297,10 @@ export default {
         return ad.adGroupId === adGroup.id
       })
     },
-    getWidgetData() {
-      axios.get(`/campaigns/${this.campaign.id}/widgets`)
-        .then((response) => {
-          this.widgets = response.data.widgets;
-        })
-        .catch((err) => {
-          alert(err);
-        }).finally(() => {
-          $('#widgetsTable').DataTable({
-            "paging": true,
-            "ordering": true,
-            "info": true,
-            "stateSave": true,
-            "autoWidth": false,
-            "responsive": true,
-          });
-        });
-    },
     getDomainData() {
-      axios.get(`/campaigns/${this.campaign.id}/domains`)
+      axios.get(`/campaigns/${this.campaign.id}/domains`, {
+          params: {...this.targetDate, ... { tracker: this.selectedTracker } }
+        })
         .then((response) => {
           this.domains = response.data.domains;
         })
@@ -309,26 +308,39 @@ export default {
           alert(err);
         }).finally(() => {
           $('#domainsTable').DataTable({
-            "paging": true,
-            "ordering": true,
-            "info": true,
-            "stateSave": true,
-            "autoWidth": false,
-            "responsive": true,
+            retrieve: true,
+            paging: true,
+            ordering: true,
+            info: true,
+            stateSave: true,
+            autoWidth: false,
+            pageLength: 50,
           });
         });
     },
     getData() {
       this.isLoading = true;
-      axios.post('/campaigns/' + this.campaign.id + '/ad-groups/data')
+      $('#targetDate-input').trigger('change');
+      this.getDomainData();
+      axios.post('/campaigns/' + this.campaign.id + '/ad-groups/data', {...this.targetDate, ... { tracker: this.selectedTracker } })
         .then((response) => {
-          this.data = response.data.adGroups
+          this.data = response.data.ad_groups
           this.adData = response.data.ads.filter(ad => ad.adGroupId === this.data[0].id)
+          this.summaryData = response.data.summary_data
         })
         .catch((err) => {
           alert(err);
         }).finally(() => {
           this.isLoading = false;
+          $('#adGroupsTable, #adsTable').DataTable({
+            retrieve: true,
+            paging: true,
+            ordering: true,
+            info: true,
+            stateSave: true,
+            autoWidth: false,
+            pageLength: 50,
+          });
         });
     },
     updateAdGroupStatus(e) {
