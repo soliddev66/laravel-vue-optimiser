@@ -65,14 +65,14 @@
 
                 <h2 class="pd-2">Rule Conditions</h2>
                 <fieldset class="mb-3 p-3 rounded border">
-                  <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCondition, index) in ruleConditions" :key="index">
+                  <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCondition, index) in ruleConditionData" :key="index">
                     <div class="form-group row" v-for="(condition, indexY) in ruleCondition" :key="indexY">
                       <div class="col-sm-4">
                         <div class="input-group">
                           <div class="input-group-prepend">
                             <div class="input-group-text">IF</div>
                           </div>
-                          <select name="rule_condition_type" class="form-control" v-model="condition.type">
+                          <select name="rule_condition_type" class="form-control" v-model="condition.rule_condition_type_id">
                             <option value="">Select Rule Condition Type</option>
                             <option :value="ruleConditionType.id" v-for="ruleConditionType in ruleConditionTypes" :key="ruleConditionType.id">{{ ruleConditionType.name }}</option>
                           </select>
@@ -161,7 +161,7 @@
                 <div class="form-group row">
                   <label for="group" class="col-sm-2 control-label">Apply rule to campaigns</label>
                   <div class="col-sm-7">
-                    <select2 name="campaigns" v-model="ruleCampaigns" :options="campaignSelections" :settings="{ multiple: true }" />
+                    <select2 name="campaigns" v-model="ruleCampaignData" :options="campaignSelections" :settings="{ multiple: true }" />
                   </div>
                   <!-- <div class="col-sm-3">
                     <div class="btn-group mr-3" role="group">
@@ -242,6 +242,14 @@ export default {
       type: Array,
       default: []
     },
+    ruleCampaigns: {
+      type: Array,
+      default: []
+    },
+    ruleConditions: {
+      type: Array,
+      default: []
+    },
     ruleGroups: {
       type: Array,
       default: []
@@ -250,6 +258,10 @@ export default {
       type: Array,
       default: []
     },
+    action: {
+      type: String,
+      default: 'create'
+    }
   },
   components: {
     Loading,
@@ -275,12 +287,12 @@ export default {
       return this.ruleIntervalUnit !== ''
     },
     ruleCampaignsState() {
-      return this.ruleCampaigns.length
+      return this.ruleCampaignData.length
     },
     ruleConditionsState() {
-      for (let i = 0; i < this.ruleConditions.length; i++) {
-        for (let j = 0; j < this.ruleConditions[i].length; j++) {
-          if (!this.ruleConditions[i][j].type || !this.ruleConditions[i][j].operation || !this.ruleConditions[i][j].amount || !this.ruleConditions[i][j].unit) {
+      for (let i = 0; i < this.ruleConditionData.length; i++) {
+        for (let j = 0; j < this.ruleConditionData[i].length; j++) {
+          if (!this.ruleConditionData[i][j].rule_condition_type_id || !this.ruleConditionData[i][j].operation || !this.ruleConditionData[i][j].amount || !this.ruleConditionData[i][j].unit) {
             return false
           }
         }
@@ -290,11 +302,12 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
+    console.log(this.ruleCampaigns)
   },
   watch: {
   },
   data() {
-    let tempRuleCondition = {type: '', operation: '', amount: '', unit: '1'};
+    let tempRuleCondition = {rule_condition_type_id: '', operation: '', amount: '', unit: '1'};
 
     return {
       errors: {},
@@ -303,15 +316,17 @@ export default {
       postData: {},
       ruleGroupData: this.ruleGroups,
       saveRuleGroup: true,
-      ruleName: '',
+      ruleName: this.rule ? this.rule.name : '',
       ruleGroupName: '',
-      selectedRuleGroup: '',
-      selectedDataFrom: '',
-      selectedExcludedDay: '',
-      ruleIntervalAmount: '',
-      ruleIntervalUnit: '',
-      ruleRunType: 1,
-      ruleCampaigns: [],
+      selectedRuleGroup: this.rule ? this.rule.rule_group_id : '',
+      selectedDataFrom: this.rule ? this.rule.from : '',
+      selectedExcludedDay: this.rule ? this.rule.exclude_day : '',
+      ruleIntervalAmount: this.rule ? this.rule.interval_amount : '',
+      ruleIntervalUnit: this.rule ? this.rule.interval_unit : '',
+      ruleRunType: this.rule ? this.rule.run_type : 1,
+      ruleCampaignData: this.ruleCampaigns ? this.ruleCampaigns.map((campaign) => {
+        return campaign.id
+      }) : [],
       tempRuleCondition: tempRuleCondition,
       campaignSelections: this.campaigns.map(campaign => {
         return {
@@ -319,7 +334,7 @@ export default {
           text: campaign.name
         }
       }),
-      ruleConditions: [[{...tempRuleCondition}]]
+      ruleConditionData: this.ruleConditions || [[{...tempRuleCondition}]]
     }
   },
   methods: {
@@ -355,16 +370,16 @@ export default {
       })
     },
     addOrRuleConditon () {
-      this.ruleConditions.push([{...this.tempRuleCondition}])
+      this.ruleConditionData.push([{...this.tempRuleCondition}])
     },
     removeOrRuleCondition (index) {
-      this.ruleConditions.splice(index, 1);
+      this.ruleConditionData.splice(index, 1);
     },
     addAndRuleConditon (index) {
-      this.ruleConditions[index].push({...this.tempRuleCondition});
+      this.ruleConditionData[index].push({...this.tempRuleCondition});
     },
     removeAndRuleCondition (index, indexY) {
-      this.ruleConditions[index].splice(indexY, 1);
+      this.ruleConditionData[index].splice(indexY, 1);
     },
     saveRule () {
       this.postData = {
@@ -372,14 +387,20 @@ export default {
         ruleGroup: this.selectedRuleGroup,
         dataFrom: this.selectedDataFrom,
         excludedDay: this.selectedExcludedDay,
-        ruleConditions: this.ruleConditions,
-        ruleCampaigns: this.ruleCampaigns,
+        ruleConditions: this.ruleConditionData,
+        ruleCampaigns: this.ruleCampaignData,
         ruleIntervalAmount: this.ruleIntervalAmount,
         ruleIntervalUnit: this.ruleIntervalUnit,
         ruleRunType: this.ruleRunType
       }
 
-      axios.post('/rules', this.postData).then(response => {
+      let url = '/rules';
+
+      if (this.action == 'edit') {
+        url += '/update/' + this.rule.id;
+      }
+
+      axios.post(url, this.postData).then(response => {
         if (response.data.errors) {
           alert(response.data.errors[0])
         } else {

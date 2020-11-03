@@ -26,4 +26,9 @@ class Rule extends Model
     {
         return $this->hasMany(RuleConditionGroup::class);
     }
+
+    public function campaigns()
+    {
+        return $this->belongsToMany(Campaign::class, 'rule_campaigns');
+    }
 }
