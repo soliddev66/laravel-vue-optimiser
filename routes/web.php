@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    Excel::queueImport(new \App\Imports\GeminiSitePerformanceImport, public_path('reports/1_399238543_1961466_site_performance_stats_afb02b1cec07cdc40af26da3e4b301b3189c67e735b4775330b04bf78033e9774ba8e886.csv'));
     return redirect('/home');
 });
 
@@ -44,6 +43,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::post('/delete/{campaign}', [App\Http\Controllers\CampaignController::class, 'delete'])->name('campaigns.delete');
     Route::post('/status/{campaign}', [App\Http\Controllers\CampaignController::class, 'status'])->name('campaigns.status');
     Route::get('/queue', [App\Http\Controllers\CampaignController::class, 'queue'])->name('campaigns.queue');
+    Route::get('/jobs', [App\Http\Controllers\CampaignController::class, 'jobs'])->name('campaigns.jobs');
+    Route::get('/failed-jobs', [App\Http\Controllers\CampaignController::class, 'failedJobs'])->name('campaigns.failed_jobs');
     Route::get('/{campaign}', [App\Http\Controllers\CampaignController::class, 'show'])->name('campaigns.show');
     Route::get('/{campaign}/widgets/{start}/{end}/{tracker?}', [App\Http\Controllers\CampaignController::class, 'widgets'])->name('campaigns.widgets');
     Route::get('/{campaign}/domains', [App\Http\Controllers\CampaignController::class, 'domains'])->name('campaigns.domains');

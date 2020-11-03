@@ -157,7 +157,29 @@
                 <div class="table-responsive mt-3">
                   <table id="domainsTable" class="table table-bordered table-hover">
                     <thead>
-                      <tr>
+                      <tr v-if="selectedTracker">
+                        <th>ID</th>
+                        <th>Actions</th>
+                        <th>Domain ID</th>
+                        <th>Clicks</th>
+                        <th>LP Views</th>
+                        <th>LP Clicks</th>
+                        <th>Pre LP Clicks</th>
+                        <th>LP CTR</th>
+                        <th>Conversion</th>
+                        <th>CR</th>
+                        <th>Total Actions</th>
+                        <th>TR</th>
+                        <th>Conversion Revenue</th>
+                        <th>Total Revenue</th>
+                        <th>Cost</th>
+                        <th>Profit</th>
+                        <th>ROI</th>
+                        <th>CPC</th>
+                        <th>CPA</th>
+                        <th>EPC</th>
+                      </tr>
+                      <tr v-else>
                         <th>ID</th>
                         <th>Actions</th>
                         <th>Domain ID</th>
@@ -189,25 +211,42 @@
                         <td>
                           {{ domain.sub1 || domain.top_domain || domain.package_name }}
                         </td>
-                        <td>{{ round(domain.spend / domain.clicks) || 0 }}</td>
-                        <td>{{ round(domain.spend) || 0 }}</td>
-                        <td>{{ round(domain.conversions) || 0 }}</td>
-                        <td>{{ round(domain.conversions) || 0 }}</td>
-                        <td>{{ round(0 - domain.spend) || 0 }}</td>
-                        <td>{{ round(((0 - domain.spend)/domain.spend) * 100) || 0 }}%</td>
-                        <td>{{ round(domain.conversions) || 0 }}</td>
-                        <td>{{ round(domain.conversions) || 0 }}</td>
-                        <td>{{ round(domain.conversions) || 0 }}</td>
-                        <td>{{ round(domain.impressions) || 0 }}</td>
-                        <td>{{ round(domain.clicks) || 0 }}</td>
-                        <td>{{ round(domain.conversions) || 0 }}</td>
-                        <td>{{ round(domain.conversions) || 0 }}</td>
-                        <td>{{ round(domain.conversions) || 0 }}</td>
-                        <td>{{ round(domain.clicks/domain.impressions * 100) || 0 }}%</td>
-                        <td>{{ round(domain.conversions) || 0 }}</td>
-                        <td>{{ round(domain.spend/domain.impressions * 1000) || 0 }}</td>
-                        <td>{{ round(domain.conversions) || 0 }}</td>
-                        <td>{{ round(domain.conversions) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ count(domain.clicks) || 0 }}</td>
+                        <td v-else>{{ round(domain.spend / domain.clicks) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ count(domain.lp_views) || 0 }}</td>
+                        <td v-else>{{ round(domain.spend) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ count(domain.lp_clicks) || 0 }}</td>
+                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ count(domain.prelp_clicks) || 0 }}</td>
+                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.lp_ctr || 0 }}</td>
+                        <td v-else>{{ round(0 - domain.spend) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ count(domain.conversions) || 0 }}</td>
+                        <td v-else>{{ round(((0 - domain.spend)/domain.spend) * 100) || 0 }}%</td>
+                        <td v-if="selectedTracker">{{ domain.cr || 0 }}</td>
+                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ count(domain.conversions) || 0 }}</td>
+                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.tr || 0 }}</td>
+                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ count(domain.total_revenue) || 0 }}</td>
+                        <td v-else>{{ round(domain.impressions) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ count(domain.total_revenue) || 0 }}</td>
+                        <td v-else>{{ round(domain.clicks) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ count(domain.cost) || 0 }}</td>
+                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ count(domain.profit) || 0 }}</td>
+                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.roi || 0 }}</td>
+                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.cpc || 0 }}</td>
+                        <td v-else>{{ round(domain.clicks/domain.impressions * 100) || 0 }}%</td>
+                        <td v-if="selectedTracker">{{ domain.cpa || 0 }}</td>
+                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.epc || 0 }}</td>
+                        <td v-else>{{ round(domain.spend/domain.impressions * 1000) || 0 }}</td>
+                        <td v-if="!selectedTracker">{{ round(domain.conversions) || 0 }}</td>
+                        <td v-if="!selectedTracker">{{ round(domain.conversions) || 0 }}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -260,7 +299,6 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
-    console.log(this.groups)
     this.getData()
   },
   data() {
@@ -286,6 +324,12 @@ export default {
     }
   },
   methods: {
+    count(array, key) {
+      if (array !== undefined) {
+        return _.round(_.sumBy(array, (value) => value[key]), 2)
+      }
+      return 0
+    },
     round(value) {
       if (value !== undefined) {
         return _.round(value, 2)

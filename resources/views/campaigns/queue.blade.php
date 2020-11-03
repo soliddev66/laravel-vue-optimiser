@@ -7,7 +7,7 @@
 @stop
 
 @section('content')
-    <queues :queues="{{ json_encode($queues) }}" :failed="{{ json_encode($failed_queues) }}"></queues>
+    <queues></queues>
 @stop
 
 @section('css')
@@ -16,13 +16,34 @@
 @section('js')
     <script>
         $(document).ready(function() {
-            $('#queuesTable').DataTable({
-                "paging": true,
-                "ordering": true,
-                "info": true,
-                "stateSave": true,
-                "autoWidth": true,
-                "responsive": true,
+            $('#jobsTable').DataTable({
+                retrieve: true,
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                pageLength: 50,
+                ajax: `/campaigns/jobs`,
+                columns: [
+                    { data: 'id', name: 'id' },
+                    { data: 'queue', name: 'queue' },
+                    { data: 'status', name: 'status' },
+                    { data: 'payload', name: 'payload' },
+                ]
+            });
+            $('#failedJobsTable').DataTable({
+                retrieve: true,
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                pageLength: 50,
+                ajax: `/campaigns/failed-jobs`,
+                columns: [
+                    { data: 'id', name: 'id' },
+                    { data: 'queue', name: 'queue' },
+                    { data: 'status', name: 'status' },
+                    { data: 'payload', name: 'payload' },
+                    { data: 'exception', name: 'exception' },
+                ]
             });
         });
     </script>

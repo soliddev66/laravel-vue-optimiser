@@ -31,10 +31,29 @@ class CampaignController extends Controller
 
     public function queue()
     {
-        $queues = Job::all();
-        $failed_queues = FailedJob::all();
+        return view('campaigns.queue');
+    }
 
-        return view('campaigns.queue', compact('queues', 'failed_queues'));
+    public function jobs()
+    {
+        $jobs = Job::select([
+            '*',
+            DB::raw('"Pending" as status')
+        ]);
+
+        return DataTables::eloquent($jobs)
+            ->make();
+    }
+
+    public function failedJobs()
+    {
+        $failed_jobs = FailedJob::select([
+            '*',
+            DB::raw('"Failed" as status')
+        ]);
+
+        return DataTables::eloquent($failed_jobs)
+            ->make();
     }
 
     public function widgets(Campaign $campaign, $start, $end, $tracker = '')
