@@ -27,6 +27,13 @@ class RuleController extends Controller
         ];
     }
 
+    public function data()
+    {
+        return response()->json([
+            'rules' => auth()->user()->rules
+        ]);
+    }
+
     public function create()
     {
         return view('rules.form', $this->loadFormData());
@@ -55,7 +62,7 @@ class RuleController extends Controller
         DB::beginTransaction();
 
         try {
-            $rule = Rule::firstOrNew([
+            $rule = new Rule([
                 'name' => $validatedData['ruleName'],
                 'rule_group_id' => $validatedData['ruleGroup'],
                 'from' => $validatedData['dataFrom'],
@@ -77,22 +84,44 @@ class RuleController extends Controller
                 $ruleConditionGroup->save();
 
                 foreach ($ruleConditions as $ruleCondition) {
-                    RuleCondition::firstOrNew([
+                    (new RuleCondition([
                         'rule_condition_group_id' => $ruleConditionGroup->id,
                         'rule_condition_type_id' => $ruleCondition['type'],
                         'operation' => $ruleCondition['operation'],
                         'amount' => $ruleCondition['amount'],
                         'unit' => $ruleCondition['unit']
-                    ])->save();
+                    ]))->save();
                 }
             }
 
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
-            return [
+            return response()->json([
                 'errors' => [$e->getMessage()]
-            ];
+            ], 500);
+        }
+
+        return [];
+    }
+
+    public function delete(Rule $rule)
+    {
+        DB::beginTransaction();
+
+        try {
+            foreach ($rule->ruleConditionGroups() as $ruleConditionGroup) {
+                $ruleConditionGroup->ruleConditions()->delete();
+            }
+            $rule->ruleConditionGroups()->delete();
+            $rule->delete();
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'errors' => [$e->getMessage()]
+            ], 500);
         }
 
         return [];

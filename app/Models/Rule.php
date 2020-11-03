@@ -22,4 +22,8 @@ class Rule extends Model
         'status'
     ];
 
+    public function ruleConditionGroups()
+    {
+        return $this->hasMany(RuleConditionGroup::class);
+    }
 }

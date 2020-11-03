@@ -13,4 +13,8 @@ class RuleConditionGroup extends Model
         'rule_id'
     ];
 
+    public function ruleConditions()
+    {
+        return $this->hasMany(RuleCondition::class);
+    }
 }

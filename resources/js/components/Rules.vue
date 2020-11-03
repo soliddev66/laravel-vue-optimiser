@@ -7,6 +7,7 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-body table-responsive">
+            <errors :errors="errors" v-if="errors.errors"></errors>
             <div class="row mb-3">
               <div class="col">
                 <div class="btn-toolbar" role="toolbar">
@@ -49,7 +50,7 @@
                     <a class="btn btn-sm btn-default border" :href="'/rules/edit/' + rule.id"><i class="fas fa-edit"></i></a>
                   </td>
                   <td class="px-1">
-                    <a class="btn btn-sm btn-default border" :href="'/rules/delete/' + rule.id"><i class="fas fa-trash"></i></a>
+                    <a class="btn btn-sm btn-default border" :href="'/rules/delete/' + rule.id" @click.prevent="deleteRule"><i class="fas fa-trash"></i></a>
                   </td>
                   <td>{{ rule.name }}</td>
                   <td v-switch="rule.status">
@@ -89,12 +90,45 @@ export default {
   data() {
     return {
       data: [],
+      errors: {},
       isLoading: false,
       fullPage: true
     }
   },
   methods: {
     getData() {
+      return axios.get('/rules/data')
+        .then(response => {
+          this.data = response.data.rules
+        })
+        .catch(error => {
+          this.errors = error.response.data
+        });
+
+    },
+    deleteRule(e) {
+      if (confirm('Are you sure to delete this rule?')) {
+        this.isLoading = true;
+        axios.post(e.target.getAttribute('href'))
+          .then(response => {
+            if (response.data.errors) {
+              alert(response.data.errors[0])
+            } else {
+              this.getData().then(() => {
+                setTimeout(() => {
+                  //$('#rulesTable').DataTable().draw('full-reset')
+                }, 1000);
+              });
+              alert('Delete the rule successfully!');
+            }
+          })
+          .catch(error => {
+            this.errors = error.response.data;
+          })
+          .finally(() => {
+            this.isLoading = false;
+          });
+      }
     }
   }
 }

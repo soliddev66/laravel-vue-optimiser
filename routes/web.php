@@ -59,6 +59,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'rules'], function() {
     Route::get('/', [App\Http\Controllers\RuleController::class, 'index'])->name('rules.index');
     Route::post('/', [App\Http\Controllers\RuleController::class, 'store'])->name('rules.store');
     Route::get('/create', [App\Http\Controllers\RuleController::class, 'create'])->name('rules.create');
+    Route::post('/delete/{rule}', [App\Http\Controllers\RuleController::class, 'delete'])->name('rules.delete');
+    Route::get('/data', [App\Http\Controllers\RuleController::class, 'data'])->name('rules.data');
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'rule-groups'], function() {

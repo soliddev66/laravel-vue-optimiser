@@ -16,5 +16,4 @@ class RuleCondition extends Model
         'amount',
         'unit'
     ];
-
 }

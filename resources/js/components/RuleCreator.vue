@@ -25,7 +25,7 @@
                   <div class="col-sm-4">
                     <select name="rule_group" class="form-control" v-model="selectedRuleGroup">
                       <option value="">Select Group</option>
-                      <option :value="ruleGroup.id" v-for="ruleGroup in ruleGroups" :key="ruleGroup.id">{{ ruleGroup.name }}</option>
+                      <option :value="ruleGroup.id" v-for="ruleGroup in ruleGroupData" :key="ruleGroup.id">{{ ruleGroup.name }}</option>
                     </select>
                   </div>
                   <div class="col-sm-2" v-if="!saveRuleGroup">
@@ -34,7 +34,7 @@
                   <div class="col-sm-2" v-if="saveRuleGroup">
                     <button type="button" class="btn btn-primary" @click.prevent="saveRuleGroup = !saveRuleGroup">Create New</button>
                   </div>
-                  <div class="col-sm-1" v-if="!saveRuleGroup">
+                  <div class="col-sm-1" v-if="!saveRuleGroup && ruleGroupName">
                     <button type="button" class="btn btn-success" @click.prevent="createRuleGroup()">Save</button>
                   </div>
                   <div class="col-sm-1" v-if="!saveRuleGroup">
@@ -216,7 +216,7 @@
             </div>
 
             <div class="card-footer d-flex justify-content-end">
-              <button type="button" class="btn btn-primary" @click.prevent="saveRule">Save</button>
+              <button type="button" class="btn btn-primary" :disabled="!ruleNameState || !selectedRuleGroupState || !selectedDataFromState || !ruleIntervalAmountState || !ruleIntervalUnitState || !ruleCampaignsState || !ruleConditionsState" @click.prevent="saveRule">Save</button>
             </div>
           </div>
       </div>
@@ -301,6 +301,7 @@ export default {
       isLoading: false,
       fullPage: true,
       postData: {},
+      ruleGroupData: this.ruleGroups,
       saveRuleGroup: true,
       ruleName: '',
       ruleGroupName: '',
@@ -346,7 +347,7 @@ export default {
     getRuleGroups () {
       this.isLoading = true
       axios.get('/rule-groups/selection-data').then(response => {
-        this.ruleGroups = response.data
+        this.ruleGroupData = response.data
       }).catch(err => {
         console.log(err)
       }).finally(() => {
@@ -382,12 +383,11 @@ export default {
         if (response.data.errors) {
           alert(response.data.errors[0])
         } else {
-          alert('Save successfully!');
+          alert('Save successfully!')
+          this.errors = {}
         }
       }).catch(error => {
-        if (error.response.status == 422) {
-          this.errors = error.response.data;
-        }
+        this.errors = error.response.data
       }).finally(() => {
         this.isLoading = false
       })
