@@ -97,14 +97,17 @@ export default {
   },
   methods: {
     getData() {
+      this.isLoading = true;
       return axios.get('/rules/data')
         .then(response => {
           this.data = response.data.rules
         })
         .catch(error => {
           this.errors = error.response.data
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
-
     },
     deleteRule(e) {
       if (confirm('Are you sure to delete this rule?')) {
@@ -115,9 +118,15 @@ export default {
               alert(response.data.errors[0])
             } else {
               this.getData().then(() => {
-                setTimeout(() => {
-                  //$('#rulesTable').DataTable().draw('full-reset')
-                }, 1000);
+                $('#rulesTable').DataTable({
+                  retrieve: true,
+                  paging: true,
+                  ordering: true,
+                  info: true,
+                  stateSave: false,
+                  autoWidth: false,
+                  pageLength: 50,
+                });
               });
               alert('Delete the rule successfully!');
             }
