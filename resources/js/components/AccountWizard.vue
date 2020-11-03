@@ -11,9 +11,11 @@
             <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Connect and Finish</label>
           </div>
           <div class="card-body" v-if="currentStep == 1">
-            <label v-for="provider in providers">
-              <input type="radio" v-model="selectedProvider" :value="provider.slug"></input> {{ provider.label }}
-            </label>
+            <p v-for="provider in providers">
+              <label>
+                <input type="radio" v-model="selectedProvider" :value="provider.slug"></input> {{ provider.label }}
+              </label>
+            </p>
           </div>
           <div class="card-body" v-if="currentStep == 2">
             <label v-for="tracker in trackers">

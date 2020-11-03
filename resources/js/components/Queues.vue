@@ -4,24 +4,33 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-body table-responsive">
-            <table id="queuesTable" class="table table-bordered table-hover">
+            <h1>Pending Jobs</h1>
+            <table id="jobsTable" class="table table-bordered table-hover">
               <thead>
                 <tr>
                   <th>ID</th>
                   <th>Queue</th>
-                  <th>Payload</th>
                   <th>Status</th>
+                  <th>Payload</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+          <div class="card-body table-responsive">
+            <h1>Failed Jobs</h1>
+            <table id="failedJobsTable" class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Queue</th>
+                  <th>Status</th>
+                  <th>Payload</th>
                   <th>Exception</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="queue in data">
-                  <td>{{ queue.id }}</td>
-                  <td>{{ queue.queue }}</td>
-                  <td>{{ JSON.parse(queue.payload).displayName }}</td>
-                  <td>{{ queue.failed_at ? 'Failed' : 'Pending' }}</td>
-                  <td>{{ queue.exception }}</td>
-                </tr>
               </tbody>
             </table>
           </div>
@@ -33,23 +42,12 @@
 
 <script>
 export default {
-  props: {
-    queues: {
-      type: Array,
-      default: []
-    },
-    failed: {
-      type: Array,
-      default: []
-    }
-  },
   mounted() {
     console.log('Component mounted.')
-    this.data = {...this.queues, ...this.failed }
   },
   data() {
     return {
-      data: []
+      //
     }
   },
   methods: {

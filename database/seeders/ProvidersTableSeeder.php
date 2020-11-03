@@ -22,5 +22,17 @@ class ProvidersTableSeeder extends Seeder
             'scopes' => json_encode(['admg-w', 'sdps-r', 'sdpp-r']),
             'created_at' => Carbon::now()
         ]);
+        DB::table('providers')->insert([
+            'label' => 'Outbrain',
+            'slug' => 'outbrain',
+            'scopes' => null,
+            'created_at' => Carbon::now()
+        ]);
+        DB::table('providers')->insert([
+            'label' => 'Twitter',
+            'slug' => 'twitter',
+            'scopes' => null,
+            'created_at' => Carbon::now()
+        ]);
     }
 }
