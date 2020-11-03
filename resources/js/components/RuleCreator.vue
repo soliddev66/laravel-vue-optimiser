@@ -216,7 +216,7 @@
             </div>
 
             <div class="card-footer d-flex justify-content-end">
-              <button type="button" class="btn btn-primary" :disabled="!ruleNameState || !selectedRuleGroupState || !selectedDataFromState || !ruleIntervalAmountState || !ruleIntervalUnitState || !ruleCampaignsState || !ruleConditionsState" @click.prevent="saveRule">Save</button>
+              <button type="button" class="btn btn-primary" @click.prevent="saveRule">Save</button>
             </div>
           </div>
       </div>
@@ -367,7 +367,7 @@ export default {
     },
     saveRule () {
       this.postData = {
-        name: this.ruleName,
+        ruleName: this.ruleName,
         ruleGroup: this.selectedRuleGroup,
         dataFrom: this.selectedDataFrom,
         excludedDay: this.selectedExcludedDay,
@@ -385,7 +385,9 @@ export default {
           alert('Save successfully!');
         }
       }).catch(error => {
-        console.log(error)
+        if (error.response.status == 422) {
+          this.errors = error.response.data;
+        }
       }).finally(() => {
         this.isLoading = false
       })
