@@ -6,7 +6,7 @@ use DB;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
-class RulesTableSeeder extends Seeder
+class RuleConditionTypesTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,9 +15,19 @@ class RulesTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('rules')->insert([
-            'name' => 'Block campaign',
-            'created_at' => Carbon::now()
+        DB::table('rule_condition_types')->insert([
+            [
+                'name' => 'Tracker Click',
+                'created_at' => Carbon::now()
+            ],
+            [
+                'name' => 'Tracker Conversions',
+                'created_at' => Carbon::now()
+            ],
+            [
+                'name' => 'Tracker Revenue',
+                'created_at' => Carbon::now()
+            ]
         ]);
     }
 }

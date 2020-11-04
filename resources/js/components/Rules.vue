@@ -14,7 +14,7 @@
                   <div class="btn-group mr-3" role="group">
                     <div class="btn-toolbar" role="toolbar">
                       <div class="btn-group" role="group">
-                        <a href="/rule-templates/create" class="btn btn-light"><i class="fa fa-plus"></i> Create</a>
+                        <a href="/rules/create" class="btn btn-light"><i class="fa fa-plus"></i> Create</a>
                       </div>
                     </div>
                   </div>

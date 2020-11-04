@@ -218,7 +218,7 @@ class RuleController extends Controller
             $ruleConditionGroup->ruleConditions()->delete();
         }
         $rule->ruleConditionGroups()->delete();
-        $rule->campaigns()->delete();
+        $rule->campaigns()->detach();
     }
 
     public function status(Rule $rule)
