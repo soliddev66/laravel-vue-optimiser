@@ -846,10 +846,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.select2-container .select2-selection--single {
-  min-height: 28px;
-  height: auto;
-}
-</style>

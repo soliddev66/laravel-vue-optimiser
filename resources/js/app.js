@@ -53,6 +53,9 @@ Vue.component('campaign-creator', require('./components/CampaignCreator.vue').de
 Vue.component('rules', require('./components/Rules.vue').default);
 Vue.component('rule-creator', require('./components/RuleCreator.vue').default);
 
+Vue.component('rule-templates', require('./components/RuleTemplates.vue').default);
+Vue.component('rule-template-creator', require('./components/RuleTemplateCreator.vue').default);
+
 Vue.component('ad', require('./components/Ad.vue').default);
 Vue.component('ad-creator', require('./components/AdCreator.vue').default);
 

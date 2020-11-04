@@ -21,6 +21,7 @@ class CreateRuleTemplatesTable extends Migration
             $table->integer('run_type')->unsigned(); // Alert, Execute, Execute & Alert
             $table->integer('interval_amount')->unsigned();
             $table->integer('interval_unit')->unsigned();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

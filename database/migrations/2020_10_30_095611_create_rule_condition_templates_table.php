@@ -16,7 +16,7 @@ class CreateRuleConditionTemplatesTable extends Migration
         Schema::create('rule_condition_templates', function (Blueprint $table) {
             $table->id();
             $table->integer('rule_condition_group_template_id')->unsigned();
-            $table->integer('rule_condition_type_template_id')->unsigned();
+            $table->integer('rule_condition_type_id')->unsigned();
             $table->integer('operation')->unsigned();
             $table->integer('amount')->unsigned();
             $table->integer('unit')->unsigned();

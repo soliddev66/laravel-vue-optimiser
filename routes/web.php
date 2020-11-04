@@ -64,6 +64,18 @@ Route::group(['middleware' => 'auth', 'prefix' => 'rules'], function() {
     Route::get('/data', [App\Http\Controllers\RuleController::class, 'data'])->name('rules.data');
     Route::get('/edit/{rule}', [App\Http\Controllers\RuleController::class, 'edit'])->name('rules.edit');
     Route::post('/update/{rule}', [App\Http\Controllers\RuleController::class, 'update'])->name('rules.update');
+    Route::post('/status/{rule}', [App\Http\Controllers\RuleController::class, 'status'])->name('rules.status');
+});
+
+Route::group(['middleware' => 'auth', 'prefix' => 'rule-templates'], function() {
+    Route::get('/', [App\Http\Controllers\RuleTemplateController::class, 'index'])->name('ruletemplates.index');
+    Route::post('/', [App\Http\Controllers\RuleTemplateController::class, 'store'])->name('ruletemplates.store');
+    Route::get('/create', [App\Http\Controllers\RuleTemplateController::class, 'create'])->name('ruletemplates.create');
+    Route::post('/delete/{rule}', [App\Http\Controllers\RuleTemplateController::class, 'delete'])->name('ruletemplates.delete');
+    Route::get('/data', [App\Http\Controllers\RuleTemplateController::class, 'data'])->name('ruletemplates.data');
+    Route::get('/edit/{rule}', [App\Http\Controllers\RuleTemplateController::class, 'edit'])->name('ruletemplates.edit');
+    Route::post('/update/{rule}', [App\Http\Controllers\RuleTemplateController::class, 'update'])->name('ruletemplates.update');
+    Route::post('/status/{rule}', [App\Http\Controllers\RuleTemplateController::class, 'status'])->name('ruletemplates.status');
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'rule-groups'], function() {

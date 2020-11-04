@@ -270,6 +270,11 @@ return [
             'icon' => 'fas fa-puzzle-piece',
         ],
         [
+            'text' => 'Rule Templates',
+            'url'  => 'rule-templates',
+            'icon' => 'fas fa-puzzle-piece',
+        ],
+        [
             'text' => 'Smart Lists',
             'url'  => 'smart-lists',
             'icon' => 'fas fa-list',

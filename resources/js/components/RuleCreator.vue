@@ -180,7 +180,7 @@
                 </div>
 
                 <div class="form-group row">
-                  <label for="group" class="col-sm-2 control-label">Run this rule every</label>
+                  <label for="group" class="col-sm-2 control-label mt-2">Run this rule every</label>
                   <div class="col-sm-5">
                     <input type="number" name="interval_amount" class="form-control" v-model="ruleIntervalAmount" />
                   </div>
@@ -416,10 +416,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.select2-container .select2-selection--single {
-  min-height: 28px;
-  height: auto;
-}
-</style>

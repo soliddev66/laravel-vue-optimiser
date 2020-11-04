@@ -10903,3 +10903,8 @@ a i {
   pointer-events: none;
 }
 
+.select2-container .select2-selection--single {
+  min-height: 28px;
+  height: auto;
+}
+

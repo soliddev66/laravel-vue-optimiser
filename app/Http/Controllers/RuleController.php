@@ -84,7 +84,6 @@ class RuleController extends Controller
             $rule->run_type = $validatedData['ruleRunType'];
             $rule->interval_amount = $validatedData['ruleIntervalAmount'];
             $rule->interval_unit = $validatedData['ruleIntervalUnit'];
-            $rule->status = 'ACTIVE';
 
             $rule->save();
 
@@ -220,5 +219,19 @@ class RuleController extends Controller
         }
         $rule->ruleConditionGroups()->delete();
         $rule->campaigns()->delete();
+    }
+
+    public function status(Rule $rule)
+    {
+        if ($rule->user_id !== auth()->id()) {
+            return response()->json([
+                'errors' => ['Not found']
+            ], 404);
+        }
+
+        $rule->status = $rule->status == Rule::STATUS_ACTIVE ? Rule::STATUS_PAUSED : Rule::STATUS_ACTIVE;
+        $rule->save();
+
+        return [];
     }
 }

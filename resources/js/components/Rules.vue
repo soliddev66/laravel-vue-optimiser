@@ -12,19 +12,14 @@
               <div class="col">
                 <div class="btn-toolbar" role="toolbar">
                   <div class="btn-group mr-3" role="group">
-                    <div class="dropdown">
-                      <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-plus"></i> Rule
-                      </button>
-                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="/rules/create">Create</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
+                    <div class="btn-toolbar" role="toolbar">
+                      <div class="btn-group" role="group">
+                        <a href="/rule-templates/create" class="btn btn-light"><i class="fa fa-plus"></i> Create</a>
                       </div>
                     </div>
                   </div>
                   <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-light"><i class="far fa-folder-open"></i> Load from template</button>
+                    <button type="button" class="btn btn-light"><i class="far fa-folder-open"></i> Create from template</button>
                   </div>
                 </div>
               </div>
@@ -42,7 +37,7 @@
                 <tr v-for="rule in data" :key="rule.id">
                   <td>{{ rule.id }}</td>
                   <td class="border-right-0 px-1">
-                    <a class="btn btn-sm btn-default border" :href="'/rules/status/' + rule.id">
+                    <a class="btn btn-sm btn-default border" :href="'/rules/status/' + rule.id" @click.prevent="updateRuleStatus">
                       <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': rule.status == 'ACTIVE' }"></i>
                     </a>
                   </td>
@@ -53,10 +48,9 @@
                     <a class="btn btn-sm btn-default border" :href="'/rules/delete/' + rule.id" @click.prevent="deleteRule"><i class="fas fa-trash"></i></a>
                   </td>
                   <td>{{ rule.name }}</td>
-                  <td v-switch="rule.status">
-                    <span v-case="'ACTIVE'" class="text-success">{{ rule.status }}</span>
-                    <span v-case="'PAUSED'" class="text-danger">{{ rule.status }}</span>
-                    <span v-default>{{ rule.status }}</span>
+                  <td>
+                    <span v-if="rule.status === 'ACTIVE'" class="text-success">{{ rule.status }}</span>
+                    <span v-if="rule.status === 'PAUSED'" class="text-danger">{{ rule.status }}</span>
                   </td>
                 </tr>
               </tbody>
@@ -138,10 +132,34 @@ export default {
             this.isLoading = false;
           });
       }
+    },
+    updateRuleStatus(e) {
+      this.isLoading = true;
+      axios.post(e.target.getAttribute('href'))
+        .then((response) => {
+          if (response.data.errors) {
+            alert(response.data.errors[0])
+          } else {
+            this.getData().then(() => {
+              $('#rulesTable').DataTable({
+                retrieve: true,
+                paging: true,
+                ordering: true,
+                info: true,
+                stateSave: false,
+                autoWidth: false,
+                pageLength: 50,
+              });
+            });
+          }
+        })
+        .catch((err) => {
+          this.errors = error.response.data;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     }
   }
 }
 </script>
-
-<style>
-</style>
