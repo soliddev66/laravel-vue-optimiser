@@ -58,7 +58,7 @@ class CreateRulesTable extends Migration
             $table->integer('rule_condition_group_id')->unsigned();
             $table->integer('rule_condition_type_id')->unsigned();
             $table->integer('operation')->unsigned();
-            $table->integer('amount')->unsigned();
+            $table->decimal('amount', 10, 2);
             $table->integer('unit')->unsigned();
             $table->timestamps();
         });
@@ -87,7 +87,7 @@ class CreateRulesTable extends Migration
             $table->integer('rule_condition_group_template_id')->unsigned();
             $table->integer('rule_condition_type_id')->unsigned();
             $table->integer('operation')->unsigned();
-            $table->integer('amount')->unsigned();
+            $table->decimal('amount', 10, 2);
             $table->integer('unit')->unsigned();
             $table->timestamps();
         });
