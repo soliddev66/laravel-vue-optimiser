@@ -302,7 +302,7 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
-    console.log(this.ruleCampaigns)
+    console.log(this.ruleConditions)
   },
   watch: {
   },
@@ -318,12 +318,12 @@ export default {
       saveRuleGroup: true,
       ruleName: this.rule ? this.rule.name : '',
       ruleGroupName: '',
-      selectedRuleGroup: this.rule ? this.rule.rule_group_id : '',
-      selectedDataFrom: this.rule ? this.rule.from : '',
-      selectedExcludedDay: this.rule ? this.rule.exclude_day : '',
-      ruleIntervalAmount: this.rule ? this.rule.interval_amount : '',
-      ruleIntervalUnit: this.rule ? this.rule.interval_unit : '',
-      ruleRunType: this.rule ? this.rule.run_type : 1,
+      selectedRuleGroup: this.rule.rule_group_id ? this.rule.rule_group_id : '',
+      selectedDataFrom: this.rule.from ? this.rule.from : '',
+      selectedExcludedDay: this.rule.exclude_day ? this.rule.exclude_day : '',
+      ruleIntervalAmount: this.rule.interval_amount ? this.rule.interval_amount : '',
+      ruleIntervalUnit: this.rule.interval_unit ? this.rule.interval_unit : '',
+      ruleRunType: this.rule.run_type ? this.rule.run_type : 1,
       ruleCampaignData: this.ruleCampaigns ? this.ruleCampaigns.map((campaign) => {
         return campaign.id
       }) : [],
@@ -334,7 +334,7 @@ export default {
           text: campaign.name
         }
       }),
-      ruleConditionData: this.ruleConditions || [[{...tempRuleCondition}]]
+      ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]]
     }
   },
   methods: {
