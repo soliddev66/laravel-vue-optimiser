@@ -19,7 +19,7 @@
                     </div>
                   </div>
                   <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-light"><i class="far fa-folder-open"></i> Create from template</button>
+                    <button type="button" class="btn btn-light" data-toggle="modal" data-target=".rule-template-modal"><i class="far fa-folder-open"></i> Create from template</button>
                   </div>
                 </div>
               </div>
@@ -56,6 +56,17 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade rule-template-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="col mt-3">
+            <h1>Select Rule Template</h1>
+          </div>
+          <rule-rule-templates :rules="null"></rule-rule-templates>
         </div>
       </div>
     </div>
@@ -119,7 +130,7 @@ export default {
                   info: true,
                   stateSave: false,
                   autoWidth: false,
-                  pageLength: 50,
+                  pageLength: 10,
                 });
               });
               alert('Delete the rule successfully!');
@@ -148,7 +159,7 @@ export default {
                 info: true,
                 stateSave: false,
                 autoWidth: false,
-                pageLength: 50,
+                pageLength: 10,
               });
             });
           }

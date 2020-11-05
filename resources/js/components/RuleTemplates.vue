@@ -112,7 +112,7 @@ export default {
                   info: true,
                   stateSave: false,
                   autoWidth: false,
-                  pageLength: 50,
+                  pageLength: 10,
                 });
               });
               alert('Delete the rule template successfully!');
@@ -141,7 +141,7 @@ export default {
                 info: true,
                 stateSave: false,
                 autoWidth: false,
-                pageLength: 50,
+                pageLength: 10,
               });
             });
           }

@@ -6,6 +6,7 @@ use DB;
 use Exception;
 
 use App\Models\Rule;
+use App\Models\RuleTemplate;
 use App\Models\RuleCampaign;
 use App\Models\RuleCondition;
 use App\Models\RuleConditionType;
@@ -19,9 +20,18 @@ class RuleController extends Controller
         return view('rules.index', compact('rules'));
     }
 
-    private function loadFormData()
+    private function loadFormData($rule)
     {
+        $ruleConditions = [];
+
+        foreach ($rule->ruleConditionGroups as $ruleConditionGroup) {
+            $ruleConditions[] = $ruleConditionGroup->ruleConditions;
+        }
+
         return [
+            'rule' => $rule,
+            'rule_campaigns' => $rule->campaigns ?? null,
+            'rule_conditions' => $ruleConditions,
             'rule_groups' => auth()->user()->ruleGroups,
             'rule_condition_types' => RuleConditionType::all(),
             'campaigns' => auth()->user()->campaigns
@@ -35,9 +45,9 @@ class RuleController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(RuleTemplate $rule)
     {
-        return view('rules.form', $this->loadFormData());
+        return view('rules.form', $this->loadFormData($rule));
     }
 
     public function edit(Rule $rule)
@@ -47,19 +57,8 @@ class RuleController extends Controller
                 'title' => 'There is no rule was found. Please contact Administrator for this case.'
             ]);
         }
-        $data = $this->loadFormData();
 
-        $ruleConditions = [];
-
-        foreach ($rule->ruleConditionGroups as $ruleConditionGroup) {
-            $ruleConditions[] = $ruleConditionGroup->ruleConditions;
-        }
-
-        $data['rule'] = $rule;
-        $data['rule_campaigns'] = $rule->campaigns;
-        $data['rule_conditions'] = $ruleConditions;
-
-        return view('rules.form', $data);
+        return view('rules.form', $this->loadFormData($rule));
     }
 
     public function update(Rule $rule)
