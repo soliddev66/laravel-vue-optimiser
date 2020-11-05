@@ -47,9 +47,7 @@
                   <div class="col-sm-3">
                     <select name="data_from" class="form-control" v-model="selectedDataFrom">
                       <option value="">Select</option>
-                      <option value="1">Option 1</option>
-                      <option value="2">Option 2</option>
-                      <option value="3">Option 3</option>
+                      <option :value="ruleDataFromOption.id" v-for="ruleDataFromOption in ruleDataFromOptions" :key="ruleDataFromOption.id">{{ ruleDataFromOption.name }}</option>
                     </select>
                   </div>
                   <label for="exclude" class="col-sm-2 control-label">Exclude days from interval</label>
@@ -74,7 +72,9 @@
                           </div>
                           <select name="rule_condition_type" class="form-control" v-model="condition.rule_condition_type_id">
                             <option value="">Select Rule Condition Type</option>
-                            <option :value="ruleConditionType.id" v-for="ruleConditionType in ruleConditionTypes" :key="ruleConditionType.id">{{ ruleConditionType.name }}</option>
+                            <optgroup v-for="ruleConditionTypeGroup in ruleConditionTypeGroups" :label="ruleConditionTypeGroup.name" :key="ruleConditionTypeGroup.id">
+                              <option :value="ruleConditionType.id" v-for="ruleConditionType in ruleConditionTypeGroup.options" :key="ruleConditionType.id">{{ ruleConditionType.name }}</option>
+                            </optgroup>
                           </select>
                           <div class="input-group-append">
                             <div class="input-group-text">is</div>
@@ -99,8 +99,7 @@
                           <input type="number" :name="`rule_condition_amount${index}`" class="form-control" v-model="condition.amount" />
                           <select :name="`rule_condition_unit${index}`" class="form-control" v-model="condition.unit">
                             <option value="1">...</option>
-                            <option value="2">Option 2</option>
-                            <option value="3">Option 3</option>
+                            <option value="2">%</option>
                           </select>
                         </div>
                       </div>
@@ -146,9 +145,8 @@
                           Select filter
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                          <a class="dropdown-item" href="#">Action</a>
-                          <a class="dropdown-item" href="#">Another action</a>
-                          <a class="dropdown-item" href="#">Something else here</a>
+                          <a class="dropdown-item" href="#">Include</a>
+                          <a class="dropdown-item" href="#">Exclude</a>
                         </div>
                       </div>
                     </div>
@@ -254,7 +252,11 @@ export default {
       type: Array,
       default: []
     },
-    ruleConditionTypes: {
+    ruleConditionTypeGroups: {
+      type: Array,
+      default: []
+    },
+    ruleDataFromOptions: {
       type: Array,
       default: []
     },
@@ -302,7 +304,7 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
-    console.log(this.ruleConditions)
+    console.log(this.ruleConditionTypeGroups)
   },
   watch: {
   },

@@ -12,7 +12,8 @@
         :rule-campaigns="{{ json_encode($rule_campaigns ?? null) }}"
         :rule-conditions="{{ json_encode($rule_conditions ?? null) }}"
         :rule-groups="{{ json_encode($rule_groups ?? null) }}"
-        :rule-condition-types="{{ json_encode($rule_condition_types ?? null) }}"
+        :rule-condition-type-groups="{{ json_encode($rule_condition_type_groups ?? null) }}"
+        :rule-data-from-options="{{ json_encode($rule_data_from_options ?? null) }}"
         :action="'{{ request()->route()->getActionMethod() }}'">
     </rule-creator>
 @stop

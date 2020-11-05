@@ -6,8 +6,9 @@ use DB;
 use Exception;
 
 use App\Models\RuleTemplate;
-use App\Models\RuleConditionType;
+use App\Models\RuleDataFromOption;
 use App\Models\RuleConditionTemplate;
+use App\Models\RuleConditionTypeGroup;
 use App\Models\RuleConditionGroupTemplate;
 
 class RuleTemplateController extends Controller
@@ -20,8 +21,15 @@ class RuleTemplateController extends Controller
 
     private function loadFormData()
     {
+        $rule_condition_type_groups = RuleConditionTypeGroup::all();
+
+        foreach ($rule_condition_type_groups as $rule_condition_type_group) {
+            $rule_condition_type_group->options = $rule_condition_type_group->ruleConditionTypes;
+        }
+
         return [
-            'rule_condition_types' => RuleConditionType::all()
+            'rule_data_from_options' => RuleDataFromOption::all(),
+            'rule_condition_type_groups' => $rule_condition_type_groups
         ];
     }
 

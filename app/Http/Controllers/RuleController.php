@@ -10,7 +10,9 @@ use App\Models\RuleTemplate;
 use App\Models\RuleCampaign;
 use App\Models\RuleCondition;
 use App\Models\RuleConditionType;
+use App\Models\RuleDataFromOption;
 use App\Models\RuleConditionGroup;
+use App\Models\RuleConditionTypeGroup;
 
 class RuleController extends Controller
 {
@@ -28,12 +30,19 @@ class RuleController extends Controller
             $ruleConditions[] = $ruleConditionGroup->ruleConditions;
         }
 
+        $rule_condition_type_groups = RuleConditionTypeGroup::all();
+
+        foreach ($rule_condition_type_groups as $rule_condition_type_group) {
+            $rule_condition_type_group->options = $rule_condition_type_group->ruleConditionTypes;
+        }
+
         return [
             'rule' => $rule,
+            'rule_data_from_options' => RuleDataFromOption::all(),
             'rule_campaigns' => $rule->campaigns ?? null,
             'rule_conditions' => $ruleConditions,
             'rule_groups' => auth()->user()->ruleGroups,
-            'rule_condition_types' => RuleConditionType::all(),
+            'rule_condition_type_groups' => $rule_condition_type_groups,
             'campaigns' => auth()->user()->campaigns
         ];
     }

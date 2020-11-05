@@ -3,9 +3,6 @@
 namespace Database\Seeders;
 
 use DB;
-use Database\Seeders\ProvidersTableSeeder;
-use Database\Seeders\TrackersTableSeeder;
-use Database\Seeders\UsersTableSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -21,7 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ProvidersTableSeeder::class);
         $this->call(TrackersTableSeeder::class);
         $this->call(UsersTableSeeder::class);
-        $this->call(RuleConditionTypesTableSeeder::class);
+        $this->call(RulesTableSeeder::class);
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }
