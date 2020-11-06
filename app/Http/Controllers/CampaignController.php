@@ -92,7 +92,32 @@ class CampaignController extends Controller
         $start = Carbon::now()->format('Y-m-d');
         $end = Carbon::now()->format('Y-m-d');
         if (request('tracker')) {
-            $domains = RedtrackDomainStat::where('campaign_id', $campaign->id)->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])->get();
+            $domains = RedtrackDomainStat::select(
+                'sub1',
+                DB::raw('SUM(clicks) as clicks'),
+                DB::raw('SUM(lp_views) as lp_views'),
+                DB::raw('SUM(lp_clicks) as lp_clicks'),
+                DB::raw('SUM(prelp_clicks) as prelp_clicks'),
+                DB::raw('ROUND(SUM(lp_clicks) / SUM(impressions) * 100, 2) as lp_ctr'),
+                DB::raw('SUM(conversions) as conversions'),
+                DB::raw('ROUND(SUM(conversions) / SUM(clicks) * 100, 2) as cr'),
+                DB::raw('SUM(conversions) as total_actions'),
+                DB::raw('SUM(conversions) as tr'),
+                DB::raw('SUM(revenue) as conversion_revenue'),
+                DB::raw('SUM(total_revenue) as total_revenue'),
+                DB::raw('SUM(cost) as cost'),
+                DB::raw('SUM(profit) as profit'),
+                DB::raw('ROUND(SUM(profit) / SUM(cost) * 100, 2) as roi'),
+                DB::raw('ROUND(SUM(cost) / SUM(clicks), 2) as cpc'),
+                DB::raw('ROUND(SUM(cost) / SUM(total_conversions), 2) as cpa'),
+                DB::raw('ROUND(SUM(total_revenue) / SUM(clicks), 2) as epc')
+            )->where('campaign_id', $campaign->id)
+            ->whereBetween('date', [
+                !request('start') ? $start : request('start'),
+                !request('end') ? $end : request('end')
+            ])
+            ->groupBy('sub1')
+            ->get();
         } else {
             $domains = GeminiDomainPerformanceStat::where('campaign_id', $campaign->campaign_id)->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])->get();
         }
