@@ -20,6 +20,7 @@ use App\Imports\GeminiUserImport;
 use App\Models\Campaign;
 use App\Models\GeminiJob;
 use App\Models\User;
+use App\Vngodev\Token;
 use Excel;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
@@ -54,7 +55,11 @@ class PullReport implements ShouldQueue
         $campaign = Campaign::where('campaign_id', $this->db_job->campaign_id)->first();
         $user = User::find($this->db_job->user_id);
         $user_info = $user->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first();
-        $job_status = self::getJobStatus($user_info, $this->db_job->job_id, $campaign->advertiser_id);
+        $job_status = [];
+        $job_id = $this->db_job->job_id;
+        Token::refresh($user_info, function () use ($campaign, $user_info, $job_id, &$job_status) {
+            $job_status = self::getJobStatus($user_info, $job_id, $campaign->advertiser_id);
+        });
 
         $this->db_job->status = $job_status['response']['status'];
         $this->db_job->job_response = $job_status['response']['jobResponse'];

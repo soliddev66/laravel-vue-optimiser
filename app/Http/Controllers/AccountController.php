@@ -112,7 +112,10 @@ class AccountController extends Controller
         $db_tracker = Tracker::where('slug', $param)->first();
         if ($db_provider) {
             session()->put('use_tracker', request('user_tracker'));
-            return Socialite::driver($db_provider->slug)->scopes(json_decode($db_provider->scopes))->redirect();
+            if ($db_provider->scopes) {
+                return Socialite::driver($db_provider->slug)->scopes(json_decode($db_provider->scopes))->redirect();
+            }
+            return Socialite::driver($db_provider->slug)->redirect();
         }
         if ($db_tracker) {
             $client = new Client();
@@ -150,8 +153,18 @@ class AccountController extends Controller
         $provider_user = Socialite::driver($provider)->user();
         $open_id = $provider_user->id;
         $token = $provider_user->token;
-        $refresh_token = $provider_user->refreshToken;
-        $expires_in = $provider_user->expiresIn;
+        $secret_token = null;
+        $refresh_token = null;
+        $expires_in = null;
+        if (property_exists($provider_user, 'tokenSecret')) {
+            $secret_token = $provider_user->tokenSecret;
+        }
+        if (property_exists($provider_user, 'refreshToken')) {
+            $refresh_token = $provider_user->refreshToken;
+        }
+        if (property_exists($provider_user, 'expiresIn')) {
+            $expires_in = $provider_user->expiresIn;
+        }
 
         $user_provider = UserProvider::firstOrNew([
             'user_id' => auth()->id(),
@@ -159,8 +172,11 @@ class AccountController extends Controller
             'open_id' => $open_id
         ]);
         $user_provider->token = $token;
+        $user_provider->secret_token = $secret_token;
         $user_provider->refresh_token = $refresh_token;
-        $user_provider->expires_in = Carbon::now()->addSeconds($expires_in);
+        if ($expires_in) {
+            $user_provider->expires_in = Carbon::now()->addSeconds($expires_in);
+        }
         $user_provider->save();
 
         if (session('use_tracker')) {

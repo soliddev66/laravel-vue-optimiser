@@ -51,6 +51,7 @@ class CreateRedtrackDomainStatsTable extends Migration
             $table->double('ok')->nullable();
             $table->double('other')->nullable();
             $table->double('pending')->nullable();
+            $table->double('prelp_views')->nullable();
             $table->double('prelp_clicks')->nullable();
             $table->double('profit')->nullable();
             $table->double('pubrevenue')->nullable();
