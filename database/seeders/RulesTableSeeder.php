@@ -138,30 +138,39 @@ class RulesTableSeeder extends Seeder
 
         DB::table('rule_data_from_options')->insert([[
             'name' => 'Today',
+            'excluded_day_id' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Yesterday',
+            'excluded_day_id' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Last 3 days',
+            'excluded_day_id' => 3,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Last 7 days',
+            'excluded_day_id' => 3,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Last 14 days',
+            'excluded_day_id' => 3,
             'created_at' => Carbon::now()
         ], [
             'name' => 'This month',
+            'excluded_day_id' => 3,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Last 30 days',
+            'excluded_day_id' => 3,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Last 60 days',
+            'excluded_day_id' => 3,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Last 90 days',
+            'excluded_day_id' => 3,
             'created_at' => Carbon::now()
         ]]);
     }

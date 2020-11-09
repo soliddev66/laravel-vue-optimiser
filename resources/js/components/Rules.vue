@@ -13,8 +13,15 @@
                 <div class="btn-toolbar" role="toolbar">
                   <div class="btn-group mr-3" role="group">
                     <div class="btn-toolbar" role="toolbar">
-                      <div class="btn-group" role="group">
-                        <a href="/rules/create" class="btn btn-light"><i class="fa fa-plus"></i> Create</a>
+                      <div class="btn-group mr-3" role="group">
+                        <div class="dropdown">
+                          <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-plus"></i> Create
+                          </button>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" :href="`/rules/create?action=${ruleAction.id}`" v-for="ruleAction in ruleActions" :key="ruleAction.id">{{ ruleAction.name }}</a>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -81,6 +88,10 @@ import 'vue-loading-overlay/dist/vue-loading.css'
 export default {
   props: {
     rules: {
+      type: Array,
+      default: []
+    },
+    ruleActions: {
       type: Array,
       default: []
     }

@@ -8,6 +8,8 @@
 
 @section('content')
     <rule-template-creator :rule="{{ json_encode($rule ?? null) }}"
+        :rule-actions="{{ json_encode($rule_actions ?? null) }}"
+        :rule-action-id="{{ json_encode($rule_action_id ?? null) }}"
         :rule-conditions="{{ json_encode($rule_conditions ?? null) }}"
         :rule-condition-type-groups="{{ json_encode($rule_condition_type_groups ?? null) }}"
         :rule-data-from-options="{{ json_encode($rule_data_from_options ?? null) }}"

@@ -14,6 +14,15 @@
               <form class="form-horizontal">
                 <h2 class="pb-2">General information</h2>
                 <div class="form-group row">
+                  <label for="" class="col-sm-2 control-label">Action</label>
+                  <div class="col-sm-10">
+                    <select name="rule_action" class="form-control" v-model="selectedRuleAction">
+                      <option :value="ruleAction.id" v-for="ruleAction in ruleActions" :key="ruleAction.id">{{ ruleAction.name }}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
                   <label for="name" class="col-sm-2 control-label mt-2">Rule Name</label>
                   <div class="col-sm-10">
                     <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="ruleName" />
@@ -164,6 +173,14 @@ export default {
       type: Object,
       default: null
     },
+    ruleActions: {
+      type: Array,
+      default: []
+    },
+    ruleActionId: {
+      type: String,
+      default: null
+    },
     ruleConditions: {
       type: Array,
       default: []
@@ -227,6 +244,7 @@ export default {
       postData: {},
       ruleName: this.rule ? this.rule.name : '',
       selectedDataFrom: this.rule ? this.rule.from : '',
+      selectedRuleAction: this.rule ? this.rule.from : this.ruleActionId,
       selectedExcludedDay: this.rule ? this.rule.exclude_day : '',
       ruleIntervalAmount: this.rule ? this.rule.interval_amount : '',
       ruleIntervalUnit: this.rule ? this.rule.interval_unit : '',
@@ -251,6 +269,7 @@ export default {
     saveRule () {
       this.postData = {
         ruleName: this.ruleName,
+        ruleAction: this.selectedRuleAction,
         ruleGroup: this.selectedRuleGroup,
         dataFrom: this.selectedDataFrom,
         excludedDay: this.selectedExcludedDay,

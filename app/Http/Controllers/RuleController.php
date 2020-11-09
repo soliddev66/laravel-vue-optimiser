@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use DB;
 use Exception;
 
+use Illuminate\Support\Facades\Gate;
+
 use App\Models\Rule;
+use App\Models\RuleAction;
 use App\Models\RuleTemplate;
 use App\Models\RuleCampaign;
 use App\Models\RuleCondition;
@@ -19,7 +22,10 @@ class RuleController extends Controller
     public function index()
     {
         $rules = auth()->user()->rules;
-        return view('rules.index', compact('rules'));
+
+        $rule_actions = RuleAction::all();
+
+        return view('rules.index', compact('rules', 'rule_actions'));
     }
 
     private function loadFormData($rule)
@@ -36,8 +42,11 @@ class RuleController extends Controller
             $rule_condition_type_group->options = $rule_condition_type_group->ruleConditionTypes;
         }
 
+        $rule->rule_action_id = request('action') ?? null;
+
         return [
             'rule' => $rule,
+            'rule_actions' => RuleAction::all(),
             'rule_data_from_options' => RuleDataFromOption::all(),
             'rule_campaigns' => $rule->campaigns ?? null,
             'rule_conditions' => $rule_conditions,
@@ -61,7 +70,7 @@ class RuleController extends Controller
 
     public function edit(Rule $rule)
     {
-        if ($rule->user_id !== auth()->id()) {
+        if (Gate::denies('modifiable', $rule)) {
             return view('error', [
                 'title' => 'There is no rule was found. Please contact Administrator for this case.'
             ]);
@@ -72,7 +81,7 @@ class RuleController extends Controller
 
     public function update(Rule $rule)
     {
-        if ($rule->user_id !== auth()->id()) {
+        if (Gate::denies('modifiable', $rule)) {
             return response()->json([
                 'errors' => ['Not found']
             ], 404);
@@ -144,12 +153,13 @@ class RuleController extends Controller
     {
         return request()->validate([
             'ruleName' => 'required|max:255',
-            'ruleGroup' => 'required|exists:App\Models\RuleGroup,id',
+            'ruleGroup' => 'required|exists:rule_groups,id',
+            'ruleAction' => 'required|exists:rule_actions,id',
             'dataFrom' => 'required',
             'excludedDay' => 'required',
             'ruleConditions' => 'required|present|array',
             'ruleConditions.*' => 'required|present|array',
-            'ruleConditions.*.*.rule_condition_type_id' => 'required|exists:App\Models\RuleConditionType,id',
+            'ruleConditions.*.*.rule_condition_type_id' => 'required|exists:rule_condition_types,id',
             'ruleConditions.*.*.operation' => 'required',
             'ruleConditions.*.*.amount' => 'required',
             'ruleConditions.*.*.unit' => 'required',
@@ -171,6 +181,7 @@ class RuleController extends Controller
             $rule = new Rule([
                 'name' => $validated_data['ruleName'],
                 'rule_group_id' => $validated_data['ruleGroup'],
+                'rule_action_id' => $validated_data['ruleAction'],
                 'from' => $validated_data['dataFrom'],
                 'exclude_day' => $validated_data['excludedDay'],
                 'run_type' => $validated_data['ruleRunType'],
@@ -198,7 +209,7 @@ class RuleController extends Controller
 
     public function delete(Rule $rule)
     {
-        if ($rule->user_id !== auth()->id()) {
+        if (Gate::denies('modifiable', $rule)) {
             return response()->json([
                 'errors' => ['Not found']
             ], 404);
@@ -231,7 +242,7 @@ class RuleController extends Controller
 
     public function status(Rule $rule)
     {
-        if ($rule->user_id !== auth()->id()) {
+        if (Gate::denies('modifiable', $rule)) {
             return response()->json([
                 'errors' => ['Not found']
             ], 404);

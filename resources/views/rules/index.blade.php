@@ -7,7 +7,7 @@
 @stop
 
 @section('content')
-    <rules :rules="{{ json_encode($rules) }}"></rules>
+    <rules :rules="{{ json_encode($rules) }}" :rule-actions="{{ json_encode($rule_actions) }}"></rules>
 @stop
 
 @section('css')

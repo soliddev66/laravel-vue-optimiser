@@ -16,6 +16,7 @@ class RuleTemplate extends Model
         'name',
         'from',
         'exclude_day',
+        'rule_action_id',
         'run_type',
         'interval_amount',
         'interval_unit',

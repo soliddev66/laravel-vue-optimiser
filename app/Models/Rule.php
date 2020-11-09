@@ -15,6 +15,7 @@ class Rule extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'rule_action_id',
         'rule_group_id',
         'from',
         'exclude_day',

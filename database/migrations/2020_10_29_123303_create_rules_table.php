@@ -37,6 +37,7 @@ class CreateRulesTable extends Migration
             $table->id();
             $table->integer('user_id')->unsigned();
             $table->string('name');
+            $table->integer('rule_action_id')->unsigned();
             $table->integer('rule_group_id')->unsigned();
             $table->integer('from')->unsigned()->nullable();
             $table->integer('exclude_day')->unsigned()->nullable();
@@ -73,6 +74,7 @@ class CreateRulesTable extends Migration
         Schema::create('rule_templates', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->integer('rule_action_id')->unsigned();
             $table->integer('from')->unsigned();
             $table->integer('exclude_day')->unsigned();
             $table->integer('run_type')->unsigned(); // Alert, Execute, Execute & Alert
@@ -105,6 +107,13 @@ class CreateRulesTable extends Migration
         });
 
         Schema::create('rule_data_from_options', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->integer('excluded_day_id');
+            $table->timestamps();
+        });
+
+        Schema::create('rule_actions', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->timestamps();

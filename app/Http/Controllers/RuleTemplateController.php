@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use DB;
 use Exception;
 
+use App\Models\RuleAction;
 use App\Models\RuleTemplate;
 use App\Models\RuleDataFromOption;
 use App\Models\RuleConditionTemplate;
@@ -16,7 +17,10 @@ class RuleTemplateController extends Controller
     public function index()
     {
         $rules = RuleTemplate::all();
-        return view('rule-templates.index', compact('rules'));
+
+        $rule_actions = RuleAction::all();
+
+        return view('rule-templates.index', compact('rules', 'rule_actions'));
     }
 
     private function loadFormData()
@@ -28,7 +32,9 @@ class RuleTemplateController extends Controller
         }
 
         return [
+            'rule_actions' => RuleAction::all(),
             'rule_data_from_options' => RuleDataFromOption::all(),
+            'rule_action_id' => request('action') ?? null,
             'rule_condition_type_groups' => $rule_condition_type_groups
         ];
     }
@@ -117,11 +123,12 @@ class RuleTemplateController extends Controller
     {
         return request()->validate([
             'ruleName' => 'required|max:255',
+            'ruleAction' => 'required|exists:rule_actions,id',
             'dataFrom' => 'required',
             'excludedDay' => 'required',
             'ruleConditions' => 'required|present|array',
             'ruleConditions.*' => 'required|present|array',
-            'ruleConditions.*.*.rule_condition_type_id' => 'required|exists:App\Models\RuleConditionType,id',
+            'ruleConditions.*.*.rule_condition_type_id' => 'required|exists:rule_condition_types,id',
             'ruleConditions.*.*.operation' => 'required',
             'ruleConditions.*.*.amount' => 'required',
             'ruleConditions.*.*.unit' => 'required',
@@ -142,6 +149,7 @@ class RuleTemplateController extends Controller
                 'name' => $validated_data['ruleName'],
                 'from' => $validated_data['dataFrom'],
                 'exclude_day' => $validated_data['excludedDay'],
+                'rule_action_id' => $validated_data['ruleAction'],
                 'run_type' => $validated_data['ruleRunType'],
                 'interval_amount' => $validated_data['ruleIntervalAmount'],
                 'interval_unit' => $validated_data['ruleIntervalUnit'],
