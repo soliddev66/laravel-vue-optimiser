@@ -71,8 +71,6 @@ class RuleAction extends Command
                 }
 
                 $is_adapt = false;
-
-                //echo $rule_condition->ruleConditionType->provider, '-', $rule_condition->operation, '-', $rule_condition->amount, '-', $rule_condition->unit, "\n";
             }
 
             if ($is_adapt) {
