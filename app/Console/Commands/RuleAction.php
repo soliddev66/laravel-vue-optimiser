@@ -39,30 +39,47 @@ class RuleAction extends Command
      */
     public function handle()
     {
-        $ruleId = $this->argument('ruleId');
+        $rule_id = $this->argument('ruleId');
 
-        $rule = Rule::find($ruleId);
+        $rule = Rule::find($rule_id);
 
-        $timeRangeClass = 'App\\Utils\\TimeFrames\\' . $rule->timeRange->provider;
+        $time_range_class = 'App\\Utils\\TimeFrames\\' . $rule->timeRange->provider;
 
-        $timeRange = (new $timeRangeClass)->get();
-
-        var_dump($timeRange[0]->format('Y-m-d'));
-        var_dump($timeRange[1]->format('Y-m-d'));
+        $time_range = (new $time_range_class)->get();
 
         foreach ($rule->campaigns as $campaign) {
-            $redTracks = $campaign->redtrackReport()->whereBetween('date', [$timeRange[0]->format('Y-m-d'), $timeRange[1]->format('Y-m-d')])->get();
+            $red_tracks = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
 
-            if (count($redTracks)) {
-                $this->checkCondition($campaign, $redTracks);
+            if (count($red_tracks) && $this->checkConditions($rule, $campaign, $red_tracks)) {
+                echo 'PASSED', "\n";
             }
         }
 
         return 0;
     }
 
-    private function checkCondition($campaign, $redTracks)
+    private function checkConditions($rule, $campaign, $red_tracks)
     {
+        foreach ($rule->ruleConditionGroups as $rule_condition_group) {
+            $is_adapt = true;
 
+            foreach ($rule_condition_group->ruleConditions as $rule_condition) {
+                $rule_condition_type_class = 'App\\Utils\\RuleConditionTypes\\' . $rule_condition->ruleConditionType->provider;
+
+                if (class_exists($rule_condition_type_class) && (new $rule_condition_type_class)->check($red_tracks, $rule_condition)) {
+                    continue;
+                }
+
+                $is_adapt = false;
+
+                //echo $rule_condition->ruleConditionType->provider, '-', $rule_condition->operation, '-', $rule_condition->amount, '-', $rule_condition->unit, "\n";
+            }
+
+            if ($is_adapt) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

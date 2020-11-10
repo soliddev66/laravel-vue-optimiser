@@ -9,6 +9,12 @@ class RuleCondition extends Model
 {
     use HasFactory;
 
+    const OPERATIONS = [
+        1 => 'LESS_THAN',
+        2 => 'GREATER_THAN',
+        3 => 'EQUAL'
+    ];
+
     protected $fillable = [
         'rule_condition_group_id',
         'rule_condition_type_id',
@@ -16,4 +22,8 @@ class RuleCondition extends Model
         'amount',
         'unit'
     ];
+
+    public function ruleConditionType() {
+        return $this->belongsTo(RuleConditionType::class, 'rule_condition_type_id');
+    }
 }

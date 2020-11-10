@@ -29,110 +29,138 @@ class RulesTableSeeder extends Seeder
         DB::table('rule_condition_types')->insert([[
             'name' => 'Impressions',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'Impressions',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Traffic Source Clicks',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'TrafficSourceClicks',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Traffic Source Conversions',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'TrafficSourceConversions',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Traffic Source Revenue',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'TrafficSourceRevenue',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Traffic Source Spent',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'TrafficSourceSpent',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Traffic Source EPC',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'TrafficSourceEPC',
             'created_at' => Carbon::now()
         ], [
             'name' => 'CTR',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'CTR',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Traffic Source CVR',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'TrafficSourceCVR',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Traffic Source NET',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'TrafficSourceNET',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Traffic Source ROI',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'TrafficSourceROI',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Traffic Source CPA',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'TrafficSourceCPA',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Avg. CPC',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'Avg. CPC',
+            'provider' => 'AvgCPC',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Estimated Spent',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'EstimatedSpent',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Estimated NET',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'EstimatedNET',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Estimated ROI',
             'rule_condition_type_group_id' => 1,
+            'provider' => 'EstimatedROI',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Tracker Clicks',
             'rule_condition_type_group_id' => 2,
+            'provider' => 'TrackerClicks',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Tracker Conversions',
             'rule_condition_type_group_id' => 2,
+            'provider' => 'TrackerConversions',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Tracker Revenue',
             'rule_condition_type_group_id' => 2,
+            'provider' => 'TrackerRevenue',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Landing Page Clicks',
             'rule_condition_type_group_id' => 2,
+            'provider' => 'LandingPageClicks',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Tracker EPC',
             'rule_condition_type_group_id' => 2,
+            'provider' => 'TrackerEPC',
             'created_at' => Carbon::now()
         ], [
-                'name' => 'Landing Page CTR',
+            'name' => 'Landing Page CTR',
             'rule_condition_type_group_id' => 2,
+            'provider' => 'LandingPageCTR',
             'created_at' => Carbon::now()
         ], [
-                'name' => 'Tracker CVR',
+            'name' => 'Tracker CVR',
             'rule_condition_type_group_id' => 2,
+            'provider' => 'TrackerCVR',
             'created_at' => Carbon::now()
         ], [
-                'name' => 'Tracker NET',
+            'name' => 'Tracker NET',
             'rule_condition_type_group_id' => 2,
+            'provider' => 'TrackerNET',
             'created_at' => Carbon::now()
         ], [
-                'name' => 'Tracker ROI',
+            'name' => 'Tracker ROI',
             'rule_condition_type_group_id' => 2,
+            'provider' => 'TrackerROI',
             'created_at' => Carbon::now()
         ], [
-                'name' => 'Tracker CPA',
+            'name' => 'Tracker CPA',
             'rule_condition_type_group_id' => 2,
+            'provider' => 'TrackerCPA',
             'created_at' => Carbon::now()
         ], [
-                'name' => 'EPC',
+            'name' => 'EPC',
             'rule_condition_type_group_id' => 2,
+            'provider' => 'EPC',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Hour of Day',
             'rule_condition_type_group_id' => 3,
+            'provider' => 'HourofDay',
             'created_at' => Carbon::now()
         ]]);
 

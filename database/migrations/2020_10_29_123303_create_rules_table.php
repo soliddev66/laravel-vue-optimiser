@@ -23,6 +23,7 @@ class CreateRulesTable extends Migration
         Schema::create('rule_condition_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('provider');
             $table->integer('rule_condition_type_group_id')->unsigned();
             $table->timestamps();
         });

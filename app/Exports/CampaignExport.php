@@ -3,6 +3,7 @@ namespace App\Exports;
 
 use Carbon\Carbon;
 use App\Models\Campaign;
+use App\Models\RedtrackReport;
 use Maatwebsite\Excel\Concerns\FromCollection;
 
 class CampaignExport implements FromCollection
@@ -54,16 +55,16 @@ class CampaignExport implements FromCollection
         }])->get();
 
         foreach($campaigns as $campaign) {
-            $sum_conversions = $this->sum($campaign->redtrackReport, 'conversions');
-            $sum_cost = $this->sum($campaign->redtrackReport, 'cost');
-            $avg_cpc = $this->avg($campaign->redtrackReport, 'cpc');
-            $sum_revenue = $this->sum($campaign->redtrackReport, 'revenue');
-            $avg_ctr = $this->avg($campaign->redtrackReport, 'ctr');
-            $sum_clicks = $this->sum($campaign->redtrackReport, 'clicks');
-            $sum_prelp_clicks = $this->sum($campaign->redtrackReport, 'prelp_clicks');
-            $sum_lp_clicks = $this->sum($campaign->redtrackReport, 'lp_clicks');
-            $avg_roi = $this->avg($campaign->redtrackReport, 'roi');
-            $sum_lp_views = $this->sum($campaign->redtrackReport, 'lp_views');
+            $sum_conversions = RedtrackReport::sum($campaign->redtrackReport, 'conversions');
+            $sum_cost = RedtrackReport::sum($campaign->redtrackReport, 'cost');
+            $avg_cpc = RedtrackReport::avg($campaign->redtrackReport, 'cpc');
+            $sum_revenue = RedtrackReport::sum($campaign->redtrackReport, 'revenue');
+            $avg_ctr = RedtrackReport::avg($campaign->redtrackReport, 'ctr');
+            $sum_clicks = RedtrackReport::sum($campaign->redtrackReport, 'clicks');
+            $sum_prelp_clicks = RedtrackReport::sum($campaign->redtrackReport, 'prelp_clicks');
+            $sum_lp_clicks = RedtrackReport::sum($campaign->redtrackReport, 'lp_clicks');
+            $avg_roi = RedtrackReport::avg($campaign->redtrackReport, 'roi');
+            $sum_lp_views = RedtrackReport::sum($campaign->redtrackReport, 'lp_views');
 
             $result[] = [
                 '_',
@@ -106,37 +107,5 @@ class CampaignExport implements FromCollection
         return collect($result);
     }
 
-    private function avg($redtrackReports, $attribute)
-    {
-        $length = count($redtrackReports);
 
-        if ($length == 0) {
-            return 0;
-        }
-
-        $total = 0;
-
-        foreach ($redtrackReports as $redtrackReport) {
-            $total += !empty($redtrackReport[$attribute]) ? $redtrackReport[$attribute] : 0;
-        }
-
-        return round($total / $length, 2);
-    }
-
-    private function sum($redtrackReports, $attribute)
-    {
-        $length = count($redtrackReports);
-
-        if ($length == 0) {
-            return 0;
-        }
-
-        $total = 0;
-
-        foreach ($redtrackReports as $redtrackReport) {
-            $total += !empty($redtrackReport[$attribute]) ? $redtrackReport[$attribute] : 0;
-        }
-
-        return round($total, 2);
-    }
 }
