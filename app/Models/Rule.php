@@ -12,6 +12,15 @@ class Rule extends Model
     const STATUS_ACTIVE = 'ACTIVE';
     const STATUS_PAUSED = 'PAUSED';
 
+    const FREQUENCIES = [
+        1 => 'MINUTES',
+        2 => 'HOURS',
+        3 => 'DAYS',
+        4 => 'WEEKS',
+        5 => 'MONTHS',
+        6 => 'YEARS',
+    ];
+
     protected $fillable = [
         'user_id',
         'name',
@@ -36,5 +45,9 @@ class Rule extends Model
     public function campaigns()
     {
         return $this->belongsToMany(Campaign::class, 'rule_campaigns');
+    }
+
+    public function timeRange() {
+        return $this->belongsTo(RuleDataFromOption::class, 'from');
     }
 }

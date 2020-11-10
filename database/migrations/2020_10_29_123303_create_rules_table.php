@@ -111,6 +111,7 @@ class CreateRulesTable extends Migration
         Schema::create('rule_data_from_options', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('provider');
             $table->integer('excluded_day_id');
             $table->timestamps();
         });
