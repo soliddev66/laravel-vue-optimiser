@@ -50,16 +50,6 @@ class Kernel extends ConsoleKernel
                 $rule->id
             ])->cron($this->getFrequency($rule))->appendOutputTo(storage_path('logs/commands.log'));
         }
-
-        // $scheduledCommands = collect($schedule->events())
-        //     ->map(function ($event) {
-        //         return [
-        //             'command' => $event->command,
-        //             'expression' => $event->expression
-        //         ];
-        //     });
-
-        // var_dump($scheduledCommands);
     }
 
     /**
