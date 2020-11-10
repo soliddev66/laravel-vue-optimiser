@@ -96,11 +96,14 @@ class RuleController extends Controller
 
             $rule->name = $validated_data['ruleName'];
             $rule->rule_group_id = $validated_data['ruleGroup'];
+            $rule->rule_action_id = $validated_data['ruleAction'];
             $rule->from = $validated_data['dataFrom'];
             $rule->exclude_day = $validated_data['excludedDay'];
             $rule->run_type = $validated_data['ruleRunType'];
             $rule->interval_amount = $validated_data['ruleIntervalAmount'];
             $rule->interval_unit = $validated_data['ruleIntervalUnit'];
+            $rule->widget = $validated_data['ruleWidget'];
+            $rule->is_widget_included = $validated_data['ruleWidgetIncluded'];
 
             $rule->save();
 
@@ -157,6 +160,8 @@ class RuleController extends Controller
             'ruleAction' => 'required|exists:rule_actions,id',
             'dataFrom' => 'required',
             'excludedDay' => 'required',
+            'ruleWidget' => 'required',
+            'ruleWidgetIncluded' => 'required',
             'ruleConditions' => 'required|present|array',
             'ruleConditions.*' => 'required|present|array',
             'ruleConditions.*.*.rule_condition_type_id' => 'required|exists:rule_condition_types,id',
@@ -184,6 +189,8 @@ class RuleController extends Controller
                 'rule_action_id' => $validated_data['ruleAction'],
                 'from' => $validated_data['dataFrom'],
                 'exclude_day' => $validated_data['excludedDay'],
+                'widget' => $validated_data['ruleWidget'],
+                'is_widget_included' => $validated_data['ruleWidgetIncluded'],
                 'run_type' => $validated_data['ruleRunType'],
                 'interval_amount' => $validated_data['ruleIntervalAmount'],
                 'interval_unit' => $validated_data['ruleIntervalUnit'],

@@ -20,6 +20,8 @@ class Rule extends Model
         'from',
         'exclude_day',
         'run_type',
+        'is_widget_included',
+        'widget',
         'interval_amount',
         'interval_unit',
         'user_id',

@@ -147,20 +147,14 @@
 
                 <div class="form-group row">
                   <div class="col-sm-2">
-                    <div class="btn-group mr-3" role="group">
-                      <div class="dropdown">
-                        <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          Select filter
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                          <a class="dropdown-item" href="#">Include</a>
-                          <a class="dropdown-item" href="#">Exclude</a>
-                        </div>
-                      </div>
-                    </div>
+                    <select name="rule_widget_included" class="form-control" v-model="selectedWidgetIncluded">
+                      <option value="">Select Filter</option>
+                      <option value="1">Included</option>
+                      <option value="0">Excluded</option>
+                    </select>
                   </div>
                   <div class="col-sm-10">
-                    <input type="text" name="widgets" placeholder="Add widgets (comma separated)" class="form-control" />
+                    <input type="text" name="widgets" placeholder="Add widgets (comma separated)" class="form-control" v-model="ruleWidget" />
                   </div>
                 </div>
 
@@ -222,7 +216,7 @@
             </div>
 
             <div class="card-footer d-flex justify-content-end">
-              <button type="button" class="btn btn-primary" :disabled="!ruleNameState || !selectedRuleGroupState || !selectedDataFromState || !ruleIntervalAmountState || !ruleIntervalUnitState || !ruleCampaignsState || !ruleConditionsState" @click.prevent="saveRule">Save</button>
+              <button type="button" class="btn btn-primary" :disabled="!ruleNameState || !selectedRuleGroupState || !selectedDataFromState || !ruleIntervalAmountState || !ruleIntervalUnitState || !ruleCampaignsState || !ruleConditionsState || !selectedWidgetIncludedState || !selectedRuleActionState || !ruleWidgetState" @click.prevent="saveRule">Save</button>
             </div>
           </div>
       </div>
@@ -303,6 +297,15 @@ export default {
     ruleCampaignsState() {
       return this.ruleCampaignData.length
     },
+    selectedWidgetIncludedState() {
+      return this.selectedWidgetIncluded !== ''
+    },
+    selectedRuleActionState() {
+      return this.selectedRuleAction !== ''
+    },
+    ruleWidgetState() {
+      return this.ruleWidget !== ''
+    },
     ruleConditionsState() {
       for (let i = 0; i < this.ruleConditionData.length; i++) {
         for (let j = 0; j < this.ruleConditionData[i].length; j++) {
@@ -316,13 +319,11 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
-    console.log(this.ruleConditionTypeGroups)
   },
   watch: {
   },
   data() {
     let tempRuleCondition = {rule_condition_type_id: '', operation: '', amount: '', unit: '1'};
-
     return {
       errors: {},
       isLoading: false,
@@ -332,6 +333,7 @@ export default {
       saveRuleGroup: true,
       ruleName: this.rule ? this.rule.name : '',
       ruleGroupName: '',
+      ruleWidget: this.rule.widget ? this.rule.widget : '',
       selectedRuleGroup: this.rule.rule_group_id ? this.rule.rule_group_id : '',
       selectedDataFrom: this.rule.from ? this.rule.from : '',
       selectedExcludedDay: this.rule.exclude_day ? this.rule.exclude_day : '',
@@ -339,6 +341,7 @@ export default {
       ruleIntervalUnit: this.rule.interval_unit ? this.rule.interval_unit : '',
       ruleRunType: this.rule.run_type ? this.rule.run_type : 1,
       selectedRuleAction: this.rule.rule_action_id ? this.rule.rule_action_id : 1,
+      selectedWidgetIncluded: this.rule.is_widget_included ? this.rule.is_widget_included : 1,
       ruleCampaignData: this.ruleCampaigns ? this.ruleCampaigns.map((campaign) => {
         return campaign.id
       }) : [],
@@ -410,7 +413,9 @@ export default {
         ruleCampaigns: this.ruleCampaignData,
         ruleIntervalAmount: this.ruleIntervalAmount,
         ruleIntervalUnit: this.ruleIntervalUnit,
-        ruleRunType: this.ruleRunType
+        ruleRunType: this.ruleRunType,
+        ruleWidgetIncluded: this.selectedWidgetIncluded,
+        ruleWidget: this.ruleWidget
       }
 
       let url = '/rules';

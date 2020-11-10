@@ -41,6 +41,8 @@ class CreateRulesTable extends Migration
             $table->integer('rule_group_id')->unsigned();
             $table->integer('from')->unsigned()->nullable();
             $table->integer('exclude_day')->unsigned()->nullable();
+            $table->tinyInteger('is_widget_included')->unsigned()->nullable();
+            $table->text('widget')->unsigned()->nullable();
             $table->integer('run_type')->unsigned()->nullable(); // Alert, Execute, Execute & Alert
             $table->integer('interval_amount')->unsigned();
             $table->integer('interval_unit')->unsigned();

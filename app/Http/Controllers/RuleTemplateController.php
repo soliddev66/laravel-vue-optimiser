@@ -77,6 +77,7 @@ class RuleTemplateController extends Controller
             $this->deleteRelations($rule);
 
             $rule->name = $validated_data['ruleName'];
+            $rule->rule_action_id = $validated_data['ruleAction'];
             $rule->from = $validated_data['dataFrom'];
             $rule->exclude_day = $validated_data['excludedDay'];
             $rule->run_type = $validated_data['ruleRunType'];

@@ -17,6 +17,7 @@
                   <label for="" class="col-sm-2 control-label">Action</label>
                   <div class="col-sm-10">
                     <select name="rule_action" class="form-control" v-model="selectedRuleAction">
+                      <option value="">Select Action</option>
                       <option :value="ruleAction.id" v-for="ruleAction in ruleActions" :key="ruleAction.id">{{ ruleAction.name }}</option>
                     </select>
                   </div>
@@ -32,18 +33,18 @@
                 <div class="form-group row">
                   <label for="dataFrom" class="col-sm-2 control-label">Considering data from</label>
                   <div class="col-sm-3">
-                    <select name="data_from" class="form-control" v-model="selectedDataFrom">
+                    <select name="data_from" class="form-control" v-model="selectedDataFrom" @change="selectedDataFromChanged">
                       <option value="">Select</option>
-                      <option :value="ruleDataFromOption.id" v-for="ruleDataFromOption in ruleDataFromOptions" :key="ruleDataFromOption.id">{{ ruleDataFromOption.name }}</option>
+                      <option :value="ruleDataFromOption.id" v-for="ruleDataFromOption in ruleDataFromOptions" :key="ruleDataFromOption.id" :data-excluded-day="ruleDataFromOption.excluded_day_id">{{ ruleDataFromOption.name }}</option>
                     </select>
                   </div>
                   <label for="exclude" class="col-sm-2 control-label">Exclude days from interval</label>
                   <div class="col-sm-3">
-                    <select name="excluded_days" class="form-control" v-model="selectedExcludedDay">
+                    <select name="excluded_days" class="form-control" v-model="selectedExcludedDay" disabled="disabled">
                       <option value="">Select</option>
-                      <option value="1">Option 1</option>
-                      <option value="2">Option 2</option>
-                      <option value="3">Option 3</option>
+                      <option value="1">None</option>
+                      <option value="2">Today</option>
+                      <option value="3">Today & Yesterday</option>
                     </select>
                   </div>
                 </div>
@@ -179,7 +180,7 @@ export default {
     },
     ruleActionId: {
       type: String,
-      default: null
+      default: ""
     },
     ruleConditions: {
       type: Array,
@@ -236,7 +237,7 @@ export default {
   },
   data() {
     let tempRuleCondition = {rule_condition_type_id: '', operation: '', amount: '', unit: '1'};
-
+    console.log(this.ruleActionId)
     return {
       errors: {},
       isLoading: false,
@@ -244,11 +245,13 @@ export default {
       postData: {},
       ruleName: this.rule ? this.rule.name : '',
       selectedDataFrom: this.rule ? this.rule.from : '',
-      selectedRuleAction: this.rule ? this.rule.from : this.ruleActionId,
+      selectedRuleAction: this.rule ? this.rule.rule_action_id : this.ruleActionId,
       selectedExcludedDay: this.rule ? this.rule.exclude_day : '',
       ruleIntervalAmount: this.rule ? this.rule.interval_amount : '',
       ruleIntervalUnit: this.rule ? this.rule.interval_unit : '',
       ruleRunType: this.rule ? this.rule.run_type : 1,
+      ruleWidget: this.rule ? this.rule.widget : '',
+      selectedWidgetIncluded: this.rule ? this.rule.is_widget_included : 1,
       tempRuleCondition: tempRuleCondition,
       ruleConditionData: this.ruleConditions || [[{...tempRuleCondition}]]
     }
@@ -265,6 +268,9 @@ export default {
     },
     removeAndRuleCondition (index, indexY) {
       this.ruleConditionData[index].splice(indexY, 1);
+    },
+    selectedDataFromChanged (e) {
+      this.selectedExcludedDay = e.target.options[e.target.selectedIndex].dataset.excludedDay
     },
     saveRule () {
       this.postData = {
