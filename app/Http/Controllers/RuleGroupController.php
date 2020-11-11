@@ -24,12 +24,12 @@ class RuleGroupController extends Controller
 
     public function store()
     {
-        $validatedData = request()->validate([
+        $validated_data = request()->validate([
             'name' => 'required|max:255'
         ]);
 
         RuleGroup::firstOrNew([
-            'name' => $validatedData['name'],
+            'name' => $validated_data['name'],
             'user_id' => auth()->id()
         ])->save();
 

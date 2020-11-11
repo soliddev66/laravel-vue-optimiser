@@ -6,9 +6,9 @@ use App\Models\RedtrackReport;
 
 class AvgCPC extends Root
 {
-    public function check($red_tracks, $rule_condition)
+    public function check($redtrack_data, $rule_condition)
     {
-        $avg_cpc = RedtrackReport::avg($red_tracks, 'cpc');
+        $avg_cpc = RedtrackReport::avg($redtrack_data, 'cpc');
 
         return parent::compare($avg_cpc, $rule_condition->amount, $rule_condition->operation);
     }

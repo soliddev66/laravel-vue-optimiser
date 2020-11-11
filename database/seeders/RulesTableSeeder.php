@@ -84,7 +84,6 @@ class RulesTableSeeder extends Seeder
         ], [
             'name' => 'Avg. CPC',
             'rule_condition_type_group_id' => 1,
-            'provider' => 'Avg. CPC',
             'provider' => 'AvgCPC',
             'created_at' => Carbon::now()
         ], [
@@ -158,9 +157,9 @@ class RulesTableSeeder extends Seeder
             'provider' => 'EPC',
             'created_at' => Carbon::now()
         ], [
-            'name' => 'Hour of Day',
+            'name' => 'Hour Of Day',
             'rule_condition_type_group_id' => 3,
-            'provider' => 'HourofDay',
+            'provider' => 'HourOfDay',
             'created_at' => Carbon::now()
         ]]);
 
