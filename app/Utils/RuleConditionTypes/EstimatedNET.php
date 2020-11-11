@@ -4,7 +4,7 @@ namespace App\Utils\RuleConditionTypes;
 
 use App\Models\RedtrackReport;
 
-class TrafficSourceNET extends Root
+class EstimatedNET extends Root
 {
     public function check($redtrack_data, $rule_condition)
     {
