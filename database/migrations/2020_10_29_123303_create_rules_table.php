@@ -24,6 +24,7 @@ class CreateRulesTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('provider');
+            $table->tinyInteger('report_source')->unsigned();
             $table->integer('rule_condition_type_group_id')->unsigned();
             $table->timestamps();
         });

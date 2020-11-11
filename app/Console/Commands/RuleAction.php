@@ -48,9 +48,10 @@ class RuleAction extends Command
         $time_range = (new $time_range_class)->get();
 
         foreach ($rule->campaigns as $campaign) {
-            $report_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+            $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+            $performance_data = $campaign->performanceStats()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
 
-            if (count($report_data) && $this->checkConditions($rule, $campaign, $report_data)) {
+            if ($this->checkConditions($rule, $campaign, $redtrack_data, $performance_data)) {
                 echo 'PASSED', "\n";
             }
         }
@@ -58,7 +59,7 @@ class RuleAction extends Command
         return 0;
     }
 
-    private function checkConditions($rule, $campaign, $report_data)
+    private function checkConditions($rule, $campaign, $redtrack_data, $performance_data)
     {
         foreach ($rule->ruleConditionGroups as $rule_condition_group) {
             $is_adapt = true;
@@ -66,7 +67,21 @@ class RuleAction extends Command
             foreach ($rule_condition_group->ruleConditions as $rule_condition) {
                 $rule_condition_type_class = 'App\\Utils\\RuleConditionTypes\\' . $rule_condition->ruleConditionType->provider;
 
-                if (class_exists($rule_condition_type_class) && (new $rule_condition_type_class)->check($report_data, $rule_condition)) {
+                if (class_exists($rule_condition_type_class)
+                    && (
+                        (
+                            $rule_condition->ruleConditionType->report_source == 1
+                            && count($redtrack_data)
+                            && (new $rule_condition_type_class)->check($redtrack_data, $rule_condition)
+                        )
+                        ||
+                        (
+                            $rule_condition->ruleConditionType->report_source == 2
+                            && count($performance_data)
+                            && (new $rule_condition_type_class)->check($performance_data, $rule_condition)
+                        )
+                    )
+                ) {
                     continue;
                 }
 
