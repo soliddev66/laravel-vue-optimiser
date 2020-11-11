@@ -48,9 +48,9 @@ class RuleAction extends Command
         $time_range = (new $time_range_class)->get();
 
         foreach ($rule->campaigns as $campaign) {
-            $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+            $report_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
 
-            if (count($redtrack_data) && $this->checkConditions($rule, $campaign, $redtrack_data)) {
+            if (count($report_data) && $this->checkConditions($rule, $campaign, $report_data)) {
                 echo 'PASSED', "\n";
             }
         }
@@ -58,7 +58,7 @@ class RuleAction extends Command
         return 0;
     }
 
-    private function checkConditions($rule, $campaign, $redtrack_data)
+    private function checkConditions($rule, $campaign, $report_data)
     {
         foreach ($rule->ruleConditionGroups as $rule_condition_group) {
             $is_adapt = true;
@@ -66,7 +66,7 @@ class RuleAction extends Command
             foreach ($rule_condition_group->ruleConditions as $rule_condition) {
                 $rule_condition_type_class = 'App\\Utils\\RuleConditionTypes\\' . $rule_condition->ruleConditionType->provider;
 
-                if (class_exists($rule_condition_type_class) && (new $rule_condition_type_class)->check($redtrack_data, $rule_condition)) {
+                if (class_exists($rule_condition_type_class) && (new $rule_condition_type_class)->check($report_data, $rule_condition)) {
                     continue;
                 }
 
