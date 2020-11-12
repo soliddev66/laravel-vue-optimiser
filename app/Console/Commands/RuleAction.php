@@ -53,9 +53,16 @@ class RuleAction extends Command
 
             if ($this->checkConditions($rule, $campaign, $redtrack_data, $performance_data)) {
                 echo 'PASSED', "\n";
+                $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
+
+                if (class_exists($rule_action_class)) {
+                    (new $rule_action_class)->process($campaign);
+                }
             } else {
                 echo 'NOPASSED', "\n";
             }
+
+            echo "\n";
         }
 
         return 0;

@@ -47,7 +47,13 @@ class Rule extends Model
         return $this->belongsToMany(Campaign::class, 'rule_campaigns');
     }
 
-    public function timeRange() {
+    public function timeRange()
+    {
         return $this->belongsTo(RuleDataFromOption::class, 'from');
+    }
+
+    public function ruleAction()
+    {
+        return $this->belongsTo(RuleAction::class);
     }
 }
