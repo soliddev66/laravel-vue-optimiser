@@ -34,5 +34,9 @@ return [
         'client_id'     => env('YAHOO_CLIENT_ID'),
         'client_secret' => env('YAHOO_CLIENT_SECRET'),
         'redirect'      => env('YAHOO_REDIRECT'),
+    ],
+
+    'outbrain' => [
+        'api_endpoint' => env('OUTBRAIN_API_ENDPOINT'),
     ]
 ];

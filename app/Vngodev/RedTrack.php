@@ -2,6 +2,7 @@
 
 namespace App\Vngodev;
 
+use App\Jobs\PullOutbrainRedTrack;
 use App\Jobs\PullRedTrack;
 use App\Models\RedtrackReport;
 use App\Models\User;
@@ -24,6 +25,9 @@ class RedTrack
         foreach (User::all() as $key => $user) {
             foreach ($user->campaigns()->where('status', 'ACTIVE')->get() as $index => $campaign) {
                 PullRedTrack::dispatch($campaign);
+            }
+            foreach ($user->outbrainCampaigns()->where('status', 'ACTIVE')->get() as $index => $campaign) {
+                PullOutbrainRedTrack::dispatch($campaign);
             }
         }
     }
