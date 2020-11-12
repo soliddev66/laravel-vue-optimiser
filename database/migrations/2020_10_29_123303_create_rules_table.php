@@ -121,6 +121,7 @@ class CreateRulesTable extends Migration
         Schema::create('rule_actions', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('provider');
             $table->timestamps();
         });
 
@@ -145,5 +146,6 @@ class CreateRulesTable extends Migration
         Schema::dropIfExists('rule_condition_type_templates');
         Schema::dropIfExists('rule_condition_group_templates');
         Schema::dropIfExists('rule_data_from_options');
+        Schema::dropIfExists('rule_actions');
     }
 }
