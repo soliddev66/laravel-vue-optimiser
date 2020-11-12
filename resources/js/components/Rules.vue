@@ -1,36 +1,36 @@
 <template>
-  <div class="container">
+  <div class="container rules">
     <div class="vld-parent">
       <loading :active.sync="isLoading" :can-cancel="false" :is-full-page="fullPage"></loading>
+    </div>
+    <div class="row mb-3">
+      <div class="col">
+        <div class="btn-toolbar" role="toolbar">
+          <div class="btn-group mr-3" role="group">
+            <div class="btn-toolbar" role="toolbar">
+              <div class="btn-group mr-3" role="group">
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="ruleAction" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-plus"></i> Create
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="ruleAction" id="ruleActionDropdown">
+                    <a class="dropdown-item" :href="`/rules/create?action=${ruleAction.id}`" v-for="ruleAction in ruleActions" :key="ruleAction.id">{{ ruleAction.name }}</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="btn-group" role="group">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".rule-template-modal"><i class="far fa-folder-open"></i> Create from template</button>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="row justify-content-center">
       <div class="col-md-12">
         <div class="card">
           <div class="card-body table-responsive">
             <errors :errors="errors" v-if="errors.errors"></errors>
-            <div class="row mb-3">
-              <div class="col">
-                <div class="btn-toolbar" role="toolbar">
-                  <div class="btn-group mr-3" role="group">
-                    <div class="btn-toolbar" role="toolbar">
-                      <div class="btn-group mr-3" role="group">
-                        <div class="dropdown">
-                          <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-plus"></i> Create
-                          </button>
-                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" :href="`/rules/create?action=${ruleAction.id}`" v-for="ruleAction in ruleActions" :key="ruleAction.id">{{ ruleAction.name }}</a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-light" data-toggle="modal" data-target=".rule-template-modal"><i class="far fa-folder-open"></i> Create from template</button>
-                  </div>
-                </div>
-              </div>
-            </div>
             <table ref="rulesTable" id="rulesTable" class="table table-bordered table-hover text-center">
               <thead>
                 <tr>
