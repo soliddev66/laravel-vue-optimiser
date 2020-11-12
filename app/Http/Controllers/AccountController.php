@@ -138,6 +138,8 @@ class AccountController extends Controller
             // If there is no tracker
             if ($db_provider->id === Provider::whereSlug('outbrain')->first()->id) {
                 $this->pullOutbrainCampaign();
+            } else {
+                $this->pullCampaign();
             }
             return redirect('account-wizard?step=3');
         }
