@@ -46,6 +46,7 @@ class RedtrackReport extends Model
         'ok',
         'other',
         'pending',
+        'prelp_views',
         'prelp_clicks',
         'profit',
         'pubrevenue',

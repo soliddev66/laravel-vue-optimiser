@@ -6,6 +6,7 @@ use App\Models\Campaign;
 use App\Models\User;
 use App\Vngodev\Token;
 use GuzzleHttp\Client;
+use Hborras\TwitterAdsSDK\TwitterAds;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -36,12 +37,24 @@ class PullCampaign implements ShouldQueue
      */
     public function handle()
     {
-        foreach ($this->user->providers as $key => $provider) {
+        // Yahoo Gemini
+        foreach ($this->user->providers()->where('provider_id', 1)->get() as $key => $provider) {
             Token::refresh($provider, function () use ($provider) {
                 $data = $this->getCampaigns($provider);
                 $this->saveCampaigns($data['response'], $provider);
                 $this->cleanData($data['response'], $provider);
             });
+        }
+        // Twitter
+        foreach ($this->user->providers()->where('provider_id', 3)->get() as $key => $provider) {
+            $api_key = env('TWITTER_CLIENT_ID');
+            $api_secret = env('TWITTER_CLIENT_SECRET');
+            $access_token = $provider->token;
+            $access_token_secret = $provider->secret_token;
+
+            // // Create Twitter Ads Api Instance
+            $api = TwitterAds::init($api_key, $api_secret, $access_token, $access_token_secret);
+            $accounts = $api->getAccounts();
         }
     }
 

@@ -29,6 +29,7 @@ class CreateGeminiReportsTable extends Migration
             $table->double('impressions')->nullable();
             $table->double('clicks')->nullable();
             $table->double('post_click_conversions')->nullable();
+            $table->double('post_click_conversion_value')->nullable();
             $table->double('post_impression_conversions')->nullable();
             $table->double('conversions')->nullable();
             $table->double('total_conversions')->nullable();

@@ -205,39 +205,39 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="domain in domains" class="text-center" :key="domain.id">
-                        <td>{{ domain.id }}</td>
+                      <tr v-for="(domain, index) in domains" class="text-center" :key="domain.id">
+                        <td>{{ domain.id || index }}</td>
                         <td class="px-1">-</td>
                         <td>
                           {{ domain.sub1 || domain.top_domain || domain.package_name }}
                         </td>
-                        <td v-if="selectedTracker">{{ count(domain.clicks) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.clicks || 0 }}</td>
                         <td v-else>{{ round(domain.spend / domain.clicks) || 0 }}</td>
                         <td v-if="selectedTracker">{{ count(domain.lp_views) || 0 }}</td>
                         <td v-else>{{ round(domain.spend) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ count(domain.lp_clicks) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.lp_clicks || 0 }}</td>
                         <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ count(domain.prelp_clicks) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.prelp_clicks || 0 }}</td>
                         <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.lp_ctr || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.lp_ctr || 0 }}%</td>
                         <td v-else>{{ round(0 - domain.spend) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ count(domain.conversions) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.conversions || 0 }}</td>
                         <td v-else>{{ round(((0 - domain.spend)/domain.spend) * 100) || 0 }}%</td>
-                        <td v-if="selectedTracker">{{ domain.cr || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.cr || 0 }}%</td>
                         <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ count(domain.conversions) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.total_actions || 0 }}</td>
                         <td v-else>{{ round(domain.conversions) || 0 }}</td>
                         <td v-if="selectedTracker">{{ domain.tr || 0 }}</td>
                         <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ count(domain.total_revenue) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.conversion_revenue || 0 }}</td>
                         <td v-else>{{ round(domain.impressions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ count(domain.total_revenue) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.total_revenue || 0 }}</td>
                         <td v-else>{{ round(domain.clicks) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ count(domain.cost) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.cost || 0 }}</td>
                         <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ count(domain.profit) || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.profit || 0 }}</td>
                         <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.roi || 0 }}</td>
+                        <td v-if="selectedTracker">{{ domain.roi || 0 }}%</td>
                         <td v-else>{{ round(domain.conversions) || 0 }}</td>
                         <td v-if="selectedTracker">{{ domain.cpc || 0 }}</td>
                         <td v-else>{{ round(domain.clicks/domain.impressions * 100) || 0 }}%</td>
