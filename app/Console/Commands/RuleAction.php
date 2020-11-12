@@ -49,10 +49,12 @@ class RuleAction extends Command
 
         foreach ($rule->campaigns as $campaign) {
             $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
-            $performance_data = $campaign->performanceStats()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+            $performance_data = $campaign->performanceStats()->whereBetween('day', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
 
             if ($this->checkConditions($rule, $campaign, $redtrack_data, $performance_data)) {
                 echo 'PASSED', "\n";
+            } else {
+                echo 'NOPASSED', "\n";
             }
         }
 
@@ -64,8 +66,12 @@ class RuleAction extends Command
         foreach ($rule->ruleConditionGroups as $rule_condition_group) {
             $is_adapt = true;
 
+            echo 'GROUP ', $rule_condition_group->id, "\n";
+
             foreach ($rule_condition_group->ruleConditions as $rule_condition) {
                 $rule_condition_type_class = 'App\\Utils\\RuleConditionTypes\\' . $rule_condition->ruleConditionType->provider;
+
+                echo $rule_condition_type_class;
 
                 if (class_exists($rule_condition_type_class)
                     && (
@@ -82,10 +88,13 @@ class RuleAction extends Command
                         )
                     )
                 ) {
+                    echo ' | OK', "\n";
                     continue;
                 }
 
                 $is_adapt = false;
+                echo ' | NO', "\n";
+                break;
             }
 
             if ($is_adapt) {

@@ -76,38 +76,4 @@ class RedtrackReport extends Model
         'unique_clicks',
         'date',
     ];
-
-    public static function avg($redtrackReports, $attribute)
-    {
-        $length = count($redtrackReports);
-
-        if ($length == 0) {
-            return 0;
-        }
-
-        $total = 0;
-
-        foreach ($redtrackReports as $redtrackReport) {
-            $total += !empty($redtrackReport[$attribute]) ? $redtrackReport[$attribute] : 0;
-        }
-
-        return round($total / $length, 2);
-    }
-
-    public static function sum($redtrackReports, $attribute)
-    {
-        $length = count($redtrackReports);
-
-        if ($length == 0) {
-            return 0;
-        }
-
-        $total = 0;
-
-        foreach ($redtrackReports as $redtrackReport) {
-            $total += !empty($redtrackReport[$attribute]) ? $redtrackReport[$attribute] : 0;
-        }
-
-        return round($total, 2);
-    }
 }

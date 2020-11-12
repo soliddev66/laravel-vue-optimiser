@@ -8,7 +8,7 @@ class Root
 {
     public function compare($first_value, $second_value, $operation)
     {
-        echo $first_value, ' | ', $second_value, ' | ', RuleCondition::OPERATIONS[$operation], "\n";
+        echo ' | ', $first_value, ' | ', $second_value, ' | ', RuleCondition::OPERATIONS[$operation];
 
         switch (RuleCondition::OPERATIONS[$operation]) {
             case 'LESS_THAN':

@@ -2,14 +2,14 @@
 
 namespace App\Utils\RuleConditionTypes;
 
-use App\Models\RedtrackReport;
+use App\Utils\ReportData;
 
 class HourOfDay extends Root
 {
     public function check($redtrack_data, $rule_condition)
     {
-        $sum_hour_of_day = RedtrackReport::sum($redtrack_data, 'hour_of_day');
+        $sum_hour_of_days = ReportData::sum($redtrack_data, 'hour_of_day');
 
-        return parent::compare($sum_hour_of_day, $rule_condition->amount, $rule_condition->operation);
+        return parent::compare($sum_hour_of_days, $rule_condition->amount, $rule_condition->operation);
     }
 }

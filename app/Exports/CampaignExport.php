@@ -3,7 +3,7 @@ namespace App\Exports;
 
 use Carbon\Carbon;
 use App\Models\Campaign;
-use App\Models\RedtrackReport;
+use App\Utils\ReportData;
 use Maatwebsite\Excel\Concerns\FromCollection;
 
 class CampaignExport implements FromCollection
@@ -55,16 +55,16 @@ class CampaignExport implements FromCollection
         }])->get();
 
         foreach($campaigns as $campaign) {
-            $sum_conversions = RedtrackReport::sum($campaign->redtrackReport, 'conversions');
-            $sum_cost = RedtrackReport::sum($campaign->redtrackReport, 'cost');
-            $avg_cpc = RedtrackReport::avg($campaign->redtrackReport, 'cpc');
-            $sum_revenue = RedtrackReport::sum($campaign->redtrackReport, 'revenue');
-            $avg_ctr = RedtrackReport::avg($campaign->redtrackReport, 'ctr');
-            $sum_clicks = RedtrackReport::sum($campaign->redtrackReport, 'clicks');
-            $sum_prelp_clicks = RedtrackReport::sum($campaign->redtrackReport, 'prelp_clicks');
-            $sum_lp_clicks = RedtrackReport::sum($campaign->redtrackReport, 'lp_clicks');
-            $avg_roi = RedtrackReport::avg($campaign->redtrackReport, 'roi');
-            $sum_lp_views = RedtrackReport::sum($campaign->redtrackReport, 'lp_views');
+            $sum_conversions = ReportData::sum($campaign->redtrackReport, 'conversions');
+            $sum_cost = ReportData::sum($campaign->redtrackReport, 'cost');
+            $avg_cpc = ReportData::avg($campaign->redtrackReport, 'cpc');
+            $sum_revenue = ReportData::sum($campaign->redtrackReport, 'revenue');
+            $avg_ctr = ReportData::avg($campaign->redtrackReport, 'ctr');
+            $sum_clicks = ReportData::sum($campaign->redtrackReport, 'clicks');
+            $sum_prelp_clicks = ReportData::sum($campaign->redtrackReport, 'prelp_clicks');
+            $sum_lp_clicks = ReportData::sum($campaign->redtrackReport, 'lp_clicks');
+            $avg_roi = ReportData::avg($campaign->redtrackReport, 'roi');
+            $sum_lp_views = ReportData::sum($campaign->redtrackReport, 'lp_views');
 
             $result[] = [
                 '_',

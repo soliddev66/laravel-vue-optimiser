@@ -2,15 +2,15 @@
 
 namespace App\Utils\RuleConditionTypes;
 
-use App\Models\RedtrackReport;
+use App\Utils\ReportData;
 
 class TrafficSourceROI extends Root
 {
     public function check($redtrack_data, $rule_condition)
     {
-        $sum_profit = RedtrackReport::sum($redtrack_data, 'profit');
-        $sum_cost = RedtrackReport::sum($redtrack_data, 'cost');
+        $sum_profits = ReportData::sum($redtrack_data, 'profit');
+        $sum_costs = ReportData::sum($redtrack_data, 'cost');
 
-        return parent::compare($sum_profit / $sum_cost * 100, $rule_condition->amount, $rule_condition->operation);
+        return parent::compare($sum_profits / $sum_costs * 100, $rule_condition->amount, $rule_condition->operation);
     }
 }
