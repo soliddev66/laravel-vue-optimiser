@@ -42,7 +42,7 @@ class RuleController extends Controller
             $rule_condition_type_group->options = $rule_condition_type_group->ruleConditionTypes;
         }
 
-        $rule->rule_action_id = request('action') ?? null;
+        $rule->rule_action_id = $rule->rule_action_id ?? request('action') ?? null;
 
         return [
             'rule' => $rule,
