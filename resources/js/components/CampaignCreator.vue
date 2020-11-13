@@ -16,11 +16,11 @@
             <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Preview</label>
           </div>
           <div class="card-body">
-            <select v-model="selectedProvider">
+            <select v-model="selectedProvider" @change="selectedProviderChanged()" :disabled="instance">
               <option value="">Select Traffic Source</option>
               <option :value="provider.slug" v-for="provider in providers" :key="provider.id">{{ provider.label }}</option>
             </select>
-            <select v-model="selectedAccount" @change="selectedAccountChanged()" :disabled="instance">
+            <select v-if="accounts.length" v-model="selectedAccount" @change="selectedAccountChanged()" :disabled="instance">
               <option value="">Select Account</option>
               <option :value="account.open_id" v-for="account in accounts" :key="account.id">{{ account.open_id }}</option>
             </select>
@@ -383,10 +383,6 @@ export default {
       type: Array,
       default: []
     },
-    accounts: {
-      type: Array,
-      default: []
-    },
     instance: {
       type: Object,
       default: null
@@ -468,6 +464,7 @@ export default {
       vm.$modal.hide(this.openingFileSelector)
     });
     this.currentStep = this.step
+    this.getAccounts()
     if (this.instance) {
       this.getLanguages()
       this.getCountries()
@@ -541,6 +538,7 @@ export default {
       languages: [],
       countries: [],
       advertisers: [],
+      accounts: [],
       actionName: this.action,
       selectedProvider: 'yahoo',
       selectedAccount: this.instance ? this.instance.open_id : '',
@@ -694,6 +692,10 @@ export default {
         this.isLoading = false
       })
     },
+    selectedProviderChanged() {
+      this.selectedAccount = ''
+      this.getAccounts()
+    },
     selectedAccountChanged() {
       this.getLanguages()
       this.getCountries()
@@ -701,13 +703,16 @@ export default {
     },
     getLanguages() {
       this.isLoading = true
+      this.languages = []
       axios.get(`/general/languages?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-        this.languages = response.data.response.map(language => {
-          return {
-            id: language.value,
-            text: language.name.toUpperCase()
-          }
-        })
+        if (response.data) {
+          this.languages = response.data.map(language => {
+            return {
+              id: language.value || language.code,
+              text: language.name.toUpperCase()
+            }
+          })
+        }
       }).catch(err => {
         console.log(err)
       }).finally(() => {
@@ -716,13 +721,16 @@ export default {
     },
     getCountries() {
       this.isLoading = true
+      this.countries = []
       axios.get(`/general/countries?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-        this.countries = response.data.response.map(country => {
-          return {
-            id: country.woeid,
-            text: country.name
-          }
-        })
+        if (response.data) {
+          this.countries = response.data.map(country => {
+            return {
+              id: country.woeid,
+              text: country.name
+            }
+          })
+        }
       }).catch(err => {
         console.log(err)
       }).finally(() => {
@@ -739,19 +747,27 @@ export default {
         device: ''
       })
     },
+    getAccounts() {
+      this.accounts = []
+      this.isLoading = true
+      axios.get(`/account/accounts?provider=${this.selectedProvider}`).then(response => {
+        this.accounts = response.data
+      }).catch(err => {
+        console.log(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
+    },
     getAdvertisers() {
-      if (this.selectedAccount) {
-        this.isLoading = true
-        axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-          this.advertisers = response.data.response
-        }).catch(err => {
-          console.log(err)
-        }).finally(() => {
-          this.isLoading = false
-        })
-      } else {
-        this.advertisers = []
-      }
+      this.advertisers = []
+      this.isLoading = true
+      axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
+        this.advertisers = response.data
+      }).catch(err => {
+        console.log(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
     },
     signUp() {
       this.isLoading = true

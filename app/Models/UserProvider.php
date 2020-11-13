@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Provider;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,4 +18,9 @@ class UserProvider extends Model
         'refresh_token',
         'expires_in'
     ];
+
+    public function provider()
+    {
+        return $this->belongsTo(Provider::class);
+    }
 }

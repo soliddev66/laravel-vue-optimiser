@@ -11,8 +11,7 @@
         :instance="{{ json_encode($instance ?? null) }}"
         :action="'{{ request()->route()->getActionMethod() }}'"
         :providers="{{ App\Models\Provider::all() }}"
-        :trackers="{{ App\Models\Tracker::all() }}"
-        :accounts="{{ auth()->user()->providers }}">
+        :trackers="{{ App\Models\Tracker::all() }}">
     </campaign-creator>
 @stop
 
