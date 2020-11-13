@@ -25,22 +25,22 @@ class UserProviderController extends Controller
      */
     public function store(StoreUserProviderRequest $request)
     {
-        $outbrainProviderId = Provider::where('slug', 'outbrain')->first()->id;
-        $userProvider = UserProvider::where('provider_id', $outbrainProviderId)->where('user_id', Auth::id())->first();
+        $outbrain_provider_id = Provider::where('slug', 'outbrain')->first()->id;
+        $user_provider = UserProvider::where('provider_id', $outbrain_provider_id)->where('user_id', Auth::id())->first();
 
-        if (!$userProvider) {
+        if (!$user_provider) {
             $client = new Client();
             $response = $client->request('GET', 'https://api.outbrain.com/amplify/v0.1/login', ['auth' => [$request->name, $request->password]]);
 
-            $userProvider = UserProvider::create([
+            $user_provider = UserProvider::create([
                 'open_id' => 'outbrain_' . Carbon::now()->format('Y_m_d_h_i_s'),
                 'user_id' => Auth::id(),
-                'provider_id' => $outbrainProviderId,
+                'provider_id' => $outbrain_provider_id,
                 'token' => json_decode($response->getBody()->getContents(), true)['OB-TOKEN-V1'],
                 'expires_in' => Carbon::now()->addDays(30),
             ]);
         }
 
-        return response()->json(['user_provider' => $userProvider]);
+        return response()->json(['user_provider' => $user_provider]);
     }
 }

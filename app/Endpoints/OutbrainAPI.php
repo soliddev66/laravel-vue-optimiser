@@ -14,11 +14,11 @@ class OutbrainAPI
 
     /**
      * OutbrainAPI constructor.
-     * @param $userProvider
+     * @param $user_provider
      */
-    public function __construct($userProvider)
+    public function __construct($user_provider)
     {
-        $this->outbrain = new OutbrainClient($userProvider);
+        $this->outbrain = new OutbrainClient($user_provider);
     }
 
     /**
@@ -29,7 +29,7 @@ class OutbrainAPI
      */
     public function getMarketers()
     {
-        return $this->outbrain->call('GET', "marketers");
+        return $this->outbrain->call('GET', 'marketers');
     }
 
     /**
@@ -41,6 +41,6 @@ class OutbrainAPI
      */
     public function getCampaignsByMarketerId($id)
     {
-        return $this->outbrain->call('GET', "marketers/$id/campaigns");
+        return $this->outbrain->call('GET', 'marketers/ ' . $id . '/campaigns');
     }
 }
