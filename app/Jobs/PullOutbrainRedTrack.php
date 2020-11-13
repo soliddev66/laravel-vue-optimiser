@@ -48,7 +48,7 @@ class PullOutbrainRedTrack implements ShouldQueue
         if ($tracker) {
             $client = new Client();
             $date = Carbon::now()->format('Y-m-d');
-            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=hour_of_day&sub6=' . $this->campaign->campaign_id . '&tracks_view=true';
+            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=hour_of_day&sub5=' . $this->campaign->campaign_id . '&tracks_view=true';
             $response = $client->get($url);
 
             $data = json_decode($response->getBody(), true);
@@ -59,7 +59,7 @@ class PullOutbrainRedTrack implements ShouldQueue
                 $value['campaign_id'] = $this->campaign->id;
                 $redtrack_report = OutbrainRedtrackReport::firstOrNew([
                     'date' => $date,
-                    'sub6' => $this->campaign->campaign_id,
+                    'sub5' => $this->campaign->campaign_id,
                     'hour_of_day' => $value['hour_of_day']
                 ]);
                 foreach (array_keys($value) as $array_key) {
@@ -68,7 +68,7 @@ class PullOutbrainRedTrack implements ShouldQueue
                 $redtrack_report->save();
             }
 
-            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub1&sub6=' . $this->campaign->campaign_id . '&tracks_view=true';
+            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub1&sub5=' . $this->campaign->campaign_id . '&tracks_view=true';
             $response = $client->get($url);
 
             $data = json_decode($response->getBody(), true);
