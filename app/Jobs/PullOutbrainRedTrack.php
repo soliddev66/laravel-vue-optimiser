@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Models\OutbrainCampaign;
-use App\Models\OutbrainRedtrackReport;
 use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\UserTracker;
@@ -57,7 +56,8 @@ class PullOutbrainRedTrack implements ShouldQueue
                 $value['date'] = $date;
                 $value['user_id'] = $this->campaign->user_id;
                 $value['campaign_id'] = $this->campaign->id;
-                $redtrack_report = OutbrainRedtrackReport::firstOrNew([
+                $value['provider_id'] = $this->campaign->provider_id;
+                $redtrack_report = RedtrackReport::firstOrNew([
                     'date' => $date,
                     'sub5' => $this->campaign->campaign_id,
                     'hour_of_day' => $value['hour_of_day']
@@ -77,6 +77,7 @@ class PullOutbrainRedTrack implements ShouldQueue
                 $value['date'] = $date;
                 $value['user_id'] = $this->campaign->user_id;
                 $value['campaign_id'] = $this->campaign->id;
+                $value['provider_id'] = $this->campaign->provider_id;
                 $redtrack_report = RedtrackDomainStat::firstOrNew([
                     'date' => $date,
                     'sub1' => $value['sub1']

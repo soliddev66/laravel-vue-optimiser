@@ -2,22 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Endpoints\GeminiAPI;
-use App\Exports\CampaignExport;
-use App\Jobs\PullCampaign;
+use DB;
+use Exception;
+use DataTables;
+
+use Carbon\Carbon;
+
+use App\Models\Job;
 use App\Models\Campaign;
+use App\Models\Provider;
 use App\Models\FailedJob;
-use App\Models\GeminiDomainPerformanceStat;
+use App\Models\RedtrackReport;
+use App\Models\RedtrackDomainStat;
 use App\Models\GeminiPerformanceStat;
 use App\Models\GeminiSitePerformanceStat;
-use App\Models\Job;
-use App\Models\Provider;
-use App\Models\RedtrackDomainStat;
-use App\Models\RedtrackReport;
-use Carbon\Carbon;
-use DB;
-use DataTables;
-use Exception;
+use App\Models\GeminiDomainPerformanceStat;
+
+use App\Jobs\PullCampaign;
+use App\Endpoints\GeminiAPI;
+use App\Exports\CampaignExport;
+
 use Maatwebsite\Excel\Facades\Excel;
 
 class CampaignController extends Controller
@@ -276,37 +280,9 @@ class CampaignController extends Controller
     public function status(Campaign $campaign)
     {
         $data = [];
-        $ad_group_body = [];
-        $ad_group_ids = [];
-        $ad_body = [];
-        $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
-
         try {
-            $campaign->status = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
-            $gemini->updateCampaignStatus($campaign);
-            $ad_groups = $gemini->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
-
-            foreach ($ad_groups as $ad_group) {
-                $ad_group_body[] = [
-                    'id' => $ad_group['id'],
-                    'status' => $campaign->status
-                ];
-                $ad_group_ids[] = $ad_group['id'];
-            }
-
-            $gemini->updateAdGroups($ad_group_body);
-            $ads = $gemini->getAds($ad_group_ids, $campaign->advertiser_id);
-
-            foreach ($ads as $ad) {
-                $ad_body[] = [
-                    'adGroupId' => $ad['adGroupId'],
-                    'id' => $ad['id'],
-                    'status' => $campaign->status
-                ];
-            }
-
-            $gemini->updateAds($ad_body);
-            $campaign->save();
+            $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
+            $campaign->status($gemini, $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE);
         } catch (Exception $e) {
             $data = [
                 'errors' => [$e->getMessage()]

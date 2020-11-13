@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Vngodev\Token;
 use GuzzleHttp\Client;
 use Hborras\TwitterAdsSDK\TwitterAds;
+use Hborras\TwitterAdsSDK\TwitterAds\Account;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -53,7 +54,7 @@ class PullCampaign implements ShouldQueue
             $access_token_secret = $provider->secret_token;
 
             // // Create Twitter Ads Api Instance
-            $api = TwitterAds::init($api_key, $api_secret, $access_token, $access_token_secret);
+            $api = TwitterAds::init($api_key, $api_secret, $access_token, $access_token_secret, null, env('TWITTER_SANDBOX'));
             $accounts = $api->getAccounts();
         }
     }

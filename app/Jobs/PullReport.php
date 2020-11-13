@@ -40,9 +40,9 @@ class PullReport implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(GeminiJob $job)
+    public function __construct($job)
     {
-        $this->db_job = $job;
+        $this->db_job = GeminiJob::find($job->id);
     }
 
     /**

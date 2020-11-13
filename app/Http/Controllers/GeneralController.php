@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Provider;
 use Exception;
 use GuzzleHttp\Client;
+use Hborras\TwitterAdsSDK\TwitterAds;
 use Illuminate\Http\Request;
 use Token;
 
@@ -98,28 +99,63 @@ class GeneralController extends Controller
 
     private function getLanguages($user_info)
     {
-        $client = new Client();
-        $response = $client->request('GET', env('MAIN_URL') . '/v3/rest/dictionary/language', [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $user_info->token,
-                'Content-Type' => 'application/json'
-            ]
-        ]);
+        $data = [];
+        switch ($user_info->provider_id) {
+            case 1:
+                $client = new Client();
+                $response = $client->request('GET', env('MAIN_URL') . '/v3/rest/dictionary/language', [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $user_info->token,
+                        'Content-Type' => 'application/json'
+                    ]
+                ]);
 
-        return json_decode($response->getBody(), true);
+                $data = json_decode($response->getBody(), true)['response'];
+                break;
+            case 3:
+                $data = config('constants.languages');
+                break;
+            default:
+                break;
+        }
+
+        return $data;
     }
 
     private function getCountries($user_info)
     {
-        $client = new Client();
-        $response = $client->request('GET', env('MAIN_URL') . '/v3/rest/dictionary/woeid/?type=country', [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $user_info->token,
-                'Content-Type' => 'application/json'
-            ]
-        ]);
+        $data = [];
+        switch ($user_info->provider_id) {
+            case 1:
+                $client = new Client();
+                $response = $client->request('GET', env('MAIN_URL') . '/v3/rest/dictionary/woeid/?type=country', [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $user_info->token,
+                        'Content-Type' => 'application/json'
+                    ]
+                ]);
+                $data = json_decode($response->getBody(), true)['response'];
+                break;
+            case 3:
+                $api_key = env('TWITTER_CLIENT_ID');
+                $api_secret = env('TWITTER_CLIENT_SECRET');
+                $access_token = $user_info->token;
+                $access_token_secret = $user_info->secret_token;
+                $api = TwitterAds::init($api_key, $api_secret, $access_token, $access_token_secret, null, env('TWITTER_SANDBOX'));
+                $countries = $api->get('targeting_criteria/locations', ['location_type' => 'COUNTRIES'])->getBody()->data;
+                foreach ($countries as $key => $country) {
+                    array_push($data, [
+                        'woeid' => $country->country_code,
+                        'name' => $country->name
+                    ]);
+                }
+                break;
 
-        return json_decode($response->getBody(), true);
+            default:
+                break;
+        }
+
+        return $data;
     }
 
     public function uploadFiles()
