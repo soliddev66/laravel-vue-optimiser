@@ -1,0 +1,6 @@
+.rules {
+    div[aria-labelledby="ruleAction"] {
+        max-height: 500px;
+        overflow-y: scroll;
+    }
+}

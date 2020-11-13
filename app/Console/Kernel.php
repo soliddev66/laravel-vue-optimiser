@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Console;
-
+use Carbon\Carbon;
 use App\Jobs\PullCampaign;
 use App\Models\User;
+use App\Models\Rule;
 use App\Vngodev\Gemini;
 use App\Vngodev\RedTrack;
 use Illuminate\Console\Scheduling\Schedule;
@@ -43,6 +44,12 @@ class Kernel extends ConsoleKernel
                 PullCampaign::dispatch($user);
             }
         })->everyMinute();
+
+        foreach (Rule::all() as $rule) {
+            $schedule->command('rule:action', [
+                $rule->id
+            ])->cron($this->getFrequency($rule))->appendOutputTo(storage_path('logs/commands.log'));
+        }
     }
 
     /**
@@ -55,5 +62,28 @@ class Kernel extends ConsoleKernel
         $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
+    }
+
+    private function getFrequency($rule)
+    {
+        switch(Rule::FREQUENCIES[$rule->interval_unit]) {
+            default:
+                return '*/' . $rule->interval_amount . ' * * * *';
+
+            case 'HOURS':
+                return '0 */' . $rule->interval_amount . ' * * *';
+
+            case 'DAYS':
+                return '0 */' . $rule->interval_amount * 24 . ' * * *';
+
+            case 'WEEKS':
+                return '0 */' . $rule->interval_amount * 24 * 7 . ' * * *';
+
+            case 'MONTHS':
+                return '0 0 * */' . $rule->interval_amount . ' *';
+
+            case 'YEARS':
+                return '0 0 * */' . $rule->interval_amount * 12 . ' *';
+        }
     }
 }

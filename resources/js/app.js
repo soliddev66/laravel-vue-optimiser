@@ -52,6 +52,10 @@ Vue.component('campaign-creator', require('./components/CampaignCreator.vue').de
 
 Vue.component('rules', require('./components/Rules.vue').default);
 Vue.component('rule-creator', require('./components/RuleCreator.vue').default);
+Vue.component('rule-rule-templates', require('./components/RuleRuleTemplates.vue').default);
+
+Vue.component('rule-templates', require('./components/RuleTemplates.vue').default);
+Vue.component('rule-template-creator', require('./components/RuleTemplateCreator.vue').default);
 
 Vue.component('ad', require('./components/Ad.vue').default);
 Vue.component('ad-creator', require('./components/AdCreator.vue').default);
@@ -60,6 +64,8 @@ Vue.component('queues', require('./components/Queues.vue').default);
 Vue.component('dashboard', require('./components/Dashboard.vue').default);
 Vue.component('select2', require('./plugins/Select2.vue').default);
 Vue.component('summary-data', require('./components/SummaryData.vue').default);
+
+Vue.component('errors', require('./components/Errors.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
