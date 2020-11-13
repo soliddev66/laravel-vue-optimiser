@@ -85,7 +85,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'rule-groups'], function() {
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/account-wizard', [App\Http\Controllers\AccountController::class, 'wizard'])->name('account_wizard');
-Route::get('/account/advertisers', [App\Http\Controllers\AccountController::class, 'advertisers'])->name('account_wizard');
-Route::post('/account/sign-up', [App\Http\Controllers\AccountController::class, 'signUp'])->name('account_wizard');
+Route::get('/account/accounts', [App\Http\Controllers\AccountController::class, 'accounts'])->name('accounts');
+Route::get('/account/advertisers', [App\Http\Controllers\AccountController::class, 'advertisers'])->name('advertisers');
+Route::post('/account/sign-up', [App\Http\Controllers\AccountController::class, 'signUp'])->name('sign_up');
 Route::get('/traffic-sources', [App\Http\Controllers\AccountController::class, 'trafficSources'])->name('traffic_sources');
 Route::get('/trackers', [App\Http\Controllers\AccountController::class, 'trackers'])->name('trackers');

@@ -10,6 +10,7 @@ use App\Models\UserTracker;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
+use Hborras\TwitterAdsSDK\TwitterAds;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use Token;
@@ -26,6 +27,13 @@ class AccountController extends Controller
         $providers = Provider::all();
         $trackers = Tracker::all();
         return view('accounts.wizard', compact('providers', 'trackers'));
+    }
+
+    public function accounts()
+    {
+        return UserProvider::whereHas('provider', function($q) {
+            return $q->where('slug', request('provider'));
+        })->get();
     }
 
     public function advertisers()
@@ -48,13 +56,37 @@ class AccountController extends Controller
 
     private function getAdvertisers($user_info)
     {
-        $client = new Client();
-        $response = $client->get(env('BASE_URL') . '/v3/rest/advertiser', [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $user_info->token
-            ]
-        ]);
-        return json_decode($response->getBody(), true);
+        $data = [];
+        switch ($user_info->provider_id) {
+            case 1:
+                $client = new Client();
+                $response = $client->get(env('BASE_URL') . '/v3/rest/advertiser', [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $user_info->token
+                    ]
+                ]);
+                $data = json_decode($response->getBody(), true)['response'];
+                break;
+            case 3:
+                $api_key = env('TWITTER_CLIENT_ID');
+                $api_secret = env('TWITTER_CLIENT_SECRET');
+                $access_token = $user_info->token;
+                $access_token_secret = $user_info->secret_token;
+                $api = TwitterAds::init($api_key, $api_secret, $access_token, $access_token_secret, null, env('TWITTER_SANDBOX'));
+                $accounts = $api->getAccounts()->getCollection();
+                foreach ($accounts as $key => $account) {
+                    array_push($data, [
+                        'id' => $account->getId(),
+                        'advertiserName' => $account->getName()
+                    ]);
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        return $data;
     }
 
     public function signUp()
