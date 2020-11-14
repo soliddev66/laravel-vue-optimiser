@@ -51,8 +51,7 @@ class RuleController extends Controller
             'rule_campaigns' => $rule->campaigns ?? null,
             'rule_conditions' => $rule_conditions,
             'rule_groups' => auth()->user()->ruleGroups,
-            'rule_condition_type_groups' => $rule_condition_type_groups,
-            'campaigns' => auth()->user()->campaigns
+            'rule_condition_type_groups' => $rule_condition_type_groups
         ];
     }
 

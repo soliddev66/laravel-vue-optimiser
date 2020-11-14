@@ -14,14 +14,6 @@
               <form class="form-horizontal">
                 <h2 class="pb-2">General information</h2>
                 <div class="form-group row">
-                  <label for="" class="col-sm-2 control-label">Action</label>
-                  <div class="col-sm-10">
-                    <select name="rule_action" class="form-control" v-model="selectedRuleAction">
-                      <option :value="ruleAction.id" v-for="ruleAction in ruleActions" :key="ruleAction.id">{{ ruleAction.name }}</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group row">
                   <label for="name" class="col-sm-2 control-label mt-2">Rule Name</label>
                   <div class="col-sm-10">
                     <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="ruleName" />
@@ -70,7 +62,7 @@
                 </div>
 
                 <h2 class="pd-2">Rule Conditions</h2>
-                <fieldset class="mb-3 p-3 rounded border">
+                <fieldset class="mb-4 p-3 rounded border">
                   <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCondition, index) in ruleConditionData" :key="index">
                     <div class="form-group row" v-for="(condition, indexY) in ruleCondition" :key="indexY">
                       <div class="col-sm-4">
@@ -135,9 +127,19 @@
                   </div>
                 </fieldset>
 
+                <h2 class="pb-2">Action Detail</h2>
+                <div class="form-group row">
+                  <label for="" class="col-sm-2 control-label">Action</label>
+                  <div class="col-sm-10">
+                    <select name="rule_action" class="form-control" v-model="selectedRuleAction">
+                      <option :value="ruleAction.id" v-for="ruleAction in ruleActions" :key="ruleAction.id">{{ ruleAction.name }}</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div class="row">
                   <div class="col-6">
-                    <h2 class="pb-2">Widget Filtering</h2>
+                    <h3 class="pb-2">Widget Filtering</h3>
                   </div>
                   <div class="col-6 text-right">
                     <button class="btn">Copy to clipboard</button>
@@ -158,26 +160,10 @@
                   </div>
                 </div>
 
-                <div class="form-group row">
-                  <label for="group" class="col-sm-2 control-label">Apply rule to campaigns</label>
-                  <div class="col-sm-7">
-                    <select2 name="campaigns" v-model="ruleCampaignData" :options="campaignSelections" :settings="{ multiple: true }" />
-                  </div>
-                  <!-- <div class="col-sm-3">
-                    <div class="btn-group mr-3" role="group">
-                      <div class="dropdown">
-                        <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          <i class="fa fa-filter"></i> Add campaigns
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                          <a class="dropdown-item" href="#">Action</a>
-                          <a class="dropdown-item" href="#">Another action</a>
-                          <a class="dropdown-item" href="#">Something else here</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div> -->
-                </div>
+                <h3 class="pb-2">Applied Campaigns</h3>
+                <fieldset class="mb-4 p-3 rounded border">
+                  <component :is="ruleConditionTypeComponentName" :data="ruleConditionTypeComponentData" />
+                </fieldset>
 
                 <div class="form-group row">
                   <label for="group" class="col-sm-2 control-label mt-2">Run this rule every</label>
@@ -232,15 +218,15 @@ import axios from 'axios'
 
 import 'vue-loading-overlay/dist/vue-loading.css'
 
+import {
+  ChangeCampaignBudget
+} from './rule-condition-types'
+
 export default {
   props: {
     rule: {
       type: Object,
       default: null
-    },
-    campaigns: {
-      type: Array,
-      default: []
     },
     ruleCampaigns: {
       type: Array,
@@ -273,7 +259,8 @@ export default {
   },
   components: {
     Loading,
-    Select2
+    Select2,
+    ChangeCampaignBudget
   },
   computed: {
     ruleNameState() {
@@ -346,13 +333,12 @@ export default {
         return campaign.id
       }) : [],
       tempRuleCondition: tempRuleCondition,
-      campaignSelections: this.campaigns.map(campaign => {
-        return {
-          id: campaign.id,
-          text: campaign.name
-        }
-      }),
-      ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]]
+      ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]],
+      ruleConditionTypeComponentName: 'ChangeCampaignBudget',
+      ruleConditionTypeComponentData: {
+        campaigns: [],
+        ruleCampaignData: null
+      }
     }
   },
   methods: {
@@ -442,8 +428,5 @@ export default {
 </script>
 
 <style>
-.select2-container .select2-selection--single {
-  min-height: 28px;
-  height: auto;
-}
+
 </style>
