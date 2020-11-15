@@ -38,6 +38,7 @@ return [
 
     'outbrain' => [
         'api_endpoint' => env('OUTBRAIN_API_ENDPOINT'),
+        'token_expires_days' => env('TOKEN_EXPIRES_DAYS'),
     ],
 
     'twitter'  => [

@@ -33,7 +33,7 @@ class PullOutbrainCampaign implements ShouldQueue
         $this->user = $user;
 
         // Other
-        $this->user_provider = UserProvider::where('user_id', $this->user->id)->latest()->firstOrFail();
+        $this->user_provider = UserProvider::where('user_id', $this->user->id)->firstOrFail();
         $this->outbrain_api = new OutbrainAPI($this->user_provider);
     }
 
@@ -49,9 +49,12 @@ class PullOutbrainCampaign implements ShouldQueue
         $campaigns = collect([]);
 
         $marketers_ids->each(function ($id) use (&$campaigns) {
-            $campaigns_by_marketer = $this->outbrain_api->getCampaignsByMarketerId($id)['campaigns'];
-            foreach ($campaigns_by_marketer as $campaign) {
-                $campaigns->push($campaign);
+            $campaigns_by_marketer = $this->outbrain_api->getCampaignsByMarketerId($id);
+            if (in_array('campaigns', $campaigns_by_marketer)) {
+                $campaigns_by_marketer = $campaigns_by_marketer['campaigns'];
+                foreach ($campaigns_by_marketer as $campaign) {
+                    $campaigns->push($campaign);
+                }
             }
         });
 

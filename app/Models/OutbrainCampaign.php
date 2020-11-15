@@ -88,6 +88,6 @@ class OutbrainCampaign extends Model
      */
     public function provider()
     {
-        return $this->belongsTo('App\Models\Provider');
+        return $this->belongsTo(Provider::class);
     }
 }

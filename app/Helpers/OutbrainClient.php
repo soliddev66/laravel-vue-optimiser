@@ -8,12 +8,12 @@ use GuzzleHttp\Exception\GuzzleException;
 
 class OutbrainClient
 {
-    private $userProvider;
-    private $responseKey;
+    private $user_provider;
+    private $response_key;
 
-    public function __construct($userProvider, $responseKey = 'response') {
-        $this->userProvider = $userProvider;
-        $this->responseKey = $responseKey;
+    public function __construct($user_provider, $response_key = 'response') {
+        $this->user_provider = $user_provider;
+        $this->response_key = $response_key;
     }
 
     /**
@@ -26,19 +26,19 @@ class OutbrainClient
     public function call($method, $endpoint, $body = null) {
         $client = new Client();
         $url = config('services.outbrain.api_endpoint') . '/amplify/v0.1/' . $endpoint;
-        $requestBody = ['headers' => ['OB-TOKEN-V1' => $this->userProvider->token]];
+        $request_body = ['headers' => ['OB-TOKEN-V1' => $this->user_provider->token]];
 
         if ($body) {
-            $requestBody['body'] = json_encode($body);
+            $request_body['body'] = json_encode($body);
         }
 
         try {
-            $response = $client->request($method, $url, $requestBody);
+            $response = $client->request($method, $url, $request_body);
         } catch (Exception $e) {
             if ($e->getCode() == 401) {
-                Token::refresh($this->userProvider, function () use ($client, $method, $url, $requestBody, &$response) {
-                    $requestBody['headers']['OB-TOKEN-V1'] = $this->userProvider->token;
-                    $response = $client->request($method, $url, $requestBody);
+                Token::refresh($this->user_provider, function () use ($client, $method, $url, $request_body, &$response) {
+                    $request_body['headers']['OB-TOKEN-V1'] = $this->user_provider->token;
+                    $response = $client->request($method, $url, $request_body);
                 });
             } else {
                 throw $e;

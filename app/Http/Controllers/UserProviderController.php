@@ -26,21 +26,24 @@ class UserProviderController extends Controller
     public function store(StoreUserProviderRequest $request)
     {
         $outbrain_provider_id = Provider::where('slug', 'outbrain')->first()->id;
-        $user_provider = UserProvider::where('provider_id', $outbrain_provider_id)->where('user_id', Auth::id())->first();
+        $user_provider = UserProvider::where('provider_id', $outbrain_provider_id)->where('user_id', Auth::id())->firstOrNew([
+            'open_id' => 'outbrain_' . Carbon::now()->format('Y_m_d_h_i_s'),
+            'user_id' => Auth::id(),
+            'provider_id' => $outbrain_provider_id,
+            'expires_in' => Carbon::now()->addDays(30),
+        ]);
 
-        if (!$user_provider) {
+        if (!$user_provider->exists) {
             $client = new Client();
-            $response = $client->request('GET', 'https://api.outbrain.com/amplify/v0.1/login', ['auth' => [$request->name, $request->password]]);
+            $response = $client->request('GET', config('services.outbrain.api_endpoint') . '/amplify/v0.1/login', ['auth' => [
+                $request->name, $request->password
+            ]]);
 
-            $user_provider = UserProvider::create([
-                'open_id' => 'outbrain_' . Carbon::now()->format('Y_m_d_h_i_s'),
-                'user_id' => Auth::id(),
-                'provider_id' => $outbrain_provider_id,
-                'token' => json_decode($response->getBody()->getContents(), true)['OB-TOKEN-V1'],
-                'expires_in' => Carbon::now()->addDays(30),
-            ]);
+            // Amplify token, valid for 30 days
+            $user_provider->token = json_decode($response->getBody()->getContents(), true)['OB-TOKEN-V1'];
         }
 
+        $user_provider->save();
         return response()->json(['user_provider' => $user_provider]);
     }
 }
