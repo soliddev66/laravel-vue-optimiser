@@ -2,7 +2,7 @@
   <div class="form-group row">
     <label for="" class="col-sm-2 control-label">Campaign</label>
     <div class="col-sm-10">
-      <select2 name="campaigns" v-model="ruleCampaignData" :options="campaignSelections" />
+      <select2 name="campaigns" v-model="postData.ruleCampaignData" :options="campaignSelections" />
     </div>
     <!-- <div class="col-sm-3">
       <div class="btn-group mr-3" role="group">
@@ -22,36 +22,59 @@
 </template>
 <script>
 import Select2 from 'v-select2-component'
+import Loading from 'vue-loading-overlay'
+import axios from 'axios'
+
+import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
   props: {
     data: {
       type: Object,
       default: {}
-    }
+    },
+    submitData: {
+      type: Object,
+      default: {}
+    },
   },
   components: {
+    Loading,
     Select2,
   },
   computed: {
   },
   mounted() {
     console.log('Component mounted.')
+    this.loadCampaigns()
   },
   watch: {
   },
   data() {
     return {
-      campaignSelections: this.data.campaigns.map(campaign => {
-        return {
-          id: campaign.id,
-          text: campaign.name
-        }
-      }),
-      ruleCampaignData: this.data.ruleCampaignData
+      isLoading: false,
+      fullPage: true,
+      campaignSelections: null,
+      postData: this.submitData
     }
   },
   methods: {
+    loadCampaigns() {
+      this.isLoading = true
+      axios.get('/campaigns/user-campaigns').then(response => {
+        this.campaignSelections = response.data.campaigns
+        .map(function (campaign) {
+          return {
+            id: campaign.id,
+            text: campaign.name
+          };
+        })
+      }).catch(err => {
+        console.log(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
+    }
   }
 }
 </script>

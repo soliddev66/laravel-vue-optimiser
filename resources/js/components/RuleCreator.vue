@@ -340,7 +340,7 @@ export default {
       }) : [],
       tempRuleCondition: tempRuleCondition,
       ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]],
-      ruleActionProvider: 'PauseCampaign',
+      ruleActionProvider: 'ChangeCampaignBudget',
       ruleActionData: {},
       ruleActionSubmitData: {}
     }
