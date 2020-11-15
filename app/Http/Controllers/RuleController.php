@@ -167,8 +167,7 @@ class RuleController extends Controller
             'ruleConditions.*.*.operation' => 'required',
             'ruleConditions.*.*.amount' => 'required',
             'ruleConditions.*.*.unit' => 'required',
-            'ruleCampaigns' => 'required|present|array',
-            'ruleCampaigns.*' => 'exists:App\Models\Campaign,id',
+            'ruleActionSubmitData' => 'required|present|array',
             'ruleIntervalAmount' => 'required|numeric',
             'ruleIntervalUnit' => 'required',
             'ruleRunType' => 'required'

@@ -131,8 +131,8 @@
                 <div class="form-group row">
                   <label for="" class="col-sm-2 control-label">Action</label>
                   <div class="col-sm-10">
-                    <select name="rule_action" class="form-control" v-model="selectedRuleAction">
-                      <option :value="ruleAction.id" v-for="ruleAction in ruleActions" :key="ruleAction.id">{{ ruleAction.name }}</option>
+                    <select name="rule_action" class="form-control" v-model="selectedRuleAction" @change="selectedRuleActionChanged">
+                      <option :value="ruleAction.id" v-for="ruleAction in ruleActions" :key="ruleAction.id" :data-provider="ruleAction.provider">{{ ruleAction.name }}</option>
                     </select>
                   </div>
                 </div>
@@ -162,7 +162,7 @@
 
                 <h3 class="pb-2">Applied Campaigns</h3>
                 <fieldset class="mb-4 p-3 rounded border">
-                  <component :is="ruleConditionTypeComponentName" :data="ruleConditionTypeComponentData" />
+                  <component :is="ruleActionProvider" :data="ruleActionData" :submitData="ruleActionSubmitData" />
                 </fieldset>
 
                 <div class="form-group row">
@@ -202,7 +202,7 @@
             </div>
 
             <div class="card-footer d-flex justify-content-end">
-              <button type="button" class="btn btn-primary" :disabled="!ruleNameState || !selectedRuleGroupState || !selectedDataFromState || !ruleIntervalAmountState || !ruleIntervalUnitState || !ruleCampaignsState || !ruleConditionsState || !selectedWidgetIncludedState || !selectedRuleActionState || !ruleWidgetState" @click.prevent="saveRule">Save</button>
+              <button type="button" class="btn btn-primary" :disabled="!ruleNameState || !selectedRuleGroupState || !selectedDataFromState || !ruleIntervalAmountState || !ruleIntervalUnitState || !ruleConditionsState || !selectedWidgetIncludedState || !selectedRuleActionState || !ruleWidgetState || !ruleActionDataState" @click.prevent="saveRule">Save</button>
             </div>
           </div>
       </div>
@@ -219,8 +219,9 @@ import axios from 'axios'
 import 'vue-loading-overlay/dist/vue-loading.css'
 
 import {
-  ChangeCampaignBudget
-} from './rule-condition-types'
+  ChangeCampaignBudget,
+  PauseCampaign
+} from './rule-actions/'
 
 export default {
   props: {
@@ -260,7 +261,8 @@ export default {
   components: {
     Loading,
     Select2,
-    ChangeCampaignBudget
+    ChangeCampaignBudget,
+    PauseCampaign
   },
   computed: {
     ruleNameState() {
@@ -290,8 +292,12 @@ export default {
     selectedRuleActionState() {
       return this.selectedRuleAction !== ''
     },
+    ruleActionDataState() {
+      return this.selectedRuleAction !== ''
+    },
     ruleWidgetState() {
-      return this.ruleWidget !== ''
+      console.log(this.ruleActionSubmitData)
+      return !_.isEmpty(this.ruleActionSubmitData)
     },
     ruleConditionsState() {
       for (let i = 0; i < this.ruleConditionData.length; i++) {
@@ -334,11 +340,9 @@ export default {
       }) : [],
       tempRuleCondition: tempRuleCondition,
       ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]],
-      ruleConditionTypeComponentName: 'ChangeCampaignBudget',
-      ruleConditionTypeComponentData: {
-        campaigns: [],
-        ruleCampaignData: null
-      }
+      ruleActionProvider: 'PauseCampaign',
+      ruleActionData: {},
+      ruleActionSubmitData: {}
     }
   },
   methods: {
@@ -388,7 +392,11 @@ export default {
     selectedDataFromChanged (e) {
       this.selectedExcludedDay = e.target.options[e.target.selectedIndex].dataset.excludedDay
     },
+    selectedRuleActionChanged (e) {
+      this.ruleActionProvider = e.target.options[e.target.selectedIndex].dataset.provider
+    },
     saveRule () {
+      console.log(this.ruleActionSubmitData)
       this.postData = {
         ruleName: this.ruleName,
         ruleAction: this.selectedRuleAction,
@@ -401,7 +409,8 @@ export default {
         ruleIntervalUnit: this.ruleIntervalUnit,
         ruleRunType: this.ruleRunType,
         ruleWidgetIncluded: this.selectedWidgetIncluded,
-        ruleWidget: this.ruleWidget
+        ruleWidget: this.ruleWidget,
+        ruleActionSubmitData: this.ruleActionSubmitData
       }
 
       let url = '/rules';
