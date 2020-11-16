@@ -5,7 +5,7 @@
         <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
       </div>
       <div class="form-group row">
-        <label for="" class="col-sm-2 control-label">Campaign</label>
+        <label for="" class="col-sm-2 control-label">Campaigns</label>
         <div class="col-sm-10">
           <select2 name="campaigns" v-model="postData.ruleCampaigns" :options="campaignSelections" :settings="{ multiple: true }" />
         </div>

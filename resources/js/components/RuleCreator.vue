@@ -194,7 +194,7 @@ import 'vue-loading-overlay/dist/vue-loading.css'
 
 import {
   ChangeCampaignBudget,
-  ActiveCampaign,
+  ActivateCampaign,
   PauseCampaign,
 } from './rule-actions'
 
@@ -237,6 +237,7 @@ export default {
     Loading,
     Select2,
     ChangeCampaignBudget,
+    ActivateCampaign,
     PauseCampaign
   },
   computed: {
