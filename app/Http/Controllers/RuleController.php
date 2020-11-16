@@ -42,9 +42,15 @@ class RuleController extends Controller
             $rule_condition_type_group->options = $rule_condition_type_group->ruleConditionTypes;
         }
 
-        $rule->rule_action_id = $rule->rule_action_id ?? request('action') ?? null;
-
+        $rule->rule_action_id = $rule->rule_action_id ?? null;
+        $rule->rule_action_provider = $rule->ruleAction->provider ?? null;
         $rule->excluded_day_type = $rule->timeRange->excluded_day_type ?? null;
+
+        if (request('action')) {
+            $rule_action = RuleAction::find(request('action'));
+            $rule->rule_action_id = $rule->rule_action_id ?? $rule_action->id;
+            $rule->rule_action_provider = $rule->rule_action_provider ?? $rule_action->provider;
+        }
 
         return [
             'rule' => $rule,

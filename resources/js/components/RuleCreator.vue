@@ -340,7 +340,7 @@ export default {
       }) : [],
       tempRuleCondition: tempRuleCondition,
       ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]],
-      ruleActionProvider: 'ChangeCampaignBudget',
+      ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : '',
       ruleActionData: {},
       ruleActionSubmitData: {}
     }
@@ -409,6 +409,7 @@ export default {
     },
     selectedRuleActionChanged (e) {
       this.ruleActionProvider = e.target.options[e.target.selectedIndex].dataset.provider
+      this.ruleActionSubmitData = {}
     },
     saveRule () {
       console.log(this.ruleActionSubmitData)

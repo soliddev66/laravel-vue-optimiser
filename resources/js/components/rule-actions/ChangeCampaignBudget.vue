@@ -47,6 +47,7 @@ export default {
   mounted() {
     console.log('Component mounted.')
     this.loadCampaigns()
+    console.log(this.postData)
   },
   watch: {
   },
