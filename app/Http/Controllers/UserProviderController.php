@@ -35,6 +35,7 @@ class UserProviderController extends Controller
             'open_id' => $request->name,
             'user_id' => Auth::id(),
             'provider_id' => $outbrain_provider_id,
+            'basic_auth' => base64_encode($request->name . ':' . $request->password),
             'token' => json_decode($response->getBody()->getContents(), true)['OB-TOKEN-V1'],
             'expires_in' => Carbon::now()->addDays(30),
         ]);
