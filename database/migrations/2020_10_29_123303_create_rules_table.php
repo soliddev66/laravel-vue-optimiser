@@ -114,7 +114,7 @@ class CreateRulesTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('provider');
-            $table->integer('excluded_day_id');
+            $table->integer('excluded_day_type');
             $table->timestamps();
         });
 

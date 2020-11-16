@@ -47,16 +47,13 @@
                   <div class="col-sm-3">
                     <select name="data_from" class="form-control" v-model="selectedDataFrom" @change="selectedDataFromChanged">
                       <option value="">Select</option>
-                      <option :value="ruleDataFromOption.id" v-for="ruleDataFromOption in ruleDataFromOptions" :key="ruleDataFromOption.id" :data-excluded-day="ruleDataFromOption.excluded_day_id">{{ ruleDataFromOption.name }}</option>
+                      <option :value="ruleDataFromOption.id" v-for="ruleDataFromOption in ruleDataFromOptions" :key="ruleDataFromOption.id" :data-excluded-day="ruleDataFromOption.excluded_day_type">{{ ruleDataFromOption.name }}</option>
                     </select>
                   </div>
                   <label for="exclude" class="col-sm-2 control-label">Exclude days from interval</label>
                   <div class="col-sm-3">
-                    <select name="excluded_days" class="form-control" v-model="selectedExcludedDay" disabled="disabled">
-                      <option value="">Select</option>
-                      <option value="1">None</option>
-                      <option value="2">Today</option>
-                      <option value="3">Today & Yesterday</option>
+                    <select name="excluded_days" class="form-control" v-model="selectedExcludedDay">
+                      <option :value="excludedDayOption.id" v-for="excludedDayOption in excludedDayOptions" :key="excludedDayOption.id">{{ excludedDayOption.name }}</option>
                     </select>
                   </div>
                 </div>
@@ -296,7 +293,6 @@ export default {
       return this.selectedRuleAction !== ''
     },
     ruleWidgetState() {
-      console.log(this.ruleActionSubmitData)
       return !_.isEmpty(this.ruleActionSubmitData)
     },
     ruleConditionsState() {
@@ -316,7 +312,9 @@ export default {
   watch: {
   },
   data() {
-    let tempRuleCondition = {rule_condition_type_id: '', operation: '', amount: '', unit: '1'};
+    let tempRuleCondition = {rule_condition_type_id: '', operation: '', amount: '', unit: '1'},
+      excludedDayOptionType = this.rule.excluded_day_type ? this.rule.excluded_day_type : null;
+
     return {
       errors: {},
       isLoading: false,
@@ -329,7 +327,9 @@ export default {
       ruleWidget: this.rule.widget ? this.rule.widget : '',
       selectedRuleGroup: this.rule.rule_group_id ? this.rule.rule_group_id : '',
       selectedDataFrom: this.rule.from ? this.rule.from : '',
-      selectedExcludedDay: this.rule.exclude_day ? this.rule.exclude_day : '',
+      selectedExcludedDay: this.rule.exclude_day ? this.rule.exclude_day : 1,
+      excludedDayOptionType: excludedDayOptionType,
+      excludedDayOptions: this.generateExcludeDayOptions(excludedDayOptionType),
       ruleIntervalAmount: this.rule.interval_amount ? this.rule.interval_amount : '',
       ruleIntervalUnit: this.rule.interval_unit ? this.rule.interval_unit : '',
       ruleRunType: this.rule.run_type ? this.rule.run_type : 1,
@@ -346,6 +346,19 @@ export default {
     }
   },
   methods: {
+    generateExcludeDayOptions (type) {
+      let excludedDayOptions = [
+        {id: 1, name: 'None', selected: true}
+      ]
+      if (type == 2) {
+        excludedDayOptions.push({id: 2, name: 'Today'})
+      } else if (type == 3) {
+        excludedDayOptions.push({id: 2, name: 'Today'})
+        excludedDayOptions.push({id: 3, name: 'Today & Yesterday'})
+      }
+
+      return excludedDayOptions
+    },
     createRuleGroup () {
       this.isLoading = true
       axios.post('/rule-groups', {
@@ -361,7 +374,7 @@ export default {
         }
       }).catch(error => {
         if (error.response.status == 422) {
-          this.errors = error.response.data;
+          this.errors = error.response.data
         }
       }).finally(() => {
         this.isLoading = false
@@ -384,13 +397,15 @@ export default {
       this.ruleConditionData.splice(index, 1);
     },
     addAndRuleConditon (index) {
-      this.ruleConditionData[index].push({...this.tempRuleCondition});
+      this.ruleConditionData[index].push({...this.tempRuleCondition})
     },
     removeAndRuleCondition (index, indexY) {
-      this.ruleConditionData[index].splice(indexY, 1);
+      this.ruleConditionData[index].splice(indexY, 1)
     },
     selectedDataFromChanged (e) {
-      this.selectedExcludedDay = e.target.options[e.target.selectedIndex].dataset.excludedDay
+      this.excludedDayOptionType = e.target.options[e.target.selectedIndex].dataset.excludedDay
+      this.excludedDayOptions = this.generateExcludeDayOptions(this.excludedDayOptionType)
+      this.selectedExcludedDay = 1
     },
     selectedRuleActionChanged (e) {
       this.ruleActionProvider = e.target.options[e.target.selectedIndex].dataset.provider

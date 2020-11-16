@@ -192,47 +192,47 @@ class RulesTableSeeder extends Seeder
 
         DB::table('rule_data_from_options')->insert([[
             'name' => 'Today',
-            'excluded_day_id' => 1,
+            'excluded_day_type' => 1,
             'provider' => 'Today',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Yesterday',
-            'excluded_day_id' => 1,
+            'excluded_day_type' => 2,
             'provider' => 'Yesterday',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Last 3 days',
-            'excluded_day_id' => 3,
+            'excluded_day_type' => 3,
             'provider' => 'Last3days',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Last 7 days',
-            'excluded_day_id' => 3,
+            'excluded_day_type' => 3,
             'provider' => 'Last7days',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Last 14 days',
-            'excluded_day_id' => 3,
+            'excluded_day_type' => 3,
             'provider' => 'Last14days',
             'created_at' => Carbon::now()
         ], [
             'name' => 'This month',
-            'excluded_day_id' => 3,
+            'excluded_day_type' => 3,
             'provider' => 'ThisMonth',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Last 30 days',
-            'excluded_day_id' => 3,
+            'excluded_day_type' => 3,
             'provider' => 'Last30days',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Last 60 days',
-            'excluded_day_id' => 3,
+            'excluded_day_type' => 3,
             'provider' => 'Last60days',
             'created_at' => Carbon::now()
         ], [
             'name' => 'Last 90 days',
-            'excluded_day_id' => 3,
+            'excluded_day_type' => 3,
             'provider' => 'Last90days',
             'created_at' => Carbon::now()
         ]]);

@@ -44,6 +44,8 @@ class RuleController extends Controller
 
         $rule->rule_action_id = $rule->rule_action_id ?? request('action') ?? null;
 
+        $rule->excluded_day_type = $rule->timeRange->excluded_day_type ?? null;
+
         return [
             'rule' => $rule,
             'rule_actions' => RuleAction::all(),
