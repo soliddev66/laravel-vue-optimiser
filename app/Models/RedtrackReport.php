@@ -12,6 +12,8 @@ class RedtrackReport extends Model
     protected $fillable = [
         'user_id',
         'campaign_id',
+        'open_id',
+        'provider_id',
         'approved',
         'attribution',
         'baddevice',

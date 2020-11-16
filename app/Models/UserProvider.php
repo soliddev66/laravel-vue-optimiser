@@ -14,6 +14,7 @@ class UserProvider extends Model
         'user_id',
         'provider_id',
         'open_id',
+        'basic_auth',
         'token',
         'refresh_token',
         'expires_in'

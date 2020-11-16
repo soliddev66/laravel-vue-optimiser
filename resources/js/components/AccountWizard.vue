@@ -13,9 +13,26 @@
           <div class="card-body" v-if="currentStep == 1">
             <p v-for="provider in providers">
               <label>
-                <input type="radio" v-model="selectedProvider" :value="provider.slug"></input> {{ provider.label }}
+                <input type="radio" v-model="selectedProvider" :value="provider.slug"/> {{ provider.label }}
               </label>
             </p>
+            <form v-if="selectedProvider === 'outbrain'">
+              <div class="form-group mb-3">
+                <label for="outBrainFormName">Name</label>
+                <input type="text" placeholder="Insert Name" v-model="outbrainCredentials.name" class="form-control" id="outBrainFormName">
+              </div>
+              <div class="form-group mb-3">
+                <label for="outBrainFormPassword">Password</label>
+                <div class="input-group">
+                  <input :type="outbrainCredentials.showPassword ? 'text' : 'password'" v-model="outbrainCredentials.password" class="form-control" id="outBrainFormPassword">
+                  <div class="show-passport-checkbox">
+                    <a href="javascript:void(0);" @click="toggleShowingPassword">
+                      <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </form>
           </div>
           <div class="card-body" v-if="currentStep == 2">
             <label v-for="tracker in trackers">
@@ -53,6 +70,9 @@
 </template>
 
 <script>
+import axios from 'axios'
+import Loading from 'vue-loading-overlay'
+
 export default {
   props: {
     providers: {
@@ -66,6 +86,10 @@ export default {
     step: {
       type: Number,
       default: 1
+    },
+    token: {
+      type: String,
+      required: false,
     }
   },
   mounted() {
@@ -78,19 +102,44 @@ export default {
       currentStep: 1,
       redtrackKey: '',
       selectedProvider: 'yahoo',
-      selectedTracker: 'redtrack'
+      selectedTracker: 'redtrack',
+      outbrainCredentials: {
+        name: '',
+        password: '',
+        showPassword: false,
+      }
     }
   },
   methods: {
     submitStep1(useTracker) {
-      window.location = `/login/${this.selectedProvider}?user_tracker=${useTracker}`
+      if (this.selectedProvider === 'outbrain') {
+        const formData = new FormData()
+        formData.append('name', this.outbrainCredentials.name)
+        formData.append('password', this.outbrainCredentials.password)
+
+        axios
+          .post(`/user-providers`, formData)
+          .then((response) => window.location = `/login/${this.selectedProvider}?user_tracker=${useTracker}&open_id=${response.data.user_provider.open_id}`)
+          .catch((err) => console.error(err))
+      } else {
+        window.location = `/login/${this.selectedProvider}?user_tracker=${useTracker}`
+      }
     },
     submitStep2(useTracker) {
-      window.location = `/login/${this.selectedTracker}?api_key=${this.redtrackKey}`
+      window.location = `/login/${this.selectedTracker}?api_key=${this.redtrackKey}&token=${this.token}`
+    },
+    toggleShowingPassword() {
+      this.outbrainCredentials.showPassword = !this.outbrainCredentials.showPassword
     }
   }
 }
 </script>
 
 <style>
+.show-passport-checkbox {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+}
 </style>

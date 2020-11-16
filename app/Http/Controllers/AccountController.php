@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Endpoints\OutbrainAPI;
 use App\Jobs\PullCampaign;
+use App\Jobs\PullOutbrainCampaign;
 use App\Models\Provider;
 use App\Models\Tracker;
 use App\Models\UserProvider;
@@ -10,8 +12,11 @@ use App\Models\UserTracker;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Hborras\TwitterAdsSDK\TwitterAds;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use Token;
 
@@ -136,7 +141,9 @@ class AccountController extends Controller
     /**
      * Redirect the user to the GitHub authentication page.
      *
-     * @return \Illuminate\Http\Response
+     * @param  $param
+     * @return Response|mixed
+     * @throws GuzzleException
      */
     public function redirectToProvider($param)
     {
@@ -144,10 +151,30 @@ class AccountController extends Controller
         $db_tracker = Tracker::where('slug', $param)->first();
         if ($db_provider) {
             session()->put('use_tracker', request('user_tracker'));
-            if ($db_provider->scopes) {
-                return Socialite::driver($db_provider->slug)->scopes(json_decode($db_provider->scopes))->redirect();
+
+            // If service has auth, which can be adapted to Socialite
+            if ($param !== 'outbrain') {
+                if ($db_provider->scopes) {
+                    return Socialite::driver($db_provider->slug)->scopes(json_decode($db_provider->scopes))->redirect();
+                }
+                return Socialite::driver($db_provider->slug)->redirect();
             }
-            return Socialite::driver($db_provider->slug)->redirect();
+
+            if (request('user_tracker')) {
+                session()->put('provider_open_id', request('open_id'));
+                session()->put('provider_id', $db_provider->id);
+
+                // Redirect to Tracker setup
+                return redirect('account-wizard?step=2&provider=' . $param);
+            }
+
+            // If there is no tracker
+            if ($db_provider->id === Provider::whereSlug('outbrain')->first()->id) {
+                $this->pullOutbrainCampaign();
+            } else {
+                $this->pullCampaign();
+            }
+            return redirect('account-wizard?step=3');
         }
         if ($db_tracker) {
             $client = new Client();
@@ -166,7 +193,12 @@ class AccountController extends Controller
                 'email' => $tracker_user['email'],
                 'name' => $tracker_user['firstname'] . ' ' . $tracker_user['lastname']
             ]);
-            $this->pullCampaign();
+
+            if (session('provider_id') === Provider::whereSlug('outbrain')->first()->id) {
+                $this->pullOutbrainCampaign();
+            } else {
+                $this->pullCampaign();
+            }
 
             return redirect('account-wizard?step=3');
         }
@@ -224,5 +256,10 @@ class AccountController extends Controller
     private function pullCampaign()
     {
         return PullCampaign::dispatch(auth()->user());
+    }
+
+    private function pullOutbrainCampaign()
+    {
+        return PullOutbrainCampaign::dispatch(auth()->user());
     }
 }

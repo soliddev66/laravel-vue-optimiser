@@ -136,7 +136,7 @@ class CampaignController extends Controller
         $start = Carbon::now()->format('Y-m-d');
         $end = Carbon::now()->format('Y-m-d');
         if (request('tracker')) {
-            $campaigns = Campaign::with(['redtrackReport' => function ($q) use ($end) {
+            $campaigns = Campaign::with(['redtrackReport' => function ($q) use ($start, $end) {
                 $q->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
             }])->get();
             $summary_data = RedtrackReport::select(
@@ -148,7 +148,7 @@ class CampaignController extends Controller
                 ->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
                 ->first();
         } else {
-            $campaigns = Campaign::with(['performanceStats' => function ($q) use ($end) {
+            $campaigns = Campaign::with(['performanceStats' => function ($q) use ($start, $end) {
                 $q->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
             }])->get();
             $summary_data = GeminiPerformanceStat::select(
