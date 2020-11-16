@@ -26,7 +26,7 @@ class RedTrack
             foreach ($user->campaigns()->where('status', 'ACTIVE')->get() as $index => $campaign) {
                 PullRedTrack::dispatch($campaign);
             }
-            foreach ($user->outbrainCampaigns()->where('status', 'ACTIVE')->get() as $index => $campaign) {
+            foreach ($user->outbrainCampaigns()->get() as $index => $campaign) {
                 PullOutbrainRedTrack::dispatch($campaign);
             }
         }
