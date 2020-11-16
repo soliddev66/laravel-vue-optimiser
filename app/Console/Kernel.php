@@ -30,15 +30,15 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        // $schedule->call(function () {
-        //     Gemini::crawl();
-        // })->everyMinute();
-        // $schedule->call(function () {
-        //     Gemini::checkJobs();
-        // })->everyMinute();
-        // $schedule->call(function () {
-        //     RedTrack::crawl();
-        // })->everyMinute();
+        $schedule->call(function () {
+            Gemini::crawl();
+        })->everyMinute();
+        $schedule->call(function () {
+            Gemini::checkJobs();
+        })->everyMinute();
+        $schedule->call(function () {
+            RedTrack::crawl();
+        })->everyMinute();
         $schedule->call(function () {
             foreach (User::all() as $key => $user) {
                 PullCampaign::dispatch($user);
