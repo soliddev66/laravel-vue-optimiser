@@ -1,26 +1,32 @@
 <template>
-  <div class="form-group row">
-    <label for="" class="col-sm-2 control-label">Campaign</label>
-    <div class="col-sm-10">
-      <select2 name="campaigns" v-model="postData.ruleCampaignData" :options="campaignSelections" />
-    </div>
-    <!-- <div class="col-sm-3">
-      <div class="btn-group mr-3" role="group">
-        <div class="dropdown">
-          <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="fa fa-filter"></i> Add campaigns
-          </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a class="dropdown-item" href="#">Action</a>
-            <a class="dropdown-item" href="#">Another action</a>
-            <a class="dropdown-item" href="#">Something else here</a>
+  <div class="row">
+    <div class="col">
+      <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCampaign, index) in postData.ruleCampaigns" :key="index">
+        <div class="col">
+          <div class="form-group row">
+            <label for="" class="col-sm-2 control-label">Campaign</label>
+            <div class="col-sm-10">
+              <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-2 control-label">Budget</label>
+            <div class="col-sm-10">
+              <input type="text" name="rule_campaign_budget" v-model="ruleCampaign.budget" class="form-control" placeholder="Enter budget">
+            </div>
           </div>
         </div>
+      </fieldset>
+      <div class="form-group row">
+        <div class="col">
+          <button type="button" class="btn btn-primary" @click="addRuleCampaign()">ADD</button>
+        </div>
       </div>
-    </div> -->
+    </div>
   </div>
 </template>
 <script>
+import _ from 'lodash'
 import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
@@ -46,17 +52,20 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
+    console.log(this.submitData)
     this.loadCampaigns()
-    console.log(this.postData)
   },
   watch: {
   },
   data() {
+    let postData = this.submitData
+    postData.ruleCampaigns = [{id: null, budget: ''}]
+
     return {
       isLoading: false,
       fullPage: true,
       campaignSelections: null,
-      postData: this.submitData
+      postData: postData
     }
   },
   methods: {
@@ -75,6 +84,11 @@ export default {
       }).finally(() => {
         this.isLoading = false
       })
+    },
+    addRuleCampaign() {
+      this.postData.ruleCampaigns.push({id: null, budget: ''})
+
+      console.log(this.postData.ruleCampaigns)
     }
   }
 }

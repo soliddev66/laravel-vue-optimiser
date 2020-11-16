@@ -40,6 +40,7 @@ class CreateRulesTable extends Migration
             $table->integer('user_id')->unsigned();
             $table->string('name');
             $table->integer('rule_action_id')->unsigned();
+            $table->text('action_data')->nullable();
             $table->integer('rule_group_id')->unsigned();
             $table->integer('from')->unsigned()->nullable();
             $table->integer('exclude_day')->unsigned()->nullable();

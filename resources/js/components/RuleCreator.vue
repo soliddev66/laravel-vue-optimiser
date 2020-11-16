@@ -134,32 +134,9 @@
                   </div>
                 </div>
 
-                <div class="row">
-                  <div class="col-6">
-                    <h3 class="pb-2">Widget Filtering</h3>
-                  </div>
-                  <div class="col-6 text-right">
-                    <button class="btn">Copy to clipboard</button>
-                    <button class="btn">Clear widget</button>
-                  </div>
-                </div>
-
-                <div class="form-group row">
-                  <div class="col-sm-2">
-                    <select name="rule_widget_included" class="form-control" v-model="selectedWidgetIncluded">
-                      <option value="">Select Filter</option>
-                      <option value="1">Included</option>
-                      <option value="0">Excluded</option>
-                    </select>
-                  </div>
-                  <div class="col-sm-10">
-                    <input type="text" name="widgets" placeholder="Add widgets (comma separated)" class="form-control" v-model="ruleWidget" />
-                  </div>
-                </div>
-
                 <h3 class="pb-2">Applied Campaigns</h3>
                 <fieldset class="mb-4 p-3 rounded border">
-                  <component :is="ruleActionProvider" :data="ruleActionData" :submitData="ruleActionSubmitData" />
+                  <component :is="ruleActionProvider" :data="ruleActionData" :submitData="ruleActionSubmitData" :validate="ruleActionValidate" />
                 </fieldset>
 
                 <div class="form-group row">
@@ -199,7 +176,7 @@
             </div>
 
             <div class="card-footer d-flex justify-content-end">
-              <button type="button" class="btn btn-primary" :disabled="!ruleNameState || !selectedRuleGroupState || !selectedDataFromState || !ruleIntervalAmountState || !ruleIntervalUnitState || !ruleConditionsState || !selectedWidgetIncludedState || !selectedRuleActionState || !ruleWidgetState || !ruleActionDataState" @click.prevent="saveRule">Save</button>
+              <button type="button" class="btn btn-primary" :disabled="!ruleNameState || !selectedRuleGroupState || !selectedDataFromState || !ruleIntervalAmountState || !ruleIntervalUnitState || !ruleConditionsState || !selectedWidgetIncludedState || !selectedRuleActionState || !ruleActionDataState" @click.prevent="saveRule">Save</button>
             </div>
           </div>
       </div>
@@ -217,8 +194,9 @@ import 'vue-loading-overlay/dist/vue-loading.css'
 
 import {
   ChangeCampaignBudget,
-  PauseCampaign
-} from './rule-actions/'
+  ActiveCampaign,
+  PauseCampaign,
+} from './rule-actions'
 
 export default {
   props: {
@@ -292,8 +270,8 @@ export default {
     ruleActionDataState() {
       return this.selectedRuleAction !== ''
     },
-    ruleWidgetState() {
-      return !_.isEmpty(this.ruleActionSubmitData)
+    ruleActionValidateState() {
+      return this.ruleActionValidate
     },
     ruleConditionsState() {
       for (let i = 0; i < this.ruleConditionData.length; i++) {
@@ -342,7 +320,8 @@ export default {
       ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]],
       ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : '',
       ruleActionData: {},
-      ruleActionSubmitData: {}
+      ruleActionSubmitData: {},
+      ruleActionValidate: false
     }
   },
   methods: {
