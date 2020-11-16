@@ -11,6 +11,6 @@ class RedtrackDomainStat extends Model
 
     protected $fillable = [
         'date',
-        'sub_1'
+        'sub_1',
     ];
 }

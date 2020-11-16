@@ -57,6 +57,7 @@ class PullOutbrainRedTrack implements ShouldQueue
                 $value['user_id'] = $this->campaign->user_id;
                 $value['campaign_id'] = $this->campaign->id;
                 $value['provider_id'] = $this->campaign->provider_id;
+                $value['open_id'] = $this->campaign->open_id;
                 $redtrack_report = RedtrackReport::firstOrNew([
                     'date' => $date,
                     'sub5' => $this->campaign->campaign_id,
@@ -68,7 +69,7 @@ class PullOutbrainRedTrack implements ShouldQueue
                 $redtrack_report->save();
             }
 
-            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub1&sub5=' . $this->campaign->campaign_id . '&tracks_view=true';
+            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub5=' . $this->campaign->campaign_id . '&tracks_view=true';
             $response = $client->get($url);
 
             $data = json_decode($response->getBody(), true);
@@ -78,9 +79,9 @@ class PullOutbrainRedTrack implements ShouldQueue
                 $value['user_id'] = $this->campaign->user_id;
                 $value['campaign_id'] = $this->campaign->id;
                 $value['provider_id'] = $this->campaign->provider_id;
+                $value['open_id'] = $this->campaign->open_id;
                 $redtrack_report = RedtrackDomainStat::firstOrNew([
                     'date' => $date,
-                    'sub1' => $value['sub1']
                 ]);
                 foreach (array_keys($value) as $array_key) {
                     $redtrack_report->{$array_key} = $value[$array_key];

@@ -41,6 +41,6 @@ class OutbrainAPI
      */
     public function getCampaignsByMarketerId($id)
     {
-        return $this->outbrain->call('GET', 'marketers/ ' . $id . '/campaigns');
+        return $this->outbrain->call('GET', 'marketers/' . $id . '/campaigns');
     }
 }

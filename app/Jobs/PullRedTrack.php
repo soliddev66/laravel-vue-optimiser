@@ -51,6 +51,7 @@ class PullRedTrack implements ShouldQueue
                 $value['user_id'] = $this->campaign->user_id;
                 $value['campaign_id'] = $this->campaign->id;
                 $value['provider_id'] = $this->campaign->provider_id;
+                $value['open_id'] = $this->campaign->open_id;
                 $redtrack_report = RedtrackReport::firstOrNew([
                     'date' => $date,
                     'sub6' => $this->campaign->campaign_id,
@@ -72,6 +73,7 @@ class PullRedTrack implements ShouldQueue
                 $value['user_id'] = $this->campaign->user_id;
                 $value['campaign_id'] = $this->campaign->id;
                 $value['provider_id'] = $this->campaign->provider_id;
+                $value['open_id'] = $this->campaign->open_id;
                 $redtrack_report = RedtrackDomainStat::firstOrNew([
                     'date' => $date,
                     'sub1' => $value['sub1']
