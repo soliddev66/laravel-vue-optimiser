@@ -47,4 +47,20 @@ class Token
             $callback();
         }
     }
+
+    public static function refreshOutbrain($user_info, callable $callback = null)
+    {
+        $client = new Client();
+        $response = $client->request('GET', config('services.outbrain.api_endpoint') . '/amplify/v0.1/login', [
+            'Authorization' => 'Basic ' . $user_info->basic_auth
+        ]);
+
+        $user_info->token = json_decode($response->getBody()->getContents(), true)['OB-TOKEN-V1'];
+        $user_info->expires_in = Carbon::now()->addDays(30);
+        $user_info->save();
+
+        if ($callback) {
+            $callback();
+        }
+    }
 }

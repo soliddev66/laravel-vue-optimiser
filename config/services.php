@@ -36,9 +36,14 @@ return [
         'redirect'      => env('YAHOO_REDIRECT'),
     ],
 
+    'outbrain' => [
+        'api_endpoint' => env('OUTBRAIN_API_ENDPOINT'),
+        'token_expires_days' => env('TOKEN_EXPIRES_DAYS'),
+    ],
+
     'twitter'  => [
         'client_id'     => env('TWITTER_CLIENT_ID'),
         'client_secret' => env('TWITTER_CLIENT_SECRET'),
         'redirect'      => env('TWITTER_REDIRECT'),
-    ]
+    ],
 ];

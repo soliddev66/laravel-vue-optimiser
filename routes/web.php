@@ -57,6 +57,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::post('/{campaign}/ad-groups/data', [App\Http\Controllers\CampaignController::class, 'adGroupData'])->name('campaigns.adGroupData');
 });
 
+Route::post('user-providers', [\App\Http\Controllers\UserProviderController::class, 'store'])->name('userProviders.store');
+
 Route::group(['middleware' => 'auth', 'prefix' => 'rules'], function() {
     Route::get('/', [App\Http\Controllers\RuleController::class, 'index'])->name('rules.index');
     Route::post('/', [App\Http\Controllers\RuleController::class, 'store'])->name('rules.store');

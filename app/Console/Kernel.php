@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Console;
-use Carbon\Carbon;
 use App\Jobs\PullCampaign;
-use App\Models\User;
+use App\Jobs\PullOutbrainCampaign;
 use App\Models\Rule;
+use App\Models\User;
 use App\Vngodev\Gemini;
 use App\Vngodev\RedTrack;
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -30,18 +31,23 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        // $schedule->call(function () {
-        //     Gemini::crawl();
-        // })->everyMinute();
-        // $schedule->call(function () {
-        //     Gemini::checkJobs();
-        // })->everyMinute();
-        // $schedule->call(function () {
-        //     RedTrack::crawl();
-        // })->everyMinute();
+        $schedule->call(function () {
+            Gemini::crawl();
+        })->everyMinute();
+        $schedule->call(function () {
+            Gemini::checkJobs();
+        })->everyMinute();
+        $schedule->call(function () {
+            RedTrack::crawl();
+        })->everyMinute();
         $schedule->call(function () {
             foreach (User::all() as $key => $user) {
                 PullCampaign::dispatch($user);
+            }
+        })->everyMinute();
+        $schedule->call(function () {
+            foreach (User::all() as $key => $user) {
+                PullOutbrainCampaign::dispatch($user);
             }
         })->everyMinute();
 

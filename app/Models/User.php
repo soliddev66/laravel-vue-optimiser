@@ -74,6 +74,11 @@ class User extends Authenticatable
         return $this->hasMany(Campaign::class);
     }
 
+    public function outbrainCampaigns()
+    {
+        return $this->hasMany(OutbrainCampaign::class);
+    }
+
     public function rules()
     {
         return $this->hasMany(Rule::class);
