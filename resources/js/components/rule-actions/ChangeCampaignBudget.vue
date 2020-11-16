@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <div class="col">
-      <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCampaign, index) in postData.ruleCampaigns" :key="index">
+      <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCampaign, index) in ruleCampaigns" :key="index">
         <div class="col">
           <div class="form-group row">
             <label for="" class="col-sm-2 control-label">Campaign</label>
@@ -65,7 +65,8 @@ export default {
       isLoading: false,
       fullPage: true,
       campaignSelections: null,
-      postData: postData
+      postData: postData,
+      ruleCampaigns: postData.ruleCampaigns
     }
   },
   methods: {
@@ -86,9 +87,9 @@ export default {
       })
     },
     addRuleCampaign() {
-      this.postData.ruleCampaigns.push({id: null, budget: ''})
+      this.ruleCampaigns.push({id: null, budget: ''})
 
-      console.log(this.postData.ruleCampaigns)
+      console.log(this.ruleCampaigns)
     }
   }
 }
