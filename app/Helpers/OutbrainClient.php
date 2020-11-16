@@ -36,7 +36,7 @@ class OutbrainClient
             $response = $client->request($method, $url, $request_body);
         } catch (Exception $e) {
             if ($e->getCode() == 401) {
-                Token::refresh($this->user_provider, function () use ($client, $method, $url, $request_body, &$response) {
+                Token::refreshOutbrain($this->user_provider, function () use ($client, $method, $url, $request_body, &$response) {
                     $request_body['headers']['OB-TOKEN-V1'] = $this->user_provider->token;
                     $response = $client->request($method, $url, $request_body);
                 });
