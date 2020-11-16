@@ -69,25 +69,25 @@ class PullOutbrainRedTrack implements ShouldQueue
                 $redtrack_report->save();
             }
 
-            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub5=' . $this->campaign->campaign_id . '&tracks_view=true';
-            $response = $client->get($url);
+            // $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub5=' . $this->campaign->campaign_id . '&tracks_view=true';
+            // $response = $client->get($url);
 
-            $data = json_decode($response->getBody(), true);
+            // $data = json_decode($response->getBody(), true);
 
-            foreach ($data as $i => $value) {
-                $value['date'] = $date;
-                $value['user_id'] = $this->campaign->user_id;
-                $value['campaign_id'] = $this->campaign->id;
-                $value['provider_id'] = $this->campaign->provider_id;
-                $value['open_id'] = $this->campaign->open_id;
-                $redtrack_report = RedtrackDomainStat::firstOrNew([
-                    'date' => $date,
-                ]);
-                foreach (array_keys($value) as $array_key) {
-                    $redtrack_report->{$array_key} = $value[$array_key];
-                }
-                $redtrack_report->save();
-            }
+            // foreach ($data as $i => $value) {
+            //     $value['date'] = $date;
+            //     $value['user_id'] = $this->campaign->user_id;
+            //     $value['campaign_id'] = $this->campaign->id;
+            //     $value['provider_id'] = $this->campaign->provider_id;
+            //     $value['open_id'] = $this->campaign->open_id;
+            //     $redtrack_report = RedtrackDomainStat::firstOrNew([
+            //         'date' => $date,
+            //     ]);
+            //     foreach (array_keys($value) as $array_key) {
+            //         $redtrack_report->{$array_key} = $value[$array_key];
+            //     }
+            //     $redtrack_report->save();
+            // }
         }
 
     }
