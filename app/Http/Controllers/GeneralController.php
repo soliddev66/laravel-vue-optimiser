@@ -137,18 +137,9 @@ class GeneralController extends Controller
                 $data = json_decode($response->getBody(), true)['response'];
                 break;
             case 3:
-                $api_key = env('TWITTER_CLIENT_ID');
-                $api_secret = env('TWITTER_CLIENT_SECRET');
-                $access_token = $user_info->token;
-                $access_token_secret = $user_info->secret_token;
-                $api = TwitterAds::init($api_key, $api_secret, $access_token, $access_token_secret, null, env('TWITTER_SANDBOX'));
-                $countries = $api->get('targeting_criteria/locations', ['location_type' => 'COUNTRIES'])->getBody()->data;
-                foreach ($countries as $key => $country) {
-                    array_push($data, [
-                        'woeid' => $country->country_code,
-                        'name' => $country->name
-                    ]);
-                }
+                $data = [
+                    ['woeid' => 'JP', 'name' => 'Japan']
+                ];
                 break;
 
             default:
