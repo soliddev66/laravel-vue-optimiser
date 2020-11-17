@@ -12,7 +12,7 @@
           <div class="form-group row">
             <label for="" class="col-sm-2 control-label">Budget</label>
             <div class="col-sm-10">
-              <input type="text" name="rule_campaign_budget" v-model="ruleCampaign.budget" class="form-control" placeholder="Enter budget">
+              <input type="text" name="rule_campaign_budget" v-model="ruleCampaign.data.budget" class="form-control" placeholder="Enter budget">
             </div>
           </div>
         </div>
@@ -37,7 +37,7 @@ export default {
   props: {
     data: {
       type: Object,
-      default: {}
+      default: null
     },
     submitData: {
       type: Object,
@@ -52,14 +52,18 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
-    console.log(this.submitData)
     this.loadCampaigns()
   },
   watch: {
   },
   data() {
     let postData = this.submitData
-    postData.ruleCampaigns = [{id: null, budget: ''}]
+
+    if (!postData.ruleCampaigns) {
+      postData.ruleCampaigns = [{id: null, data: {budget: ''}}]
+    }
+
+    console.log(postData)
 
     return {
       isLoading: false,
@@ -87,9 +91,7 @@ export default {
       })
     },
     addRuleCampaign() {
-      this.ruleCampaigns.push({id: null, budget: ''})
-
-      console.log(this.ruleCampaigns)
+      this.ruleCampaigns.push({id: null, data: {budget: ''}})
     }
   }
 }

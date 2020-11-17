@@ -44,6 +44,7 @@ class RuleController extends Controller
 
         $rule->rule_action_id = $rule->rule_action_id ?? null;
         $rule->rule_action_provider = $rule->ruleAction->provider ?? null;
+        $rule->rule_action_data = $rule->action_data ?? null;
         $rule->excluded_day_type = $rule->timeRange->excluded_day_type ?? null;
 
         if (request('action')) {
@@ -104,13 +105,12 @@ class RuleController extends Controller
             $rule->name = $validated_data['ruleName'];
             $rule->rule_group_id = $validated_data['ruleGroup'];
             $rule->rule_action_id = $validated_data['ruleAction'];
+            $rule->action_data = json_encode($validated_data['ruleActionSubmitData']);
             $rule->from = $validated_data['dataFrom'];
             $rule->exclude_day = $validated_data['excludedDay'];
             $rule->run_type = $validated_data['ruleRunType'];
             $rule->interval_amount = $validated_data['ruleIntervalAmount'];
             $rule->interval_unit = $validated_data['ruleIntervalUnit'];
-            $rule->widget = $validated_data['ruleWidget'];
-            $rule->is_widget_included = $validated_data['ruleWidgetIncluded'];
 
             $rule->save();
 

@@ -136,7 +136,7 @@
 
                 <h3 class="pb-2">Applied Campaigns</h3>
                 <fieldset class="mb-4 p-3 rounded border">
-                  <component :is="ruleActionProvider" :data="ruleActionData" :submitData="ruleActionSubmitData" :validate="ruleActionValidate" />
+                  <component :is="ruleActionProvider" :submitData="ruleActionData" />
                 </fieldset>
 
                 <div class="form-group row">
@@ -271,9 +271,6 @@ export default {
     ruleActionDataState() {
       return this.selectedRuleAction !== ''
     },
-    ruleActionValidateState() {
-      return this.ruleActionValidate
-    },
     ruleConditionsState() {
       for (let i = 0; i < this.ruleConditionData.length; i++) {
         for (let j = 0; j < this.ruleConditionData[i].length; j++) {
@@ -320,9 +317,7 @@ export default {
       tempRuleCondition: tempRuleCondition,
       ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]],
       ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : '',
-      ruleActionData: {},
-      ruleActionSubmitData: {},
-      ruleActionValidate: false
+      ruleActionData: this.rule.rule_action_data ? JSON.parse(this.rule.rule_action_data) : {}
     }
   },
   methods: {
@@ -389,10 +384,10 @@ export default {
     },
     selectedRuleActionChanged (e) {
       this.ruleActionProvider = e.target.options[e.target.selectedIndex].dataset.provider
-      this.ruleActionSubmitData = {}
+      this.ruleActionData = this.rule && this.rule.rule_action_id && this.rule.rule_action_data && this.rule.rule_action_id == this.selectedRuleAction ? JSON.parse(this.rule.rule_action_data) : {}
     },
     saveRule () {
-      console.log(this.ruleActionSubmitData)
+      console.log(this.ruleActionData)
       this.postData = {
         ruleName: this.ruleName,
         ruleAction: this.selectedRuleAction,
@@ -406,7 +401,7 @@ export default {
         ruleRunType: this.ruleRunType,
         ruleWidgetIncluded: this.selectedWidgetIncluded,
         ruleWidget: this.ruleWidget,
-        ruleActionSubmitData: this.ruleActionSubmitData
+        ruleActionSubmitData: this.ruleActionData
       }
 
       let url = '/rules';
