@@ -68,8 +68,6 @@ export default {
       postData.ruleCampaigns = [{id: null, data: {budget: ''}}]
     }
 
-    console.log(postData)
-
     return {
       isLoading: false,
       fullPage: true,

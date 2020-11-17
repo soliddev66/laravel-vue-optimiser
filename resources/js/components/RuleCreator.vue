@@ -204,10 +204,6 @@ export default {
       type: Object,
       default: null
     },
-    ruleCampaigns: {
-      type: Array,
-      default: []
-    },
     ruleActions: {
       type: Array,
       default: []
@@ -259,9 +255,6 @@ export default {
     ruleIntervalUnitState() {
       return this.ruleIntervalUnit !== ''
     },
-    ruleCampaignsState() {
-      return this.ruleCampaignData.length
-    },
     selectedWidgetIncludedState() {
       return this.selectedWidgetIncluded !== ''
     },
@@ -311,9 +304,6 @@ export default {
       ruleRunType: this.rule.run_type ? this.rule.run_type : 1,
       selectedRuleAction: this.rule.rule_action_id ? this.rule.rule_action_id : 1,
       selectedWidgetIncluded: this.rule.is_widget_included ? this.rule.is_widget_included : 1,
-      ruleCampaignData: this.ruleCampaigns ? this.ruleCampaigns.map((campaign) => {
-        return campaign.id
-      }) : [],
       tempRuleCondition: tempRuleCondition,
       ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]],
       ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : '',
@@ -387,7 +377,6 @@ export default {
       this.ruleActionData = this.rule && this.rule.rule_action_id && this.rule.rule_action_data && this.rule.rule_action_id == this.selectedRuleAction ? JSON.parse(this.rule.rule_action_data) : {}
     },
     saveRule () {
-      console.log(this.ruleActionData)
       this.postData = {
         ruleName: this.ruleName,
         ruleAction: this.selectedRuleAction,
@@ -395,7 +384,6 @@ export default {
         dataFrom: this.selectedDataFrom,
         excludedDay: this.selectedExcludedDay,
         ruleConditions: this.ruleConditionData,
-        ruleCampaigns: this.ruleCampaignData,
         ruleIntervalAmount: this.ruleIntervalAmount,
         ruleIntervalUnit: this.ruleIntervalUnit,
         ruleRunType: this.ruleRunType,
