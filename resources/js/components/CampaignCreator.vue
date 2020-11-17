@@ -16,7 +16,7 @@
                   <option value="">Select Traffic Source</option>
                   <option :value="provider.slug" v-for="provider in providers" :key="provider.id">{{ provider.label }}</option>
                 </select>
-                <select class="form-control" v-if="accounts.length" v-model="selectedAccount" @change="selectedAccountChanged()" :disabled="instance">
+                <select class="form-control" v-if="accounts.length" v-model="selectedAccount" :disabled="instance">
                   <option value="">Select Account</option>
                   <option :value="account.open_id" v-for="account in accounts" :key="account.id">{{ account.open_id }}</option>
                 </select>
@@ -32,7 +32,6 @@
 
 <script>
 import _ from 'lodash'
-import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
@@ -40,6 +39,7 @@ import 'vue-loading-overlay/dist/vue-loading.css'
 
 import {
   yahoo,
+  twitter
 } from './campaign-vendors'
 
 export default {
@@ -63,8 +63,8 @@ export default {
   },
   components: {
     Loading,
-    Select2,
-    yahoo
+    yahoo,
+    twitter
   },
   computed: {
   },
@@ -99,13 +99,7 @@ export default {
       }).finally(() => {
         this.isLoading = false
       })
-    },
-    selectedAccountChanged() {
-
     }
   }
 }
 </script>
-
-<style>
-</style>
