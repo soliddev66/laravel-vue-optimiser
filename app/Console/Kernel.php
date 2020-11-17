@@ -33,10 +33,10 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->call(function () {
             Gemini::crawl();
-        })->everyMinute();
+        })->everyThirtyMinutes();
         $schedule->call(function () {
             Gemini::checkJobs();
-        })->everyMinute();
+        })->everyThirtyMinutes();
         $schedule->call(function () {
             RedTrack::crawl();
         })->everyMinute();
