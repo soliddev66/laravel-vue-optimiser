@@ -25,6 +25,7 @@ class Rule extends Model
         'user_id',
         'name',
         'rule_action_id',
+        'action_data',
         'rule_group_id',
         'from',
         'exclude_day',
@@ -40,11 +41,6 @@ class Rule extends Model
     public function ruleConditionGroups()
     {
         return $this->hasMany(RuleConditionGroup::class);
-    }
-
-    public function campaigns()
-    {
-        return $this->belongsToMany(Campaign::class, 'rule_campaigns');
     }
 
     public function timeRange()

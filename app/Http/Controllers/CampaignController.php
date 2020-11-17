@@ -33,6 +33,13 @@ class CampaignController extends Controller
         return view('campaigns.index', compact('campaigns'));
     }
 
+    public function userCampaigns()
+    {
+        return response()->json([
+            'campaigns' => auth()->user()->campaigns
+        ]);
+    }
+
     public function queue()
     {
         return view('campaigns.queue');

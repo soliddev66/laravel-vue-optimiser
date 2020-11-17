@@ -40,6 +40,7 @@ class CreateRulesTable extends Migration
             $table->integer('user_id')->unsigned();
             $table->string('name');
             $table->integer('rule_action_id')->unsigned();
+            $table->text('action_data')->nullable();
             $table->integer('rule_group_id')->unsigned();
             $table->integer('from')->unsigned()->nullable();
             $table->integer('exclude_day')->unsigned()->nullable();
@@ -65,13 +66,6 @@ class CreateRulesTable extends Migration
             $table->integer('operation')->unsigned();
             $table->decimal('amount', 10, 2);
             $table->integer('unit')->unsigned();
-            $table->timestamps();
-        });
-
-        Schema::create('rule_campaigns', function (Blueprint $table) {
-            $table->id();
-            $table->integer('rule_id')->unsigned();
-            $table->integer('campaign_id')->unsigned();
             $table->timestamps();
         });
 
@@ -114,7 +108,7 @@ class CreateRulesTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('provider');
-            $table->integer('excluded_day_id');
+            $table->integer('excluded_day_type');
             $table->timestamps();
         });
 
@@ -140,7 +134,6 @@ class CreateRulesTable extends Migration
         Schema::dropIfExists('rules');
         Schema::dropIfExists('rule_condition_groups');
         Schema::dropIfExists('rule_conditions');
-        Schema::dropIfExists('rule_campaigns');
         Schema::dropIfExists('rule_templates');
         Schema::dropIfExists('rule_condition_templates');
         Schema::dropIfExists('rule_condition_type_templates');

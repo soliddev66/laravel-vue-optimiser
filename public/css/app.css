@@ -10903,6 +10903,26 @@ a i {
   pointer-events: none;
 }
 
+.select2-container .select2-selection--single {
+  min-height: 36px !important;
+  border-color: #ced4da !important;
+  height: auto;
+}
+
+.select2-container .select2-selection--single .select2-selection__arrow {
+  height: 36px !important;
+  top: 0 !important;
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered {
+  line-height: unset !important;
+  margin-top: 0 !important;
+}
+
+.select2-container .select2-selection--multiple {
+  border-color: #ced4da !important;
+}
+
 .rules div[aria-labelledby=ruleAction] {
   max-height: 500px;
   overflow-y: scroll;

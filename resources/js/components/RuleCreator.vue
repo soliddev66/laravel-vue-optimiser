@@ -14,14 +14,6 @@
               <form class="form-horizontal">
                 <h2 class="pb-2">General information</h2>
                 <div class="form-group row">
-                  <label for="" class="col-sm-2 control-label">Action</label>
-                  <div class="col-sm-10">
-                    <select name="rule_action" class="form-control" v-model="selectedRuleAction">
-                      <option :value="ruleAction.id" v-for="ruleAction in ruleActions" :key="ruleAction.id">{{ ruleAction.name }}</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group row">
                   <label for="name" class="col-sm-2 control-label mt-2">Rule Name</label>
                   <div class="col-sm-10">
                     <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="ruleName" />
@@ -55,22 +47,19 @@
                   <div class="col-sm-3">
                     <select name="data_from" class="form-control" v-model="selectedDataFrom" @change="selectedDataFromChanged">
                       <option value="">Select</option>
-                      <option :value="ruleDataFromOption.id" v-for="ruleDataFromOption in ruleDataFromOptions" :key="ruleDataFromOption.id" :data-excluded-day="ruleDataFromOption.excluded_day_id">{{ ruleDataFromOption.name }}</option>
+                      <option :value="ruleDataFromOption.id" v-for="ruleDataFromOption in ruleDataFromOptions" :key="ruleDataFromOption.id" :data-excluded-day="ruleDataFromOption.excluded_day_type">{{ ruleDataFromOption.name }}</option>
                     </select>
                   </div>
                   <label for="exclude" class="col-sm-2 control-label">Exclude days from interval</label>
                   <div class="col-sm-3">
-                    <select name="excluded_days" class="form-control" v-model="selectedExcludedDay" disabled="disabled">
-                      <option value="">Select</option>
-                      <option value="1">None</option>
-                      <option value="2">Today</option>
-                      <option value="3">Today & Yesterday</option>
+                    <select name="excluded_days" class="form-control" v-model="selectedExcludedDay">
+                      <option :value="excludedDayOption.id" v-for="excludedDayOption in excludedDayOptions" :key="excludedDayOption.id">{{ excludedDayOption.name }}</option>
                     </select>
                   </div>
                 </div>
 
                 <h2 class="pd-2">Rule Conditions</h2>
-                <fieldset class="mb-3 p-3 rounded border">
+                <fieldset class="mb-4 p-3 rounded border">
                   <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCondition, index) in ruleConditionData" :key="index">
                     <div class="form-group row" v-for="(condition, indexY) in ruleCondition" :key="indexY">
                       <div class="col-sm-4">
@@ -135,49 +124,20 @@
                   </div>
                 </fieldset>
 
-                <div class="row">
-                  <div class="col-6">
-                    <h2 class="pb-2">Widget Filtering</h2>
-                  </div>
-                  <div class="col-6 text-right">
-                    <button class="btn">Copy to clipboard</button>
-                    <button class="btn">Clear widget</button>
-                  </div>
-                </div>
-
+                <h2 class="pb-2">Action Detail</h2>
                 <div class="form-group row">
-                  <div class="col-sm-2">
-                    <select name="rule_widget_included" class="form-control" v-model="selectedWidgetIncluded">
-                      <option value="">Select Filter</option>
-                      <option value="1">Included</option>
-                      <option value="0">Excluded</option>
+                  <label for="" class="col-sm-2 control-label">Action</label>
+                  <div class="col-sm-10">
+                    <select name="rule_action" class="form-control" v-model="selectedRuleAction" @change="selectedRuleActionChanged">
+                      <option :value="ruleAction.id" v-for="ruleAction in ruleActions" :key="ruleAction.id" :data-provider="ruleAction.provider">{{ ruleAction.name }}</option>
                     </select>
                   </div>
-                  <div class="col-sm-10">
-                    <input type="text" name="widgets" placeholder="Add widgets (comma separated)" class="form-control" v-model="ruleWidget" />
-                  </div>
                 </div>
 
-                <div class="form-group row">
-                  <label for="group" class="col-sm-2 control-label">Apply rule to campaigns</label>
-                  <div class="col-sm-7">
-                    <select2 name="campaigns" v-model="ruleCampaignData" :options="campaignSelections" :settings="{ multiple: true }" />
-                  </div>
-                  <!-- <div class="col-sm-3">
-                    <div class="btn-group mr-3" role="group">
-                      <div class="dropdown">
-                        <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          <i class="fa fa-filter"></i> Add campaigns
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                          <a class="dropdown-item" href="#">Action</a>
-                          <a class="dropdown-item" href="#">Another action</a>
-                          <a class="dropdown-item" href="#">Something else here</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div> -->
-                </div>
+                <h3 class="pb-2">Applied Campaigns</h3>
+                <fieldset class="mb-4 p-3 rounded border">
+                  <component :is="ruleActionProvider" :submitData="ruleActionData" />
+                </fieldset>
 
                 <div class="form-group row">
                   <label for="group" class="col-sm-2 control-label mt-2">Run this rule every</label>
@@ -216,7 +176,7 @@
             </div>
 
             <div class="card-footer d-flex justify-content-end">
-              <button type="button" class="btn btn-primary" :disabled="!ruleNameState || !selectedRuleGroupState || !selectedDataFromState || !ruleIntervalAmountState || !ruleIntervalUnitState || !ruleCampaignsState || !ruleConditionsState || !selectedWidgetIncludedState || !selectedRuleActionState || !ruleWidgetState" @click.prevent="saveRule">Save</button>
+              <button type="button" class="btn btn-primary" :disabled="!ruleNameState || !selectedRuleGroupState || !selectedDataFromState || !ruleIntervalAmountState || !ruleIntervalUnitState || !ruleConditionsState || !selectedWidgetIncludedState || !selectedRuleActionState || !ruleActionDataState" @click.prevent="saveRule">Save</button>
             </div>
           </div>
       </div>
@@ -232,19 +192,17 @@ import axios from 'axios'
 
 import 'vue-loading-overlay/dist/vue-loading.css'
 
+import {
+  ChangeCampaignBudget,
+  ActivateCampaign,
+  PauseCampaign,
+} from './rule-actions'
+
 export default {
   props: {
     rule: {
       type: Object,
       default: null
-    },
-    campaigns: {
-      type: Array,
-      default: []
-    },
-    ruleCampaigns: {
-      type: Array,
-      default: []
     },
     ruleActions: {
       type: Array,
@@ -273,7 +231,10 @@ export default {
   },
   components: {
     Loading,
-    Select2
+    Select2,
+    ChangeCampaignBudget,
+    ActivateCampaign,
+    PauseCampaign
   },
   computed: {
     ruleNameState() {
@@ -294,17 +255,14 @@ export default {
     ruleIntervalUnitState() {
       return this.ruleIntervalUnit !== ''
     },
-    ruleCampaignsState() {
-      return this.ruleCampaignData.length
-    },
     selectedWidgetIncludedState() {
       return this.selectedWidgetIncluded !== ''
     },
     selectedRuleActionState() {
       return this.selectedRuleAction !== ''
     },
-    ruleWidgetState() {
-      return this.ruleWidget !== ''
+    ruleActionDataState() {
+      return this.selectedRuleAction !== ''
     },
     ruleConditionsState() {
       for (let i = 0; i < this.ruleConditionData.length; i++) {
@@ -323,7 +281,9 @@ export default {
   watch: {
   },
   data() {
-    let tempRuleCondition = {rule_condition_type_id: '', operation: '', amount: '', unit: '1'};
+    let tempRuleCondition = {rule_condition_type_id: '', operation: '', amount: '', unit: '1'},
+      excludedDayOptionType = this.rule.excluded_day_type ? this.rule.excluded_day_type : null;
+
     return {
       errors: {},
       isLoading: false,
@@ -336,26 +296,34 @@ export default {
       ruleWidget: this.rule.widget ? this.rule.widget : '',
       selectedRuleGroup: this.rule.rule_group_id ? this.rule.rule_group_id : '',
       selectedDataFrom: this.rule.from ? this.rule.from : '',
-      selectedExcludedDay: this.rule.exclude_day ? this.rule.exclude_day : '',
+      selectedExcludedDay: this.rule.exclude_day ? this.rule.exclude_day : 1,
+      excludedDayOptionType: excludedDayOptionType,
+      excludedDayOptions: this.generateExcludeDayOptions(excludedDayOptionType),
       ruleIntervalAmount: this.rule.interval_amount ? this.rule.interval_amount : '',
       ruleIntervalUnit: this.rule.interval_unit ? this.rule.interval_unit : '',
       ruleRunType: this.rule.run_type ? this.rule.run_type : 1,
       selectedRuleAction: this.rule.rule_action_id ? this.rule.rule_action_id : 1,
       selectedWidgetIncluded: this.rule.is_widget_included ? this.rule.is_widget_included : 1,
-      ruleCampaignData: this.ruleCampaigns ? this.ruleCampaigns.map((campaign) => {
-        return campaign.id
-      }) : [],
       tempRuleCondition: tempRuleCondition,
-      campaignSelections: this.campaigns.map(campaign => {
-        return {
-          id: campaign.id,
-          text: campaign.name
-        }
-      }),
-      ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]]
+      ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]],
+      ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : '',
+      ruleActionData: this.rule.rule_action_data ? JSON.parse(this.rule.rule_action_data) : {}
     }
   },
   methods: {
+    generateExcludeDayOptions (type) {
+      let excludedDayOptions = [
+        {id: 1, name: 'None', selected: true}
+      ]
+      if (type == 2) {
+        excludedDayOptions.push({id: 2, name: 'Today'})
+      } else if (type == 3) {
+        excludedDayOptions.push({id: 2, name: 'Today'})
+        excludedDayOptions.push({id: 3, name: 'Today & Yesterday'})
+      }
+
+      return excludedDayOptions
+    },
     createRuleGroup () {
       this.isLoading = true
       axios.post('/rule-groups', {
@@ -371,7 +339,7 @@ export default {
         }
       }).catch(error => {
         if (error.response.status == 422) {
-          this.errors = error.response.data;
+          this.errors = error.response.data
         }
       }).finally(() => {
         this.isLoading = false
@@ -394,13 +362,19 @@ export default {
       this.ruleConditionData.splice(index, 1);
     },
     addAndRuleConditon (index) {
-      this.ruleConditionData[index].push({...this.tempRuleCondition});
+      this.ruleConditionData[index].push({...this.tempRuleCondition})
     },
     removeAndRuleCondition (index, indexY) {
-      this.ruleConditionData[index].splice(indexY, 1);
+      this.ruleConditionData[index].splice(indexY, 1)
     },
     selectedDataFromChanged (e) {
-      this.selectedExcludedDay = e.target.options[e.target.selectedIndex].dataset.excludedDay
+      this.excludedDayOptionType = e.target.options[e.target.selectedIndex].dataset.excludedDay
+      this.excludedDayOptions = this.generateExcludeDayOptions(this.excludedDayOptionType)
+      this.selectedExcludedDay = 1
+    },
+    selectedRuleActionChanged (e) {
+      this.ruleActionProvider = e.target.options[e.target.selectedIndex].dataset.provider
+      this.ruleActionData = this.rule && this.rule.rule_action_id && this.rule.rule_action_data && this.rule.rule_action_id == this.selectedRuleAction ? JSON.parse(this.rule.rule_action_data) : {}
     },
     saveRule () {
       this.postData = {
@@ -410,12 +384,12 @@ export default {
         dataFrom: this.selectedDataFrom,
         excludedDay: this.selectedExcludedDay,
         ruleConditions: this.ruleConditionData,
-        ruleCampaigns: this.ruleCampaignData,
         ruleIntervalAmount: this.ruleIntervalAmount,
         ruleIntervalUnit: this.ruleIntervalUnit,
         ruleRunType: this.ruleRunType,
         ruleWidgetIncluded: this.selectedWidgetIncluded,
-        ruleWidget: this.ruleWidget
+        ruleWidget: this.ruleWidget,
+        ruleActionSubmitData: this.ruleActionData
       }
 
       let url = '/rules';
@@ -442,8 +416,5 @@ export default {
 </script>
 
 <style>
-.select2-container .select2-selection--single {
-  min-height: 28px;
-  height: auto;
-}
+
 </style>
