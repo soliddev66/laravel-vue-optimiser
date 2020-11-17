@@ -57,7 +57,6 @@ class RuleController extends Controller
             'rule' => $rule,
             'rule_actions' => RuleAction::all(),
             'rule_data_from_options' => RuleDataFromOption::all(),
-            'rule_campaigns' => $rule->campaigns ?? null,
             'rule_conditions' => $rule_conditions,
             'rule_groups' => auth()->user()->ruleGroups,
             'rule_condition_type_groups' => $rule_condition_type_groups
@@ -115,7 +114,6 @@ class RuleController extends Controller
             $rule->save();
 
             $this->createRuleConditions($rule);
-            $this->createRuleCampaigns($rule);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -146,16 +144,6 @@ class RuleController extends Controller
                     'unit' => $rule_condition['unit']
                 ]))->save();
             }
-        }
-    }
-
-    private function createRuleCampaigns($rule)
-    {
-        foreach (request('ruleCampaigns') as $campaign) {
-            (new RuleCampaign([
-                'rule_id' => $rule->id,
-                'campaign_id' => $campaign
-            ]))->save();
         }
     }
 
@@ -204,7 +192,6 @@ class RuleController extends Controller
             $rule->save();
 
             $this->createRuleConditions($rule);
-            $this->createRuleCampaigns($rule);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -247,7 +234,6 @@ class RuleController extends Controller
             $rule_condition_group->ruleConditions()->delete();
         }
         $rule->ruleConditionGroups()->delete();
-        $rule->campaigns()->detach();
     }
 
     public function status(Rule $rule)

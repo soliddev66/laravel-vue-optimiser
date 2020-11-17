@@ -2,18 +2,23 @@
   <div class="row">
     <div class="col">
       <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCampaign, index) in ruleCampaigns" :key="index">
-        <div class="col">
-          <div class="form-group row">
-            <label for="" class="col-sm-2 control-label">Campaign</label>
-            <div class="col-sm-10">
-              <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" />
+        <div class="row">
+          <div class="col-sm-11">
+            <div class="form-group row">
+              <label for="" class="col-sm-2 control-label">Campaign</label>
+              <div class="col-sm-10">
+                <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="" class="col-sm-2 control-label">Budget</label>
+              <div class="col-sm-10">
+                <input type="text" name="rule_campaign_budget" v-model="ruleCampaign.data.budget" class="form-control" placeholder="Enter budget">
+              </div>
             </div>
           </div>
-          <div class="form-group row">
-            <label for="" class="col-sm-2 control-label">Budget</label>
-            <div class="col-sm-10">
-              <input type="text" name="rule_campaign_budget" v-model="ruleCampaign.data.budget" class="form-control" placeholder="Enter budget">
-            </div>
+          <div class="col-sm-1">
+            <button type="button" class="btn btn-light" @click.prevent="removeRuleCampaign(index)" v-if="index > 0"><i class="fa fa-minus"></i></button>
           </div>
         </div>
       </fieldset>
@@ -92,6 +97,9 @@ export default {
     },
     addRuleCampaign() {
       this.ruleCampaigns.push({id: null, data: {budget: ''}})
+    },
+    removeRuleCampaign(index) {
+      this.ruleCampaigns.splice(index, 1);
     }
   }
 }

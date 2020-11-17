@@ -69,13 +69,6 @@ class CreateRulesTable extends Migration
             $table->timestamps();
         });
 
-        Schema::create('rule_campaigns', function (Blueprint $table) {
-            $table->id();
-            $table->integer('rule_id')->unsigned();
-            $table->integer('campaign_id')->unsigned();
-            $table->timestamps();
-        });
-
         Schema::create('rule_templates', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -141,7 +134,6 @@ class CreateRulesTable extends Migration
         Schema::dropIfExists('rules');
         Schema::dropIfExists('rule_condition_groups');
         Schema::dropIfExists('rule_conditions');
-        Schema::dropIfExists('rule_campaigns');
         Schema::dropIfExists('rule_templates');
         Schema::dropIfExists('rule_condition_templates');
         Schema::dropIfExists('rule_condition_type_templates');
