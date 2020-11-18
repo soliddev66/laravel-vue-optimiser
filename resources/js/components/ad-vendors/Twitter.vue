@@ -731,7 +731,6 @@ export default {
     getAdvertisers() {
       this.isLoading = true
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-        console.log(response.data)
         this.advertisers = response.data
       }).catch(err => {
         console.log(err)
