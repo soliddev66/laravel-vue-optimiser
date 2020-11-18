@@ -27,13 +27,80 @@
                       <option :value="advertiser.id" v-for="advertiser in advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.name }}</option>
                     </select>
                   </div>
-                  <div class="col-sm-2" v-if="saveAdvertiser && !instance">
+                  <div class="col-sm-2" v-if="!instance">
                     <button type="button" class="btn btn-primary" @click.prevent="signUp()">Create New</button>
                   </div>
-                  <div class="col-sm-2" v-if="!saveAdvertiser">
-                    <button type="button" class="btn btn-warning" @click.prevent="saveAdvertiser = !saveAdvertiser">Cancel</button>
+                </div>
+                <div class="form-group row">
+                  <label for="advertiser" class="col-sm-2 control-label mt-2">Funding Instrument</label>
+                  <div class="col-sm-4" v-if="fundingInstruments.length">
+                    <select name="funding-instrument" class="form-control" v-model="selectedFundingInstrument" :disabled="instance">
+                      <option value="">Select Funding Instrument</option>
+                      <option :value="fundingInstrument.id" v-for="fundingInstrument in fundingInstruments" :key="fundingInstrument.id">{{ fundingInstrument.id }} - {{ fundingInstrument.name }}</option>
+                    </select>
+                  </div>
+                  <div class="col-sm-2" v-if="saveFundingInstrument && !instance">
+                    <button type="button" class="btn btn-primary" @click.prevent="saveFundingInstrument = !saveFundingInstrument">Create New</button>
+                  </div>
+                  <div class="col-sm-8" v-if="!saveFundingInstrument">
+                    <fieldset class="mb-4 p-3 rounded border">
+                    <h3>Funding Instrument Creator</h3>
+                    <div class="form-group row">
+                      <label for="funding_instrument_currency" class="col-sm-2 control-label mt-2">Currency</label>
+                      <div class="col">
+                        <select name="funding_instrument_currency" class="form-control">
+                          <option value="">Select Currency</option>
+                          <option value="USD">USD</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="start_date" class="col-sm-2 control-label mt-2">Start Time</label>
+                      <div class="col-sm-4">
+                        <input type="date" name="funding_instrument_start_time" class="form-control" v-model="fundingInstrumentStartTime" />
+                      </div>
+                      <label for="end_date" class="col-sm-2 control-label mt-2">End Time</label>
+                      <div class="col-sm-4">
+                        <input type="date" name="funding_instrument_end_time" class="form-control" v-model="fundingInstrumentEndTime" />
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="type" class="col-sm-2 control-label mt-2">Type</label>
+                      <div class="col-sm-8">
+                        <div class="btn-group btn-group-toggle">
+                          <label class="btn bg-olive" :class="{ active: fundingInstrumentType === 'AGENCY_CREDIT_LINE' }">
+                          <input type="radio" name="type" id="fundingInstrumentType1" autocomplete="off" value="AGENCY_CREDIT_LINE" v-model="fundingInstrumentType">AGENCY_CREDIT_LINE</label>
+                          <label class="btn bg-olive" :class="{ active: fundingInstrumentType === 'CREDIT_CARD' }">
+                          <input type="radio" name="type" id="fundingInstrumentType2" autocomplete="off" value="CREDIT_CARD" v-model="fundingInstrumentType">CREDIT_CARD</label>
+                          <label class="btn bg-olive" :class="{ active: fundingInstrumentType === 'CREDIT_LINE' }">
+                          <input type="radio" name="type" id="fundingInstrumentType3" autocomplete="off" value="CREDIT_LINE" v-model="fundingInstrumentType">CREDIT_LINE</label>
+                          <label class="btn bg-olive" :class="{ active: fundingInstrumentType === 'INSERTION_ORDER' }">
+                          <input type="radio" name="type" id="fundingInstrumentType3" autocomplete="off" value="INSERTION_ORDER" v-model="fundingInstrumentType">INSERTION_ORDER</label>
+                          <label class="btn bg-olive" :class="{ active: fundingInstrumentType === 'PARTNER_MANAGED' }">
+                          <input type="radio" name="type" id="fundingInstrumentType3" autocomplete="off" value="PARTNER_MANAGED" v-model="fundingInstrumentType">PARTNER_MANAGED</label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="bid_cpc" class="col-sm-2 control-label mt-2">Credit Limit Local Micro</label>
+                      <div class="col-sm-4">
+                        <input type="number" name="bid_cpc" min="0" class="form-control" v-model="fundingInstrumentCreditLimitLocalMicro" />
+                      </div>
+                      <label for="bid_cpc" class="col-sm-2 control-label mt-2">Funded Amount Local Micro</label>
+                      <div class="col-sm-4">
+                        <input type="number" name="bid_cpc" min="0" class="form-control" v-model="fundingInstrumentFundedAmountLocalMicro" />
+                      </div>
+                    </div>
+                    <div class="form-inline row">
+                      <div class="col">
+                        <button type="button" v-if="!saveFundingInstrument" class="btn btn-warning mr-2" @click.prevent="saveFundingInstrument = !saveFundingInstrument">Cancel</button>
+                        <button type="button" v-if="!saveFundingInstrument" class="btn btn-success" @click.prevent="createFundingInstrument()">Save</button>
+                      </div>
+                    </div>
+                  </fieldset>
                   </div>
                 </div>
+
                 <div class="form-group row">
                   <label for="name" class="col-sm-2 control-label mt-2">Name</label>
                   <div class="col-sm-8">
@@ -453,7 +520,7 @@ export default {
 
     this.getLanguages()
     this.getCountries()
-    this.getAdvertisers()
+    this.loadAdvertisers()
 
     if (this.instance) {
       this.loadPreview()
@@ -520,14 +587,20 @@ export default {
       fullPage: true,
       postData: {},
       currentStep: 1,
-      saveAdvertiser: true,
       redtrackKey: '',
       languages: [],
       countries: [],
       advertisers: [],
+      fundingInstruments: [],
+      saveFundingInstrument: true,
+      fundingInstrumentStartTime: '',
+      fundingInstrumentType: 'AGENCY_CREDIT_LINE',
+      fundingInstrumentCreditLimitLocalMicro: '',
+      fundingInstrumentFundedAmountLocalMicro: '',
       accounts: [],
       actionName: this.action,
       selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
+      selectedFundingInstrument: this.instance ? this.instance.fundingInstrument : '',
       campaignName: this.instance ? this.instance.campaignName : '',
       campaignType: this.instance ? this.instance.channel : 'SEARCH_AND_NATIVE',
       campaignLanguage: this.instance ? this.instance.language : 'en',
@@ -680,7 +753,7 @@ export default {
     selectedAccountChanged() {
       this.getLanguages()
       this.getCountries()
-      this.getAdvertisers()
+      this.loadAdvertisers()
     },
     getLanguages() {
       this.isLoading = true
@@ -728,9 +801,19 @@ export default {
         device: ''
       })
     },
-    getAdvertisers() {
+    loadAdvertisers() {
       this.isLoading = true
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
+        this.advertisers = response.data
+      }).catch(err => {
+        console.log(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
+    },
+    loadFundingInstruments() {
+      this.isLoading = true
+      axios.get(`/account/funding-instruments?advertiser=${this.selectedAdvertiser}`).then(response => {
         this.advertisers = response.data
       }).catch(err => {
         console.log(err)
@@ -745,14 +828,16 @@ export default {
         account: this.selectedAccount
       }).then(response => {
         alert('New advertiser has been saved!')
-        this.saveAdvertiser = true
         this.selectedAdvertiser = response.data.id
-        this.getAdvertisers()
+        this.loadAdvertisers()
       }).catch(err => {
         console.log(err)
       }).finally(() => {
         this.isLoading = false
       })
+    },
+    createFundingInstrument() {
+
     },
     submitStep1() {
       const step1Data = {

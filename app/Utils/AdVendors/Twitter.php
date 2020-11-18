@@ -34,8 +34,28 @@ class Twitter extends Root
         $account = $api->createAccount();
 
         return [
+            'id' => $account->getId(),
+            'name' => $account->getName()
+        ];
+    }
+
+    public function fundingInstruments()
+    {
+        $provider = Provider::where('slug', request('provider'))->first();
+        $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first(), request('selectedAdvertiser') ?? null);
+
+        $funding_instruments = $api->getFundingInstruments();
+
+        var_dump($funding_instruments);
+
+        return [
             'id' => $account->id,
             'name' => $account->name
         ];
+    }
+
+    public function createFundingInstrument()
+    {
+
     }
 }

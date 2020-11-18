@@ -47,11 +47,25 @@ class AccountController extends Controller
         return (new $adVendorClass)->advertisers();
     }
 
+    public function fundingInstruments()
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+
+        return (new $adVendorClass)->fundingInstruments();
+    }
+
     public function signUp()
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
         return (new $adVendorClass)->signUp();
+    }
+
+    public function createFundingInstrument()
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+
+        return (new $adVendorClass)->createFundingInstrument();
     }
 
     public function trafficSources()
