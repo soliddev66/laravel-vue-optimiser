@@ -24,17 +24,11 @@
                   <div class="col-sm-4" v-if="advertisers.length">
                     <select name="advertiser" class="form-control" v-model="selectedAdvertiser" :disabled="instance">
                       <option value="">Select Advertiser</option>
-                      <option :value="advertiser.id" v-for="advertiser in advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.advertiserName }}</option>
+                      <option :value="advertiser.id" v-for="advertiser in advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.name }}</option>
                     </select>
                   </div>
-                  <div class="col-sm-2" v-if="!saveAdvertiser">
-                    <input type="text" name="advertiser_name" v-model="advertiserName" class="form-control" placeholder="Enter advertiser name...">
-                  </div>
                   <div class="col-sm-2" v-if="saveAdvertiser && !instance">
-                    <button type="button" class="btn btn-primary" @click.prevent="saveAdvertiser = !saveAdvertiser">Create New</button>
-                  </div>
-                  <div class="col-sm-2" v-if="!saveAdvertiser && advertiserName">
-                    <button type="button" class="btn btn-success" @click.prevent="signUp()">Save</button>
+                    <button type="button" class="btn btn-primary" @click.prevent="signUp()">Create New</button>
                   </div>
                   <div class="col-sm-2" v-if="!saveAdvertiser">
                     <button type="button" class="btn btn-warning" @click.prevent="saveAdvertiser = !saveAdvertiser">Cancel</button>
@@ -527,7 +521,6 @@ export default {
       postData: {},
       currentStep: 1,
       saveAdvertiser: true,
-      advertiserName: '',
       redtrackKey: '',
       languages: [],
       countries: [],
@@ -736,7 +729,6 @@ export default {
       })
     },
     getAdvertisers() {
-      this.advertisers = []
       this.isLoading = true
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
         console.log(response.data)
@@ -751,12 +743,11 @@ export default {
       this.isLoading = true
       axios.post('/account/sign-up', {
         provider: this.selectedProvider,
-        account: this.selectedAccount,
-        name: this.advertiserName
+        account: this.selectedAccount
       }).then(response => {
         alert('New advertiser has been saved!')
-        this.advertiserName = ''
         this.saveAdvertiser = true
+        this.selectedAdvertiser = response.data.id
         this.getAdvertisers()
       }).catch(err => {
         console.log(err)

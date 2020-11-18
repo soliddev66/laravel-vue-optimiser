@@ -19,6 +19,13 @@ class GeminiAPI
         return $this->client->call('GET', 'advertiser');
     }
 
+    public function createAdvertiser($name)
+    {
+        return $this->client->call('POST', 'advertisersignup', [
+            'advertiserName' => $name
+        ]);
+    }
+
     public function getCampaign($campaign_id)
     {
         return $this->client->call('GET', 'campaign/' . $campaign_id);
