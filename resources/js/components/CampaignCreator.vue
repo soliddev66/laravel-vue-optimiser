@@ -40,7 +40,7 @@ import 'vue-loading-overlay/dist/vue-loading.css'
 import {
   yahoo,
   twitter
-} from './campaign-vendors'
+} from './ad-vendors'
 
 export default {
   props: {
