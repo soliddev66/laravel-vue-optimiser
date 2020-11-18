@@ -1,362 +1,362 @@
 <template>
   <section>
-      <div class="vld-parent">
-        <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
-      </div>
-      <div class="row justify-content-center">
-        <div class="col-md-12">
-          <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <label class="p-2" :class="{ 'bg-primary': currentStep === 1 }">Campaign {{ actionName }}</label>
-              <i class="fas fa-arrow-right"></i>
-              <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">Add Contents</label>
-              <i class="fas fa-arrow-right"></i>
-              <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Generate Variations</label>
-              <i class="fas fa-arrow-right"></i>
-              <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Preview</label>
-            </div>
-            <div class="card-body">
-              <form class="form-horizontal" v-if="selectedProvider && selectedAccount">
-                <div v-if="currentStep == 1">
-                  <h2>General information</h2>
-                  <div class="form-group row">
-                    <label for="advertiser" class="col-sm-2 control-label mt-2">Advertiser</label>
-                    <div class="col-sm-4" v-if="advertisers.length">
-                      <select name="advertiser" class="form-control" v-model="selectedAdvertiser" :disabled="instance">
-                        <option value="">Select Advertiser</option>
-                        <option :value="advertiser.id" v-for="advertiser in advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.advertiserName }}</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-2" v-if="!saveAdvertiser">
-                      <input type="text" name="advertiser_name" v-model="advertiserName" class="form-control" placeholder="Enter advertiser name...">
-                    </div>
-                    <div class="col-sm-2" v-if="saveAdvertiser && !instance">
-                      <button type="button" class="btn btn-primary" @click.prevent="saveAdvertiser = !saveAdvertiser">Create New</button>
-                    </div>
-                    <div class="col-sm-2" v-if="!saveAdvertiser && advertiserName">
-                      <button type="button" class="btn btn-success" @click.prevent="signUp()">Save</button>
-                    </div>
-                    <div class="col-sm-2" v-if="!saveAdvertiser">
-                      <button type="button" class="btn btn-warning" @click.prevent="saveAdvertiser = !saveAdvertiser">Cancel</button>
-                    </div>
+    <div class="vld-parent">
+      <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 1 }">Campaign {{ actionName }}</label>
+            <i class="fas fa-arrow-right"></i>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">Add Contents</label>
+            <i class="fas fa-arrow-right"></i>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Generate Variations</label>
+            <i class="fas fa-arrow-right"></i>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Preview</label>
+          </div>
+          <div class="card-body">
+            <form class="form-horizontal" v-if="selectedProvider && selectedAccount">
+              <div v-if="currentStep == 1">
+                <h2>General information</h2>
+                <div class="form-group row">
+                  <label for="advertiser" class="col-sm-2 control-label mt-2">Advertiser</label>
+                  <div class="col-sm-4" v-if="advertisers.length">
+                    <select name="advertiser" class="form-control" v-model="selectedAdvertiser" :disabled="instance">
+                      <option value="">Select Advertiser</option>
+                      <option :value="advertiser.id" v-for="advertiser in advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.advertiserName }}</option>
+                    </select>
                   </div>
-                  <div class="form-group row">
-                    <label for="name" class="col-sm-2 control-label mt-2">Name</label>
-                    <div class="col-sm-8">
-                      <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="campaignName" />
-                    </div>
+                  <div class="col-sm-2" v-if="!saveAdvertiser">
+                    <input type="text" name="advertiser_name" v-model="advertiserName" class="form-control" placeholder="Enter advertiser name...">
                   </div>
-                  <div class="form-group row">
-                    <label for="type" class="col-sm-2 control-label mt-2">Type</label>
-                    <div class="col-sm-8">
-                      <div class="btn-group btn-group-toggle">
-                        <label class="btn bg-olive" :class="{ active: campaignType === 'NATIVE' }">
-                          <input type="radio" name="type" id="campaignType1" autocomplete="off" value="NATIVE" v-model="campaignType"> Native Only
-                        </label>
-                        <label class="btn bg-olive" :class="{ active: campaignType === 'SEARCH' }">
-                          <input type="radio" name="type" id="campaignType2" autocomplete="off" value="SEARCH" v-model="campaignType"> Search Only
-                        </label>
-                        <label class="btn bg-olive" :class="{ active: campaignType === 'SEARCH_AND_NATIVE' }">
-                          <input type="radio" name="type" id="campaignType3" autocomplete="off" value="SEARCH_AND_NATIVE" v-model="campaignType"> Search and Native
-                        </label>
-                      </div>
-                    </div>
+                  <div class="col-sm-2" v-if="saveAdvertiser && !instance">
+                    <button type="button" class="btn btn-primary" @click.prevent="saveAdvertiser = !saveAdvertiser">Create New</button>
                   </div>
-                  <h2>Define your audience</h2>
-                  <div class="form-group row">
-                    <label for="language" class="col-sm-2 control-label mt-2">Language</label>
-                    <div class="col-sm-8">
-                      <select2 id="language" name="language" :options="languages" v-model="campaignLanguage"></select2>
-                    </div>
+                  <div class="col-sm-2" v-if="!saveAdvertiser && advertiserName">
+                    <button type="button" class="btn btn-success" @click.prevent="signUp()">Save</button>
                   </div>
-                  <div class="form-group row">
-                    <label for="location" class="col-sm-2 control-label mt-2">Location</label>
-                    <div class="col-sm-8">
-                      <select2 name="location" v-model="campaignLocation" :options="countries" :settings="{ multiple: true }" />
-                    </div>
+                  <div class="col-sm-2" v-if="!saveAdvertiser">
+                    <button type="button" class="btn btn-warning" @click.prevent="saveAdvertiser = !saveAdvertiser">Cancel</button>
                   </div>
-                  <div class="form-group row">
-                    <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
-                    <div class="col-sm-8">
-                      <select name="gender" class="form-control" v-model="campaignGender">
-                        <option value="">All</option>
-                        <option value="MALE">Male</option>
-                        <option value="FEMALE">Female</option>
-                      </select>
-                    </div>
+                </div>
+                <div class="form-group row">
+                  <label for="name" class="col-sm-2 control-label mt-2">Name</label>
+                  <div class="col-sm-8">
+                    <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="campaignName" />
                   </div>
-                  <div class="form-group row">
-                    <label for="age" class="col-sm-2 control-label mt-2">Age</label>
-                    <div class="col-sm-8">
-                      <select name="age" class="form-control" v-model="campaignAge" multiple>
-                        <option value="">All</option>
-                        <option value="18-24">18-24</option>
-                        <option value="25-34">25-34</option>
-                        <option value="35-44">35-44</option>
-                        <option value="45-54">45-54</option>
-                        <option value="55-64">55-64</option>
-                        <option value="65-120">65-120</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <label for="device" class="col-sm-2 control-label mt-2">Device</label>
-                    <div class="col-sm-8">
-                      <select name="device" class="form-control" v-model="campaignDevice">
-                        <option value="">All</option>
-                        <option value="SMARTPHONE">SMARTPHONE</option>
-                        <option value="TABLET">TABLET</option>
-                        <option value="DESKTOP">DESKTOP</option>
-                      </select>
-                    </div>
-                  </div>
-                  <h2>Campaign settings</h2>
-                  <div class="form-group row">
-                    <label for="budget" class="col-sm-2 control-label mt-2">Budget</label>
-                    <div class="col-sm-2">
-                      <input type="number" name="budget" min="40" class="form-control" v-model="campaignBudget" />
-                    </div>
-                    <div class="col-sm-4">
-                      <div class="btn-group btn-group-toggle">
-                        <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'DAILY' }">
-                          <input type="radio" name="type" id="campaignBudgetType1" autocomplete="off" value="DAILY" v-model="campaignBudgetType"> Per Day
-                        </label>
-                        <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'MONTHLY' }">
-                          <input type="radio" name="type" id="campaignBudgetType2" autocomplete="off" value="MONTHLY" v-model="campaignBudgetType"> Per Month
-                        </label>
-                        <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'LIFETIME' }">
-                          <input type="radio" name="type" id="campaignBudgetType3" autocomplete="off" value="LIFETIME" v-model="campaignBudgetType"> In Total
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <label for="bid_strategy" class="col-sm-2 control-label mt-2">Bid Strategy</label>
-                    <div class="col-sm-8">
-                      <select name="bid_strategy" class="form-control" v-model="campaignStrategy">
-                        <option value="OPT_ENHANCED_CPC">Enhanced CPC</option>
-                        <option value="OPT_POST_INSTALL">Post Install</option>
-                        <option value="OPT_CONVERSION">Conversion</option>
-                        <option value="OPT_CLICK">Click</option>
-                        <option value="MAX_OPT_CONVERSION">Max Conversion</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <label for="conversion_counting" class="col-sm-2 control-label mt-2">Conversion counting</label>
-                    <div class="col-sm-8">
-                      <select name="conversion_counting" class="form-control" v-model="campaignConversionCounting">
-                        <option value="ALL_PER_INTERACTION">All per interaction</option>
-                        <option value="ONE_PER_INTERACTION">One per interaction</option>
-                      </select>
-                    </div>
-                  </div>
-                  <h2>Create group</h2>
-                  <div class="form-group row">
-                    <label for="ad_group_name" class="col-sm-2 control-label mt-2">Ad group name</label>
-                    <div class="col-sm-8">
-                      <input type="text" name="ad_group_name" class="form-control" v-model="adGroupName" />
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <label for="bid_strategy" class="col-sm-2 control-label mt-2">Bid strategy</label>
-                    <div class="col-sm-8">
-                      <p>{{ campaignStrategy }}</p>
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <label for="bid_cpc" class="col-sm-2 control-label mt-2">Bid (CPC)</label>
-                    <div class="col-sm-8">
-                      <input type="number" name="bid_cpc" min="0.05" class="form-control" v-model="bidAmount" />
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <label for="schedule" class="col-sm-2 control-label mt-2">Schedule</label>
-                    <div class="col-sm-8">
-                      <div class="btn-group btn-group-toggle">
-                        <label class="btn bg-olive" :class="{ active: scheduleType === 'IMMEDIATELY' }">
-                          <input type="radio" name="schedule" id="scheduleType1" autocomplete="off" value="IMMEDIATELY" v-model="scheduleType"> Start running ads immediately
-                        </label>
-                        <label class="btn bg-olive" :class="{ active: scheduleType === 'CUSTOM' }">
-                          <input type="radio" name="schedule" id="scheduleType2" autocomplete="off" value="CUSTOM" v-model="scheduleType"> Set a start and end date
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="form-group row" v-if="scheduleType === 'CUSTOM'">
-                    <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
-                    <div class="col-sm-4">
-                      <input type="date" name="start_date" class="form-control" v-model="campaignStartDate" />
-                    </div>
-                    <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
-                    <div class="col-sm-4">
-                      <input type="date" name="end_date" class="form-control" v-model="campaignEndDate" />
+                </div>
+                <div class="form-group row">
+                  <label for="type" class="col-sm-2 control-label mt-2">Type</label>
+                  <div class="col-sm-8">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: campaignType === 'NATIVE' }">
+                        <input type="radio" name="type" id="campaignType1" autocomplete="off" value="NATIVE" v-model="campaignType"> Native Only
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: campaignType === 'SEARCH' }">
+                        <input type="radio" name="type" id="campaignType2" autocomplete="off" value="SEARCH" v-model="campaignType"> Search Only
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: campaignType === 'SEARCH_AND_NATIVE' }">
+                        <input type="radio" name="type" id="campaignType3" autocomplete="off" value="SEARCH_AND_NATIVE" v-model="campaignType"> Search and Native
+                      </label>
                     </div>
                   </div>
                 </div>
-                <div class="card-body" v-if="currentStep == 2">
-                  <div class="row">
-                    <div class="col-sm-6">
-                      <div class="form-group row">
-                        <label for="title" class="col-sm-4 control-label mt-2">Title</label>
-                        <div class="col-sm-8">
-                          <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title" />
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
-                        <div class="col-sm-8">
-                          <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="brandname" />
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="description" class="col-sm-4 control-label mt-2">Description</label>
-                        <div class="col-sm-8">
-                          <textarea class="form-control" rows="3" placeholder="Enter description" v-model="description"></textarea>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
-                        <div class="col-sm-8 text-center">
-                          <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="displayUrl" />
-                          <small class="text-danger" v-if="displayUrl && !displayUrlState">URL is invalid. You might need http/https at the beginning.</small>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
-                        <div class="col-sm-8 text-center">
-                          <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="targetUrl" />
-                          <small class="text-danger" v-if="targetUrl && !targetUrlState">URL is invalid. You might need http/https at the beginning.</small>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="image_hq_url" class="col-sm-4 control-label mt-2">Image HQ URL</label>
-                        <div class="col-sm-8">
-                          <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="imageUrlHQ" />
-                        </div>
-                        <div class="col-sm-8 offset-sm-4">
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('hqModal')">Choose File</button>
-                          <!-- <input type="file" ref="imageHQ" @change="selectedHQFile" accept="image/*"> -->
-                        </div>
-                        <div class="col-sm-8 offset-sm-4 text-center">
-                          <small class="text-danger" v-if="imageUrlHQ && !imageUrlHQState">URL is invalid. You might need http/https at the beginning.</small>
-                          <small class="text-danger" v-if="imageHQ.size && !imageHQState">Image is invalid. You might need an 1200x627 image.</small>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="image_url" class="col-sm-4 control-label mt-2">Image URL</label>
-                        <div class="col-sm-8">
-                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="imageUrl" />
-                        </div>
-                        <div class="col-sm-8 offset-sm-4">
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal')">Choose File</button>
-                          <!-- <input type="file" ref="image" @change="selectedFile" accept="image/*"> -->
-                        </div>
-                        <div class="col-sm-8 offset-sm-4 text-center">
-                          <small class="text-danger" v-if="imageUrl && !imageUrlState">URL is invalid. You might need http/https at the beginning.</small>
-                          <small class="text-danger" v-if="image.size && !imageState">Image is invalid. You might need an 627x627 image.</small>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-6">
-                      <h1>Preview</h1>
-                      <div v-html="previewData"></div>
+                <h2>Define your audience</h2>
+                <div class="form-group row">
+                  <label for="language" class="col-sm-2 control-label mt-2">Language</label>
+                  <div class="col-sm-8">
+                    <select2 id="language" name="language" :options="languages" v-model="campaignLanguage"></select2>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="location" class="col-sm-2 control-label mt-2">Location</label>
+                  <div class="col-sm-8">
+                    <select2 name="location" v-model="campaignLocation" :options="countries" :settings="{ multiple: true }" />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
+                  <div class="col-sm-8">
+                    <select name="gender" class="form-control" v-model="campaignGender">
+                      <option value="">All</option>
+                      <option value="MALE">Male</option>
+                      <option value="FEMALE">Female</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="age" class="col-sm-2 control-label mt-2">Age</label>
+                  <div class="col-sm-8">
+                    <select name="age" class="form-control" v-model="campaignAge" multiple>
+                      <option value="">All</option>
+                      <option value="18-24">18-24</option>
+                      <option value="25-34">25-34</option>
+                      <option value="35-44">35-44</option>
+                      <option value="45-54">45-54</option>
+                      <option value="55-64">55-64</option>
+                      <option value="65-120">65-120</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="device" class="col-sm-2 control-label mt-2">Device</label>
+                  <div class="col-sm-8">
+                    <select name="device" class="form-control" v-model="campaignDevice">
+                      <option value="">All</option>
+                      <option value="SMARTPHONE">SMARTPHONE</option>
+                      <option value="TABLET">TABLET</option>
+                      <option value="DESKTOP">DESKTOP</option>
+                    </select>
+                  </div>
+                </div>
+                <h2>Campaign settings</h2>
+                <div class="form-group row">
+                  <label for="budget" class="col-sm-2 control-label mt-2">Budget</label>
+                  <div class="col-sm-2">
+                    <input type="number" name="budget" min="40" class="form-control" v-model="campaignBudget" />
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'DAILY' }">
+                        <input type="radio" name="type" id="campaignBudgetType1" autocomplete="off" value="DAILY" v-model="campaignBudgetType"> Per Day
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'MONTHLY' }">
+                        <input type="radio" name="type" id="campaignBudgetType2" autocomplete="off" value="MONTHLY" v-model="campaignBudgetType"> Per Month
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'LIFETIME' }">
+                        <input type="radio" name="type" id="campaignBudgetType3" autocomplete="off" value="LIFETIME" v-model="campaignBudgetType"> In Total
+                      </label>
                     </div>
                   </div>
                 </div>
-              </form>
-            </div>
-            <div class="card-body" v-if="currentStep == 3">
-              <div class="row mb-2" v-for="(attribute, index) in attributes" :key="attribute.id">
-                <div class="col-sm-12" v-if="index === 0">
-                  <h4>Main Variation</h4>
+                <div class="form-group row">
+                  <label for="bid_strategy" class="col-sm-2 control-label mt-2">Bid Strategy</label>
+                  <div class="col-sm-8">
+                    <select name="bid_strategy" class="form-control" v-model="campaignStrategy">
+                      <option value="OPT_ENHANCED_CPC">Enhanced CPC</option>
+                      <option value="OPT_POST_INSTALL">Post Install</option>
+                      <option value="OPT_CONVERSION">Conversion</option>
+                      <option value="OPT_CLICK">Click</option>
+                      <option value="MAX_OPT_CONVERSION">Max Conversion</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="col-sm-12">
-                  <div class="form-group row">
-                    <label :for="`gender${index}`" class="col-sm-4 control-label mt-2">Gender</label>
-                    <div class="col-sm-8">
-                      <select :name="`gender${index}`" class="form-control" v-model="attribute.gender">
-                        <option value="">All</option>
-                        <option value="MALE">Male</option>
-                        <option value="FEMALE">Female</option>
-                      </select>
+                <div class="form-group row">
+                  <label for="conversion_counting" class="col-sm-2 control-label mt-2">Conversion counting</label>
+                  <div class="col-sm-8">
+                    <select name="conversion_counting" class="form-control" v-model="campaignConversionCounting">
+                      <option value="ALL_PER_INTERACTION">All per interaction</option>
+                      <option value="ONE_PER_INTERACTION">One per interaction</option>
+                    </select>
+                  </div>
+                </div>
+                <h2>Create group</h2>
+                <div class="form-group row">
+                  <label for="ad_group_name" class="col-sm-2 control-label mt-2">Ad group name</label>
+                  <div class="col-sm-8">
+                    <input type="text" name="ad_group_name" class="form-control" v-model="adGroupName" />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="bid_strategy" class="col-sm-2 control-label mt-2">Bid strategy</label>
+                  <div class="col-sm-8">
+                    <p>{{ campaignStrategy }}</p>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="bid_cpc" class="col-sm-2 control-label mt-2">Bid (CPC)</label>
+                  <div class="col-sm-8">
+                    <input type="number" name="bid_cpc" min="0.05" class="form-control" v-model="bidAmount" />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="schedule" class="col-sm-2 control-label mt-2">Schedule</label>
+                  <div class="col-sm-8">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: scheduleType === 'IMMEDIATELY' }">
+                        <input type="radio" name="schedule" id="scheduleType1" autocomplete="off" value="IMMEDIATELY" v-model="scheduleType"> Start running ads immediately
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: scheduleType === 'CUSTOM' }">
+                        <input type="radio" name="schedule" id="scheduleType2" autocomplete="off" value="CUSTOM" v-model="scheduleType"> Set a start and end date
+                      </label>
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-12">
-                  <div class="form-group row">
-                    <label :for="`age${index}`" class="col-sm-4 control-label mt-2">Age</label>
-                    <div class="col-sm-8">
-                      <select :name="`age${index}`" class="form-control" v-model="attribute.age" multiple>
-                        <option value="">All</option>
-                        <option value="18-24">18-24</option>
-                        <option value="25-34">25-34</option>
-                        <option value="35-44">35-44</option>
-                        <option value="45-54">45-54</option>
-                        <option value="55-64">55-64</option>
-                        <option value="65-120">65-120</option>
-                      </select>
-                    </div>
+                <div class="form-group row" v-if="scheduleType === 'CUSTOM'">
+                  <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
+                  <div class="col-sm-4">
+                    <input type="date" name="start_date" class="form-control" v-model="campaignStartDate" />
                   </div>
-                </div>
-                <div class="col-sm-12 border-bottom">
-                  <div class="form-group row">
-                    <label :for="`device${index}`" class="col-sm-4 control-label mt-2">Device</label>
-                    <div class="col-sm-8">
-                      <select :name="`device${index}`" class="form-control" v-model="attribute.device">
-                        <option value="">All</option>
-                        <option value="SMARTPHONE">SMARTPHONE</option>
-                        <option value="TABLET">TABLET</option>
-                        <option value="DESKTOP">DESKTOP</option>
-                      </select>
-                    </div>
+                  <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
+                  <div class="col-sm-4">
+                    <input type="date" name="end_date" class="form-control" v-model="campaignEndDate" />
                   </div>
-                </div>
-                <div class="col-sm-12 text-right mt-3">
-                  <button class="btn btn-warning btn-sm" @click="removeAttibute(index)" v-if="index > 0">Remove</button>
                 </div>
               </div>
-              <button class="btn btn-primary btn-sm" @click="addNewAttibute()">Add New</button>
-            </div>
-            <div class="card-body" v-if="currentStep == 4">
-              <div class="col-sm-12 text-center">
-                <div v-html="previewData"></div>
+              <div class="card-body" v-if="currentStep == 2">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <div class="form-group row">
+                      <label for="title" class="col-sm-4 control-label mt-2">Title</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title" />
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="brandname" />
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="description" class="col-sm-4 control-label mt-2">Description</label>
+                      <div class="col-sm-8">
+                        <textarea class="form-control" rows="3" placeholder="Enter description" v-model="description"></textarea>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
+                      <div class="col-sm-8 text-center">
+                        <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="displayUrl" />
+                        <small class="text-danger" v-if="displayUrl && !displayUrlState">URL is invalid. You might need http/https at the beginning.</small>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
+                      <div class="col-sm-8 text-center">
+                        <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="targetUrl" />
+                        <small class="text-danger" v-if="targetUrl && !targetUrlState">URL is invalid. You might need http/https at the beginning.</small>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="image_hq_url" class="col-sm-4 control-label mt-2">Image HQ URL</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="imageUrlHQ" />
+                      </div>
+                      <div class="col-sm-8 offset-sm-4">
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('hqModal')">Choose File</button>
+                        <!-- <input type="file" ref="imageHQ" @change="selectedHQFile" accept="image/*"> -->
+                      </div>
+                      <div class="col-sm-8 offset-sm-4 text-center">
+                        <small class="text-danger" v-if="imageUrlHQ && !imageUrlHQState">URL is invalid. You might need http/https at the beginning.</small>
+                        <small class="text-danger" v-if="imageHQ.size && !imageHQState">Image is invalid. You might need an 1200x627 image.</small>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="image_url" class="col-sm-4 control-label mt-2">Image URL</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="imageUrl" />
+                      </div>
+                      <div class="col-sm-8 offset-sm-4">
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal')">Choose File</button>
+                        <!-- <input type="file" ref="image" @change="selectedFile" accept="image/*"> -->
+                      </div>
+                      <div class="col-sm-8 offset-sm-4 text-center">
+                        <small class="text-danger" v-if="imageUrl && !imageUrlState">URL is invalid. You might need http/https at the beginning.</small>
+                        <small class="text-danger" v-if="image.size && !imageState">Image is invalid. You might need an 627x627 image.</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <h1>Preview</h1>
+                    <div v-html="previewData"></div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="card-body" v-if="currentStep == 3">
+            <div class="row mb-2" v-for="(attribute, index) in attributes" :key="attribute.id">
+              <div class="col-sm-12" v-if="index === 0">
+                <h4>Main Variation</h4>
+              </div>
+              <div class="col-sm-12">
+                <div class="form-group row">
+                  <label :for="`gender${index}`" class="col-sm-4 control-label mt-2">Gender</label>
+                  <div class="col-sm-8">
+                    <select :name="`gender${index}`" class="form-control" v-model="attribute.gender">
+                      <option value="">All</option>
+                      <option value="MALE">Male</option>
+                      <option value="FEMALE">Female</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="form-group row">
+                  <label :for="`age${index}`" class="col-sm-4 control-label mt-2">Age</label>
+                  <div class="col-sm-8">
+                    <select :name="`age${index}`" class="form-control" v-model="attribute.age" multiple>
+                      <option value="">All</option>
+                      <option value="18-24">18-24</option>
+                      <option value="25-34">25-34</option>
+                      <option value="35-44">35-44</option>
+                      <option value="45-54">45-54</option>
+                      <option value="55-64">55-64</option>
+                      <option value="65-120">65-120</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-12 border-bottom">
+                <div class="form-group row">
+                  <label :for="`device${index}`" class="col-sm-4 control-label mt-2">Device</label>
+                  <div class="col-sm-8">
+                    <select :name="`device${index}`" class="form-control" v-model="attribute.device">
+                      <option value="">All</option>
+                      <option value="SMARTPHONE">SMARTPHONE</option>
+                      <option value="TABLET">TABLET</option>
+                      <option value="DESKTOP">DESKTOP</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-12 text-right mt-3">
+                <button class="btn btn-warning btn-sm" @click="removeAttibute(index)" v-if="index > 0">Remove</button>
               </div>
             </div>
-            <div class="card-footer d-flex justify-content-end">
-              <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
-                <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
-              </div>
-              <div class="d-flex justify-content-end" v-if="currentStep === 1">
-                <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!campaignNameState || !selectedAdvertiserState || !campaignBudgetState || !adGroupNameState || !bidAmountState">Next</button>
-              </div>
-              <div class="d-flex justify-content-end" v-if="currentStep === 2">
-                <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!titleState || !brandnameState || !descriptionState || !displayUrlState || !targetUrlState || !imageUrlHQState || !imageUrlState">Next</button>
-              </div>
-              <div class="d-flex justify-content-end" v-if="currentStep === 3">
-                <button type="button" class="btn btn-primary" @click.prevent="submitStep3">Next</button>
-              </div>
-              <div class="d-flex justify-content-end" v-if="currentStep === 4">
-                <button type="button" class="btn btn-primary" @click.prevent="submitStep4">Finish</button>
-              </div>
+            <button class="btn btn-primary btn-sm" @click="addNewAttibute()">Add New</button>
+          </div>
+          <div class="card-body" v-if="currentStep == 4">
+            <div class="col-sm-12 text-center">
+              <div v-html="previewData"></div>
+            </div>
+          </div>
+          <div class="card-footer d-flex justify-content-end">
+            <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
+              <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
+            </div>
+            <div class="d-flex justify-content-end" v-if="currentStep === 1">
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!campaignNameState || !selectedAdvertiserState || !campaignBudgetState || !adGroupNameState || !bidAmountState">Next</button>
+            </div>
+            <div class="d-flex justify-content-end" v-if="currentStep === 2">
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!titleState || !brandnameState || !descriptionState || !displayUrlState || !targetUrlState || !imageUrlHQState || !imageUrlState">Next</button>
+            </div>
+            <div class="d-flex justify-content-end" v-if="currentStep === 3">
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep3">Next</button>
+            </div>
+            <div class="d-flex justify-content-end" v-if="currentStep === 4">
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep4">Finish</button>
             </div>
           </div>
         </div>
       </div>
-      <modal width="60%" height="80%" name="hqModal">
-        <file-manager v-bind:settings="settings" :props="{
-            upload: true,
-            viewType: 'grid',
-            selectionType: 'single'
-        }"></file-manager>
-      </modal>
-      <modal width="60%" height="80%" name="imageModal">
-        <file-manager v-bind:settings="settings" :props="{
-            upload: true,
-            viewType: 'grid',
-            selectionType: 'single'
-        }"></file-manager>
-      </modal>
+    </div>
+    <modal width="60%" height="80%" name="hqModal">
+      <file-manager v-bind:settings="settings" :props="{
+          upload: true,
+          viewType: 'grid',
+          selectionType: 'single'
+      }"></file-manager>
+    </modal>
+    <modal width="60%" height="80%" name="imageModal">
+      <file-manager v-bind:settings="settings" :props="{
+          upload: true,
+          viewType: 'grid',
+          selectionType: 'single'
+      }"></file-manager>
+    </modal>
   </section>
 </template>
 
