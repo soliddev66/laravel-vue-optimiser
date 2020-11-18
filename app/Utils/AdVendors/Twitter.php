@@ -9,29 +9,29 @@ use App\Endpoints\TwitterAPI;
 
 class Twitter extends Root
 {
-    public function advertisers()
+    private function api()
     {
         $provider = Provider::where('slug', request('provider'))->first();
-        $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first(), request('selectedAdvertiser') ?? null);
-        $advertisers = $api->getAdvertisers();
+        return new TwitterAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first(), request('advertiser') ?? null);
+    }
+    public function advertisers()
+    {
+        $advertisers = $this->api()->getAdvertisers();
 
-        $accounts = [];
+        $result = [];
 
         foreach ($advertisers as $advertiser) {
-            $accounts[] = [
+            $result[] = [
                 'id' => $advertiser->getId(),
                 'name' => $advertiser->getName()
             ];
         }
-        return $accounts;
+        return $result;
     }
 
     public function signUp()
     {
-        $provider = Provider::where('slug', request('provider'))->first();
-        $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first(), request('selectedAdvertiser') ?? null);
-
-        $account = $api->createAccount();
+        $account = $this->api()->createAccount();
 
         return [
             'id' => $account->getId(),
@@ -41,21 +41,25 @@ class Twitter extends Root
 
     public function fundingInstruments()
     {
-        $provider = Provider::where('slug', request('provider'))->first();
-        $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first(), request('selectedAdvertiser') ?? null);
+        $funding_instruments = $this->api()->getFundingInstruments();
 
-        $funding_instruments = $api->getFundingInstruments();
+        $result = [];
 
-        var_dump($funding_instruments);
-
-        return [
-            'id' => $account->id,
-            'name' => $account->name
-        ];
+        foreach ($funding_instruments as $funding_instrument) {
+            $result[] = [
+                'id' => $funding_instrument->getId(),
+                'name' => $funding_instrument->getName()
+            ];
+        }
+        return $result;
     }
 
     public function createFundingInstrument()
     {
-
+        $fundingInstrument = $this->api()->createFundingInstrument([
+            'currency' => request('fundingInstrumentCurrency'),
+            'start_time' => request('fundingInstrumentStartTime'),
+            'type' => request('fundingInstrumentType'),
+        ]);
     }
 }

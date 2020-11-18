@@ -22,7 +22,7 @@
                 <div class="form-group row">
                   <label for="advertiser" class="col-sm-2 control-label mt-2">Advertiser</label>
                   <div class="col-sm-4" v-if="advertisers.length">
-                    <select name="advertiser" class="form-control" v-model="selectedAdvertiser" :disabled="instance">
+                    <select name="advertiser" class="form-control" v-model="selectedAdvertiser" :disabled="instance" @change="selectedAdvertiserChange">
                       <option value="">Select Advertiser</option>
                       <option :value="advertiser.id" v-for="advertiser in advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.name }}</option>
                     </select>
@@ -31,10 +31,10 @@
                     <button type="button" class="btn btn-primary" @click.prevent="signUp()">Create New</button>
                   </div>
                 </div>
-                <div class="form-group row">
-                  <label for="advertiser" class="col-sm-2 control-label mt-2">Funding Instrument</label>
-                  <div class="col-sm-4" v-if="fundingInstruments.length">
-                    <select name="funding-instrument" class="form-control" v-model="selectedFundingInstrument" :disabled="instance">
+                <div class="form-group row" v-if="selectedAdvertiser">
+                  <label for="funding_instrument" class="col-sm-2 control-label mt-2">Funding Instrument</label>
+                  <div class="col-sm-4" v-if="fundingInstruments.length && saveFundingInstrument">
+                    <select name="funding_instrument" class="form-control" v-model="selectedFundingInstrument" :disabled="instance">
                       <option value="">Select Funding Instrument</option>
                       <option :value="fundingInstrument.id" v-for="fundingInstrument in fundingInstruments" :key="fundingInstrument.id">{{ fundingInstrument.id }} - {{ fundingInstrument.name }}</option>
                     </select>
@@ -48,7 +48,7 @@
                     <div class="form-group row">
                       <label for="funding_instrument_currency" class="col-sm-2 control-label mt-2">Currency</label>
                       <div class="col">
-                        <select name="funding_instrument_currency" class="form-control">
+                        <select name="funding_instrument_currency" class="form-control" v-model="fundingInstrumentCurrency">
                           <option value="">Select Currency</option>
                           <option value="USD">USD</option>
                         </select>
@@ -94,7 +94,7 @@
                     <div class="form-inline row">
                       <div class="col">
                         <button type="button" v-if="!saveFundingInstrument" class="btn btn-warning mr-2" @click.prevent="saveFundingInstrument = !saveFundingInstrument">Cancel</button>
-                        <button type="button" v-if="!saveFundingInstrument" class="btn btn-success" @click.prevent="createFundingInstrument()">Save</button>
+                        <button type="button" v-if="!saveFundingInstrument" class="btn btn-success" :disabled="!fundingInstrumentCurrency || !fundingInstrumentStartTime" @click.prevent="createFundingInstrument()">Save</button>
                       </div>
                     </div>
                   </fieldset>
@@ -593,7 +593,9 @@ export default {
       advertisers: [],
       fundingInstruments: [],
       saveFundingInstrument: true,
+      fundingInstrumentCurrency: '',
       fundingInstrumentStartTime: '',
+      fundingInstrumentEndTime: '',
       fundingInstrumentType: 'AGENCY_CREDIT_LINE',
       fundingInstrumentCreditLimitLocalMicro: '',
       fundingInstrumentFundedAmountLocalMicro: '',
@@ -755,6 +757,9 @@ export default {
       this.getCountries()
       this.loadAdvertisers()
     },
+    selectedAdvertiserChange() {
+      this.loadFundingInstruments();
+    },
     getLanguages() {
       this.isLoading = true
       this.languages = []
@@ -813,8 +818,8 @@ export default {
     },
     loadFundingInstruments() {
       this.isLoading = true
-      axios.get(`/account/funding-instruments?advertiser=${this.selectedAdvertiser}`).then(response => {
-        this.advertisers = response.data
+      axios.get(`/account/funding-instruments?provider=${this.selectedProvider}&account=${this.selectedAccount}&advertiser=${this.selectedAdvertiser}`).then(response => {
+        this.fundingInstruments = response.data
       }).catch(err => {
         console.log(err)
       }).finally(() => {
@@ -837,7 +842,27 @@ export default {
       })
     },
     createFundingInstrument() {
-
+      axios.post('/account/create-funding-instrument', {
+        provider: this.selectedProvider,
+        account: this.selectedAccount,
+        advertiser: this.selectedAdvertiser,
+        fundingInstrumentCurrency: this.fundingInstrumentCurrency,
+        fundingInstrumentStartTime: this.fundingInstrumentStartTime,
+        fundingInstrumentEndTime: this.fundingInstrumentEndTime,
+        fundingInstrumentType: this.fundingInstrumentType,
+        fundingInstrumentCreditLimitLocalMicro: this.fundingInstrumentCreditLimitLocalMicro,
+        fundingInstrumentFundedAmountLocalMicro: this.fundingInstrumentFundedAmountLocalMicro
+      }).then(response => {
+        if (response.data.errors) {
+          alert(response.data.errors[0])
+        } else {
+          alert('Save successfully!');
+        }
+      }).catch(error => {
+        console.log(error)
+      }).finally(() => {
+        this.isLoading = false
+      })
     },
     submitStep1() {
       const step1Data = {
