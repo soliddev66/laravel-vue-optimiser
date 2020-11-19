@@ -16,15 +16,25 @@
             <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Preview</label>
           </div>
           <div class="card-body">
-            <select v-model="selectedProvider" @change="selectedProviderChanged()" :disabled="instance">
-              <option value="">Select Traffic Source</option>
-              <option :value="provider.slug" v-for="provider in providers" :key="provider.id">{{ provider.label }}</option>
-            </select>
-            <select v-if="accounts.length" v-model="selectedAccount" @change="selectedAccountChanged()" :disabled="instance">
-              <option value="">Select Account</option>
-              <option :value="account.open_id" v-for="account in accounts" :key="account.id">{{ account.open_id }}</option>
-            </select>
-            <hr>
+            <div class="row">
+              <div class="col-md-6">
+                <label for="selectTrafficSourceType">Select Source Type</label>
+                <select v-model="selectedProvider" @change="selectedProviderChanged()" :disabled="instance" class="form-control" id="selectTrafficSourceType">
+                  <option value="">Select Traffic Source</option>
+                  <option :value="provider.slug" v-for="provider in providers" :key="provider.id">{{ provider.label }}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="selectTrafficSourceAccount">Traffic Source Account</label>
+                <select v-if="accounts.length" v-model="selectedAccount" @change="selectedAccountChanged()" :disabled="instance" class="form-control" id="selectTrafficSourceAccount">
+                  <option value="">Select Account</option>
+                  <option :value="account.open_id" v-for="account in accounts" :key="account.id">{{ account.open_id }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <div class="card-body mt-2">
             <form class="form-horizontal" v-if="selectedProvider && selectedAccount && languages.length && countries.length">
               <div v-if="currentStep == 1">
                 <h2>General information</h2>
@@ -33,7 +43,9 @@
                   <div class="col-sm-4" v-if="advertisers.length">
                     <select name="advertiser" class="form-control" v-model="selectedAdvertiser" :disabled="instance">
                       <option value="">Select Advertiser</option>
-                      <option :value="advertiser.id" v-for="advertiser in advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.advertiserName }}</option>
+                      <option :value="advertiser.id" v-for="advertiser in advertisers" :key="advertiser.id">
+                        {{ advertiser.id }} - {{ advertiser.advertiserName ? advertiser.advertiserName : advertiser.name }}
+                      </option>
                     </select>
                   </div>
                   <div class="col-sm-2" v-if="!saveAdvertiser">
@@ -726,7 +738,7 @@ export default {
         if (response.data) {
           this.countries = response.data.map(country => {
             return {
-              id: country.woeid,
+              id: country.woeid || country.id,
               text: country.name
             }
           })

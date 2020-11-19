@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Endpoints\OutbrainAPI;
 use App\Models\Provider;
 use Exception;
 use GuzzleHttp\Client;
@@ -113,6 +114,7 @@ class GeneralController extends Controller
                 $data = json_decode($response->getBody(), true)['response'];
                 break;
             case 3:
+            case 2:
                 $data = config('constants.languages');
                 break;
             default:
@@ -122,6 +124,19 @@ class GeneralController extends Controller
         return $data;
     }
 
+    /**
+     * @param $user_info
+     * @return array|mixed
+     * @throws TwitterAds\Errors\BadRequest
+     * @throws TwitterAds\Errors\Forbidden
+     * @throws TwitterAds\Errors\NotAuthorized
+     * @throws TwitterAds\Errors\NotFound
+     * @throws TwitterAds\Errors\RateLimit
+     * @throws TwitterAds\Errors\ServerError
+     * @throws TwitterAds\Errors\ServiceUnavailable
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Hborras\TwitterAdsSDK\TwitterAdsException
+     */
     private function getCountries($user_info)
     {
         $data = [];
@@ -135,6 +150,10 @@ class GeneralController extends Controller
                     ]
                 ]);
                 $data = json_decode($response->getBody(), true)['response'];
+                break;
+            case 2:
+                $api = new OutbrainAPI($user_info);
+                $data = $api->getCountries()['geoLocations'];
                 break;
             case 3:
                 $api_key = env('TWITTER_CLIENT_ID');

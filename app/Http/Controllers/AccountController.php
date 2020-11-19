@@ -41,6 +41,18 @@ class AccountController extends Controller
         })->get();
     }
 
+    /**
+     * @return array|mixed
+     * @throws GuzzleException
+     * @throws TwitterAds\Errors\BadRequest
+     * @throws TwitterAds\Errors\Forbidden
+     * @throws TwitterAds\Errors\NotAuthorized
+     * @throws TwitterAds\Errors\NotFound
+     * @throws TwitterAds\Errors\RateLimit
+     * @throws TwitterAds\Errors\ServerError
+     * @throws TwitterAds\Errors\ServiceUnavailable
+     * @throws \Hborras\TwitterAdsSDK\TwitterAdsException
+     */
     public function advertisers()
     {
         $data = [];
@@ -50,15 +62,34 @@ class AccountController extends Controller
             $data = $this->getAdvertisers($user_info);
         } catch (Exception $e) {
             if ($e->getCode() == 401) {
-                Token::refresh($user_info, function() use ($user_info, &$data) {
-                    $data = $this->getAdvertisers($user_info);
-                });
+                if ($provider->slug === 'outbrain') {
+                    Token::refreshOutbrain($user_info, function() use ($user_info, &$data) {
+                        $data = $this->getAdvertisers($user_info);
+                    });
+                } else {
+                    Token::refresh($user_info, function() use ($user_info, &$data) {
+                        $data = $this->getAdvertisers($user_info);
+                    });
+                }
             }
         }
 
         return $data;
     }
 
+    /**
+     * @param $user_info
+     * @return array|mixed
+     * @throws GuzzleException
+     * @throws TwitterAds\Errors\BadRequest
+     * @throws TwitterAds\Errors\Forbidden
+     * @throws TwitterAds\Errors\NotAuthorized
+     * @throws TwitterAds\Errors\NotFound
+     * @throws TwitterAds\Errors\RateLimit
+     * @throws TwitterAds\Errors\ServerError
+     * @throws TwitterAds\Errors\ServiceUnavailable
+     * @throws \Hborras\TwitterAdsSDK\TwitterAdsException
+     */
     private function getAdvertisers($user_info)
     {
         $data = [];
@@ -71,6 +102,10 @@ class AccountController extends Controller
                     ]
                 ]);
                 $data = json_decode($response->getBody(), true)['response'];
+                break;
+            case 2:
+                $api = new OutbrainAPI($user_info);
+                $data = $api->getMarketers()['marketers'];
                 break;
             case 3:
                 $api_key = env('TWITTER_CLIENT_ID');
