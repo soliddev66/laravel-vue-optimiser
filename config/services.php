@@ -46,4 +46,10 @@ return [
         'client_secret' => env('TWITTER_CLIENT_SECRET'),
         'redirect'      => env('TWITTER_REDIRECT'),
     ],
+
+    'taboola'  => [
+        'client_id'     => env('TABOOLA_CLIENT_ID'),
+        'client_secret' => env('TABOOLA_CLIENT_SECRET'),
+        'redirect'      => env('TABOOLA_REDIRECT'),
+    ],
 ];
