@@ -15,10 +15,12 @@
             <i class="fas fa-arrow-right"></i>
             <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Preview</label>
           </div>
+
           <div class="card-body">
             <form class="form-horizontal" v-if="selectedProvider && selectedAccount">
               <div v-if="currentStep == 1">
                 <h2>General information</h2>
+
                 <div class="form-group row">
                   <label for="advertiser" class="col-sm-2 control-label mt-2">Advertiser</label>
                   <div class="col-sm-4" v-if="advertisers.length">
@@ -31,73 +33,14 @@
                     <button type="button" class="btn btn-primary" @click.prevent="signUp()">Create New</button>
                   </div>
                 </div>
+
                 <div class="form-group row" v-if="selectedAdvertiser">
                   <label for="funding_instrument" class="col-sm-2 control-label mt-2">Funding Instrument</label>
-                  <div class="col-sm-4" v-if="fundingInstruments.length && saveFundingInstrument">
+                  <div class="col-sm-8" v-if="fundingInstruments.length">
                     <select name="funding_instrument" class="form-control" v-model="selectedFundingInstrument" :disabled="instance">
                       <option value="">Select Funding Instrument</option>
                       <option :value="fundingInstrument.id" v-for="fundingInstrument in fundingInstruments" :key="fundingInstrument.id">{{ fundingInstrument.id }} - {{ fundingInstrument.name }}</option>
                     </select>
-                  </div>
-                  <div class="col-sm-2" v-if="saveFundingInstrument && !instance">
-                    <button type="button" class="btn btn-primary" @click.prevent="saveFundingInstrument = !saveFundingInstrument">Create New</button>
-                  </div>
-                  <div class="col-sm-8" v-if="!saveFundingInstrument">
-                    <fieldset class="mb-4 p-3 rounded border">
-                    <h3>Funding Instrument Creator</h3>
-                    <div class="form-group row">
-                      <label for="funding_instrument_currency" class="col-sm-2 control-label mt-2">Currency</label>
-                      <div class="col">
-                        <select name="funding_instrument_currency" class="form-control" v-model="fundingInstrumentCurrency">
-                          <option value="">Select Currency</option>
-                          <option value="USD">USD</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="start_date" class="col-sm-2 control-label mt-2">Start Time</label>
-                      <div class="col-sm-4">
-                        <input type="date" name="funding_instrument_start_time" class="form-control" v-model="fundingInstrumentStartTime" />
-                      </div>
-                      <label for="end_date" class="col-sm-2 control-label mt-2">End Time</label>
-                      <div class="col-sm-4">
-                        <input type="date" name="funding_instrument_end_time" class="form-control" v-model="fundingInstrumentEndTime" />
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="type" class="col-sm-2 control-label mt-2">Type</label>
-                      <div class="col-sm-8">
-                        <div class="btn-group btn-group-toggle">
-                          <label class="btn bg-olive" :class="{ active: fundingInstrumentType === 'AGENCY_CREDIT_LINE' }">
-                          <input type="radio" name="type" id="fundingInstrumentType1" autocomplete="off" value="AGENCY_CREDIT_LINE" v-model="fundingInstrumentType">AGENCY_CREDIT_LINE</label>
-                          <label class="btn bg-olive" :class="{ active: fundingInstrumentType === 'CREDIT_CARD' }">
-                          <input type="radio" name="type" id="fundingInstrumentType2" autocomplete="off" value="CREDIT_CARD" v-model="fundingInstrumentType">CREDIT_CARD</label>
-                          <label class="btn bg-olive" :class="{ active: fundingInstrumentType === 'CREDIT_LINE' }">
-                          <input type="radio" name="type" id="fundingInstrumentType3" autocomplete="off" value="CREDIT_LINE" v-model="fundingInstrumentType">CREDIT_LINE</label>
-                          <label class="btn bg-olive" :class="{ active: fundingInstrumentType === 'INSERTION_ORDER' }">
-                          <input type="radio" name="type" id="fundingInstrumentType3" autocomplete="off" value="INSERTION_ORDER" v-model="fundingInstrumentType">INSERTION_ORDER</label>
-                          <label class="btn bg-olive" :class="{ active: fundingInstrumentType === 'PARTNER_MANAGED' }">
-                          <input type="radio" name="type" id="fundingInstrumentType3" autocomplete="off" value="PARTNER_MANAGED" v-model="fundingInstrumentType">PARTNER_MANAGED</label>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="bid_cpc" class="col-sm-2 control-label mt-2">Credit Limit Local Micro</label>
-                      <div class="col-sm-4">
-                        <input type="number" name="bid_cpc" min="0" class="form-control" v-model="fundingInstrumentCreditLimitLocalMicro" />
-                      </div>
-                      <label for="bid_cpc" class="col-sm-2 control-label mt-2">Funded Amount Local Micro</label>
-                      <div class="col-sm-4">
-                        <input type="number" name="bid_cpc" min="0" class="form-control" v-model="fundingInstrumentFundedAmountLocalMicro" />
-                      </div>
-                    </div>
-                    <div class="form-inline row">
-                      <div class="col">
-                        <button type="button" v-if="!saveFundingInstrument" class="btn btn-warning mr-2" @click.prevent="saveFundingInstrument = !saveFundingInstrument">Cancel</button>
-                        <button type="button" v-if="!saveFundingInstrument" class="btn btn-success" :disabled="!fundingInstrumentCurrency || !fundingInstrumentStartTime" @click.prevent="createFundingInstrument()">Save</button>
-                      </div>
-                    </div>
-                  </fieldset>
                   </div>
                 </div>
 
@@ -107,154 +50,306 @@
                     <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="campaignName" />
                   </div>
                 </div>
+
                 <div class="form-group row">
-                  <label for="type" class="col-sm-2 control-label mt-2">Type</label>
+                  <label for="type" class="col-sm-2 control-label mt-2">Status</label>
                   <div class="col-sm-8">
                     <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: campaignType === 'NATIVE' }">
-                        <input type="radio" name="type" id="campaignType1" autocomplete="off" value="NATIVE" v-model="campaignType"> Native Only
+                      <label class="btn bg-olive" :class="{ active: campaignStatus === 'ACTIVE' }">
+                        <input type="radio" name="type" id="campaignStatus1" autocomplete="off" value="ACTIVE" v-model="campaignStatus">ACTIVE
                       </label>
-                      <label class="btn bg-olive" :class="{ active: campaignType === 'SEARCH' }">
-                        <input type="radio" name="type" id="campaignType2" autocomplete="off" value="SEARCH" v-model="campaignType"> Search Only
+                      <label class="btn bg-olive" :class="{ active: campaignStatus === 'DRAFT' }">
+                        <input type="radio" name="type" id="campaignStatus2" autocomplete="off" value="DRAFT" v-model="campaignStatus">DRAFT
                       </label>
-                      <label class="btn bg-olive" :class="{ active: campaignType === 'SEARCH_AND_NATIVE' }">
-                        <input type="radio" name="type" id="campaignType3" autocomplete="off" value="SEARCH_AND_NATIVE" v-model="campaignType"> Search and Native
+                      <label class="btn bg-olive" :class="{ active: campaignStatus === 'PAUSED' }">
+                        <input type="radio" name="type" id="campaignStatus3" autocomplete="off" value="PAUSED" v-model="campaignStatus">PAUSED
                       </label>
                     </div>
                   </div>
                 </div>
-                <h2>Define your audience</h2>
+
+                <h2>Campaign Setting</h2>
                 <div class="form-group row">
-                  <label for="language" class="col-sm-2 control-label mt-2">Language</label>
-                  <div class="col-sm-8">
-                    <select2 id="language" name="language" :options="languages" v-model="campaignLanguage"></select2>
+                  <label for="start_time" class="col-sm-2 control-label mt-2">Start Time</label>
+                  <div class="col-sm-3">
+                    <input type="date" name="start_time" class="form-control" v-model="campaignStartTime" />
+                  </div>
+                  <label for="end_time" class="col-sm-2 control-label mt-2">End Time</label>
+                  <div class="col-sm-3">
+                    <input type="date" name="end_time" class="form-control" v-model="campaignEndTime" />
                   </div>
                 </div>
+
                 <div class="form-group row">
-                  <label for="location" class="col-sm-2 control-label mt-2">Location</label>
-                  <div class="col-sm-8">
-                    <select2 name="location" v-model="campaignLocation" :options="countries" :settings="{ multiple: true }" />
+                  <label for="daily_budget_amount_local_micro" class="col-sm-2 control-label mt-2">Daily Budget Amount Local Micro</label>
+                  <div class="col-sm-3">
+                    <input type="number" name="daily_budget_amount_local_micro" min="0" class="form-control" v-model="campaignDailyBudgetAmountLocalMicro" />
+                  </div>
+                  <label for="total_budget_amount_local_micro" class="col-sm-2 control-label mt-2">Total Budget Amount Local Micro</label>
+                  <div class="col-sm-3">
+                    <input type="number" name="total_budget_amount_local_micro" min="0" class="form-control" v-model="campaignTotalBudgetAmountLocalMicro" />
                   </div>
                 </div>
+
                 <div class="form-group row">
-                  <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
+                  <label for="duration_in_days" class="col-sm-2 control-label mt-2">Duration In Days</label>
                   <div class="col-sm-8">
-                    <select name="gender" class="form-control" v-model="campaignGender">
-                      <option value="">All</option>
-                      <option value="MALE">Male</option>
-                      <option value="FEMALE">Female</option>
+                    <select name="duration_in_days" class="form-control" v-model="campaignDurationInDays">
+                      <option value="">Select Duration</option>
+                      <option value="1">1 day</option>
+                      <option value="7">7 days</option>
+                      <option value="30">30 days</option>
                     </select>
                   </div>
                 </div>
+
                 <div class="form-group row">
-                  <label for="age" class="col-sm-2 control-label mt-2">Age</label>
+                  <label for="frequency_cap" class="col-sm-2 control-label mt-2">Frequency Cap</label>
                   <div class="col-sm-8">
-                    <select name="age" class="form-control" v-model="campaignAge" multiple>
-                      <option value="">All</option>
-                      <option value="18-24">18-24</option>
-                      <option value="25-34">25-34</option>
-                      <option value="35-44">35-44</option>
-                      <option value="45-54">45-54</option>
-                      <option value="55-64">55-64</option>
-                      <option value="65-120">65-120</option>
-                    </select>
+                    <input type="number" name="frequency_cap" min="0" class="form-control" v-model="campaignFrequencyCap" />
                   </div>
                 </div>
+
                 <div class="form-group row">
-                  <label for="device" class="col-sm-2 control-label mt-2">Device</label>
+                  <label for="purchase_order_number" class="col-sm-2 control-label mt-2">Purchase Order Number</label>
                   <div class="col-sm-8">
-                    <select name="device" class="form-control" v-model="campaignDevice">
-                      <option value="">All</option>
-                      <option value="SMARTPHONE">SMARTPHONE</option>
-                      <option value="TABLET">TABLET</option>
-                      <option value="DESKTOP">DESKTOP</option>
-                    </select>
+                    <input type="text" name="purchase_order_number" class="form-control" v-model="campaignPurchaseOrderNumber" />
                   </div>
                 </div>
-                <h2>Campaign settings</h2>
+
                 <div class="form-group row">
-                  <label for="budget" class="col-sm-2 control-label mt-2">Budget</label>
-                  <div class="col-sm-2">
-                    <input type="number" name="budget" min="40" class="form-control" v-model="campaignBudget" />
-                  </div>
-                  <div class="col-sm-4">
+                  <label for="standard_delivery" class="col-sm-2 control-label mt-2">Standard Delivery</label>
+                  <div class="col-sm-8">
                     <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'DAILY' }">
-                        <input type="radio" name="type" id="campaignBudgetType1" autocomplete="off" value="DAILY" v-model="campaignBudgetType"> Per Day
+                      <label class="btn bg-olive" :class="{ active: campaignStandardDelivery }">
+                        <input type="radio" name="standard_delivery" id="campaignStandardDelivery1" autocomplete="off" value="true" v-model="campaignStandardDelivery">TRUE
                       </label>
-                      <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'MONTHLY' }">
-                        <input type="radio" name="type" id="campaignBudgetType2" autocomplete="off" value="MONTHLY" v-model="campaignBudgetType"> Per Month
-                      </label>
-                      <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'LIFETIME' }">
-                        <input type="radio" name="type" id="campaignBudgetType3" autocomplete="off" value="LIFETIME" v-model="campaignBudgetType"> In Total
+                      <label class="btn bg-olive" :class="{ active: !campaignStandardDelivery }">
+                        <input type="radio" name="standard_delivery" id="campaignStandardDelivery2" autocomplete="off" value="false" v-model="campaignStandardDelivery">FALSE
                       </label>
                     </div>
                   </div>
                 </div>
+
+                <h2>Ad Group</h2>
+
                 <div class="form-group row">
-                  <label for="bid_strategy" class="col-sm-2 control-label mt-2">Bid Strategy</label>
+                  <label for="ad_group_name" class="col-sm-2 control-label mt-2">Name</label>
                   <div class="col-sm-8">
-                    <select name="bid_strategy" class="form-control" v-model="campaignStrategy">
-                      <option value="OPT_ENHANCED_CPC">Enhanced CPC</option>
-                      <option value="OPT_POST_INSTALL">Post Install</option>
-                      <option value="OPT_CONVERSION">Conversion</option>
-                      <option value="OPT_CLICK">Click</option>
-                      <option value="MAX_OPT_CONVERSION">Max Conversion</option>
-                    </select>
+                    <input type="text" name="ad_group_name" placeholder="Name" class="form-control" v-model="adGroupName" />
                   </div>
                 </div>
+
                 <div class="form-group row">
-                  <label for="conversion_counting" class="col-sm-2 control-label mt-2">Conversion counting</label>
-                  <div class="col-sm-8">
-                    <select name="conversion_counting" class="form-control" v-model="campaignConversionCounting">
-                      <option value="ALL_PER_INTERACTION">All per interaction</option>
-                      <option value="ONE_PER_INTERACTION">One per interaction</option>
-                    </select>
-                  </div>
-                </div>
-                <h2>Create group</h2>
-                <div class="form-group row">
-                  <label for="ad_group_name" class="col-sm-2 control-label mt-2">Ad group name</label>
-                  <div class="col-sm-8">
-                    <input type="text" name="ad_group_name" class="form-control" v-model="adGroupName" />
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="bid_strategy" class="col-sm-2 control-label mt-2">Bid strategy</label>
-                  <div class="col-sm-8">
-                    <p>{{ campaignStrategy }}</p>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="bid_cpc" class="col-sm-2 control-label mt-2">Bid (CPC)</label>
-                  <div class="col-sm-8">
-                    <input type="number" name="bid_cpc" min="0.05" class="form-control" v-model="bidAmount" />
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="schedule" class="col-sm-2 control-label mt-2">Schedule</label>
+                  <label for="type" class="col-sm-2 control-label mt-2">Status</label>
                   <div class="col-sm-8">
                     <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: scheduleType === 'IMMEDIATELY' }">
-                        <input type="radio" name="schedule" id="scheduleType1" autocomplete="off" value="IMMEDIATELY" v-model="scheduleType"> Start running ads immediately
+                      <label class="btn bg-olive" :class="{ active: adGroupStatus === 'ACTIVE' }">
+                        <input type="radio" name="type" id="adGroupStatus1" autocomplete="off" value="ACTIVE" v-model="adGroupStatus">ACTIVE
                       </label>
-                      <label class="btn bg-olive" :class="{ active: scheduleType === 'CUSTOM' }">
-                        <input type="radio" name="schedule" id="scheduleType2" autocomplete="off" value="CUSTOM" v-model="scheduleType"> Set a start and end date
+                      <label class="btn bg-olive" :class="{ active: adGroupStatus === 'DRAFT' }">
+                        <input type="radio" name="type" id="adGroupStatus2" autocomplete="off" value="DRAFT" v-model="adGroupStatus">DRAFT
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: adGroupStatus === 'PAUSED' }">
+                        <input type="radio" name="type" id="adGroupStatus3" autocomplete="off" value="PAUSED" v-model="adGroupStatus">PAUSED
                       </label>
                     </div>
                   </div>
                 </div>
-                <div class="form-group row" v-if="scheduleType === 'CUSTOM'">
-                  <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
-                  <div class="col-sm-4">
-                    <input type="date" name="start_date" class="form-control" v-model="campaignStartDate" />
+
+                <div class="form-group row">
+                  <label for="objective" class="col-sm-2 control-label mt-2">Android App Store Identifier</label>
+                  <div class="col-sm-8">
+                    <select name="objective" class="form-control" v-model="adGroupAndroidAppStoreIdentifier">
+                      <option value="">Select</option>
+                      <option value="APP_ENGAGEMENTS">APP_ENGAGEMENTS</option>
+                      <option value="APP_INSTALLS">APP_INSTALLS</option>
+                    </select>
                   </div>
-                  <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
-                  <div class="col-sm-4">
-                    <input type="date" name="end_date" class="form-control" v-model="campaignEndDate" />
+                </div>
+
+                <div class="form-group row">
+                  <label for="objective" class="col-sm-2 control-label mt-2">iOS App Store Identifier</label>
+                  <div class="col-sm-8">
+                    <select name="objective" class="form-control" v-model="adGroupIOSAppStoreIdentifier">
+                      <option value="">Select</option>
+                      <option value="APP_ENGAGEMENTS">APP_ENGAGEMENTS</option>
+                      <option value="APP_INSTALLS">APP_INSTALLS</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="objective" class="col-sm-2 control-label mt-2">Objective</label>
+                  <div class="col-sm-8">
+                    <select name="objective" class="form-control" v-model="adGroupObjective">
+                      <option value="APP_ENGAGEMENTS">APP_ENGAGEMENTS</option>
+                      <option value="APP_INSTALLS">APP_INSTALLS</option>
+                      <option value="REACH">REACH</option>
+                      <option value="FOLLOWERS">FOLLOWERS</option>
+                      <option value="ENGAGEMENTS">ENGAGEMENTS</option>
+                      <option value="VIDEO_VIEWS">VIDEO_VIEWS</option>
+                      <option value="PREROLL_VIEWS">PREROLL_VIEWS</option>
+                      <option value="WEBSITE_CLICKS">WEBSITE_CLICKS</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="placements" class="col-sm-2 control-label mt-2">Placements</label>
+                  <div class="col-sm-8">
+                    <select2 id="placements" name="placements" :options="placements" v-model="adGroupPlacements" :settings="{ multiple: true }"></select2>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="product_type" class="col-sm-2 control-label mt-2">Product Type</label>
+                  <div class="col-sm-8">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: adGroupProductType === 'MEDIA' }">
+                        <input type="radio" name="product_type" id="adGroupProductType1" autocomplete="off" value="MEDIA" v-model="adGroupProductType">MEDIA
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: adGroupProductType === 'PROMOTED_ACCOUNT' }">
+                        <input type="radio" name="product_type" id="adGroupProductType2" autocomplete="off" value="PROMOTED_ACCOUNT" v-model="adGroupProductType">PROMOTED_ACCOUNT
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: adGroupProductType === 'PROMOTED_TWEETS' }">
+                        <input type="radio" name="product_type" id="adGroupProductType2" autocomplete="off" value="PROMOTED_TWEETS" v-model="adGroupProductType">PROMOTED_TWEETS
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="advertiser_domain" class="col-sm-2 control-label mt-2">Advertiser Domain</label>
+                  <div class="col-sm-8">
+                    <input type="text" name="advertiser_domain" placeholder="Advertiser Domain" class="form-control" v-model="adGroupAdvertiserDomain" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="daily_budget_amount_local_micro" class="col-sm-2 control-label mt-2">Bid Amount Local Micro</label>
+                  <div class="col-sm-3">
+                    <input type="number" name="daily_budget_amount_local_micro" min="0" class="form-control" v-model="adGroupBidAmountLocalMicro" />
+                  </div>
+                  <label for="ad_group_total_budget_amount_local_micro" class="col-sm-2 control-label mt-2">Total Budget Amount Local Micro</label>
+                  <div class="col-sm-3">
+                    <input type="number" name="ad_group_total_budget_amount_local_micro" min="0" class="form-control" v-model="adGroupTotalBudgetAmountLocalMicro" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="category" class="col-sm-2 control-label mt-2">Category</label>
+                  <div class="col-sm-8">
+                    <input type="text" name="category" placeholder="Category" class="form-control" v-model="adGroupCategory" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="primary_web_event_tag" class="col-sm-2 control-label mt-2">Primary Web Event Tag</label>
+                  <div class="col-sm-8">
+                    <input type="text" name="primary_web_event_tag" placeholder="Primary Web Event Tag" class="form-control" v-model="adGroupPrimaryWebEventTag" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="advertiser_user_id" class="col-sm-2 control-label mt-2">Advertiser User Id</label>
+                  <div class="col-sm-8">
+                    <input type="number" name="advertiser_user_id" min="0" class="form-control" v-model="adGroupAdvertiserUserId" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="automatically_select_bid" class="col-sm-2 control-label mt-2">Automatically Select Bid</label>
+                  <div class="col-sm-3">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: adGroupAutomaticallySelectBid }">
+                        <input type="radio" name="automatically_select_bid" id="adGroupAutomaticallySelectBid1" autocomplete="off" value="true" v-model="adGroupAutomaticallySelectBid">TRUE
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: !adGroupAutomaticallySelectBid }">
+                        <input type="radio" name="automatically_select_bid" id="adGroupAutomaticallySelectBid2" autocomplete="off" value="false" v-model="adGroupAutomaticallySelectBid">FALSE
+                      </label>
+                    </div>
+                  </div>
+
+                  <label for="bid_type" class="col-sm-2 control-label mt-2">Bid Type</label>
+                  <div class="col-sm-3">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: adGroupBidType }">
+                        <input type="radio" name="bid_type" id="adGroupBidType1" autocomplete="off" value="AUTO" v-model="adGroupBidType">AUTO
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: !adGroupBidType }">
+                        <input type="radio" name="bid_type" id="adGroupBidType2" autocomplete="off" value="MAX" v-model="adGroupBidType">MAX
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: !adGroupBidType }">
+                        <input type="radio" name="bid_type" id="adGroupBidType2" autocomplete="off" value="TARGET" v-model="adGroupBidType">TARGET
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                </div>
+
+                <div class="form-group row">
+                  <label for="bid_unit" class="col-sm-2 control-label mt-2">Bid Unit</label>
+                  <div class="col-sm-3">
+                    <select name="bid_unit" class="form-control" v-model="adGroupBidUnit">
+                      <option value="">Select</option>
+                      <option value="APP_CLICK">APP_CLICK</option>
+                      <option value="APP_INSTALL">APP_INSTALL</option>
+                      <option value="VIEW">VIEW</option>
+                      <option value="VIEW_3S_100PCT">VIEW_3S_100PCT</option>
+                      <option value="VIEW_6S">VIEW_6S</option>
+                    </select>
+                  </div>
+                  <label for="charge_by" class="col-sm-2 control-label mt-2">Charge By</label>
+                  <div class="col-sm-3">
+                    <select name="charge_by" class="form-control" v-model="adGroupChargeBy" disabled>
+                      <option value="">Select</option>
+                      <option value="APP_CLICK">APP_CLICK</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="optimization" class="col-sm-2 control-label mt-2">Optimization</label>
+                  <div class="col-sm-8">
+                    <select name="optimization" class="form-control" v-model="adGroupOptimization">
+                      <option value="">Select</option>
+                      <option value="APP_CLICKS">APP_CLICKS</option>
+                      <option value="APP_INSTALLS">APP_INSTALLS</option>
+                      <option value="DEFAULT">DEFAULT</option>
+                      <option value="ENGAGEMENTS">ENGAGEMENTS</option>
+                      <option value="WEBSITE_CONVERSIONS">WEBSITE_CONVERSIONS</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="audience_expansion" class="col-sm-2 control-label mt-2">Audience Expansion</label>
+                  <div class="col-sm-8">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: adGroupAudienceExpansion === 'BROAD' }">
+                        <input type="radio" name="audience_expansion" id="adGroupAudienceExpansion1" autocomplete="off" value="BROAD" v-model="adGroupAudienceExpansion">BROAD
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: adGroupAudienceExpansion === 'DEFINED' }">
+                        <input type="radio" name="audience_expansion" id="adGroupAudienceExpansion2" autocomplete="off" value="DEFINED" v-model="adGroupAudienceExpansion">DEFINED
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: adGroupAudienceExpansion === 'EXPANDED' }">
+                        <input type="radio" name="audience_expansion" id="adGroupAudienceExpansion3" autocomplete="off" value="EXPANDED" v-model="adGroupAudienceExpansion">EXPANDED
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="tracking_tags" class="col-sm-2 control-label mt-2">Primary Web Event Tag</label>
+                  <div class="col-sm-8">
+                    <input type="text" name="tracking_tags" placeholder="Primary Web Event Tag" class="form-control" v-model="adGrouptrackingTags" />
                   </div>
                 </div>
               </div>
+
               <div class="card-body" v-if="currentStep == 2">
                 <div class="row">
                   <div class="col-sm-6">
@@ -592,27 +687,57 @@ export default {
       countries: [],
       advertisers: [],
       fundingInstruments: [],
-      saveFundingInstrument: true,
-      fundingInstrumentCurrency: '',
-      fundingInstrumentStartTime: '',
-      fundingInstrumentEndTime: '',
-      fundingInstrumentType: 'AGENCY_CREDIT_LINE',
-      fundingInstrumentCreditLimitLocalMicro: '',
-      fundingInstrumentFundedAmountLocalMicro: '',
       accounts: [],
+      placements: [
+        {id: 'ALL_ON_TWITTER', text: 'ALL_ON_TWITTER'},
+        {id: 'PUBLISHER_NETWORK', text: 'PUBLISHER_NETWORK'},
+        {id: 'TAP_BANNER', text: 'TAP_BANNER'},
+        {id: 'TAP_FULL', text: 'TAP_FULL'},
+        {id: 'TAP_FULL_LANDSCAPE', text: 'TAP_FULL_LANDSCAPE'},
+        {id: 'TAP_NATIVE', text: 'TAP_NATIVE'},
+        {id: 'TAP_MRECT', text: 'TAP_MRECT'},
+        {id: 'TWITTER_PROFILE', text: 'TWITTER_PROFILE'},
+        {id: 'TWITTER_SEARCH', text: 'TWITTER_SEARCH'},
+        {id: 'TWITTER_TIMELINE', text: 'TWITTER_TIMELINE'}
+      ],
       actionName: this.action,
       selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
       selectedFundingInstrument: this.instance ? this.instance.fundingInstrument : '',
       campaignName: this.instance ? this.instance.campaignName : '',
-      campaignType: this.instance ? this.instance.channel : 'SEARCH_AND_NATIVE',
+      campaignStatus: this.instance ? this.instance.channel : 'ACTIVE',
+      adGroupAndroidAppStoreIdentifier: '',
+      adGroupIOSAppStoreIdentifier: '',
+      adGroupPlacements: '',
+      adGroupObjective: 'APP_ENGAGEMENTS',
+      adGroupProductType: 'PROMOTED_TWEETS',
+      adGroupAdvertiserDomain: '',
+      adGroupBidAmountLocalMicro: '',
+      adGroupTotalBudgetAmountLocalMicro: '',
+      adGroupPrimaryWebEventTag: '',
+      adGroupCategory: '',
+      adGroupAdvertiserUserId: '',
+      adGroupAutomaticallySelectBid: false,
+      adGroupBidType: 'AUTO',
+      adGroupStatus: 'ACTIVE',
+      adGroupBidUnit: '',
+      adGroupChargeBy: '',
+      adGroupOptimization: '',
+      adGroupAudienceExpansion: '',
+      adGrouptrackingTags: '',
       campaignLanguage: this.instance ? this.instance.language : 'en',
       campaignLocation: campaignLocation,
       campaignGender: campaignGender,
       campaignAge: campaignAge,
       campaignDevice: campaignDevice,
       campaignBudget: this.instance ? this.instance.budget : '',
-      campaignStartDate: '',
-      campaignEndDate: '',
+      campaignStartTime: '',
+      campaignEndTime: '',
+      campaignDailyBudgetAmountLocalMicro: '',
+      campaignTotalBudgetAmountLocalMicro: '',
+      campaignDurationInDays: '',
+      campaignFrequencyCap: '',
+      campaignPurchaseOrderNumber: '',
+      campaignStandardDelivery: true,
       campaignBudgetType: this.instance ? this.instance.budgetType : 'DAILY',
       campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_ENHANCED_CPC',
       campaignConversionCounting: this.instance ? this.instance.conversionRuleConfig.conversionCounting : 'ALL_PER_INTERACTION',
@@ -841,29 +966,6 @@ export default {
         this.isLoading = false
       })
     },
-    createFundingInstrument() {
-      axios.post('/account/create-funding-instrument', {
-        provider: this.selectedProvider,
-        account: this.selectedAccount,
-        advertiser: this.selectedAdvertiser,
-        fundingInstrumentCurrency: this.fundingInstrumentCurrency,
-        fundingInstrumentStartTime: this.fundingInstrumentStartTime,
-        fundingInstrumentEndTime: this.fundingInstrumentEndTime,
-        fundingInstrumentType: this.fundingInstrumentType,
-        fundingInstrumentCreditLimitLocalMicro: this.fundingInstrumentCreditLimitLocalMicro,
-        fundingInstrumentFundedAmountLocalMicro: this.fundingInstrumentFundedAmountLocalMicro
-      }).then(response => {
-        if (response.data.errors) {
-          alert(response.data.errors[0])
-        } else {
-          alert('Save successfully!');
-        }
-      }).catch(error => {
-        console.log(error)
-      }).finally(() => {
-        this.isLoading = false
-      })
-    },
     submitStep1() {
       const step1Data = {
         provider: this.selectedProvider,
@@ -876,7 +978,7 @@ export default {
         adGroupName: this.adGroupName,
         adID: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['id'] : '',
         bidAmount: this.bidAmount,
-        campaignType: this.campaignType,
+        campaignStatus: this.campaignStatus,
         campaignLanguage: this.campaignLanguage,
         campaignStrategy: this.campaignStrategy,
         campaignLocation: this.campaignLocation,
@@ -885,8 +987,8 @@ export default {
         campaignDevice: this.campaignDevice,
         campaignConversionCounting: this.campaignConversionCounting,
         scheduleType: this.scheduleType,
-        campaignStartDate: this.campaignStartDate,
-        campaignEndDate: this.campaignEndDate
+        campaignStartTime: this.campaignStartTime,
+        campaignEndTime: this.campaignEndTime
       }
       this.postData = {...this.postData, ...step1Data }
       this.currentStep = 2

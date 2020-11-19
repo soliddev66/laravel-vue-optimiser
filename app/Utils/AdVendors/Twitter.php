@@ -53,13 +53,4 @@ class Twitter extends Root
         }
         return $result;
     }
-
-    public function createFundingInstrument()
-    {
-        $fundingInstrument = $this->api()->createFundingInstrument([
-            'currency' => request('fundingInstrumentCurrency'),
-            'start_time' => request('fundingInstrumentStartTime'),
-            'type' => request('fundingInstrumentType'),
-        ]);
-    }
 }
