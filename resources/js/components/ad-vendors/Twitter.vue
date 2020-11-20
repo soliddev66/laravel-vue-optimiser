@@ -352,7 +352,7 @@
 
               <div class="card-body" v-if="currentStep == 2">
                 <div class="row">
-                  <div class="col-sm-6">
+                  <div class="col-sm-12">
                     <div class="form-group row">
                       <label for="name" class="col-sm-4 control-label mt-2">Name</label>
                       <div class="col-sm-8">
@@ -365,7 +365,7 @@
                         <div class="form-group row">
                           <label for="card_component" class="col-sm-2 control-label mt-2">Component Type</label>
                           <div class="col-10">
-                            <select name="card_component" class="form-control" v-model="cardComponent.type">
+                            <select name="card_component" class="form-control" v-model="cardComponent.type" @change="cardComponentTypeChange(index)">
                               <option value="">Select</option>
                               <option value="MEDIA">MEDIA</option>
                               <option value="SWIPEABLE_MEDIA">SWIPEABLE_MEDIA</option>
@@ -406,77 +406,76 @@
                             <div class="form-group row">
                               <label for="card_component_DETAILS_destination_type" class="col-sm-2 control-label mt-2">Type</label>
                               <div class="col-10">
-                                <select name="card_component" class="form-control" v-model="cardComponent.destination.type">
+                                <select name="card_component" class="form-control" v-model="cardComponent.destination.type" @change="cardComponentDestinationTypeChange(index)">
                                   <option value="">Select</option>
-                                  <option value="BOOK">BOOK</option>
-                                  <option value="CONNECT">CONNECT</option>
-                                  <option value="INSTALL">INSTALL</option>
-                                  <option value="OPEN">OPEN</option>
-                                  <option value="ORDER">ORDER</option>
-                                  <option value="PLAY">PLAY</option>
-                                  <option value="SHOP">SHOP</option>
+                                  <option value="WEBSITE">WEBSITE</option>
+                                  <option value="APP">APP</option>
                                 </select>
                               </div>
                             </div>
-                            <div class="form-group row">
-                              <label for="card_component_DETAILS_destination_country_code" class="col-sm-2 control-label mt-2">Country</label>
-                              <div class="col-10">
-                                <select name="card_component" class="form-control" v-model="cardComponent.destination.country_code">
-                                  <option value="">Select</option>
-                                  <option value="BOOK">BOOK</option>
-                                  <option value="CONNECT">CONNECT</option>
-                                  <option value="INSTALL">INSTALL</option>
-                                  <option value="OPEN">OPEN</option>
-                                  <option value="ORDER">ORDER</option>
-                                  <option value="PLAY">PLAY</option>
-                                  <option value="SHOP">SHOP</option>
-                                </select>
+                            <div class="row" v-if="cardComponent.destination.type == 'WEBSITE'">
+                              <div class="col">
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_url" class="col-sm-2 control-label mt-2">Url</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_url" placeholder="Enter a url" class="form-control" v-model="cardComponent.destination.url" />
+                                  </div>
+                                </div>
                               </div>
                             </div>
-                            <div class="form-group row">
-                              <label for="card_component_DETAILS_destination_ipad_app_id" class="col-sm-2 control-label mt-2">iPad App ID</label>
-                              <div class="col-10">
-                                <input type="text" name="card_component_DETAILS_destination_ipad_app_id" placeholder="iPad App ID" class="form-control" v-model="cardComponent.destination.ipad_app_id" />
-                              </div>
-                            </div>
-                            <div class="form-group row">
-                              <label for="card_component_DETAILS_destination_iphone_app_id" class="col-sm-2 control-label mt-2">iPhone App ID</label>
-                              <div class="col-10">
-                                <input type="text" name="card_component_DETAILS_destination_iphone_app_id" placeholder="iPhone App ID" class="form-control" v-model="cardComponent.destination.iphone_app_id" />
-                              </div>
-                            </div>
-                            <div class="form-group row">
-                              <label for="card_component_DETAILS_destination_googleplay_app_id" class="col-sm-2 control-label mt-2">Google Play App</label>
-                              <div class="col-10">
-                                <input type="text" name="card_component_DETAILS_destination_googleplay_app_id" placeholder="Google Play application package name" class="form-control" v-model="cardComponent.destination.googleplay_app_id" />
-                              </div>
-                            </div>
-                            <div class="form-group row">
-                              <label for="card_component_DETAILS_destination_ipad_deep_link" class="col-sm-2 control-label mt-2">iPad Deep Link</label>
-                              <div class="col-10">
-                                <input type="text" name="card_component_DETAILS_destination_ipad_deep_link" placeholder="iPad Deep Link" class="form-control" v-model="cardComponent.destination.ipad_deep_link" />
-                              </div>
-                            </div>
-                            <div class="form-group row">
-                              <label for="card_component_DETAILS_destination_iphone_deep_link" class="col-sm-2 control-label mt-2">iPhone Deep Link</label>
-                              <div class="col-10">
-                                <input type="text" name="card_component_DETAILS_destination_iphone_deep_link" placeholder="iPhone Deep Link" class="form-control" v-model="cardComponent.destination.iphone_deep_link" />
-                              </div>
-                            </div>
-                            <div class="form-group row">
-                              <label for="card_component_DETAILS_destination_googleplay_deep_link" class="col-sm-2 control-label mt-2">Android Deep Link</label>
-                              <div class="col-10">
-                                <input type="text" name="card_component_DETAILS_destination_googleplay_deep_link" placeholder="Android Deep Link" class="form-control" v-model="cardComponent.destination.googleplay_deep_link" />
+                            <div class="row" v-if="cardComponent.destination.type == 'APP'">
+                              <div class="col">
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_country_code" class="col-sm-2 control-label mt-2">Country</label>
+                                  <div class="col-10">
+                                    <select name="card_component" class="form-control" v-model="cardComponent.destination.country_code">
+                                      <option value="">Select</option>
+                                      <option value="US">US</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_ipad_app_id" class="col-sm-2 control-label mt-2">iPad App ID</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_ipad_app_id" placeholder="iPad App ID" class="form-control" v-model="cardComponent.destination.ipad_app_id" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_iphone_app_id" class="col-sm-2 control-label mt-2">iPhone App ID</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_iphone_app_id" placeholder="iPhone App ID" class="form-control" v-model="cardComponent.destination.iphone_app_id" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_googleplay_app_id" class="col-sm-2 control-label mt-2">Google Play App</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_googleplay_app_id" placeholder="Google Play application package name" class="form-control" v-model="cardComponent.destination.googleplay_app_id" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_ipad_deep_link" class="col-sm-2 control-label mt-2">iPad Deep Link</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_ipad_deep_link" placeholder="iPad Deep Link" class="form-control" v-model="cardComponent.destination.ipad_deep_link" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_iphone_deep_link" class="col-sm-2 control-label mt-2">iPhone Deep Link</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_iphone_deep_link" placeholder="iPhone Deep Link" class="form-control" v-model="cardComponent.destination.iphone_deep_link" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_googleplay_deep_link" class="col-sm-2 control-label mt-2">Android Deep Link</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_googleplay_deep_link" placeholder="Android Deep Link" class="form-control" v-model="cardComponent.destination.googleplay_deep_link" />
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
                       </fieldset>
                     </fieldset>
-                  </div>
-                  <div class="col-sm-6">
-                    <h1>Preview</h1>
-                    <div v-html="previewData"></div>
                   </div>
                 </div>
               </div>
@@ -951,6 +950,39 @@ export default {
     },
     selectedAdvertiserChange() {
       this.loadFundingInstruments();
+    },
+    cardComponentTypeChange(index) {
+      switch (this.cardComponents[index].type) {
+        case 'DETAILS':
+          this.cardComponents[index].title = 'AAAA';
+          this.cardComponents[index].destination = {
+            type: 'WEBSITE',
+            url: ''
+          }
+
+          break;
+      }
+
+      console.log(this.cardComponents[index].destination)
+    },
+    cardComponentDestinationTypeChange(index) {
+      if (this.cardComponents[index].destination.type == 'APP') {
+        this.cardComponents[index].destination = {
+          type: 'APP',
+          country_code: '',
+          ipad_app_id: '',
+          iphone_app_id: '',
+          googleplay_app_id: '',
+          ipad_deep_link: '',
+          iphone_deep_link: '',
+          googleplay_deep_link: ''
+        }
+      } else {
+        this.cardComponents[index].destination = {
+          type: 'WEBSITE',
+          url: ''
+        }
+      }
     },
     getLanguages() {
       this.isLoading = true
