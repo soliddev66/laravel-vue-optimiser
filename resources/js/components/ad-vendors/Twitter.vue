@@ -9,7 +9,7 @@
           <div class="card-header d-flex justify-content-between align-items-center">
             <label class="p-2" :class="{ 'bg-primary': currentStep === 1 }">Campaign {{ actionName }}</label>
             <i class="fas fa-arrow-right"></i>
-            <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">Add Contents</label>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">Add Card</label>
             <i class="fas fa-arrow-right"></i>
             <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Generate Variations</label>
             <i class="fas fa-arrow-right"></i>
@@ -106,7 +106,7 @@
                 <div class="form-group row">
                   <label for="frequency_cap" class="col-sm-2 control-label mt-2">Frequency Cap</label>
                   <div class="col-sm-8">
-                    <input type="number" name="frequency_cap" min="0" class="form-control" v-model="campaignFrequencyCap" />
+                    <input type="number" name="frequency_cap" min="0" placeholder="Frequency Cap" class="form-control" v-model="campaignFrequencyCap" />
                   </div>
                 </div>
 
@@ -354,65 +354,125 @@
                 <div class="row">
                   <div class="col-sm-6">
                     <div class="form-group row">
-                      <label for="title" class="col-sm-4 control-label mt-2">Title</label>
+                      <label for="name" class="col-sm-4 control-label mt-2">Name</label>
                       <div class="col-sm-8">
-                        <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title" />
+                        <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="cardName" />
                       </div>
                     </div>
-                    <div class="form-group row">
-                      <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
-                      <div class="col-sm-8">
-                        <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="brandname" />
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="description" class="col-sm-4 control-label mt-2">Description</label>
-                      <div class="col-sm-8">
-                        <textarea class="form-control" rows="3" placeholder="Enter description" v-model="description"></textarea>
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
-                      <div class="col-sm-8 text-center">
-                        <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="displayUrl" />
-                        <small class="text-danger" v-if="displayUrl && !displayUrlState">URL is invalid. You might need http/https at the beginning.</small>
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
-                      <div class="col-sm-8 text-center">
-                        <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="targetUrl" />
-                        <small class="text-danger" v-if="targetUrl && !targetUrlState">URL is invalid. You might need http/https at the beginning.</small>
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="image_hq_url" class="col-sm-4 control-label mt-2">Image HQ URL</label>
-                      <div class="col-sm-8">
-                        <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="imageUrlHQ" />
-                      </div>
-                      <div class="col-sm-8 offset-sm-4">
-                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('hqModal')">Choose File</button>
-                        <!-- <input type="file" ref="imageHQ" @change="selectedHQFile" accept="image/*"> -->
-                      </div>
-                      <div class="col-sm-8 offset-sm-4 text-center">
-                        <small class="text-danger" v-if="imageUrlHQ && !imageUrlHQState">URL is invalid. You might need http/https at the beginning.</small>
-                        <small class="text-danger" v-if="imageHQ.size && !imageHQState">Image is invalid. You might need an 1200x627 image.</small>
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="image_url" class="col-sm-4 control-label mt-2">Image URL</label>
-                      <div class="col-sm-8">
-                        <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="imageUrl" />
-                      </div>
-                      <div class="col-sm-8 offset-sm-4">
-                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal')">Choose File</button>
-                        <!-- <input type="file" ref="image" @change="selectedFile" accept="image/*"> -->
-                      </div>
-                      <div class="col-sm-8 offset-sm-4 text-center">
-                        <small class="text-danger" v-if="imageUrl && !imageUrlState">URL is invalid. You might need http/https at the beginning.</small>
-                        <small class="text-danger" v-if="image.size && !imageState">Image is invalid. You might need an 627x627 image.</small>
-                      </div>
-                    </div>
+                    <h2>Component</h2>
+                    <fieldset class="mb-4 p-3 rounded border">
+                      <fieldset class="mb-3 p-3 rounded border" v-for="(cardComponent, index) in cardComponents" :key="index">
+                        <div class="form-group row">
+                          <label for="card_component" class="col-sm-2 control-label mt-2">Component Type</label>
+                          <div class="col-10">
+                            <select name="card_component" class="form-control" v-model="cardComponent.type">
+                              <option value="">Select</option>
+                              <option value="MEDIA">MEDIA</option>
+                              <option value="SWIPEABLE_MEDIA">SWIPEABLE_MEDIA</option>
+                              <option value="DETAILS">DETAILS</option>
+                              <option value="BUTTON">BUTTON</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="row" v-if="cardComponent.type == 'MEDIA'">
+                          <div class="col">
+                            <div class="form-group row">
+                              <label for="card_component_MEDIA_media_key" class="col-sm-2 control-label mt-2">Media</label>
+                              <div class="col-10">
+                                <select2 id="card_component_MEDIA_media_key" name="card_component_MEDIA_media_key" :options="placements" v-model="cardComponent.media_key"></select2>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row" v-if="cardComponent.type == 'SWIPEABLE_MEDIA'">
+                          <div class="col">
+                            <div class="form-group row">
+                              <label for="card_component_SWIPEABLE_MEDIA_media_keys" class="col-sm-2 control-label mt-2">Media</label>
+                              <div class="col-10">
+                                <select2 id="card_component_SWIPEABLE_MEDIA_media_keys" name="card_component_SWIPEABLE_MEDIA_media_keys" :options="placements" v-model="cardComponent.media_keys" :settings="{ multiple: true }"></select2>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row" v-if="cardComponent.type == 'DETAILS'">
+                          <div class="col">
+                            <div class="form-group row">
+                              <label for="card_component_DETAILS_title" class="col-sm-2 control-label mt-2">Title</label>
+                              <div class="col-10">
+                                <input type="text" name="card_component_DETAILS_title" placeholder="Enter a title" class="form-control" v-model="cardComponent.title" />
+                              </div>
+                            </div>
+                            <h3>Destination</h3>
+                            <div class="form-group row">
+                              <label for="card_component_DETAILS_destination_type" class="col-sm-2 control-label mt-2">Type</label>
+                              <div class="col-10">
+                                <select name="card_component" class="form-control" v-model="cardComponent.destination.type">
+                                  <option value="">Select</option>
+                                  <option value="BOOK">BOOK</option>
+                                  <option value="CONNECT">CONNECT</option>
+                                  <option value="INSTALL">INSTALL</option>
+                                  <option value="OPEN">OPEN</option>
+                                  <option value="ORDER">ORDER</option>
+                                  <option value="PLAY">PLAY</option>
+                                  <option value="SHOP">SHOP</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label for="card_component_DETAILS_destination_country_code" class="col-sm-2 control-label mt-2">Country</label>
+                              <div class="col-10">
+                                <select name="card_component" class="form-control" v-model="cardComponent.destination.country_code">
+                                  <option value="">Select</option>
+                                  <option value="BOOK">BOOK</option>
+                                  <option value="CONNECT">CONNECT</option>
+                                  <option value="INSTALL">INSTALL</option>
+                                  <option value="OPEN">OPEN</option>
+                                  <option value="ORDER">ORDER</option>
+                                  <option value="PLAY">PLAY</option>
+                                  <option value="SHOP">SHOP</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label for="card_component_DETAILS_destination_ipad_app_id" class="col-sm-2 control-label mt-2">iPad App ID</label>
+                              <div class="col-10">
+                                <input type="text" name="card_component_DETAILS_destination_ipad_app_id" placeholder="iPad App ID" class="form-control" v-model="cardComponent.destination.ipad_app_id" />
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label for="card_component_DETAILS_destination_iphone_app_id" class="col-sm-2 control-label mt-2">iPhone App ID</label>
+                              <div class="col-10">
+                                <input type="text" name="card_component_DETAILS_destination_iphone_app_id" placeholder="iPhone App ID" class="form-control" v-model="cardComponent.destination.iphone_app_id" />
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label for="card_component_DETAILS_destination_googleplay_app_id" class="col-sm-2 control-label mt-2">Google Play App</label>
+                              <div class="col-10">
+                                <input type="text" name="card_component_DETAILS_destination_googleplay_app_id" placeholder="Google Play application package name" class="form-control" v-model="cardComponent.destination.googleplay_app_id" />
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label for="card_component_DETAILS_destination_ipad_deep_link" class="col-sm-2 control-label mt-2">iPad Deep Link</label>
+                              <div class="col-10">
+                                <input type="text" name="card_component_DETAILS_destination_ipad_deep_link" placeholder="iPad Deep Link" class="form-control" v-model="cardComponent.destination.ipad_deep_link" />
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label for="card_component_DETAILS_destination_iphone_deep_link" class="col-sm-2 control-label mt-2">iPhone Deep Link</label>
+                              <div class="col-10">
+                                <input type="text" name="card_component_DETAILS_destination_iphone_deep_link" placeholder="iPhone Deep Link" class="form-control" v-model="cardComponent.destination.iphone_deep_link" />
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label for="card_component_DETAILS_destination_googleplay_deep_link" class="col-sm-2 control-label mt-2">Android Deep Link</label>
+                              <div class="col-10">
+                                <input type="text" name="card_component_DETAILS_destination_googleplay_deep_link" placeholder="Android Deep Link" class="form-control" v-model="cardComponent.destination.googleplay_deep_link" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </fieldset>
+                    </fieldset>
                   </div>
                   <div class="col-sm-6">
                     <h1>Preview</h1>
@@ -484,7 +544,7 @@
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 1">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!campaignNameState || !selectedAdvertiserState || !campaignBudgetState || !adGroupNameState || !bidAmountState">Next</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep1">Add Card</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!titleState || !brandnameState || !descriptionState || !displayUrlState || !targetUrlState || !imageUrlHQState || !imageUrlState">Next</button>
@@ -547,7 +607,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 1
+      default: 2
     }
   },
   components: {
@@ -724,6 +784,13 @@ export default {
       adGroupOptimization: '',
       adGroupAudienceExpansion: '',
       adGrouptrackingTags: '',
+      cardName: '',
+      cardComponents: [
+        {
+          type: '',
+          destination: {}
+        }
+      ],
       campaignLanguage: this.instance ? this.instance.language : 'en',
       campaignLocation: campaignLocation,
       campaignGender: campaignGender,
