@@ -14,9 +14,9 @@ class ActivateCampaign extends Root
         try {
             $gemini = new GeminiAPI($campaign->user->providers->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
             $campaign->status($gemini, Campaign::STATUS_ACTIVE);
-            echo 'Campaign was being activated', "\n";
+            echo 'Campaign hasn''t been activated', "\n";
         } catch (Exception $e) {
-            echo "Campaign wasn't being activated\n";
+            echo "Error happened. Campaign wasn't being activated\n";
         }
     }
 }

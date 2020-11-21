@@ -10,4 +10,11 @@ class SocialiteManager extends \Laravel\Socialite\SocialiteManager
 
         return $this->buildProvider('App\Socialite\Two\YahooProvider', $config);
     }
+
+    protected function createTaboolaDriver()
+    {
+        $config = $this->config->get('services.taboola');
+
+        return $this->buildProvider('App\Socialite\Two\TaboolaProvider', $config);
+    }
 }

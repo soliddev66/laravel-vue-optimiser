@@ -13,7 +13,6 @@ use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Hborras\TwitterAdsSDK\TwitterAds;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -41,92 +40,11 @@ class AccountController extends Controller
         })->get();
     }
 
-    /**
-     * @return array|mixed
-     * @throws GuzzleException
-     * @throws TwitterAds\Errors\BadRequest
-     * @throws TwitterAds\Errors\Forbidden
-     * @throws TwitterAds\Errors\NotAuthorized
-     * @throws TwitterAds\Errors\NotFound
-     * @throws TwitterAds\Errors\RateLimit
-     * @throws TwitterAds\Errors\ServerError
-     * @throws TwitterAds\Errors\ServiceUnavailable
-     * @throws \Hborras\TwitterAdsSDK\TwitterAdsException
-     */
     public function advertisers()
     {
-        $data = [];
-        $provider = Provider::where('slug', request('provider'))->first();
-        $user_info = auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first();
-        try {
-            $data = $this->getAdvertisers($user_info);
-        } catch (Exception $e) {
-            if ($e->getCode() == 401) {
-                if ($provider->slug === 'outbrain') {
-                    Token::refreshOutbrain($user_info, function() use ($user_info, &$data) {
-                        $data = $this->getAdvertisers($user_info);
-                    });
-                } else {
-                    Token::refresh($user_info, function() use ($user_info, &$data) {
-                        $data = $this->getAdvertisers($user_info);
-                    });
-                }
-            }
-        }
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return $data;
-    }
-
-    /**
-     * @param $user_info
-     * @return array|mixed
-     * @throws GuzzleException
-     * @throws TwitterAds\Errors\BadRequest
-     * @throws TwitterAds\Errors\Forbidden
-     * @throws TwitterAds\Errors\NotAuthorized
-     * @throws TwitterAds\Errors\NotFound
-     * @throws TwitterAds\Errors\RateLimit
-     * @throws TwitterAds\Errors\ServerError
-     * @throws TwitterAds\Errors\ServiceUnavailable
-     * @throws \Hborras\TwitterAdsSDK\TwitterAdsException
-     */
-    private function getAdvertisers($user_info)
-    {
-        $data = [];
-        switch ($user_info->provider_id) {
-            case 1:
-                $client = new Client();
-                $response = $client->get(env('BASE_URL') . '/v3/rest/advertiser', [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $user_info->token
-                    ]
-                ]);
-                $data = json_decode($response->getBody(), true)['response'];
-                break;
-            case 2:
-                $api = new OutbrainAPI($user_info);
-                $data = $api->getMarketers()['marketers'];
-                break;
-            case 3:
-                $api_key = env('TWITTER_CLIENT_ID');
-                $api_secret = env('TWITTER_CLIENT_SECRET');
-                $access_token = $user_info->token;
-                $access_token_secret = $user_info->secret_token;
-                $api = TwitterAds::init($api_key, $api_secret, $access_token, $access_token_secret, null, env('TWITTER_SANDBOX'));
-                $accounts = $api->getAccounts()->getCollection();
-                foreach ($accounts as $key => $account) {
-                    array_push($data, [
-                        'id' => $account->getId(),
-                        'advertiserName' => $account->getName()
-                    ]);
-                }
-                break;
-
-            default:
-                break;
-        }
-
-        return $data;
+        return (new $adVendorClass)->advertisers();
     }
 
     public function signUp()

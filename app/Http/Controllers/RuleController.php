@@ -42,17 +42,24 @@ class RuleController extends Controller
             $rule_condition_type_group->options = $rule_condition_type_group->ruleConditionTypes;
         }
 
-        $rule->rule_action_id = $rule->rule_action_id ?? request('action') ?? null;
+        $rule->rule_action_id = $rule->rule_action_id ?? null;
+        $rule->rule_action_provider = $rule->ruleAction->provider ?? null;
+        $rule->rule_action_data = $rule->action_data ?? null;
+        $rule->excluded_day_type = $rule->timeRange->excluded_day_type ?? null;
+
+        if (request('action')) {
+            $rule_action = RuleAction::find(request('action'));
+            $rule->rule_action_id = $rule->rule_action_id ?? $rule_action->id;
+            $rule->rule_action_provider = $rule->rule_action_provider ?? $rule_action->provider;
+        }
 
         return [
             'rule' => $rule,
             'rule_actions' => RuleAction::all(),
             'rule_data_from_options' => RuleDataFromOption::all(),
-            'rule_campaigns' => $rule->campaigns ?? null,
             'rule_conditions' => $rule_conditions,
             'rule_groups' => auth()->user()->ruleGroups,
-            'rule_condition_type_groups' => $rule_condition_type_groups,
-            'campaigns' => auth()->user()->campaigns
+            'rule_condition_type_groups' => $rule_condition_type_groups
         ];
     }
 
@@ -97,18 +104,16 @@ class RuleController extends Controller
             $rule->name = $validated_data['ruleName'];
             $rule->rule_group_id = $validated_data['ruleGroup'];
             $rule->rule_action_id = $validated_data['ruleAction'];
+            $rule->action_data = json_encode($validated_data['ruleActionSubmitData']);
             $rule->from = $validated_data['dataFrom'];
             $rule->exclude_day = $validated_data['excludedDay'];
             $rule->run_type = $validated_data['ruleRunType'];
             $rule->interval_amount = $validated_data['ruleIntervalAmount'];
             $rule->interval_unit = $validated_data['ruleIntervalUnit'];
-            $rule->widget = $validated_data['ruleWidget'];
-            $rule->is_widget_included = $validated_data['ruleWidgetIncluded'];
 
             $rule->save();
 
             $this->createRuleConditions($rule);
-            $this->createRuleCampaigns($rule);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -142,16 +147,6 @@ class RuleController extends Controller
         }
     }
 
-    private function createRuleCampaigns($rule)
-    {
-        foreach (request('ruleCampaigns') as $campaign) {
-            (new RuleCampaign([
-                'rule_id' => $rule->id,
-                'campaign_id' => $campaign
-            ]))->save();
-        }
-    }
-
     private function validateRequest()
     {
         return request()->validate([
@@ -160,16 +155,13 @@ class RuleController extends Controller
             'ruleAction' => 'required|exists:rule_actions,id',
             'dataFrom' => 'required',
             'excludedDay' => 'required',
-            'ruleWidget' => 'required',
-            'ruleWidgetIncluded' => 'required',
             'ruleConditions' => 'required|present|array',
             'ruleConditions.*' => 'required|present|array',
             'ruleConditions.*.*.rule_condition_type_id' => 'required|exists:rule_condition_types,id',
             'ruleConditions.*.*.operation' => 'required',
             'ruleConditions.*.*.amount' => 'required',
             'ruleConditions.*.*.unit' => 'required',
-            'ruleCampaigns' => 'required|present|array',
-            'ruleCampaigns.*' => 'exists:App\Models\Campaign,id',
+            'ruleActionSubmitData' => 'required|present|array',
             'ruleIntervalAmount' => 'required|numeric',
             'ruleIntervalUnit' => 'required',
             'ruleRunType' => 'required'
@@ -186,11 +178,10 @@ class RuleController extends Controller
             $rule = new Rule([
                 'name' => $validated_data['ruleName'],
                 'rule_group_id' => $validated_data['ruleGroup'],
+                'action_data' => json_encode($validated_data['ruleActionSubmitData']),
                 'rule_action_id' => $validated_data['ruleAction'],
                 'from' => $validated_data['dataFrom'],
                 'exclude_day' => $validated_data['excludedDay'],
-                'widget' => $validated_data['ruleWidget'],
-                'is_widget_included' => $validated_data['ruleWidgetIncluded'],
                 'run_type' => $validated_data['ruleRunType'],
                 'interval_amount' => $validated_data['ruleIntervalAmount'],
                 'interval_unit' => $validated_data['ruleIntervalUnit'],
@@ -201,7 +192,6 @@ class RuleController extends Controller
             $rule->save();
 
             $this->createRuleConditions($rule);
-            $this->createRuleCampaigns($rule);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -244,7 +234,6 @@ class RuleController extends Controller
             $rule_condition_group->ruleConditions()->delete();
         }
         $rule->ruleConditionGroups()->delete();
-        $rule->campaigns()->detach();
     }
 
     public function status(Rule $rule)

@@ -54,8 +54,8 @@ class PullCampaign implements ShouldQueue
             $access_token_secret = $provider->secret_token;
 
             // // Create Twitter Ads Api Instance
-            $api = TwitterAds::init($api_key, $api_secret, $access_token, $access_token_secret, null, env('TWITTER_SANDBOX'));
-            $accounts = $api->getAccounts();
+            // $api = TwitterAds::init($api_key, $api_secret, $access_token, $access_token_secret, null, env('TWITTER_SANDBOX'));
+            // $accounts = $api->getAccounts();
         }
     }
 

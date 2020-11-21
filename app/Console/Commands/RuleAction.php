@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 
 use App\Models\Rule;
+use App\Models\Campaign;
 
 class RuleAction extends Command
 {
@@ -47,7 +48,9 @@ class RuleAction extends Command
 
         $time_range = (new $time_range_class)->get();
 
-        foreach ($rule->campaigns as $campaign) {
+        $campaigns = Campaign::find(json_decode($rule->action_data)->ruleCampaigns);
+
+        foreach ($campaigns as $campaign) {
             $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
             $performance_data = $campaign->performanceStats()->whereBetween('day', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
 

@@ -14,11 +14,13 @@
               </div>
               <div class="col-md-3 col-12">
                 <select class="form-control" v-model="selectedProvider" @change="getData">
-                  <option v-for="provider in providers" :value="provider.slug">{{ provider.label }}</option>
+                  <option value="">-</option>
+                  <option v-for="provider in providers" :value="provider.id">{{ provider.label }}</option>
                 </select>
               </div>
               <div class="col-md-3 col-12">
                 <select class="form-control" v-model="selectedAccount" @change="getData">
+                  <option value="">-</option>
                   <option v-for="account in accounts" :value="account.id">{{ account.open_id }}</option>
                 </select>
               </div>
@@ -88,7 +90,7 @@
                     {{ campaign.status }}
                   </td>
                   <td>{{ campaign.budget }}</td>
-                  <td class="text-capitalize">{{ selectedProvider }}</td>
+                  <td class="text-capitalize">{{ selectedProviderName }}</td>
                   <td>{{ round(count(campaign.redtrack_report, 'revenue') / count(campaign.redtrack_report, 'conversions')) || 0 }}</td>
                   <td>{{ count(campaign.redtrack_report, 'clicks') || count(campaign.performance_stats, 'clicks') || 0 }}</td>
                   <td>{{ count(campaign.redtrack_report, 'lp_views') || 0 }}</td>
@@ -195,6 +197,11 @@ export default {
       this.getData()
     }
   },
+  computed: {
+    selectedProviderName() {
+      return this.providers.find(provider => provider.id === this.selectedProvider) ? this.providers.find(provider => provider.id === this.selectedProvider).label : 'All'
+    }
+  },
   data() {
     return {
       data: [],
@@ -204,8 +211,8 @@ export default {
         total_net: 0,
         avg_roi: 0
       },
-      selectedProvider: 'yahoo',
-      selectedAccount: 1,
+      selectedProvider: '',
+      selectedAccount: '',
       selectedTracker: 'redtrack',
       targetDate: {
         start: this.$moment().format('YYYY-MM-DD'),
@@ -235,7 +242,7 @@ export default {
       return 0
     },
     getData() {
-      axios.post('/campaigns/search', {...this.targetDate, ... { tracker: this.selectedTracker } })
+      axios.post('/campaigns/search', {...this.targetDate, ... { tracker: this.selectedTracker, provider: this.selectedProvider } })
         .then((response) => {
           this.data = response.data.campaigns;
           this.summaryData = response.data.summary_data;

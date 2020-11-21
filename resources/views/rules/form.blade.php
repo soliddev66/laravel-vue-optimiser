@@ -8,9 +8,7 @@
 
 @section('content')
     <rule-creator :rule="{{ json_encode($rule) }}"
-        :campaigns="{{ json_encode($campaigns ?? null) }}"
         :rule-actions="{{ json_encode($rule_actions ?? null) }}"
-        :rule-campaigns="{{ json_encode($rule_campaigns ?? null) }}"
         :rule-conditions="{{ json_encode($rule_conditions ?? null) }}"
         :rule-groups="{{ json_encode($rule_groups ?? null) }}"
         :rule-condition-type-groups="{{ json_encode($rule_condition_type_groups ?? null) }}"

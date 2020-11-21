@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ef0b18b0514270e379a0205d1c177ad5",
+    "content-hash": "4a7afaa6cf77d26c6f4e41b8a21ece4b",
     "packages": [
         {
             "name": "alexusmai/laravel-file-manager",
@@ -489,6 +489,43 @@
                 }
             ],
             "time": "2020-05-25T17:44:05+00:00"
+        },
+        {
+            "name": "dorantor/filelock",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dorantor/filelock.git",
+                "reference": "069b04cb192872a3f582da3962960f15f65cd2ed"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dorantor/filelock/zipball/069b04cb192872a3f582da3962960f15f65cd2ed",
+                "reference": "069b04cb192872a3f582da3962960f15f65cd2ed",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3|^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Dorantor\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Simple php library providing OOP-interface to file locks.",
+            "homepage": "https://github.com/dorantor/filelock/",
+            "keywords": [
+                "file",
+                "flock",
+                "lock",
+                "php"
+            ],
+            "time": "2017-10-24T13:25:12+00:00"
         },
         {
             "name": "dragonmantank/cron-expression",
@@ -6142,6 +6179,7 @@
                 "faker",
                 "fixtures"
             ],
+            "abandoned": true,
             "time": "2019-12-12T13:22:17+00:00"
         },
         {
