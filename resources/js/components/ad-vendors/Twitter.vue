@@ -11,7 +11,7 @@
             <i class="fas fa-arrow-right"></i>
             <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">Add Card</label>
             <i class="fas fa-arrow-right"></i>
-            <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Generate Variations</label>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Add Tweet</label>
             <i class="fas fa-arrow-right"></i>
             <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Preview</label>
           </div>
@@ -288,9 +288,6 @@
                 </div>
 
                 <div class="form-group row">
-                </div>
-
-                <div class="form-group row">
                   <label for="bid_unit" class="col-sm-2 control-label mt-2">Bid Unit</label>
                   <div class="col-sm-3">
                     <select name="bid_unit" class="form-control" v-model="adGroupBidUnit">
@@ -350,189 +347,214 @@
                 </div>
               </div>
 
-              <div class="card-body" v-if="currentStep == 2">
-                <div class="row">
-                  <div class="col-sm-12">
-                    <div class="form-group row">
-                      <label for="name" class="col-sm-4 control-label mt-2">Name</label>
-                      <div class="col-sm-8">
-                        <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="cardName" />
-                      </div>
+              <div class="row" v-if="currentStep == 2">
+                <div class="col-sm-12">
+                  <div class="form-group row">
+                    <label for="name" class="col-sm-2 control-label mt-2">Name</label>
+                    <div class="col-sm-8">
+                      <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="cardName" />
                     </div>
-                    <h2>Component</h2>
-                    <fieldset class="mb-4 p-3 rounded border">
-                      <fieldset class="mb-3 p-3 rounded border" v-for="(cardComponent, index) in cardComponents" :key="index">
-                        <div class="form-group row">
-                          <label for="card_component" class="col-sm-2 control-label mt-2">Component Type</label>
-                          <div class="col-10">
-                            <select name="card_component" class="form-control" v-model="cardComponent.type" @change="cardComponentTypeChange(index)">
-                              <option value="">Select</option>
-                              <option value="MEDIA">MEDIA</option>
-                              <option value="SWIPEABLE_MEDIA">SWIPEABLE_MEDIA</option>
-                              <option value="DETAILS">DETAILS</option>
-                              <option value="BUTTON">BUTTON</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div class="row" v-if="cardComponent.type == 'MEDIA'">
-                          <div class="col">
-                            <div class="form-group row">
-                              <label for="card_component_MEDIA_media_key" class="col-sm-2 control-label mt-2">Media</label>
-                              <div class="col-10">
-                                <select2 id="card_component_MEDIA_media_key" name="card_component_MEDIA_media_key" :options="placements" v-model="cardComponent.media_key"></select2>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row" v-if="cardComponent.type == 'SWIPEABLE_MEDIA'">
-                          <div class="col">
-                            <div class="form-group row">
-                              <label for="card_component_SWIPEABLE_MEDIA_media_keys" class="col-sm-2 control-label mt-2">Media</label>
-                              <div class="col-10">
-                                <select2 id="card_component_SWIPEABLE_MEDIA_media_keys" name="card_component_SWIPEABLE_MEDIA_media_keys" :options="placements" v-model="cardComponent.media_keys" :settings="{ multiple: true }"></select2>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row" v-if="cardComponent.type == 'DETAILS'">
-                          <div class="col">
-                            <div class="form-group row">
-                              <label for="card_component_DETAILS_title" class="col-sm-2 control-label mt-2">Title</label>
-                              <div class="col-10">
-                                <input type="text" name="card_component_DETAILS_title" placeholder="Enter a title" class="form-control" v-model="cardComponent.title" />
-                              </div>
-                            </div>
-                            <h3>Destination</h3>
-                            <div class="form-group row">
-                              <label for="card_component_DETAILS_destination_type" class="col-sm-2 control-label mt-2">Type</label>
-                              <div class="col-10">
-                                <select name="card_component" class="form-control" v-model="cardComponent.destination.type" @change="cardComponentDestinationTypeChange(index)">
-                                  <option value="">Select</option>
-                                  <option value="WEBSITE">WEBSITE</option>
-                                  <option value="APP">APP</option>
-                                </select>
-                              </div>
-                            </div>
-                            <div class="row" v-if="cardComponent.destination.type == 'WEBSITE'">
-                              <div class="col">
-                                <div class="form-group row">
-                                  <label for="card_component_DETAILS_url" class="col-sm-2 control-label mt-2">Url</label>
-                                  <div class="col-10">
-                                    <input type="text" name="card_component_DETAILS_url" placeholder="Enter a url" class="form-control" v-model="cardComponent.destination.url" />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="row" v-if="cardComponent.destination.type == 'APP'">
-                              <div class="col">
-                                <div class="form-group row">
-                                  <label for="card_component_DETAILS_destination_country_code" class="col-sm-2 control-label mt-2">Country</label>
-                                  <div class="col-10">
-                                    <select name="card_component" class="form-control" v-model="cardComponent.destination.country_code">
-                                      <option value="">Select</option>
-                                      <option value="US">US</option>
-                                    </select>
-                                  </div>
-                                </div>
-                                <div class="form-group row">
-                                  <label for="card_component_DETAILS_destination_ipad_app_id" class="col-sm-2 control-label mt-2">iPad App ID</label>
-                                  <div class="col-10">
-                                    <input type="text" name="card_component_DETAILS_destination_ipad_app_id" placeholder="iPad App ID" class="form-control" v-model="cardComponent.destination.ipad_app_id" />
-                                  </div>
-                                </div>
-                                <div class="form-group row">
-                                  <label for="card_component_DETAILS_destination_iphone_app_id" class="col-sm-2 control-label mt-2">iPhone App ID</label>
-                                  <div class="col-10">
-                                    <input type="text" name="card_component_DETAILS_destination_iphone_app_id" placeholder="iPhone App ID" class="form-control" v-model="cardComponent.destination.iphone_app_id" />
-                                  </div>
-                                </div>
-                                <div class="form-group row">
-                                  <label for="card_component_DETAILS_destination_googleplay_app_id" class="col-sm-2 control-label mt-2">Google Play App</label>
-                                  <div class="col-10">
-                                    <input type="text" name="card_component_DETAILS_destination_googleplay_app_id" placeholder="Google Play application package name" class="form-control" v-model="cardComponent.destination.googleplay_app_id" />
-                                  </div>
-                                </div>
-                                <div class="form-group row">
-                                  <label for="card_component_DETAILS_destination_ipad_deep_link" class="col-sm-2 control-label mt-2">iPad Deep Link</label>
-                                  <div class="col-10">
-                                    <input type="text" name="card_component_DETAILS_destination_ipad_deep_link" placeholder="iPad Deep Link" class="form-control" v-model="cardComponent.destination.ipad_deep_link" />
-                                  </div>
-                                </div>
-                                <div class="form-group row">
-                                  <label for="card_component_DETAILS_destination_iphone_deep_link" class="col-sm-2 control-label mt-2">iPhone Deep Link</label>
-                                  <div class="col-10">
-                                    <input type="text" name="card_component_DETAILS_destination_iphone_deep_link" placeholder="iPhone Deep Link" class="form-control" v-model="cardComponent.destination.iphone_deep_link" />
-                                  </div>
-                                </div>
-                                <div class="form-group row">
-                                  <label for="card_component_DETAILS_destination_googleplay_deep_link" class="col-sm-2 control-label mt-2">Android Deep Link</label>
-                                  <div class="col-10">
-                                    <input type="text" name="card_component_DETAILS_destination_googleplay_deep_link" placeholder="Android Deep Link" class="form-control" v-model="cardComponent.destination.googleplay_deep_link" />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </fieldset>
-                    </fieldset>
                   </div>
+                  <h2>Component</h2>
+                  <fieldset class="mb-4 p-3 rounded border">
+                    <fieldset class="mb-3 p-3 rounded border" v-for="(cardComponent, index) in cardComponents" :key="index">
+                      <div class="form-group row">
+                        <label for="card_component" class="col-sm-2 control-label mt-2">Component Type</label>
+                        <div class="col-10">
+                          <select name="card_component" class="form-control" v-model="cardComponent.type" @change="cardComponentTypeChange(index)">
+                            <option value="">Select</option>
+                            <option value="MEDIA">MEDIA</option>
+                            <option value="SWIPEABLE_MEDIA">SWIPEABLE_MEDIA</option>
+                            <option value="DETAILS">DETAILS</option>
+                            <option value="BUTTON">BUTTON</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="row" v-if="cardComponent.type == 'MEDIA'">
+                        <div class="col">
+                          <div class="form-group row">
+                            <label for="card_component_MEDIA_media_key" class="col-sm-2 control-label mt-2">Media</label>
+                            <div class="col-10">
+                              <select2 id="card_component_MEDIA_media_key" name="card_component_MEDIA_media_key" :options="placements" v-model="cardComponent.media_key"></select2>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row" v-if="cardComponent.type == 'SWIPEABLE_MEDIA'">
+                        <div class="col">
+                          <div class="form-group row">
+                            <label for="card_component_SWIPEABLE_MEDIA_media_keys" class="col-sm-2 control-label mt-2">Media</label>
+                            <div class="col-10">
+                              <select2 id="card_component_SWIPEABLE_MEDIA_media_keys" name="card_component_SWIPEABLE_MEDIA_media_keys" :options="placements" v-model="cardComponent.media_keys" :settings="{ multiple: true }"></select2>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row" v-if="cardComponent.type == 'DETAILS'">
+                        <div class="col">
+                          <div class="form-group row">
+                            <label for="card_component_DETAILS_title" class="col-sm-2 control-label mt-2">Title</label>
+                            <div class="col-10">
+                              <input type="text" name="card_component_DETAILS_title" placeholder="Enter a title" class="form-control" v-model="cardComponent.title" />
+                            </div>
+                          </div>
+                          <h3>Destination</h3>
+                          <div class="form-group row">
+                            <label for="card_component_DETAILS_destination_type" class="col-sm-2 control-label mt-2">Type</label>
+                            <div class="col-10">
+                              <select name="card_component" class="form-control" v-model="cardComponent.destination.type" @change="cardComponentDestinationTypeChange(index)">
+                                <option value="">Select</option>
+                                <option value="WEBSITE">WEBSITE</option>
+                                <option value="APP">APP</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="row" v-if="cardComponent.destination.type == 'WEBSITE'">
+                            <div class="col">
+                              <div class="form-group row">
+                                <label for="card_component_DETAILS_url" class="col-sm-2 control-label mt-2">Url</label>
+                                <div class="col-10">
+                                  <input type="text" name="card_component_DETAILS_url" placeholder="Enter a url" class="form-control" v-model="cardComponent.destination.url" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row" v-if="cardComponent.destination.type == 'APP'">
+                            <div class="col">
+                              <div class="form-group row">
+                                <label for="card_component_DETAILS_destination_country_code" class="col-sm-2 control-label mt-2">Country</label>
+                                <div class="col-10">
+                                  <select name="card_component" class="form-control" v-model="cardComponent.destination.country_code">
+                                    <option value="">Select</option>
+                                    <option value="US">US</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <label for="card_component_DETAILS_destination_ipad_app_id" class="col-sm-2 control-label mt-2">iPad App ID</label>
+                                <div class="col-10">
+                                  <input type="text" name="card_component_DETAILS_destination_ipad_app_id" placeholder="iPad App ID" class="form-control" v-model="cardComponent.destination.ipad_app_id" />
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <label for="card_component_DETAILS_destination_iphone_app_id" class="col-sm-2 control-label mt-2">iPhone App ID</label>
+                                <div class="col-10">
+                                  <input type="text" name="card_component_DETAILS_destination_iphone_app_id" placeholder="iPhone App ID" class="form-control" v-model="cardComponent.destination.iphone_app_id" />
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <label for="card_component_DETAILS_destination_googleplay_app_id" class="col-sm-2 control-label mt-2">Google Play App</label>
+                                <div class="col-10">
+                                  <input type="text" name="card_component_DETAILS_destination_googleplay_app_id" placeholder="Google Play application package name" class="form-control" v-model="cardComponent.destination.googleplay_app_id" />
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <label for="card_component_DETAILS_destination_ipad_deep_link" class="col-sm-2 control-label mt-2">iPad Deep Link</label>
+                                <div class="col-10">
+                                  <input type="text" name="card_component_DETAILS_destination_ipad_deep_link" placeholder="iPad Deep Link" class="form-control" v-model="cardComponent.destination.ipad_deep_link" />
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <label for="card_component_DETAILS_destination_iphone_deep_link" class="col-sm-2 control-label mt-2">iPhone Deep Link</label>
+                                <div class="col-10">
+                                  <input type="text" name="card_component_DETAILS_destination_iphone_deep_link" placeholder="iPhone Deep Link" class="form-control" v-model="cardComponent.destination.iphone_deep_link" />
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <label for="card_component_DETAILS_destination_googleplay_deep_link" class="col-sm-2 control-label mt-2">Android Deep Link</label>
+                                <div class="col-10">
+                                  <input type="text" name="card_component_DETAILS_destination_googleplay_deep_link" placeholder="Android Deep Link" class="form-control" v-model="cardComponent.destination.googleplay_deep_link" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </fieldset>
+                    <button class="btn btn-primary btn-sm" @click.prevent="addCardComponent()">Add New</button>
+                  </fieldset>
                 </div>
               </div>
             </form>
           </div>
+
           <div class="card-body" v-if="currentStep == 3">
-            <div class="row mb-2" v-for="(attribute, index) in attributes" :key="attribute.id">
-              <div class="col-sm-12" v-if="index === 0">
-                <h4>Main Variation</h4>
-              </div>
-              <div class="col-sm-12">
-                <div class="form-group row">
-                  <label :for="`gender${index}`" class="col-sm-4 control-label mt-2">Gender</label>
-                  <div class="col-sm-8">
-                    <select :name="`gender${index}`" class="form-control" v-model="attribute.gender">
-                      <option value="">All</option>
-                      <option value="MALE">Male</option>
-                      <option value="FEMALE">Female</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="col-sm-12">
-                <div class="form-group row">
-                  <label :for="`age${index}`" class="col-sm-4 control-label mt-2">Age</label>
-                  <div class="col-sm-8">
-                    <select :name="`age${index}`" class="form-control" v-model="attribute.age" multiple>
-                      <option value="">All</option>
-                      <option value="18-24">18-24</option>
-                      <option value="25-34">25-34</option>
-                      <option value="35-44">35-44</option>
-                      <option value="45-54">45-54</option>
-                      <option value="55-64">55-64</option>
-                      <option value="65-120">65-120</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="col-sm-12 border-bottom">
-                <div class="form-group row">
-                  <label :for="`device${index}`" class="col-sm-4 control-label mt-2">Device</label>
-                  <div class="col-sm-8">
-                    <select :name="`device${index}`" class="form-control" v-model="attribute.device">
-                      <option value="">All</option>
-                      <option value="SMARTPHONE">SMARTPHONE</option>
-                      <option value="TABLET">TABLET</option>
-                      <option value="DESKTOP">DESKTOP</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="col-sm-12 text-right mt-3">
-                <button class="btn btn-warning btn-sm" @click="removeAttibute(index)" v-if="index > 0">Remove</button>
+            <div class="form-group row">
+              <label for="tweet_text" class="col-sm-2 control-label mt-2">Text</label>
+              <div class="col-sm-8">
+                <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="tweetText" />
               </div>
             </div>
-            <button class="btn btn-primary btn-sm" @click="addNewAttibute()">Add New</button>
+
+            <div class="form-group row">
+              <label for="tweet_nullcast" class="col-sm-2 control-label mt-2">Nullcast</label>
+              <div class="col-sm-3">
+                <div class="btn-group btn-group-toggle">
+                  <label class="btn bg-olive" :class="{ active: tweetNullcast == true }">
+                    <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" value="true" v-model="tweetNullcast">TRUE
+                  </label>
+                  <label class="btn bg-olive" :class="{ active: tweetNullcast == false }">
+                    <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" value="false" v-model="tweetNullcast">FALSE
+                  </label>
+                </div>
+              </div>
+              <label for="tweet_trim_user" class="col-sm-2 control-label mt-2">Trim User</label>
+              <div class="col-sm-3">
+                <div class="btn-group btn-group-toggle">
+                  <label class="btn bg-olive" :class="{ active: tweetTrimUser == true }">
+                    <input type="radio" name="tweet_trim_user" id="tweetTrimUser1" autocomplete="off" value="true" v-model="tweetTrimUser">TRUE
+                  </label>
+                  <label class="btn bg-olive" :class="{ active: tweetTrimUser == false }">
+                    <input type="radio" name="tweet_trim_user" id="tweetTrimUser2" autocomplete="off" value="false" v-model="tweetTrimUser">FALSE
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="tweet_video_cta" class="col-sm-2 control-label mt-2">Video CTA</label>
+              <div class="col-sm-3">
+                <select name="tweet_video_cta" class="form-control" v-model="tweetVideoCTA">
+                  <option value="">Select</option>
+                  <option value="VISIT_SITE">VISIT_SITE</option>
+                  <option value="WATCH_NOW">WATCH_NOW</option>
+                </select>
+              </div>
+              <label for="tweet_video_cta_value" class="col-sm-2 control-label mt-2">Video CTA Value</label>
+              <div class="col-sm-3">
+                <input type="text" name="tweet_video_cta_value" placeholder="Video CTA Value" class="form-control" v-model="tweetVideoCTAValue" />
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="tweet_tweet_mode" class="col-sm-2 control-label mt-2">Tweet Mode</label>
+              <div class="col-sm-8">
+                <div class="btn-group btn-group-toggle">
+                  <label class="btn bg-olive" :class="{ active: tweetTweetMode == 'compat' }">
+                    <input type="radio" name="tweet_tweet_mode" id="tweetTweetMode1" autocomplete="off" value="compat" v-model="tweetTweetMode">COMPAT
+                  </label>
+                  <label class="btn bg-olive" :class="{ active: tweetTweetMode == 'extended' }">
+                    <input type="radio" name="tweet_trim_user" id="tweetTweetMode2" autocomplete="off" value="extended" v-model="tweetTweetMode">EXTENDED
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="tweet_video_title" class="col-sm-2 control-label mt-2">Video Title</label>
+              <div class="col-sm-8">
+                <input type="text" name="tweet_video_title" placeholder="Video Title" class="form-control" v-model="tweetVideoTitle" />
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="tweet_video_description" class="col-sm-2 control-label mt-2">Video Description</label>
+              <div class="col-sm-8">
+               <textarea class="form-control" id="tweet_video_description" name="tweet_video_description" rows="3" v-model="tweetVideoDescription"></textarea>
+              </div>
+            </div>
           </div>
+
           <div class="card-body" v-if="currentStep == 4">
             <div class="col-sm-12 text-center">
               <div v-html="previewData"></div>
@@ -546,10 +568,10 @@
               <button type="button" class="btn btn-primary" @click.prevent="submitStep1">Add Card</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!titleState || !brandnameState || !descriptionState || !displayUrlState || !targetUrlState || !imageUrlHQState || !imageUrlState">Next</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep2">Add Tweet</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 3">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep3">Next</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep3">Submit</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 4">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep4">Finish</button>
@@ -606,7 +628,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 2
+      default: 3
     }
   },
   components: {
@@ -790,6 +812,14 @@ export default {
           destination: {}
         }
       ],
+      tweetText: '',
+      tweetNullcast: true,
+      tweetTrimUser: false,
+      tweetVideoCTA: '',
+      tweetTweetMode: '',
+      tweetVideoCTAValue: '',
+      tweetVideoTitle: '',
+      tweetVideoDescription: '',
       campaignLanguage: this.instance ? this.instance.language : 'en',
       campaignLocation: campaignLocation,
       campaignGender: campaignGender,
@@ -962,8 +992,6 @@ export default {
 
           break;
       }
-
-      console.log(this.cardComponents[index].destination)
     },
     cardComponentDestinationTypeChange(index) {
       if (this.cardComponents[index].destination.type == 'APP') {
@@ -983,6 +1011,12 @@ export default {
           url: ''
         }
       }
+    },
+    addCardComponent() {
+      this.cardComponents.push({
+        type: '',
+        destination: {}
+      });
     },
     getLanguages() {
       this.isLoading = true
