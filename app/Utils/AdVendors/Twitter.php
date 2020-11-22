@@ -61,6 +61,24 @@ class Twitter extends Root
 
     public function store()
     {
+        $data = [];
+        $provider = Provider::where('slug', request('provider'))->first();
+        $user_info = auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first();
 
+        $api = new TwitterAPI($user_info, request('advertiser') ?? null);
+
+        try {
+            $campaign_data = $api->createCampaign();
+
+            var_dump($campaign_data);
+
+        } catch (Exception $e) {
+            var_dump($e);
+            $data = [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+
+        return $data;
     }
 }

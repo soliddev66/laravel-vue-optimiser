@@ -107,7 +107,7 @@ class GeminiAPI
         return $this->client->call('PUT', 'ad', $body);
     }
 
-    public function createAdCampaign()
+    public function createCampaign()
     {
         return $this->client->call('POST', 'campaign', [
             'advertiserId' => request('selectedAdvertiser'),

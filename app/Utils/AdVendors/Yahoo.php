@@ -44,10 +44,10 @@ class Yahoo extends Root
         $data = [];
         $provider = Provider::where('slug', request('provider'))->first();
         $user_info = auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first();
-        $gemini = new GeminiAPI($user_info);
+        $api = new GeminiAPI($user_info);
 
         try {
-            $campaign_data = $gemini->createAdCampaign();
+            $campaign_data = $api->createCampaign();
 
             $campaign = Campaign::firstOrNew([
                 'campaign_id' => $campaign_data['id'],
@@ -57,26 +57,26 @@ class Yahoo extends Root
             ]);
 
             try {
-                $ad_group_data = $gemini->createAdGroup($campaign_data);
+                $ad_group_data = $api->createAdGroup($campaign_data);
             } catch (Exception $e) {
-                $gemini->deleteCampaign($campaign);
+                $api->deleteCampaign($campaign);
                 throw $e;
             }
 
             try {
-                $ad = $gemini->createAd($campaign_data, $ad_group_data);
+                $ad = $api->createAd($campaign_data, $ad_group_data);
             } catch (Exception $e) {
-                $gemini->deleteCampaign($campaign);
-                $gemini->deleteAdGroups([$ad_group_data['id']]);
+                $api->deleteCampaign($campaign);
+                $api->deleteAdGroups([$ad_group_data['id']]);
                 throw $e;
             }
 
             try {
-                $gemini->createAttributes($campaign_data);
+                $api->createAttributes($campaign_data);
             } catch (Exception $e) {
-                $gemini->deleteCampaign($campaign);
-                $gemini->deleteAdGroups([$ad_group_data['id']]);
-                $gemini->deleteAds([$ad['id']]);
+                $api->deleteCampaign($campaign);
+                $api->deleteAdGroups([$ad_group_data['id']]);
+                $api->deleteAds([$ad['id']]);
                 throw $e;
             }
 

@@ -2,12 +2,15 @@
 
 namespace App\Endpoints;
 
+use DateTime;
+
 use Carbon\Carbon;
 
 use App\Helpers\GeminiClient;
 
 use Hborras\TwitterAdsSDK\TwitterAds;
 use Hborras\TwitterAdsSDK\TwitterAds\Account;
+use Hborras\TwitterAdsSDK\TwitterAds\Campaign\Campaign;
 use Hborras\TwitterAdsSDK\TwitterAds\Campaign\FundingInstrument;
 
 class TwitterAPI
@@ -43,5 +46,19 @@ class TwitterAPI
         $account->read();
 
         return $account->getFundingInstruments()->getCollection();
+    }
+
+    public function createCampaign()
+    {
+        $account = new Account($this->account_id);
+        $account->read();
+
+        $campaign = new Campaign();
+        $campaign->setFundingInstrumentId(request('fundingInstrument'));
+        $campaign->setDailyBudgetAmountLocalMicro(140000000);
+        $campaign->setName(request('campaignName'));
+        $campaign->setEntityStatus('PAUSED');
+        $campaign->setStartTime('2020-12-05');
+        return $campaign->save();
     }
 }

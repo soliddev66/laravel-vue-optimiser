@@ -807,7 +807,7 @@ export default {
         provider: this.selectedProvider,
         account: this.selectedAccount,
         advertiser: this.selectedAdvertiser,
-        fundingInstrument: selectedFundingInstrument,
+        fundingInstrument: this.selectedFundingInstrument,
         campaignName: this.campaignName,
         campaignStartTime: this.campaignStartTime,
         campaignEndTime: this.campaignEndTime,
