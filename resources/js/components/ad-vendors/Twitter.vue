@@ -36,7 +36,7 @@
 
                 <div class="form-group row" v-if="selectedAdvertiser">
                   <label for="funding_instrument" class="col-sm-2 control-label mt-2">Funding Instrument</label>
-                  <div class="col-sm-8" v-if="fundingInstruments.length">
+                  <div class="col-lg-10 col-xl-8" v-if="fundingInstruments.length">
                     <select name="funding_instrument" class="form-control" v-model="selectedFundingInstrument" :disabled="instance">
                       <option value="">Select Funding Instrument</option>
                       <option :value="fundingInstrument.id" v-for="fundingInstrument in fundingInstruments" :key="fundingInstrument.id">{{ fundingInstrument.id }} - {{ fundingInstrument.name }}</option>
@@ -46,23 +46,23 @@
 
                 <div class="form-group row">
                   <label for="name" class="col-sm-2 control-label mt-2">Name</label>
-                  <div class="col-sm-8">
+                  <div class="col-lg-10 col-xl-8">
                     <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="campaignName" />
                   </div>
                 </div>
 
                 <div class="form-group row">
-                  <label for="type" class="col-sm-2 control-label mt-2">Status</label>
-                  <div class="col-sm-8">
+                  <label for="entity_status" class="col-sm-2 control-label mt-2">Status</label>
+                  <div class="col-lg-10 col-xl-8">
                     <div class="btn-group btn-group-toggle">
                       <label class="btn bg-olive" :class="{ active: campaignStatus === 'ACTIVE' }">
-                        <input type="radio" name="type" id="campaignStatus1" autocomplete="off" value="ACTIVE" v-model="campaignStatus">ACTIVE
+                        <input type="radio" name="entity_status" id="campaignStatus1" autocomplete="off" value="ACTIVE" v-model="campaignStatus">ACTIVE
                       </label>
                       <label class="btn bg-olive" :class="{ active: campaignStatus === 'DRAFT' }">
-                        <input type="radio" name="type" id="campaignStatus2" autocomplete="off" value="DRAFT" v-model="campaignStatus">DRAFT
+                        <input type="radio" name="entity_status" id="campaignStatus2" autocomplete="off" value="DRAFT" v-model="campaignStatus">DRAFT
                       </label>
                       <label class="btn bg-olive" :class="{ active: campaignStatus === 'PAUSED' }">
-                        <input type="radio" name="type" id="campaignStatus3" autocomplete="off" value="PAUSED" v-model="campaignStatus">PAUSED
+                        <input type="radio" name="entity_status" id="campaignStatus3" autocomplete="off" value="PAUSED" v-model="campaignStatus">PAUSED
                       </label>
                     </div>
                   </div>
@@ -71,29 +71,29 @@
                 <h2>Campaign Setting</h2>
                 <div class="form-group row">
                   <label for="start_time" class="col-sm-2 control-label mt-2">Start Time</label>
-                  <div class="col-sm-3">
+                  <div class="col-lg-4 col-xl-3">
                     <input type="date" name="start_time" class="form-control" v-model="campaignStartTime" />
                   </div>
                   <label for="end_time" class="col-sm-2 control-label mt-2">End Time</label>
-                  <div class="col-sm-3">
+                  <div class="col-lg-4 col-xl-3">
                     <input type="date" name="end_time" class="form-control" v-model="campaignEndTime" />
                   </div>
                 </div>
 
                 <div class="form-group row">
                   <label for="daily_budget_amount_local_micro" class="col-sm-2 control-label mt-2">Daily Budget Amount Local Micro</label>
-                  <div class="col-sm-3">
+                  <div class="col-lg-4 col-xl-3">
                     <input type="number" name="daily_budget_amount_local_micro" min="0" class="form-control" v-model="campaignDailyBudgetAmountLocalMicro" />
                   </div>
                   <label for="total_budget_amount_local_micro" class="col-sm-2 control-label mt-2">Total Budget Amount Local Micro</label>
-                  <div class="col-sm-3">
+                  <div class="col-lg-4 col-xl-3">
                     <input type="number" name="total_budget_amount_local_micro" min="0" class="form-control" v-model="campaignTotalBudgetAmountLocalMicro" />
                   </div>
                 </div>
 
                 <div class="form-group row">
                   <label for="duration_in_days" class="col-sm-2 control-label mt-2">Duration In Days</label>
-                  <div class="col-sm-8">
+                  <div class="col-lg-10 col-xl-8">
                     <select name="duration_in_days" class="form-control" v-model="campaignDurationInDays">
                       <option value="">Select Duration</option>
                       <option value="1">1 day</option>
@@ -105,21 +105,21 @@
 
                 <div class="form-group row">
                   <label for="frequency_cap" class="col-sm-2 control-label mt-2">Frequency Cap</label>
-                  <div class="col-sm-8">
+                  <div class="col-lg-10 col-xl-8">
                     <input type="number" name="frequency_cap" min="0" placeholder="Frequency Cap" class="form-control" v-model="campaignFrequencyCap" />
                   </div>
                 </div>
 
                 <div class="form-group row">
                   <label for="purchase_order_number" class="col-sm-2 control-label mt-2">Purchase Order Number</label>
-                  <div class="col-sm-8">
+                  <div class="col-lg-10 col-xl-8">
                     <input type="text" name="purchase_order_number" class="form-control" v-model="campaignPurchaseOrderNumber" />
                   </div>
                 </div>
 
                 <div class="form-group row">
                   <label for="standard_delivery" class="col-sm-2 control-label mt-2">Standard Delivery</label>
-                  <div class="col-sm-8">
+                  <div class="col-lg-10 col-xl-8">
                     <div class="btn-group btn-group-toggle">
                       <label class="btn bg-olive" :class="{ active: campaignStandardDelivery }">
                         <input type="radio" name="standard_delivery" id="campaignStandardDelivery1" autocomplete="off" value="true" v-model="campaignStandardDelivery">TRUE
@@ -135,32 +135,43 @@
 
                 <div class="form-group row">
                   <label for="ad_group_name" class="col-sm-2 control-label mt-2">Name</label>
-                  <div class="col-sm-8">
+                  <div class="col-lg-10 col-xl-8">
                     <input type="text" name="ad_group_name" placeholder="Name" class="form-control" v-model="adGroupName" />
                   </div>
                 </div>
 
                 <div class="form-group row">
-                  <label for="type" class="col-sm-2 control-label mt-2">Status</label>
-                  <div class="col-sm-8">
+                  <label for="ad_group_status" class="col-sm-2 control-label mt-2">Status</label>
+                  <div class="col-lg-10 col-xl-8">
                     <div class="btn-group btn-group-toggle">
                       <label class="btn bg-olive" :class="{ active: adGroupStatus === 'ACTIVE' }">
-                        <input type="radio" name="type" id="adGroupStatus1" autocomplete="off" value="ACTIVE" v-model="adGroupStatus">ACTIVE
+                        <input type="radio" name="ad_group_status" id="adGroupStatus1" autocomplete="off" value="ACTIVE" v-model="adGroupStatus">ACTIVE
                       </label>
                       <label class="btn bg-olive" :class="{ active: adGroupStatus === 'DRAFT' }">
-                        <input type="radio" name="type" id="adGroupStatus2" autocomplete="off" value="DRAFT" v-model="adGroupStatus">DRAFT
+                        <input type="radio" name="ad_group_status" id="adGroupStatus2" autocomplete="off" value="DRAFT" v-model="adGroupStatus">DRAFT
                       </label>
                       <label class="btn bg-olive" :class="{ active: adGroupStatus === 'PAUSED' }">
-                        <input type="radio" name="type" id="adGroupStatus3" autocomplete="off" value="PAUSED" v-model="adGroupStatus">PAUSED
+                        <input type="radio" name="ad_group_status" id="adGroupStatus3" autocomplete="off" value="PAUSED" v-model="adGroupStatus">PAUSED
                       </label>
                     </div>
                   </div>
                 </div>
 
                 <div class="form-group row">
-                  <label for="objective" class="col-sm-2 control-label mt-2">Android App Store Identifier</label>
-                  <div class="col-sm-8">
-                    <select name="objective" class="form-control" v-model="adGroupAndroidAppStoreIdentifier">
+                  <label for="ad_group_start_time" class="col-sm-2 control-label mt-2">Start Time</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <input type="date" name="start_time" class="form-control" v-model="adGroupStartTime" />
+                  </div>
+                  <label for="ad_group_end_time" class="col-sm-2 control-label mt-2">End Time</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <input type="date" name="end_time" class="form-control" v-model="adGroupEndTime" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_android_app_store_identifier" class="col-sm-2 control-label mt-2">Android App Store Identifier</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <select name="ad_group_android_app_store_identifier" class="form-control" v-model="adGroupAndroidAppStoreIdentifier">
                       <option value="">Select</option>
                       <option value="APP_ENGAGEMENTS">APP_ENGAGEMENTS</option>
                       <option value="APP_INSTALLS">APP_INSTALLS</option>
@@ -169,9 +180,9 @@
                 </div>
 
                 <div class="form-group row">
-                  <label for="objective" class="col-sm-2 control-label mt-2">iOS App Store Identifier</label>
-                  <div class="col-sm-8">
-                    <select name="objective" class="form-control" v-model="adGroupIOSAppStoreIdentifier">
+                  <label for="ad_group_ios_app_store_identifier" class="col-sm-2 control-label mt-2">iOS App Store Identifier</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <select name="ad_group_ios_app_store_identifier" class="form-control" v-model="adGroupIOSAppStoreIdentifier">
                       <option value="">Select</option>
                       <option value="APP_ENGAGEMENTS">APP_ENGAGEMENTS</option>
                       <option value="APP_INSTALLS">APP_INSTALLS</option>
@@ -180,9 +191,9 @@
                 </div>
 
                 <div class="form-group row">
-                  <label for="objective" class="col-sm-2 control-label mt-2">Objective</label>
-                  <div class="col-sm-8">
-                    <select name="objective" class="form-control" v-model="adGroupObjective">
+                  <label for="ad_group_objective" class="col-sm-2 control-label mt-2">Objective</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <select name="ad_group_objective" class="form-control" v-model="adGroupObjective">
                       <option value="APP_ENGAGEMENTS">APP_ENGAGEMENTS</option>
                       <option value="APP_INSTALLS">APP_INSTALLS</option>
                       <option value="REACH">REACH</option>
@@ -196,101 +207,101 @@
                 </div>
 
                 <div class="form-group row">
-                  <label for="placements" class="col-sm-2 control-label mt-2">Placements</label>
-                  <div class="col-sm-8">
-                    <select2 id="placements" name="placements" :options="placements" v-model="adGroupPlacements" :settings="{ multiple: true }"></select2>
+                  <label for="ad_group_placements" class="col-sm-2 control-label mt-2">Placements</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <select2 id="ad_group_placements" name="placements" :options="placements" v-model="adGroupPlacements" :settings="{ multiple: true }"></select2>
                   </div>
                 </div>
 
                 <div class="form-group row">
-                  <label for="product_type" class="col-sm-2 control-label mt-2">Product Type</label>
-                  <div class="col-sm-8">
+                  <label for="ad_group_product_type" class="col-sm-2 control-label mt-2">Product Type</label>
+                  <div class="col-lg-10 col-xl-8">
                     <div class="btn-group btn-group-toggle">
                       <label class="btn bg-olive" :class="{ active: adGroupProductType === 'MEDIA' }">
-                        <input type="radio" name="product_type" id="adGroupProductType1" autocomplete="off" value="MEDIA" v-model="adGroupProductType">MEDIA
+                        <input type="radio" name="ad_group_product_type" id="adGroupProductType1" autocomplete="off" value="MEDIA" v-model="adGroupProductType">MEDIA
                       </label>
                       <label class="btn bg-olive" :class="{ active: adGroupProductType === 'PROMOTED_ACCOUNT' }">
-                        <input type="radio" name="product_type" id="adGroupProductType2" autocomplete="off" value="PROMOTED_ACCOUNT" v-model="adGroupProductType">PROMOTED_ACCOUNT
+                        <input type="radio" name="ad_group_product_type" id="adGroupProductType2" autocomplete="off" value="PROMOTED_ACCOUNT" v-model="adGroupProductType">PROMOTED_ACCOUNT
                       </label>
                       <label class="btn bg-olive" :class="{ active: adGroupProductType === 'PROMOTED_TWEETS' }">
-                        <input type="radio" name="product_type" id="adGroupProductType3" autocomplete="off" value="PROMOTED_TWEETS" v-model="adGroupProductType">PROMOTED_TWEETS
+                        <input type="radio" name="ad_group_product_type" id="adGroupProductType3" autocomplete="off" value="PROMOTED_TWEETS" v-model="adGroupProductType">PROMOTED_TWEETS
                       </label>
                     </div>
                   </div>
                 </div>
 
                 <div class="form-group row">
-                  <label for="advertiser_domain" class="col-sm-2 control-label mt-2">Advertiser Domain</label>
-                  <div class="col-sm-8">
-                    <input type="text" name="advertiser_domain" placeholder="Advertiser Domain" class="form-control" v-model="adGroupAdvertiserDomain" />
+                  <label for="ad_group_advertiser_domain" class="col-sm-2 control-label mt-2">Advertiser Domain</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="ad_group_advertiser_domain" placeholder="Advertiser Domain" class="form-control" v-model="adGroupAdvertiserDomain" />
                   </div>
                 </div>
 
                 <div class="form-group row">
-                  <label for="daily_budget_amount_local_micro" class="col-sm-2 control-label mt-2">Bid Amount Local Micro</label>
-                  <div class="col-sm-3">
-                    <input type="number" name="daily_budget_amount_local_micro" min="0" class="form-control" v-model="adGroupBidAmountLocalMicro" />
+                  <label for="ad_group_bid_amount_local_micro" class="col-sm-2 control-label mt-2">Bid Amount Local Micro</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <input type="number" name="ad_group_bid_amount_local_micro" min="0" class="form-control" v-model="adGroupBidAmountLocalMicro" />
                   </div>
                   <label for="ad_group_total_budget_amount_local_micro" class="col-sm-2 control-label mt-2">Total Budget Amount Local Micro</label>
-                  <div class="col-sm-3">
+                  <div class="col-lg-4 col-xl-3">
                     <input type="number" name="ad_group_total_budget_amount_local_micro" min="0" class="form-control" v-model="adGroupTotalBudgetAmountLocalMicro" />
                   </div>
                 </div>
 
                 <div class="form-group row">
-                  <label for="category" class="col-sm-2 control-label mt-2">Category</label>
-                  <div class="col-sm-8">
-                    <input type="text" name="category" placeholder="Category" class="form-control" v-model="adGroupCategory" />
+                  <label for="ad_group_category" class="col-sm-2 control-label mt-2">Category</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="ad_group_category" placeholder="Category" class="form-control" v-model="adGroupCategory" />
                   </div>
                 </div>
 
                 <div class="form-group row">
-                  <label for="primary_web_event_tag" class="col-sm-2 control-label mt-2">Primary Web Event Tag</label>
-                  <div class="col-sm-8">
-                    <input type="text" name="primary_web_event_tag" placeholder="Primary Web Event Tag" class="form-control" v-model="adGroupPrimaryWebEventTag" />
+                  <label for="ad_group_primary_web_event_tag" class="col-sm-2 control-label mt-2">Primary Web Event Tag</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="ad_group_primary_web_event_tag" placeholder="Primary Web Event Tag" class="form-control" v-model="adGroupPrimaryWebEventTag" />
                   </div>
                 </div>
 
                 <div class="form-group row">
-                  <label for="advertiser_user_id" class="col-sm-2 control-label mt-2">Advertiser User Id</label>
-                  <div class="col-sm-8">
-                    <input type="number" name="advertiser_user_id" min="0" class="form-control" v-model="adGroupAdvertiserUserId" />
+                  <label for="ad_group_advertiser_user_id" class="col-sm-2 control-label mt-2">Advertiser User Id</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="number" name="ad_group_advertiser_user_id" min="0" class="form-control" v-model="adGroupAdvertiserUserId" />
                   </div>
                 </div>
 
                 <div class="form-group row">
-                  <label for="automatically_select_bid" class="col-sm-2 control-label mt-2">Automatically Select Bid</label>
-                  <div class="col-sm-3">
+                  <label for="ad_group_automatically_select_bid" class="col-sm-2 control-label mt-2">Automatically Select Bid</label>
+                  <div class="col-lg-4 col-xl-3">
                     <div class="btn-group btn-group-toggle">
                       <label class="btn bg-olive" :class="{ active: adGroupAutomaticallySelectBid }">
-                        <input type="radio" name="automatically_select_bid" id="adGroupAutomaticallySelectBid1" autocomplete="off" value="true" v-model="adGroupAutomaticallySelectBid">TRUE
+                        <input type="radio" name="ad_group_automatically_select_bid" id="adGroupAutomaticallySelectBid1" autocomplete="off" value="true" v-model="adGroupAutomaticallySelectBid">TRUE
                       </label>
                       <label class="btn bg-olive" :class="{ active: !adGroupAutomaticallySelectBid }">
-                        <input type="radio" name="automatically_select_bid" id="adGroupAutomaticallySelectBid2" autocomplete="off" value="false" v-model="adGroupAutomaticallySelectBid">FALSE
+                        <input type="radio" name="ad_group_automatically_select_bid" id="adGroupAutomaticallySelectBid2" autocomplete="off" value="false" v-model="adGroupAutomaticallySelectBid">FALSE
                       </label>
                     </div>
                   </div>
 
-                  <label for="bid_type" class="col-sm-2 control-label mt-2">Bid Type</label>
-                  <div class="col-sm-3">
+                  <label for="ad_group_bid_type" class="col-sm-2 control-label mt-2">Bid Type</label>
+                  <div class="col-lg-4 col-xl-3">
                     <div class="btn-group btn-group-toggle">
                       <label class="btn bg-olive" :class="{ active: adGroupBidType }">
-                        <input type="radio" name="bid_type" id="adGroupBidType1" autocomplete="off" value="AUTO" v-model="adGroupBidType">AUTO
+                        <input type="radio" name="ad_group_bid_type" id="adGroupBidType1" autocomplete="off" value="AUTO" v-model="adGroupBidType">AUTO
                       </label>
                       <label class="btn bg-olive" :class="{ active: !adGroupBidType }">
-                        <input type="radio" name="bid_type" id="adGroupBidType2" autocomplete="off" value="MAX" v-model="adGroupBidType">MAX
+                        <input type="radio" name="ad_group_bid_type" id="adGroupBidType2" autocomplete="off" value="MAX" v-model="adGroupBidType">MAX
                       </label>
                       <label class="btn bg-olive" :class="{ active: !adGroupBidType }">
-                        <input type="radio" name="bid_type" id="adGroupBidType3" autocomplete="off" value="TARGET" v-model="adGroupBidType">TARGET
+                        <input type="radio" name="ad_group_bid_type" id="adGroupBidType3" autocomplete="off" value="TARGET" v-model="adGroupBidType">TARGET
                       </label>
                     </div>
                   </div>
                 </div>
 
                 <div class="form-group row">
-                  <label for="bid_unit" class="col-sm-2 control-label mt-2">Bid Unit</label>
-                  <div class="col-sm-3">
-                    <select name="bid_unit" class="form-control" v-model="adGroupBidUnit">
+                  <label for="ad_group_bid_unit" class="col-sm-2 control-label mt-2">Bid Unit</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <select name="ad_group_bid_unit" class="form-control" v-model="adGroupBidUnit">
                       <option value="">Select</option>
                       <option value="APP_CLICK">APP_CLICK</option>
                       <option value="APP_INSTALL">APP_INSTALL</option>
@@ -299,19 +310,23 @@
                       <option value="VIEW_6S">VIEW_6S</option>
                     </select>
                   </div>
-                  <label for="charge_by" class="col-sm-2 control-label mt-2">Charge By</label>
-                  <div class="col-sm-3">
-                    <select name="charge_by" class="form-control" v-model="adGroupChargeBy" disabled>
+                  <label for="ad_group_charge_by" class="col-sm-2 control-label mt-2">Charge By</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <select name="ad_group_charge_by" class="form-control" v-model="adGroupChargeBy" disabled>
                       <option value="">Select</option>
                       <option value="APP_CLICK">APP_CLICK</option>
+                      <option value="APP_INSTALL">APP_INSTALL</option>
+                      <option value="VIEW">VIEW</option>
+                      <option value="VIEW_3S_100PCT">VIEW_3S_100PCT</option>
+                      <option value="VIEW_6S">VIEW_6S</option>
                     </select>
                   </div>
                 </div>
 
                 <div class="form-group row">
-                  <label for="optimization" class="col-sm-2 control-label mt-2">Optimization</label>
-                  <div class="col-sm-8">
-                    <select name="optimization" class="form-control" v-model="adGroupOptimization">
+                  <label for="ad_group_optimization" class="col-sm-2 control-label mt-2">Optimization</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <select name="ad_group_optimization" class="form-control" v-model="adGroupOptimization">
                       <option value="">Select</option>
                       <option value="APP_CLICKS">APP_CLICKS</option>
                       <option value="APP_INSTALLS">APP_INSTALLS</option>
@@ -323,26 +338,26 @@
                 </div>
 
                 <div class="form-group row">
-                  <label for="audience_expansion" class="col-sm-2 control-label mt-2">Audience Expansion</label>
-                  <div class="col-sm-8">
+                  <label for="ad_group_audience_expansion" class="col-sm-2 control-label mt-2">Audience Expansion</label>
+                  <div class="col-lg-10 col-xl-8">
                     <div class="btn-group btn-group-toggle">
                       <label class="btn bg-olive" :class="{ active: adGroupAudienceExpansion === 'BROAD' }">
-                        <input type="radio" name="audience_expansion" id="adGroupAudienceExpansion1" autocomplete="off" value="BROAD" v-model="adGroupAudienceExpansion">BROAD
+                        <input type="radio" name="ad_group_audience_expansion" id="adGroupAudienceExpansion1" autocomplete="off" value="BROAD" v-model="adGroupAudienceExpansion">BROAD
                       </label>
                       <label class="btn bg-olive" :class="{ active: adGroupAudienceExpansion === 'DEFINED' }">
-                        <input type="radio" name="audience_expansion" id="adGroupAudienceExpansion2" autocomplete="off" value="DEFINED" v-model="adGroupAudienceExpansion">DEFINED
+                        <input type="radio" name="ad_group_audience_expansion" id="adGroupAudienceExpansion2" autocomplete="off" value="DEFINED" v-model="adGroupAudienceExpansion">DEFINED
                       </label>
                       <label class="btn bg-olive" :class="{ active: adGroupAudienceExpansion === 'EXPANDED' }">
-                        <input type="radio" name="audience_expansion" id="adGroupAudienceExpansion3" autocomplete="off" value="EXPANDED" v-model="adGroupAudienceExpansion">EXPANDED
+                        <input type="radio" name="ad_group_audience_expansion" id="adGroupAudienceExpansion3" autocomplete="off" value="EXPANDED" v-model="adGroupAudienceExpansion">EXPANDED
                       </label>
                     </div>
                   </div>
                 </div>
 
                 <div class="form-group row">
-                  <label for="tracking_tags" class="col-sm-2 control-label mt-2">Primary Web Event Tag</label>
-                  <div class="col-sm-8">
-                    <input type="text" name="tracking_tags" placeholder="Primary Web Event Tag" class="form-control" v-model="adGrouptrackingTags" />
+                  <label for="ad_group_tracking_tags" class="col-sm-2 control-label mt-2">Tracking Tags</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="ad_group_tracking_tags" placeholder="Tracking Tags" class="form-control" v-model="adGrouptrackingTags" />
                   </div>
                 </div>
               </div>
@@ -351,9 +366,9 @@
                 <h2>General information</h2>
 
                 <div class="form-group row">
-                  <label for="name" class="col-sm-2 control-label mt-2">Name</label>
-                  <div class="col-sm-8">
-                    <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="cardName" />
+                  <label for="card_name" class="col-sm-2 control-label mt-2">Name</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="cardName" />
                   </div>
                 </div>
                 <h2>Component</h2>
@@ -485,14 +500,14 @@
           <div class="card-body" v-if="currentStep == 3">
             <div class="form-group row">
               <label for="tweet_text" class="col-sm-2 control-label mt-2">Text</label>
-              <div class="col-sm-8">
+              <div class="col-lg-10 col-xl-8">
                 <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="tweetText" />
               </div>
             </div>
 
             <div class="form-group row">
               <label for="tweet_nullcast" class="col-sm-2 control-label mt-2">Nullcast</label>
-              <div class="col-sm-3">
+              <div class="col-lg-4 col-xl-3">
                 <div class="btn-group btn-group-toggle">
                   <label class="btn bg-olive" :class="{ active: tweetNullcast == true }">
                     <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" value="true" v-model="tweetNullcast">TRUE
@@ -503,7 +518,7 @@
                 </div>
               </div>
               <label for="tweet_trim_user" class="col-sm-2 control-label mt-2">Trim User</label>
-              <div class="col-sm-3">
+              <div class="col-lg-4 col-xl-3">
                 <div class="btn-group btn-group-toggle">
                   <label class="btn bg-olive" :class="{ active: tweetTrimUser == true }">
                     <input type="radio" name="tweet_trim_user" id="tweetTrimUser1" autocomplete="off" value="true" v-model="tweetTrimUser">TRUE
@@ -517,7 +532,7 @@
 
             <div class="form-group row">
               <label for="tweet_video_cta" class="col-sm-2 control-label mt-2">Video CTA</label>
-              <div class="col-sm-3">
+              <div class="col-lg-4 col-xl-3">
                 <select name="tweet_video_cta" class="form-control" v-model="tweetVideoCTA">
                   <option value="">Select</option>
                   <option value="VISIT_SITE">VISIT_SITE</option>
@@ -525,14 +540,14 @@
                 </select>
               </div>
               <label for="tweet_video_cta_value" class="col-sm-2 control-label mt-2">Video CTA Value</label>
-              <div class="col-sm-3">
+              <div class="col-lg-4 col-xl-3">
                 <input type="text" name="tweet_video_cta_value" placeholder="Video CTA Value" class="form-control" v-model="tweetVideoCTAValue" />
               </div>
             </div>
 
             <div class="form-group row">
               <label for="tweet_tweet_mode" class="col-sm-2 control-label mt-2">Tweet Mode</label>
-              <div class="col-sm-8">
+              <div class="col-lg-10 col-xl-8">
                 <div class="btn-group btn-group-toggle">
                   <label class="btn bg-olive" :class="{ active: tweetTweetMode == 'compat' }">
                     <input type="radio" name="tweet_tweet_mode" id="tweetTweetMode1" autocomplete="off" value="compat" v-model="tweetTweetMode">COMPAT
@@ -546,14 +561,14 @@
 
             <div class="form-group row">
               <label for="tweet_video_title" class="col-sm-2 control-label mt-2">Video Title</label>
-              <div class="col-sm-8">
+              <div class="col-lg-10 col-xl-8">
                 <input type="text" name="tweet_video_title" placeholder="Video Title" class="form-control" v-model="tweetVideoTitle" />
               </div>
             </div>
 
             <div class="form-group row">
               <label for="tweet_video_description" class="col-sm-2 control-label mt-2">Video Description</label>
-              <div class="col-sm-8">
+              <div class="col-lg-10 col-xl-8">
                <textarea class="form-control" id="tweet_video_description" name="tweet_video_description" rows="3" v-model="tweetVideoDescription"></textarea>
               </div>
             </div>
@@ -569,7 +584,7 @@
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 1">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep1">Add Card</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!selectedProvider || !selectedAccount || !selectedAdvertiser || !selectedFundingInstrument">Add Card</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep2">Add Tweet</button>
@@ -636,9 +651,6 @@ export default {
 
   },
   data() {
-    let campaignGender = '',
-      campaignDevice = ''
-
     return {
       isLoading: false,
       fullPage: true,
@@ -792,7 +804,41 @@ export default {
       const step1Data = {
         provider: this.selectedProvider,
         account: this.selectedAccount,
-        selectedAdvertiser: this.selectedAdvertiser,
+        advertiser: this.selectedAdvertiser,
+        fundingInstrument: selectedFundingInstrument,
+        campaignName: this.campaignName,
+        campaignStartTime: this.campaignStartTime,
+        campaignEndTime: this.campaignEndTime,
+        campaignDailyBudgetAmountLocalMicro: this.campaignDailyBudgetAmountLocalMicro,
+        campaignTotalBudgetAmountLocalMicro: this.campaignTotalBudgetAmountLocalMicro,
+        campaignDurationInDays: this.campaignDurationInDays,
+        campaignStatus: this.campaignStatus,
+        campaignFrequencyCap: this.campaignFrequencyCap,
+        campaignPurchaseOrderNumber: this.campaignPurchaseOrderNumber,
+        campaignStandardDelivery: this.campaignStandardDelivery,
+        adGroupName: this.adGroupName,
+        adGroupAndroidAppStoreIdentifier: this.adGroupAndroidAppStoreIdentifier,
+        adGroupIOSAppStoreIdentifier: this.adGroupIOSAppStoreIdentifier,
+        adGroupObjective: this.adGroupObjective,
+        adGroupPlacements: this.adGroupPlacements,
+        adGroupProductType: this.adGroupProductType,
+        adGroupAdvertiserDomain: this.adGroupAdvertiserDomain,
+        adGroupBidAmountLocalMicro: this.adGroupBidAmountLocalMicro,
+        adGroupCategory: this.adGroupCategory,
+        adGroupPrimaryWebEventTag: this.adGroupPrimaryWebEventTag,
+        adGroupAdvertiserUserId: this.adGroupAdvertiserUserId,
+        adGroupAutomaticallySelectBid: this.adGroupAutomaticallySelectBid,
+        adGroupBidType: this.adGroupBidType,
+        adGroupBidUnit: this.adGroupBidUnit,
+        adGroupChargeBy: this.adGroupChargeBy,
+        adGroupStartTime: this.adGroupStartTime,
+        adGroupEndTime: this.adGroupEndTime,
+        adGroupStatus: this.adGroupStatus,
+        adGroupAudienceExpansion: this.adGroupAudienceExpansion,
+        adGroupOptimization: this.adGroupOptimization,
+        adGroupBidAmountLocalMicro: this.adGroupBidAmountLocalMicro,
+        adGroupTotalBudgetAmountLocalMicro: this.adGroupTotalBudgetAmountLocalMicro,
+        adGrouptrackingTags: this.adGrouptrackingTags
       }
       this.postData = {...this.postData, ...step1Data }
       this.currentStep = 2
