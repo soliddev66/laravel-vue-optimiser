@@ -29,6 +29,11 @@ class Twitter extends Root
         return $result;
     }
 
+    public function countries()
+    {
+        return $this->api()->getCountries();
+    }
+
     public function signUp()
     {
         $account = $this->api()->createAccount();
@@ -52,5 +57,10 @@ class Twitter extends Root
             ];
         }
         return $result;
+    }
+
+    public function store()
+    {
+
     }
 }

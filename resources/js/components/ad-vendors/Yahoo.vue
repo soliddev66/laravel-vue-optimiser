@@ -695,10 +695,11 @@ export default {
       this.languages = []
       axios.get(`/general/languages?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
         if (response.data) {
+          console.log(response.data)
           this.languages = response.data.map(language => {
             return {
               id: language.value || language.code,
-              text: language.name.toUpperCase()
+              text: language.name ? language.name.toUpperCase() : language.value
             }
           })
         }

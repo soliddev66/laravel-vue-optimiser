@@ -27,6 +27,11 @@ class TwitterAPI
         return $this->client->getAccounts()->getCollection();
     }
 
+    public function getCountries()
+    {
+        return $this->client->get('targeting_criteria/locations', ['location_type' => 'COUNTRIES'])->getBody()->data;
+    }
+
     public function createAccount()
     {
         return (new Account())->save();

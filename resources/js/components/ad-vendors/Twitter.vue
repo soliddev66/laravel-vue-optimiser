@@ -704,6 +704,8 @@ export default {
       adGroupStatus: 'ACTIVE',
       adGroupBidUnit: '',
       adGroupChargeBy: '',
+      adGroupStartTime: '',
+      adGroupEndTime: '',
       adGroupOptimization: '',
       adGroupAudienceExpansion: '',
       adGrouptrackingTags: '',
@@ -845,6 +847,7 @@ export default {
     },
     submitStep2() {
       const step2Data = {
+
       }
       this.postData = {...this.postData, ...step2Data }
 
@@ -852,7 +855,7 @@ export default {
     },
     submitStep3() {
       const step3Data = {
-        attributes: this.attributes
+
       }
       this.postData = {...this.postData, ...step3Data }
       this.currentStep = 4

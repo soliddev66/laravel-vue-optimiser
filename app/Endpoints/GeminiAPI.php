@@ -19,6 +19,16 @@ class GeminiAPI
         return $this->client->call('GET', 'advertiser');
     }
 
+    public function getLanguages()
+    {
+        return $this->client->call('GET', 'dictionary/language');
+    }
+
+    public function getCountries()
+    {
+        return $this->client->call('GET', 'dictionary/woeid/?type=country');
+    }
+
     public function createAdvertiser($name)
     {
         return $this->client->call('POST', 'advertisersignup', [
