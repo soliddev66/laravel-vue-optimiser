@@ -17,8 +17,8 @@
           </div>
 
           <div class="card-body">
-            <form class="form-horizontal" v-if="selectedProvider && selectedAccount">
-              <div v-if="currentStep == 1">
+            <form class="row" v-if="selectedProvider && selectedAccount">
+              <div class="col" v-if="currentStep == 1">
                 <h2>General information</h2>
 
                 <div class="form-group row">
@@ -213,7 +213,7 @@
                         <input type="radio" name="product_type" id="adGroupProductType2" autocomplete="off" value="PROMOTED_ACCOUNT" v-model="adGroupProductType">PROMOTED_ACCOUNT
                       </label>
                       <label class="btn bg-olive" :class="{ active: adGroupProductType === 'PROMOTED_TWEETS' }">
-                        <input type="radio" name="product_type" id="adGroupProductType2" autocomplete="off" value="PROMOTED_TWEETS" v-model="adGroupProductType">PROMOTED_TWEETS
+                        <input type="radio" name="product_type" id="adGroupProductType3" autocomplete="off" value="PROMOTED_TWEETS" v-model="adGroupProductType">PROMOTED_TWEETS
                       </label>
                     </div>
                   </div>
@@ -281,7 +281,7 @@
                         <input type="radio" name="bid_type" id="adGroupBidType2" autocomplete="off" value="MAX" v-model="adGroupBidType">MAX
                       </label>
                       <label class="btn bg-olive" :class="{ active: !adGroupBidType }">
-                        <input type="radio" name="bid_type" id="adGroupBidType2" autocomplete="off" value="TARGET" v-model="adGroupBidType">TARGET
+                        <input type="radio" name="bid_type" id="adGroupBidType3" autocomplete="off" value="TARGET" v-model="adGroupBidType">TARGET
                       </label>
                     </div>
                   </div>
@@ -347,132 +347,136 @@
                 </div>
               </div>
 
-              <div class="row" v-if="currentStep == 2">
-                <div class="col-sm-12">
-                  <div class="form-group row">
-                    <label for="name" class="col-sm-2 control-label mt-2">Name</label>
-                    <div class="col-sm-8">
-                      <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="cardName" />
-                    </div>
+              <div class="col" v-if="currentStep == 2">
+                <h2>General information</h2>
+
+                <div class="form-group row">
+                  <label for="name" class="col-sm-2 control-label mt-2">Name</label>
+                  <div class="col-sm-8">
+                    <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="cardName" />
                   </div>
-                  <h2>Component</h2>
-                  <fieldset class="mb-4 p-3 rounded border">
-                    <fieldset class="mb-3 p-3 rounded border" v-for="(cardComponent, index) in cardComponents" :key="index">
-                      <div class="form-group row">
-                        <label for="card_component" class="col-sm-2 control-label mt-2">Component Type</label>
-                        <div class="col-10">
-                          <select name="card_component" class="form-control" v-model="cardComponent.type" @change="cardComponentTypeChange(index)">
-                            <option value="">Select</option>
-                            <option value="MEDIA">MEDIA</option>
-                            <option value="SWIPEABLE_MEDIA">SWIPEABLE_MEDIA</option>
-                            <option value="DETAILS">DETAILS</option>
-                            <option value="BUTTON">BUTTON</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div class="row" v-if="cardComponent.type == 'MEDIA'">
-                        <div class="col">
-                          <div class="form-group row">
-                            <label for="card_component_MEDIA_media_key" class="col-sm-2 control-label mt-2">Media</label>
-                            <div class="col-10">
-                              <select2 id="card_component_MEDIA_media_key" name="card_component_MEDIA_media_key" :options="placements" v-model="cardComponent.media_key"></select2>
-                            </div>
+                </div>
+                <h2>Component</h2>
+                <div class="row">
+                  <div class="col-10">
+                    <fieldset class="mb-4 p-3 rounded border">
+                      <fieldset class="mb-3 p-3 rounded border" v-for="(cardComponent, index) in cardComponents" :key="index">
+                        <div class="form-group row">
+                          <label for="card_component" class="col-sm-2 control-label mt-2">Component Type</label>
+                          <div class="col-10">
+                            <select name="card_component" class="form-control" v-model="cardComponent.type" @change="cardComponentTypeChange(index)">
+                              <option value="">Select</option>
+                              <option value="MEDIA">MEDIA</option>
+                              <option value="SWIPEABLE_MEDIA">SWIPEABLE_MEDIA</option>
+                              <option value="DETAILS">DETAILS</option>
+                              <option value="BUTTON">BUTTON</option>
+                            </select>
                           </div>
                         </div>
-                      </div>
-                      <div class="row" v-if="cardComponent.type == 'SWIPEABLE_MEDIA'">
-                        <div class="col">
-                          <div class="form-group row">
-                            <label for="card_component_SWIPEABLE_MEDIA_media_keys" class="col-sm-2 control-label mt-2">Media</label>
-                            <div class="col-10">
-                              <select2 id="card_component_SWIPEABLE_MEDIA_media_keys" name="card_component_SWIPEABLE_MEDIA_media_keys" :options="placements" v-model="cardComponent.media_keys" :settings="{ multiple: true }"></select2>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row" v-if="cardComponent.type == 'DETAILS'">
-                        <div class="col">
-                          <div class="form-group row">
-                            <label for="card_component_DETAILS_title" class="col-sm-2 control-label mt-2">Title</label>
-                            <div class="col-10">
-                              <input type="text" name="card_component_DETAILS_title" placeholder="Enter a title" class="form-control" v-model="cardComponent.title" />
-                            </div>
-                          </div>
-                          <h3>Destination</h3>
-                          <div class="form-group row">
-                            <label for="card_component_DETAILS_destination_type" class="col-sm-2 control-label mt-2">Type</label>
-                            <div class="col-10">
-                              <select name="card_component" class="form-control" v-model="cardComponent.destination.type" @change="cardComponentDestinationTypeChange(index)">
-                                <option value="">Select</option>
-                                <option value="WEBSITE">WEBSITE</option>
-                                <option value="APP">APP</option>
-                              </select>
-                            </div>
-                          </div>
-                          <div class="row" v-if="cardComponent.destination.type == 'WEBSITE'">
-                            <div class="col">
-                              <div class="form-group row">
-                                <label for="card_component_DETAILS_url" class="col-sm-2 control-label mt-2">Url</label>
-                                <div class="col-10">
-                                  <input type="text" name="card_component_DETAILS_url" placeholder="Enter a url" class="form-control" v-model="cardComponent.destination.url" />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="row" v-if="cardComponent.destination.type == 'APP'">
-                            <div class="col">
-                              <div class="form-group row">
-                                <label for="card_component_DETAILS_destination_country_code" class="col-sm-2 control-label mt-2">Country</label>
-                                <div class="col-10">
-                                  <select name="card_component" class="form-control" v-model="cardComponent.destination.country_code">
-                                    <option value="">Select</option>
-                                    <option value="US">US</option>
-                                  </select>
-                                </div>
-                              </div>
-                              <div class="form-group row">
-                                <label for="card_component_DETAILS_destination_ipad_app_id" class="col-sm-2 control-label mt-2">iPad App ID</label>
-                                <div class="col-10">
-                                  <input type="text" name="card_component_DETAILS_destination_ipad_app_id" placeholder="iPad App ID" class="form-control" v-model="cardComponent.destination.ipad_app_id" />
-                                </div>
-                              </div>
-                              <div class="form-group row">
-                                <label for="card_component_DETAILS_destination_iphone_app_id" class="col-sm-2 control-label mt-2">iPhone App ID</label>
-                                <div class="col-10">
-                                  <input type="text" name="card_component_DETAILS_destination_iphone_app_id" placeholder="iPhone App ID" class="form-control" v-model="cardComponent.destination.iphone_app_id" />
-                                </div>
-                              </div>
-                              <div class="form-group row">
-                                <label for="card_component_DETAILS_destination_googleplay_app_id" class="col-sm-2 control-label mt-2">Google Play App</label>
-                                <div class="col-10">
-                                  <input type="text" name="card_component_DETAILS_destination_googleplay_app_id" placeholder="Google Play application package name" class="form-control" v-model="cardComponent.destination.googleplay_app_id" />
-                                </div>
-                              </div>
-                              <div class="form-group row">
-                                <label for="card_component_DETAILS_destination_ipad_deep_link" class="col-sm-2 control-label mt-2">iPad Deep Link</label>
-                                <div class="col-10">
-                                  <input type="text" name="card_component_DETAILS_destination_ipad_deep_link" placeholder="iPad Deep Link" class="form-control" v-model="cardComponent.destination.ipad_deep_link" />
-                                </div>
-                              </div>
-                              <div class="form-group row">
-                                <label for="card_component_DETAILS_destination_iphone_deep_link" class="col-sm-2 control-label mt-2">iPhone Deep Link</label>
-                                <div class="col-10">
-                                  <input type="text" name="card_component_DETAILS_destination_iphone_deep_link" placeholder="iPhone Deep Link" class="form-control" v-model="cardComponent.destination.iphone_deep_link" />
-                                </div>
-                              </div>
-                              <div class="form-group row">
-                                <label for="card_component_DETAILS_destination_googleplay_deep_link" class="col-sm-2 control-label mt-2">Android Deep Link</label>
-                                <div class="col-10">
-                                  <input type="text" name="card_component_DETAILS_destination_googleplay_deep_link" placeholder="Android Deep Link" class="form-control" v-model="cardComponent.destination.googleplay_deep_link" />
-                                </div>
+                        <div class="row" v-if="cardComponent.type == 'MEDIA'">
+                          <div class="col">
+                            <div class="form-group row">
+                              <label for="card_component_MEDIA_media_key" class="col-sm-2 control-label mt-2">Media</label>
+                              <div class="col-10">
+                                <select2 id="card_component_MEDIA_media_key" name="card_component_MEDIA_media_key" :options="placements" v-model="cardComponent.media_key"></select2>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                        <div class="row" v-if="cardComponent.type == 'SWIPEABLE_MEDIA'">
+                          <div class="col">
+                            <div class="form-group row">
+                              <label for="card_component_SWIPEABLE_MEDIA_media_keys" class="col-sm-2 control-label mt-2">Media</label>
+                              <div class="col-10">
+                                <select2 id="card_component_SWIPEABLE_MEDIA_media_keys" name="card_component_SWIPEABLE_MEDIA_media_keys" :options="placements" v-model="cardComponent.media_keys" :settings="{ multiple: true }"></select2>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row" v-if="cardComponent.type == 'DETAILS'">
+                          <div class="col">
+                            <div class="form-group row">
+                              <label for="card_component_DETAILS_title" class="col-sm-2 control-label mt-2">Title</label>
+                              <div class="col-10">
+                                <input type="text" name="card_component_DETAILS_title" placeholder="Enter a title" class="form-control" v-model="cardComponent.title" />
+                              </div>
+                            </div>
+                            <h3>Destination</h3>
+                            <div class="form-group row">
+                              <label for="card_component_DETAILS_destination_type" class="col-sm-2 control-label mt-2">Type</label>
+                              <div class="col-10">
+                                <select name="card_component" class="form-control" v-model="cardComponent.destination.type" @change="cardComponentDestinationTypeChange(index)">
+                                  <option value="">Select</option>
+                                  <option value="WEBSITE">WEBSITE</option>
+                                  <option value="APP">APP</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="row" v-if="cardComponent.destination.type == 'WEBSITE'">
+                              <div class="col">
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_url" class="col-sm-2 control-label mt-2">Url</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_url" placeholder="Enter a url" class="form-control" v-model="cardComponent.destination.url" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="row" v-if="cardComponent.destination.type == 'APP'">
+                              <div class="col">
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_country_code" class="col-sm-2 control-label mt-2">Country</label>
+                                  <div class="col-10">
+                                    <select name="card_component" class="form-control" v-model="cardComponent.destination.country_code">
+                                      <option value="">Select</option>
+                                      <option value="US">US</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_ipad_app_id" class="col-sm-2 control-label mt-2">iPad App ID</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_ipad_app_id" placeholder="iPad App ID" class="form-control" v-model="cardComponent.destination.ipad_app_id" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_iphone_app_id" class="col-sm-2 control-label mt-2">iPhone App ID</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_iphone_app_id" placeholder="iPhone App ID" class="form-control" v-model="cardComponent.destination.iphone_app_id" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_googleplay_app_id" class="col-sm-2 control-label mt-2">Google Play App</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_googleplay_app_id" placeholder="Google Play application package name" class="form-control" v-model="cardComponent.destination.googleplay_app_id" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_ipad_deep_link" class="col-sm-2 control-label mt-2">iPad Deep Link</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_ipad_deep_link" placeholder="iPad Deep Link" class="form-control" v-model="cardComponent.destination.ipad_deep_link" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_iphone_deep_link" class="col-sm-2 control-label mt-2">iPhone Deep Link</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_iphone_deep_link" placeholder="iPhone Deep Link" class="form-control" v-model="cardComponent.destination.iphone_deep_link" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_googleplay_deep_link" class="col-sm-2 control-label mt-2">Android Deep Link</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_googleplay_deep_link" placeholder="Android Deep Link" class="form-control" v-model="cardComponent.destination.googleplay_deep_link" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </fieldset>
+                      <button class="btn btn-primary btn-sm" @click.prevent="addCardComponent()">Add New</button>
                     </fieldset>
-                    <button class="btn btn-primary btn-sm" @click.prevent="addCardComponent()">Add New</button>
-                  </fieldset>
+                  </div>
                 </div>
               </div>
             </form>
@@ -580,20 +584,6 @@
         </div>
       </div>
     </div>
-    <modal width="60%" height="80%" name="hqModal">
-      <file-manager v-bind:settings="settings" :props="{
-          upload: true,
-          viewType: 'grid',
-          selectionType: 'single'
-      }"></file-manager>
-    </modal>
-    <modal width="60%" height="80%" name="imageModal">
-      <file-manager v-bind:settings="settings" :props="{
-          upload: true,
-          viewType: 'grid',
-          selectionType: 'single'
-      }"></file-manager>
-    </modal>
   </section>
 </template>
 <script>
@@ -628,7 +618,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 3
+      default: 1
     }
   },
   components: {
@@ -636,127 +626,18 @@ export default {
     Select2
   },
   computed: {
-    selectedAdvertiserState() {
-      return this.selectedAdvertiser !== ''
-    },
-    campaignNameState() {
-      return this.campaignName !== ''
-    },
-    campaignBudgetState() {
-      return this.campaignBudget > 0
-    },
-    adGroupNameState() {
-      return this.adGroupName !== ''
-    },
-    bidAmountState() {
-      return this.bidAmount > 0
-    },
-    titleState() {
-      return this.title !== ''
-    },
-    brandnameState() {
-      return this.brandname !== ''
-    },
-    descriptionState() {
-      return this.description !== ''
-    },
-    displayUrlState() {
-      return this.displayUrl !== '' && this.validURL(this.displayUrl)
-    },
-    targetUrlState() {
-      return this.targetUrl !== '' && this.validURL(this.targetUrl)
-    },
-    imageUrlHQState() {
-      return (this.imageUrlHQ !== '' && this.validURL(this.imageUrlHQ)) || this.imageHQState
-    },
-    imageHQState() {
-      return this.imageHQ.size !== '' && this.validSize(this.imageHQ, 'HQ')
-    },
-    imageUrlState() {
-      return (this.imageUrl !== '' && this.validURL(this.imageUrl)) || this.imageState
-    },
-    imageState() {
-      return this.image.size !== '' && this.validSize(this.image, '')
-    }
   },
   mounted() {
-    console.log('Component mounted.')
-    let vm = this
-    this.$root.$on('fm-selected-items', (value) => {
-      const selectedFilePath = value[0].path
-      if (this.openingFileSelector === 'hqModal') {
-        this.imageUrlHQ = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
-      }
-      if (this.openingFileSelector === 'imageModal') {
-        this.imageUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
-      }
-      vm.$modal.hide(this.openingFileSelector)
-    });
     this.currentStep = this.step
 
-    this.getLanguages()
-    this.getCountries()
     this.loadAdvertisers()
-
-    if (this.instance) {
-      this.loadPreview()
-    }
   },
   watch: {
-    title: _.debounce(function(newVal) {
-      this.loadPreview()
-    }, 2000),
-    displayUrl: _.debounce(function(newVal) {
-      this.loadPreview()
-    }, 2000),
-    targetUrl: _.debounce(function(newVal) {
-      this.loadPreview()
-    }, 2000),
-    description: _.debounce(function(newVal) {
-      this.loadPreview()
-    }, 2000),
-    brandname: _.debounce(function(newVal) {
-      this.loadPreview()
-    }, 2000),
-    imageUrlHQ: _.debounce(function(newVal) {
-      this.loadPreview()
-    }, 2000),
-    imageUrl: _.debounce(function(newVal) {
-      this.loadPreview()
-    }, 2000)
+
   },
   data() {
     let campaignGender = '',
-      campaignAge = [],
-      campaignDevice = '',
-      adGroupName = '',
-      bidAmount = '0.05',
-      campaignLocation = [],
-      adGroupID = '',
-      dataAttributes = [];
-    if (this.instance) {
-      this.instance.attributes.forEach(attribute => {
-        if (attribute.type === 'GENDER') {
-          campaignGender = attribute.value;
-        } else if (attribute.type === 'AGE') {
-          campaignAge.push(attribute.value);
-        } else if (attribute.type === 'DEVICE') {
-          campaignDevice = attribute.value;
-        } else if (attribute.type === 'WOEID') {
-          campaignLocation.push(attribute.value);
-        }
-        dataAttributes.push(attribute.id);
-      });
-
-      if (this.instance.adGroups.length > 0) {
-        adGroupID = this.instance.adGroups[0]['id'];
-        adGroupName = this.instance.adGroups[0]['adGroupName'];
-
-        if (this.instance.adGroups[0]['bidSet']['bids'].length > 0) {
-          bidAmount = this.instance.adGroups[0]['bidSet']['bids'][0]['value'];
-        }
-      }
-    }
+      campaignDevice = ''
 
     return {
       isLoading: false,
@@ -785,7 +666,16 @@ export default {
       selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
       selectedFundingInstrument: this.instance ? this.instance.fundingInstrument : '',
       campaignName: this.instance ? this.instance.campaignName : '',
+      campaignStartTime: '',
+      campaignEndTime: '',
+      campaignDailyBudgetAmountLocalMicro: '',
+      campaignTotalBudgetAmountLocalMicro: '',
+      campaignDurationInDays: '',
+      campaignFrequencyCap: '',
+      campaignPurchaseOrderNumber: '',
+      campaignStandardDelivery: true,
       campaignStatus: this.instance ? this.instance.channel : 'ACTIVE',
+      adGroupName: '',
       adGroupAndroidAppStoreIdentifier: '',
       adGroupIOSAppStoreIdentifier: '',
       adGroupPlacements: '',
@@ -819,172 +709,17 @@ export default {
       tweetTweetMode: '',
       tweetVideoCTAValue: '',
       tweetVideoTitle: '',
-      tweetVideoDescription: '',
-      campaignLanguage: this.instance ? this.instance.language : 'en',
-      campaignLocation: campaignLocation,
-      campaignGender: campaignGender,
-      campaignAge: campaignAge,
-      campaignDevice: campaignDevice,
-      campaignBudget: this.instance ? this.instance.budget : '',
-      campaignStartTime: '',
-      campaignEndTime: '',
-      campaignDailyBudgetAmountLocalMicro: '',
-      campaignTotalBudgetAmountLocalMicro: '',
-      campaignDurationInDays: '',
-      campaignFrequencyCap: '',
-      campaignPurchaseOrderNumber: '',
-      campaignStandardDelivery: true,
-      campaignBudgetType: this.instance ? this.instance.budgetType : 'DAILY',
-      campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_ENHANCED_CPC',
-      campaignConversionCounting: this.instance ? this.instance.conversionRuleConfig.conversionCounting : 'ALL_PER_INTERACTION',
-      adGroupID: adGroupID,
-      adGroupName: adGroupName,
-      bidAmount: bidAmount,
-      scheduleType: 'IMMEDIATELY',
-      title: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['title'] : '',
-      displayUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['displayUrl'] : '',
-      targetUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['landingUrl'] : '',
-      description: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['description'] : '',
-      brandname: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['sponsoredBy'] : '',
-      imageUrlHQ: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrlHQ'] : '',
-      imageHQ: {
-        size: '',
-        height: '',
-        width: ''
-      },
-      imageUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrl'] : '',
-      image: {
-        size: '',
-        height: '',
-        width: ''
-      },
-      previewData: '',
-      attributes: [],
-      dataAttributes: dataAttributes,
-      openingFileSelector: '',
-      settings: {
-        baseUrl: '/file-manager', // overwrite base url Axios
-        windowsConfig: 2, // overwrite config
-        lang: 'end'
-      }
+      tweetVideoDescription: ''
     }
   },
   methods: {
-    openChooseFile(name) {
-      this.openingFileSelector = name
-      this.$modal.show(name)
-    },
-    validURL(str) {
-      var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
-      return !!pattern.test(str);
-    },
-    validSize(image, type) {
-      if (type === 'HQ') {
-        if (image.width === 1200 && image.height === 627) {
-          return true;
-        }
-      } else {
-        if (image.width === 627 && image.height === 627) {
-          return true
-        }
-      }
-      return false;
-    },
-    selectedHQFile() {
-      let file = this.$refs.imageHQ.files[0];
-      if (!file || file.type.indexOf('image/') !== 0) return;
-      this.imageHQ.size = file.size;
-      let reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = evt => {
-        let img = new Image();
-        img.onload = () => {
-          this.imageHQ.width = img.width;
-          this.imageHQ.height = img.height;
-          if (this.validSize(this.imageHQ, 'HQ')) {
-            let formData = new FormData();
-            formData.append('file', this.$refs.imageHQ.files[0]);
-            axios.post('/general/upload-files', formData, {
-                headers: {
-                  'Content-Type': 'multipart/form-data'
-                }
-              }).then((response) => {
-                this.imageUrlHQ = response.data.path.replace('public', 'storage')
-              })
-              .catch((err) => {
-                alert(err);
-              });
-          }
-        }
-        img.src = evt.target.result;
-      }
-      reader.onerror = evt => {
-        console.error(evt);
-      }
-    },
-    selectedFile() {
-      let file = this.$refs.image.files[0];
-      if (!file || file.type.indexOf('image/') !== 0) return;
-      this.image.size = file.size;
-      let reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = evt => {
-        let img = new Image();
-        img.onload = () => {
-          this.image.width = img.width;
-          this.image.height = img.height;
-          if (this.validSize(this.image, '')) {
-            let formData = new FormData();
-            formData.append('file', this.$refs.image.files[0]);
-            axios.post('/general/upload-files', formData, {
-                headers: {
-                  'Content-Type': 'multipart/form-data'
-                }
-              }).then((response) => {
-                this.imageUrl = response.data.path.replace('public', 'storage')
-              })
-              .catch((err) => {
-                alert(err);
-              });
-          }
-        }
-        img.src = evt.target.result;
-      }
-      reader.onerror = evt => {
-        console.error(evt);
-      }
-    },
-    loadPreview() {
-      this.isLoading = true
-      axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
-        title: this.title,
-        displayUrl: this.displayUrl,
-        landingUrl: this.targetUrl,
-        description: this.description,
-        sponsoredBy: this.brandname,
-        imageUrlHQ: this.imageUrlHQ,
-        imageUrl: this.imageUrl,
-        campaignLanguage: this.campaignLanguage
-      }).then(response => {
-        this.previewData = response.data.replace('height="800"', 'height="450"').replace('width="400"', 'width="100%"')
-      }).catch(err => {
-        console.log(err)
-      }).finally(() => {
-        this.isLoading = false
-      })
-    },
-    selectedAccountChanged() {
-      this.getLanguages()
-      this.getCountries()
-      this.loadAdvertisers()
-    },
     selectedAdvertiserChange() {
       this.loadFundingInstruments();
     },
     cardComponentTypeChange(index) {
       switch (this.cardComponents[index].type) {
         case 'DETAILS':
-          this.cardComponents[index].title = 'AAAA';
+          this.cardComponents[index].title = '';
           this.cardComponents[index].destination = {
             type: 'WEBSITE',
             url: ''
@@ -1017,52 +752,6 @@ export default {
         type: '',
         destination: {}
       });
-    },
-    getLanguages() {
-      this.isLoading = true
-      this.languages = []
-      axios.get(`/general/languages?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-        if (response.data) {
-          this.languages = response.data.map(language => {
-            return {
-              id: language.value || language.code,
-              text: language.name.toUpperCase()
-            }
-          })
-        }
-      }).catch(err => {
-        console.log(err)
-      }).finally(() => {
-        this.isLoading = false
-      })
-    },
-    getCountries() {
-      this.isLoading = true
-      this.countries = []
-      axios.get(`/general/countries?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-        if (response.data) {
-          this.countries = response.data.map(country => {
-            return {
-              id: country.woeid,
-              text: country.name
-            }
-          })
-        }
-      }).catch(err => {
-        console.log(err)
-      }).finally(() => {
-        this.isLoading = false
-      })
-    },
-    removeAttibute(index) {
-      this.attributes.splice(index, 1);
-    },
-    addNewAttibute() {
-      this.attributes.push({
-        gender: '',
-        age: '',
-        device: ''
-      })
     },
     loadAdvertisers() {
       this.isLoading = true
@@ -1104,45 +793,15 @@ export default {
         provider: this.selectedProvider,
         account: this.selectedAccount,
         selectedAdvertiser: this.selectedAdvertiser,
-        campaignBudget: this.campaignBudget,
-        campaignBudgetType: this.campaignBudgetType,
-        campaignName: this.campaignName,
-        adGroupID: this.adGroupID,
-        adGroupName: this.adGroupName,
-        adID: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['id'] : '',
-        bidAmount: this.bidAmount,
-        campaignStatus: this.campaignStatus,
-        campaignLanguage: this.campaignLanguage,
-        campaignStrategy: this.campaignStrategy,
-        campaignLocation: this.campaignLocation,
-        campaignGender: this.campaignGender,
-        campaignAge: this.campaignAge,
-        campaignDevice: this.campaignDevice,
-        campaignConversionCounting: this.campaignConversionCounting,
-        scheduleType: this.scheduleType,
-        campaignStartTime: this.campaignStartTime,
-        campaignEndTime: this.campaignEndTime
       }
       this.postData = {...this.postData, ...step1Data }
       this.currentStep = 2
     },
     submitStep2() {
       const step2Data = {
-        displayUrl: this.displayUrl,
-        targetUrl: this.targetUrl,
-        title: this.title,
-        brandname: this.brandname,
-        description: this.description,
-        imageUrlHQ: this.imageUrlHQ,
-        imageUrl: this.imageUrl,
-        dataAttributes: this.dataAttributes
       }
       this.postData = {...this.postData, ...step2Data }
-      this.attributes[0] = {
-        gender: this.campaignGender,
-        age: this.campaignAge,
-        device: this.campaignDevice
-      }
+
       this.currentStep = 3
     },
     submitStep3() {
