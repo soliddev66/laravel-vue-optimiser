@@ -362,7 +362,7 @@
                 </div>
               </div>
 
-              <div class="col" v-if="currentStep == 2">
+              <!-- <div class="col" v-if="currentStep == 2">
                 <h2>General information</h2>
 
                 <div class="form-group row">
@@ -491,6 +491,38 @@
                       </fieldset>
                       <button class="btn btn-primary btn-sm" @click.prevent="addCardComponent()">Add New</button>
                     </fieldset>
+                  </div>
+                </div>
+              </div> -->
+
+              <div class="col" v-if="currentStep == 2">
+                <h2>General information</h2>
+
+                <div class="form-group row">
+                  <label for="card_name" class="col-sm-2 control-label mt-2">Name</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="cardName" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="card_media_key" class="col-sm-2 control-label mt-2">Media Key</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="card_media_key" placeholder="Enter a key" class="form-control" v-model="cardMediaKey" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="card_website_title" class="col-sm-2 control-label mt-2">Website Title</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="card_website_title" placeholder="Enter website title" class="form-control" v-model="cardWebsiteTitle" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="card_website_url" class="col-sm-2 control-label mt-2">Website URL</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="card_website_url" placeholder="Enter a website URL" class="form-control" v-model="cardWebsiteUrl" />
                   </div>
                 </div>
               </div>
@@ -708,12 +740,16 @@ export default {
       adGroupAudienceExpansion: '',
       adGrouptrackingTags: '',
       cardName: '',
-      cardComponents: [
-        {
-          type: '',
-          destination: {}
-        }
-      ],
+      cardName: '',
+      cardMediaKey: '',
+      cardWebsiteTitle: '',
+      cardWebsiteUrl: '',
+      // cardComponents: [
+      //   {
+      //     type: '',
+      //     destination: {}
+      //   }
+      // ],
       tweetText: '',
       tweetNullcast: true,
       tweetTrimUser: false,
@@ -728,43 +764,43 @@ export default {
     selectedAdvertiserChange() {
       this.loadFundingInstruments();
     },
-    cardComponentTypeChange(index) {
-      switch (this.cardComponents[index].type) {
-        case 'DETAILS':
-          this.cardComponents[index].title = '';
-          this.cardComponents[index].destination = {
-            type: 'WEBSITE',
-            url: ''
-          }
+    // cardComponentTypeChange(index) {
+    //   switch (this.cardComponents[index].type) {
+    //     case 'DETAILS':
+    //       this.cardComponents[index].title = '';
+    //       this.cardComponents[index].destination = {
+    //         type: 'WEBSITE',
+    //         url: ''
+    //       }
 
-          break;
-      }
-    },
-    cardComponentDestinationTypeChange(index) {
-      if (this.cardComponents[index].destination.type == 'APP') {
-        this.cardComponents[index].destination = {
-          type: 'APP',
-          country_code: '',
-          ipad_app_id: '',
-          iphone_app_id: '',
-          googleplay_app_id: '',
-          ipad_deep_link: '',
-          iphone_deep_link: '',
-          googleplay_deep_link: ''
-        }
-      } else {
-        this.cardComponents[index].destination = {
-          type: 'WEBSITE',
-          url: ''
-        }
-      }
-    },
-    addCardComponent() {
-      this.cardComponents.push({
-        type: '',
-        destination: {}
-      });
-    },
+    //       break;
+    //   }
+    // },
+    // cardComponentDestinationTypeChange(index) {
+    //   if (this.cardComponents[index].destination.type == 'APP') {
+    //     this.cardComponents[index].destination = {
+    //       type: 'APP',
+    //       country_code: '',
+    //       ipad_app_id: '',
+    //       iphone_app_id: '',
+    //       googleplay_app_id: '',
+    //       ipad_deep_link: '',
+    //       iphone_deep_link: '',
+    //       googleplay_deep_link: ''
+    //     }
+    //   } else {
+    //     this.cardComponents[index].destination = {
+    //       type: 'WEBSITE',
+    //       url: ''
+    //     }
+    //   }
+    // },
+    // addCardComponent() {
+    //   this.cardComponents.push({
+    //     type: '',
+    //     destination: {}
+    //   });
+    // },
     loadAdvertisers() {
       this.isLoading = true
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
@@ -845,7 +881,9 @@ export default {
     submitStep2() {
       const step2Data = {
         cardName: this.cardName,
-        cardComponents: this.cardComponents
+        cardMediaKey: this.cardMediaKey,
+        cardWebsiteTitle: this.cardWebsiteTitle,
+        cardWebsiteUrl: this.cardWebsiteUrl
       }
       this.postData = {...this.postData, ...step2Data }
 

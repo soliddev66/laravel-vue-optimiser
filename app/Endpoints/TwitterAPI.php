@@ -13,6 +13,7 @@ use Hborras\TwitterAdsSDK\TwitterAds;
 use Hborras\TwitterAdsSDK\TwitterAds\Account;
 use Hborras\TwitterAdsSDK\TwitterAds\Campaign\LineItem;
 use Hborras\TwitterAdsSDK\TwitterAds\Campaign\Campaign;
+use Hborras\TwitterAdsSDK\TwitterAds\Creative\WebsiteCard;
 use Hborras\TwitterAdsSDK\TwitterAds\Campaign\FundingInstrument;
 
 class TwitterAPI
@@ -62,6 +63,7 @@ class TwitterAPI
             $campaign->setName(request('campaignName'));
             $campaign->setEntityStatus(request('campaignStatus'));
             $campaign->setStartTime(request('campaignStartTime'));
+
             return $campaign->save();
         } catch (Exception $e) {
             throw $e;
@@ -84,6 +86,7 @@ class TwitterAPI
             $line_item->setEntityStatus(request('adGroupStatus'));
             $line_item->setCategories(request('adGroupCategory'));
             $line_item->setAdvertiserDomain(request('adGroupAdvertiserDomain'));
+
             return $line_item->save();
         } catch (Exception $e) {
             throw $e;
@@ -93,7 +96,13 @@ class TwitterAPI
     public function createCard()
     {
         try {
+            $website_card = new WebsiteCard();
+            $website_card->setName(request('cardName'));
+            $website_card->setImageMediaId(request('cardMediaKey'));
+            $website_card->setWebsiteTitle(request('cardWebsiteTitle'));
+            $website_card->setWebsiteUrl(request('cardWebsiteUrl'));
 
+            return $website_card->save();
         } catch (Exception $e) {
             var_dump($e);exit;
             throw $e;

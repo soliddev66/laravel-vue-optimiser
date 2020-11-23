@@ -86,11 +86,11 @@ class Twitter extends Root
 
             try {
                 $card_data = $api->createCard();
-
-                var_dump($card_data);exit;
             } catch (Exception $e) {
                 throw $e;
             }
+
+
 
         } catch (Exception $e) {
             var_dump($e);
