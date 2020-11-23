@@ -4,6 +4,7 @@ namespace App\Utils\AdVendors;
 
 use Exception;
 
+use App\Models\Campaign;
 use App\Models\Provider;
 use App\Endpoints\TwitterAPI;
 
@@ -70,7 +71,20 @@ class Twitter extends Root
         try {
             $campaign_data = $api->createCampaign();
 
-            var_dump($campaign_data);
+            $campaign = Campaign::firstOrNew([
+                'campaign_id' => $campaign_data->getId(),
+                'provider_id' => $provider->id,
+                'open_id' => $user_info->open_id,
+                'user_id' => auth()->id()
+            ]);
+
+            try {
+                $card_data = $api->createCard();
+
+                var_dump($card_data);exit;
+            } catch (Exception $e) {
+                throw $e;
+            }
 
         } catch (Exception $e) {
             var_dump($e);

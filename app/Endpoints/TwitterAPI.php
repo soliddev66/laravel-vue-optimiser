@@ -3,6 +3,7 @@
 namespace App\Endpoints;
 
 use DateTime;
+use Exception;
 
 use Carbon\Carbon;
 
@@ -50,15 +51,32 @@ class TwitterAPI
 
     public function createCampaign()
     {
-        $account = new Account($this->account_id);
-        $account->read();
+        try {
+            $account = new Account($this->account_id);
+            $account->read();
 
-        $campaign = new Campaign();
-        $campaign->setFundingInstrumentId(request('fundingInstrument'));
-        $campaign->setDailyBudgetAmountLocalMicro(140000000);
-        $campaign->setName(request('campaignName'));
-        $campaign->setEntityStatus('PAUSED');
-        $campaign->setStartTime('2020-12-05');
-        return $campaign->save();
+            $campaign = new Campaign();
+            $campaign->setFundingInstrumentId(request('fundingInstrument'));
+            $campaign->setDailyBudgetAmountLocalMicro(request('campaignDailyBudgetAmountLocalMicro'));
+            $campaign->setName(request('campaignName'));
+            $campaign->setEntityStatus(request('campaignStatus'));
+            $campaign->setStartTime(request('campaignStartTime'));
+            return $campaign->save();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function createCard()
+    {
+        try {
+            return $this->client->post('accounts/' . $this->account_id . '/cards', [
+                'name' => request('cardName'),
+                'components' => request('cardComponents')
+            ])->getBody()->data;
+        } catch (Exception $e) {
+            var_dump($e);exit;
+            throw $e;
+        }
     }
 }

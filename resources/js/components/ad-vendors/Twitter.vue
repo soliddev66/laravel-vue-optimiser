@@ -575,9 +575,7 @@
           </div>
 
           <div class="card-body" v-if="currentStep == 4">
-            <div class="col-sm-12 text-center">
-              <div v-html="previewData"></div>
-            </div>
+
           </div>
           <div class="card-footer d-flex justify-content-end">
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
@@ -847,7 +845,8 @@ export default {
     },
     submitStep2() {
       const step2Data = {
-
+        cardName: this.cardName,
+        cardComponents: this.cardComponents
       }
       this.postData = {...this.postData, ...step2Data }
 
