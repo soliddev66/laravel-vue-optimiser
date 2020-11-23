@@ -92,6 +92,7 @@ Route::get('/account/accounts', [App\Http\Controllers\AccountController::class, 
 Route::get('/account/advertisers', [App\Http\Controllers\AccountController::class, 'advertisers'])->name('advertisers');
 Route::get('/account/funding-instruments', [App\Http\Controllers\AccountController::class, 'fundingInstruments'])->name('account.fundingInstruments');
 Route::post('/account/create-funding-instrument', [App\Http\Controllers\AccountController::class, 'createFundingInstrument'])->name('account.createFundingInstrument');
+Route::get('/account/ad-group-categories', [App\Http\Controllers\AccountController::class, 'adGroupCategories'])->name('account.adGroupCategories');
 Route::post('/account/sign-up', [App\Http\Controllers\AccountController::class, 'signUp'])->name('sign_up');
 Route::get('/traffic-sources', [App\Http\Controllers\AccountController::class, 'trafficSources'])->name('traffic_sources');
 Route::get('/trackers', [App\Http\Controllers\AccountController::class, 'trackers'])->name('trackers');

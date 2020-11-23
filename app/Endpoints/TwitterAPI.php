@@ -51,6 +51,11 @@ class TwitterAPI
         return $account->getFundingInstruments()->getCollection();
     }
 
+    public function getAdGroupCategories()
+    {
+        return $this->client->get('iab_categories')->getBody()->data;
+    }
+
     public function createCampaign()
     {
         try {
@@ -84,7 +89,7 @@ class TwitterAPI
             $line_item->setObjective(request('adGroupObjective'));
             $line_item->setBidAmountLocalMicro(request('adGroupBidAmountLocalMicro') * 1E6);
             $line_item->setEntityStatus(request('adGroupStatus'));
-            $line_item->setCategories(request('adGroupCategory'));
+            $line_item->setCategories(request('adGroupCategories'));
             $line_item->setAdvertiserDomain(request('adGroupAdvertiserDomain'));
 
             return $line_item->save();

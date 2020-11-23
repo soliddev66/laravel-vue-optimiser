@@ -60,6 +60,11 @@ class Twitter extends Root
         return $result;
     }
 
+    public function adGroupCategories()
+    {
+        return $this->api()->getAdGroupCategories();
+    }
+
     public function store()
     {
         $data = [];

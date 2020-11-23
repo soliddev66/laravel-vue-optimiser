@@ -209,7 +209,7 @@
                 <div class="form-group row">
                   <label for="ad_group_placements" class="col-sm-2 control-label mt-2">Placements</label>
                   <div class="col-lg-10 col-xl-8">
-                    <select2 id="ad_group_placements" name="placements" :options="placements" v-model="adGroupPlacements" :settings="{ multiple: true }"></select2>
+                    <select2 id="ad_group_placements" name="ad_group_placements" :options="placements" v-model="adGroupPlacements" :settings="{ multiple: true }"></select2>
                   </div>
                 </div>
 
@@ -249,9 +249,9 @@
                 </div>
 
                 <div class="form-group row">
-                  <label for="ad_group_category" class="col-sm-2 control-label mt-2">Category</label>
+                  <label for="ad_group_categories" class="col-sm-2 control-label mt-2">Category</label>
                   <div class="col-lg-10 col-xl-8">
-                    <input type="text" name="ad_group_category" placeholder="Category" class="form-control" v-model="adGroupCategory" />
+                    <select2 id="ad_group_categories" name="ad_group_categories" :options="adGroupCategorySelection" v-model="adGroupCategories" :settings="{ multiple: true }"></select2>
                   </div>
                 </div>
 
@@ -727,7 +727,8 @@ export default {
       adGroupBidAmountLocalMicro: '',
       adGroupTotalBudgetAmountLocalMicro: '',
       adGroupPrimaryWebEventTag: '',
-      adGroupCategory: '',
+      adGroupCategorySelection: null,
+      adGroupCategories: [],
       adGroupAdvertiserUserId: '',
       adGroupAutomaticallySelectBid: false,
       adGroupBidType: 'AUTO',
@@ -763,6 +764,7 @@ export default {
   methods: {
     selectedAdvertiserChange() {
       this.loadFundingInstruments();
+      this.loadAdGroupCategories();
     },
     // cardComponentTypeChange(index) {
     //   switch (this.cardComponents[index].type) {
@@ -821,6 +823,21 @@ export default {
         this.isLoading = false
       })
     },
+    loadAdGroupCategories() {
+      this.isLoading = true
+      axios.get(`/account/ad-group-categories?provider=${this.selectedProvider}&account=${this.selectedAccount}&advertiser=${this.selectedAdvertiser}`).then(response => {
+        this.adGroupCategorySelection = response.data.map(category => {
+          return {
+            id: category.id,
+            text: category.name
+          }
+        })
+      }).catch(err => {
+        console.log(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
+    },
     signUp() {
       this.isLoading = true
       axios.post('/account/sign-up', {
@@ -859,7 +876,7 @@ export default {
         adGroupPlacements: this.adGroupPlacements,
         adGroupProductType: this.adGroupProductType,
         adGroupAdvertiserDomain: this.adGroupAdvertiserDomain,
-        adGroupCategory: this.adGroupCategory,
+        adGroupCategories: this.adGroupCategories,
         adGroupPrimaryWebEventTag: this.adGroupPrimaryWebEventTag,
         adGroupAdvertiserUserId: this.adGroupAdvertiserUserId,
         adGroupAutomaticallySelectBid: this.adGroupAutomaticallySelectBid,
