@@ -11,6 +11,7 @@ use App\Helpers\GeminiClient;
 
 use Hborras\TwitterAdsSDK\TwitterAds;
 use Hborras\TwitterAdsSDK\TwitterAds\Account;
+use Hborras\TwitterAdsSDK\TwitterAds\Campaign\LineItem;
 use Hborras\TwitterAdsSDK\TwitterAds\Campaign\Campaign;
 use Hborras\TwitterAdsSDK\TwitterAds\Campaign\FundingInstrument;
 
@@ -57,7 +58,7 @@ class TwitterAPI
 
             $campaign = new Campaign();
             $campaign->setFundingInstrumentId(request('fundingInstrument'));
-            $campaign->setDailyBudgetAmountLocalMicro(request('campaignDailyBudgetAmountLocalMicro'));
+            $campaign->setDailyBudgetAmountLocalMicro(request('campaignDailyBudgetAmountLocalMicro') * 1E6);
             $campaign->setName(request('campaignName'));
             $campaign->setEntityStatus(request('campaignStatus'));
             $campaign->setStartTime(request('campaignStartTime'));
@@ -67,13 +68,32 @@ class TwitterAPI
         }
     }
 
+    public function createLineItem($campaign)
+    {
+        try {
+            $account = new Account($this->account_id);
+            $account->read();
+
+            $line_item = new LineItem();
+            $line_item->setCampaignId($campaign->getId());
+            $line_item->setName(request('adGroupName'));
+            $line_item->setProductType(request('adGroupProductType'));
+            $line_item->setPlacements(request('adGroupPlacements'));
+            $line_item->setObjective(request('adGroupObjective'));
+            $line_item->setBidAmountLocalMicro(request('adGroupBidAmountLocalMicro') * 1E6);
+            $line_item->setEntityStatus(request('adGroupStatus'));
+            $line_item->setCategories(request('adGroupCategory'));
+            $line_item->setAdvertiserDomain(request('adGroupAdvertiserDomain'));
+            return $line_item->save();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     public function createCard()
     {
         try {
-            return $this->client->post('accounts/' . $this->account_id . '/cards', [
-                'name' => request('cardName'),
-                'components' => request('cardComponents')
-            ])->getBody()->data;
+
         } catch (Exception $e) {
             var_dump($e);exit;
             throw $e;

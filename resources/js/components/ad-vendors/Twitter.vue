@@ -823,7 +823,6 @@ export default {
         adGroupPlacements: this.adGroupPlacements,
         adGroupProductType: this.adGroupProductType,
         adGroupAdvertiserDomain: this.adGroupAdvertiserDomain,
-        adGroupBidAmountLocalMicro: this.adGroupBidAmountLocalMicro,
         adGroupCategory: this.adGroupCategory,
         adGroupPrimaryWebEventTag: this.adGroupPrimaryWebEventTag,
         adGroupAdvertiserUserId: this.adGroupAdvertiserUserId,

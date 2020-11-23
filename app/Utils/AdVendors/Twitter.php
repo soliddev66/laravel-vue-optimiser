@@ -79,6 +79,12 @@ class Twitter extends Root
             ]);
 
             try {
+                $line_item_data = $api->createLineItem($campaign_data);
+            } catch (Exception $e) {
+                throw $e;
+            }
+
+            try {
                 $card_data = $api->createCard();
 
                 var_dump($card_data);exit;
