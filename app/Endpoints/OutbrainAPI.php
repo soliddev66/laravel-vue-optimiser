@@ -22,6 +22,17 @@ class OutbrainAPI
     }
 
     /**
+     * Fetch Amplify GeoLocations.
+     *
+     * @return mixed
+     * @throws GuzzleException
+     */
+    public function getCountries()
+    {
+        return $this->outbrain->call('GET', 'locations/search?term=&limit=&geoType=country');
+    }
+
+    /**
      * Fetch marketers.
      *
      * @return mixed
