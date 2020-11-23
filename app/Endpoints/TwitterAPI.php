@@ -109,8 +109,17 @@ class TwitterAPI
 
             return $website_card->save();
         } catch (Exception $e) {
-            var_dump($e);exit;
             throw $e;
         }
+    }
+
+    public function uploadMedia()
+    {
+        return $this->client->upload(['media' => base_path() . '/kitten.jpg', 'media_type' => 'image/jpg'], true);
+    }
+
+    public function createMediaLibrary($media_key)
+    {
+        return $this->client->post('accounts/' . $this->account_id . '/media_library?media_key=' . $media_key);
     }
 }

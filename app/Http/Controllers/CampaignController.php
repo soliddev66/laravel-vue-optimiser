@@ -410,7 +410,12 @@ class CampaignController extends Controller
         return $data;
     }
 
+    public function media()
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
+        return (new $adVendorClass)->media();
+    }
 
     public function store()
     {

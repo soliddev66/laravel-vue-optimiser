@@ -65,6 +65,13 @@ class Twitter extends Root
         return $this->api()->getAdGroupCategories();
     }
 
+    public function media()
+    {
+        //$media = $this->api()->uploadMedia();
+
+        return $this->api()->createMediaLibrary('3_1330913410511298560');
+    }
+
     public function store()
     {
         $data = [];
