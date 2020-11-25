@@ -11,9 +11,12 @@ use App\Helpers\GeminiClient;
 
 use Hborras\TwitterAdsSDK\TwitterAds;
 use Hborras\TwitterAdsSDK\TwitterAds\Account;
+use Hborras\TwitterAdsSDK\TwitterAds\Campaign\Tweet;
 use Hborras\TwitterAdsSDK\TwitterAds\Campaign\LineItem;
 use Hborras\TwitterAdsSDK\TwitterAds\Campaign\Campaign;
 use Hborras\TwitterAdsSDK\TwitterAds\Creative\WebsiteCard;
+use Hborras\TwitterAdsSDK\TwitterAds\Creative\MediaLibrary;
+use Hborras\TwitterAdsSDK\TwitterAds\Creative\PromotedTweet;
 use Hborras\TwitterAdsSDK\TwitterAds\Campaign\FundingInstrument;
 
 class TwitterAPI
@@ -98,7 +101,7 @@ class TwitterAPI
         }
     }
 
-    public function createCard()
+    public function createWebsiteCard()
     {
         try {
             $website_card = new WebsiteCard();
@@ -113,6 +116,37 @@ class TwitterAPI
         }
     }
 
+    public function createTweet($card)
+    {
+        try {
+            $account = new Account($this->account_id);
+            $account->read();
+
+            return Tweet::create($account, request('text') . rand(), [
+                'card_uri' => $card->getCardUri(),
+                'as_user_id' => '1323238304666378244'
+            ]);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function createPromotedTweet($line_item, $tweet)
+    {
+        try {
+            $account = new Account($this->account_id);
+            $account->read();
+
+            $promoted_tweet = new PromotedTweet();
+            $promoted_tweet->setLineItemId($line_item->getId());
+            $promoted_tweet->setTweetId($tweet->id);
+
+            return $promoted_tweet->save();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     public function uploadMedia()
     {
         return $this->client->upload(['media' => base_path() . '/kitten.jpg', 'media_type' => 'image/jpg'], true);
@@ -120,6 +154,11 @@ class TwitterAPI
 
     public function createMediaLibrary($media_key)
     {
-        return $this->client->post('accounts/' . $this->account_id . '/media_library?media_key=' . $media_key);
+        $account = new Account($this->account_id);
+        $account->read();
+
+        $media_library = new MediaLibrary();
+        $media_library->setMediaKey($media_key);
+        return $media_library->save();
     }
 }

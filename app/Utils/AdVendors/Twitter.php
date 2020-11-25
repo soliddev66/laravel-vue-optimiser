@@ -67,9 +67,11 @@ class Twitter extends Root
 
     public function media()
     {
-        //$media = $this->api()->uploadMedia();
+        $media = $this->api()->uploadMedia();
 
-        return $this->api()->createMediaLibrary('3_1330913410511298560');
+        $media_library = $this->api()->createMediaLibrary($media->media_key);
+
+        var_dump($media_library);
     }
 
     public function store()
@@ -97,15 +99,29 @@ class Twitter extends Root
             }
 
             try {
-                $card_data = $api->createCard();
+                $card_data = $api->createWebsiteCard();
             } catch (Exception $e) {
+                $line_item_data->delete();
                 throw $e;
             }
 
+            try {
+                $tweet_data = $api->createTweet($card_data);
+            } catch (Exception $e) {
+                $line_item_data->delete();
+                $card_data->delete();
+                throw $e;
+            }
 
-
+            try {
+                $api->createPromotedTweet($line_item_data, $tweet_data);
+            } catch (Exception $e) {
+                $line_item_data->delete();
+                $card_data->delete();
+                $tweet_data->delete();
+                throw $e;
+            }
         } catch (Exception $e) {
-            var_dump($e);
             $data = [
                 'errors' => [$e->getMessage()]
             ];

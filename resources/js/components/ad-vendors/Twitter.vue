@@ -29,9 +29,6 @@
                       <option :value="advertiser.id" v-for="advertiser in advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.name }}</option>
                     </select>
                   </div>
-                  <div class="col-sm-2" v-if="!instance">
-                    <button type="button" class="btn btn-primary" @click.prevent="signUp()">Create New</button>
-                  </div>
                 </div>
 
                 <div class="form-group row" v-if="selectedAdvertiser">
@@ -623,7 +620,7 @@
               <button type="button" class="btn btn-primary" @click.prevent="submitStep3">Submit</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 4">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep4">Finish</button>
+              <button type="button" class="btn btn-primary">Finish</button>
             </div>
           </div>
         </div>
@@ -716,7 +713,7 @@ export default {
       campaignFrequencyCap: '',
       campaignPurchaseOrderNumber: '',
       campaignStandardDelivery: true,
-      campaignStatus: this.instance ? this.instance.channel : 'ACTIVE',
+      campaignStatus: this.instance ? this.instance.channel : 'PAUSED',
       adGroupName: '',
       adGroupAndroidAppStoreIdentifier: '',
       adGroupIOSAppStoreIdentifier: '',
@@ -732,7 +729,7 @@ export default {
       adGroupAdvertiserUserId: '',
       adGroupAutomaticallySelectBid: false,
       adGroupBidType: 'AUTO',
-      adGroupStatus: 'ACTIVE',
+      adGroupStatus: 'PAUSED',
       adGroupBidUnit: '',
       adGroupChargeBy: '',
       adGroupStartTime: '',
@@ -838,21 +835,6 @@ export default {
         this.isLoading = false
       })
     },
-    signUp() {
-      this.isLoading = true
-      axios.post('/account/sign-up', {
-        provider: this.selectedProvider,
-        account: this.selectedAccount
-      }).then(response => {
-        alert('New advertiser has been saved!')
-        this.selectedAdvertiser = response.data.id
-        this.loadAdvertisers()
-      }).catch(err => {
-        console.log(err)
-      }).finally(() => {
-        this.isLoading = false
-      })
-    },
     submitStep1() {
       const step1Data = {
         provider: this.selectedProvider,
@@ -908,12 +890,18 @@ export default {
     },
     submitStep3() {
       const step3Data = {
-
+        tweetText: this.tweetText,
+        tweetNullcast: this.tweetNullcast,
+        tweetTrimUser: this.tweetTrimUser,
+        tweetVideoCTA: this.tweetVideoCTA,
+        tweetTweetMode: this.tweetTweetMode,
+        tweetVideoCTAValue: this.tweetVideoCTAValue,
+        tweetVideoTitle: this.tweetVideoTitle,
+        tweetVideoDescription: this.tweetVideoDescription
       }
+
       this.postData = {...this.postData, ...step3Data }
-      this.currentStep = 4
-    },
-    submitStep4() {
+
       this.isLoading = true
       let url = '/campaigns';
 
@@ -924,6 +912,7 @@ export default {
       axios.post(url, this.postData).then(response => {
         if (response.data.errors) {
           alert(response.data.errors[0])
+          this.currentStep = 4
         } else {
           alert('Save successfully!');
         }
@@ -932,6 +921,9 @@ export default {
       }).finally(() => {
         this.isLoading = false
       })
+    },
+    submitStep4() {
+
     }
   }
 }
