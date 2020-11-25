@@ -53,14 +53,22 @@ class GeneralController extends Controller
         $data = [];
         $provider = Provider::where('slug', request('provider'))->first();
         $user_info = auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first();
-        try {
-            $data = $this->getPreview($user_info);
-        } catch (Exception $e) {
-            if ($e->getCode() == 401) {
-                Token::refresh($user_info, function () use ($user_info, &$data) {
+        switch ($user_info->provider_id) {
+            case 1:
+                try {
                     $data = $this->getPreview($user_info);
-                });
-            }
+                } catch (Exception $e) {
+                    if ($e->getCode() == 401) {
+                        Token::refresh($user_info, function () use ($user_info, &$data) {
+                            $data = $this->getPreview($user_info);
+                        });
+                    }
+                }
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
         }
 
         return $data;

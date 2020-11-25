@@ -47,15 +47,15 @@ class PullOutbrainCampaign implements ShouldQueue
      */
     public function handle()
     {
-        foreach ($this->user->providers()->where('provider_id', $this->provider->id)->get() as $key => $provider) {
-            $api = new OutbrainAPI($provider);
+        foreach ($this->user->providers()->where('provider_id', $this->provider->id)->get() as $key => $user_provider) {
+            $api = new OutbrainAPI($user_provider);
 
             $marketers_ids = collect($api->getMarketers()['marketers'])->pluck('id');
             $campaigns = collect([]);
 
             $marketers_ids->each(function ($id) use (&$campaigns, $api) {
                 $campaigns_by_marketer = $api->getCampaignsByMarketerId($id);
-                if (in_array('campaigns', $campaigns_by_marketer)) {
+                if (array_key_exists('campaigns', $campaigns_by_marketer)) {
                     $campaigns_by_marketer = $campaigns_by_marketer['campaigns'];
                     foreach ($campaigns_by_marketer as $campaign) {
                         $campaigns->push($campaign);
@@ -63,7 +63,7 @@ class PullOutbrainCampaign implements ShouldQueue
                 }
             });
 
-            $campaigns->each(function ($campaign) use ($provider) {
+            $campaigns->each(function ($campaign) use ($user_provider) {
                 $data = collect($campaign)->keyBy(function ($value, $key) {
                     return Str::of($key)->snake();
                 });
@@ -72,8 +72,8 @@ class PullOutbrainCampaign implements ShouldQueue
                 unset($data['id']);
 
                 $db_campaign = OutbrainCampaign::firstOrNew(['campaign_id' => $data['campaign_id']]);
-                $db_campaign->provider_id = $provider->id;
-                $db_campaign->open_id = $provider->open_id;
+                $db_campaign->provider_id = $user_provider->provider_id;
+                $db_campaign->open_id = $user_provider->open_id;
                 $db_campaign->user_id = $this->user->id;
 
                 foreach (array_keys($data->toArray()) as $index => $array_key) {

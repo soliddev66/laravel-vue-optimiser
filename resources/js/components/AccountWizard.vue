@@ -13,18 +13,18 @@
           <div class="card-body" v-if="currentStep == 1">
             <p v-for="provider in providers">
               <label>
-                <input type="radio" v-model="selectedProvider" :value="provider.slug"/> {{ provider.label }}
+                <input type="radio" v-model="selectedProvider" :value="provider.slug" /> {{ provider.label }}
               </label>
             </p>
-            <form v-if="selectedProvider === 'outbrain'">
+            <form v-if="selectedProvider === 'outbrain' || selectedProvider === 'taboola'">
               <div class="form-group mb-3">
                 <label for="outBrainFormName">Name</label>
-                <input type="text" placeholder="Insert Name" v-model="outbrainCredentials.name" class="form-control" id="outBrainFormName">
+                <input type="text" placeholder="Insert Name" v-model="credentials.name" class="form-control" id="outBrainFormName">
               </div>
               <div class="form-group mb-3">
                 <label for="outBrainFormPassword">Password</label>
                 <div class="input-group">
-                  <input :type="outbrainCredentials.showPassword ? 'text' : 'password'" v-model="outbrainCredentials.password" class="form-control" id="outBrainFormPassword">
+                  <input :type="credentials.showPassword ? 'text' : 'password'" v-model="credentials.password" class="form-control" id="outBrainFormPassword">
                   <div class="show-passport-checkbox">
                     <a href="javascript:void(0);" @click="toggleShowingPassword">
                       <i class="fa fa-eye-slash" aria-hidden="true"></i>
@@ -103,7 +103,7 @@ export default {
       redtrackKey: '',
       selectedProvider: 'yahoo',
       selectedTracker: 'redtrack',
-      outbrainCredentials: {
+      credentials: {
         name: '',
         password: '',
         showPassword: false,
@@ -112,15 +112,20 @@ export default {
   },
   methods: {
     submitStep1(useTracker) {
-      if (this.selectedProvider === 'outbrain') {
+      if (this.selectedProvider === 'outbrain' || this.selectedProvider === 'taboola') {
         const formData = new FormData()
-        formData.append('name', this.outbrainCredentials.name)
-        formData.append('password', this.outbrainCredentials.password)
+        formData.append('name', this.credentials.name)
+        formData.append('provider', this.selectedProvider)
+        formData.append('password', this.credentials.password)
 
         axios
           .post(`/user-providers`, formData)
-          .then((response) => window.location = `/login/${this.selectedProvider}?user_tracker=${useTracker}&open_id=${response.data.user_provider.open_id}`)
-          .catch((err) => console.error(err))
+          .then((response) => {
+            window.location = `/login/${this.selectedProvider}?user_tracker=${useTracker}&open_id=${response.data.user_provider.open_id}`
+          })
+          .catch((err) => {
+            alert(err.response.data.message)
+          })
       } else {
         window.location = `/login/${this.selectedProvider}?user_tracker=${useTracker}`
       }
@@ -129,7 +134,7 @@ export default {
       window.location = `/login/${this.selectedTracker}?api_key=${this.redtrackKey}&token=${this.token}`
     },
     toggleShowingPassword() {
-      this.outbrainCredentials.showPassword = !this.outbrainCredentials.showPassword
+      this.credentials.showPassword = !this.credentials.showPassword
     }
   }
 }

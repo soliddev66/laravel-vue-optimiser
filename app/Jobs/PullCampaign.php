@@ -39,19 +39,19 @@ class PullCampaign implements ShouldQueue
     public function handle()
     {
         // Yahoo Gemini
-        foreach ($this->user->providers()->where('provider_id', 1)->get() as $key => $provider) {
-            Token::refresh($provider, function () use ($provider) {
-                $data = $this->getCampaigns($provider);
-                $this->saveCampaigns($data['response'], $provider);
-                $this->cleanData($data['response'], $provider);
+        foreach ($this->user->providers()->where('provider_id', 1)->get() as $key => $user_provider) {
+            Token::refresh($user_provider, function () use ($user_provider) {
+                $data = $this->getCampaigns($user_provider);
+                $this->saveCampaigns($data['response'], $user_provider);
+                $this->cleanData($data['response'], $user_provider);
             });
         }
         // Twitter
-        foreach ($this->user->providers()->where('provider_id', 3)->get() as $key => $provider) {
+        foreach ($this->user->providers()->where('provider_id', 3)->get() as $key => $user_provider) {
             $api_key = env('TWITTER_CLIENT_ID');
             $api_secret = env('TWITTER_CLIENT_SECRET');
-            $access_token = $provider->token;
-            $access_token_secret = $provider->secret_token;
+            $access_token = $user_provider->token;
+            $access_token_secret = $user_provider->secret_token;
 
             // // Create Twitter Ads Api Instance
             // $api = TwitterAds::init($api_key, $api_secret, $access_token, $access_token_secret, null, env('TWITTER_SANDBOX'));
@@ -59,12 +59,12 @@ class PullCampaign implements ShouldQueue
         }
     }
 
-    private function getCampaigns($provider)
+    private function getCampaigns($user_provider)
     {
         $client = new Client();
         $response = $client->request('GET', env('BASE_URL') . '/v3/rest/campaign', [
             'headers' => [
-                'Authorization' => 'Bearer ' . $provider->token,
+                'Authorization' => 'Bearer ' . $user_provider->token,
                 'Content-Type' => 'application/json'
             ]
         ]);
@@ -72,7 +72,7 @@ class PullCampaign implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private function saveCampaigns($campaigns, $provider)
+    private function saveCampaigns($campaigns, $user_provider)
     {
         foreach ($campaigns as $key => $campaign) {
             $data = collect($campaign)->keyBy(function ($value, $key) {
@@ -80,8 +80,8 @@ class PullCampaign implements ShouldQueue
             });
             $data['user_id'] = $this->user->id;
             $data['campaign_id'] = $data['id'];
-            $data['provider_id'] = $provider->id;
-            $data['open_id'] = $provider->open_id;
+            $data['provider_id'] = $user_provider->provider_id;
+            $data['open_id'] = $user_provider->open_id;
             $data['name'] = $data['campaign_name'];
             $data = $data->toArray();
             unset($data['campaign_name']);
@@ -94,7 +94,7 @@ class PullCampaign implements ShouldQueue
         }
     }
 
-    private function cleanData($campaigns, $provider)
+    private function cleanData($campaigns, $user_provider)
     {
         $user_campaigns = $this->user->campaigns->toArray();
         if (count($campaigns) !== count($user_campaigns)) {

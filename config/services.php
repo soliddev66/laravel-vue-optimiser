@@ -48,6 +48,7 @@ return [
     ],
 
     'taboola'  => [
+        'api_endpoint'  => env('TABOOLA_API_ENDPOINT'),
         'client_id'     => env('TABOOLA_CLIENT_ID'),
         'client_secret' => env('TABOOLA_CLIENT_SECRET'),
         'redirect'      => env('TABOOLA_REDIRECT'),

@@ -106,7 +106,7 @@ class AccountController extends Controller
             session()->put('use_tracker', request('user_tracker'));
 
             // If service has auth, which can be adapted to Socialite
-            if ($param !== 'outbrain') {
+            if ($param !== 'outbrain' && $param !== 'taboola') {
                 if ($db_provider->scopes) {
                     return Socialite::driver($db_provider->slug)->scopes(json_decode($db_provider->scopes))->redirect();
                 }
@@ -149,6 +149,8 @@ class AccountController extends Controller
 
             if (session('provider_id') === Provider::whereSlug('outbrain')->first()->id) {
                 $this->pullOutbrainCampaign();
+            } elseif (session('provider_id') === Provider::whereSlug('taboola')->first()->id) {
+                $this->pullTaboolaCampaign();
             } else {
                 $this->pullCampaign();
             }
@@ -214,5 +216,10 @@ class AccountController extends Controller
     private function pullOutbrainCampaign()
     {
         return PullOutbrainCampaign::dispatch(auth()->user());
+    }
+
+    private function pullTaboolaCampaign()
+    {
+        return PullTaboolaCampaign::dispatch(auth()->user());
     }
 }
