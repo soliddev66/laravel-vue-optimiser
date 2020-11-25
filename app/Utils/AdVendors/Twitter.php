@@ -65,15 +65,6 @@ class Twitter extends Root
         return $this->api()->getAdGroupCategories();
     }
 
-    public function media()
-    {
-        $media = $this->api()->uploadMedia();
-
-        $media_library = $this->api()->createMediaLibrary($media->media_key);
-
-        var_dump($media_library);
-    }
-
     public function store()
     {
         $data = [];
@@ -83,31 +74,45 @@ class Twitter extends Root
         $api = new TwitterAPI($user_info, request('advertiser') ?? null);
 
         try {
-            $campaign_data = $api->createCampaign();
-
-            $campaign = Campaign::firstOrNew([
-                'campaign_id' => $campaign_data->getId(),
-                'provider_id' => $provider->id,
-                'open_id' => $user_info->open_id,
-                'user_id' => auth()->id()
-            ]);
-
             try {
-                $line_item_data = $api->createLineItem($campaign_data);
+                $media = $this->api()->uploadMedia();
+                $media_library = $this->api()->createMediaLibrary($media->media_key);
             } catch (Exception $e) {
                 throw $e;
             }
 
             try {
-                $card_data = $api->createWebsiteCard();
+                $campaign_data = $api->createCampaign();
+
+                $campaign = Campaign::firstOrNew([
+                    'campaign_id' => $campaign_data->getId(),
+                    'provider_id' => $provider->id,
+                    'open_id' => $user_info->open_id,
+                    'user_id' => auth()->id()
+                ]);
             } catch (Exception $e) {
+                throw $e;
+            }
+
+            try {
+                $line_item_data = $api->createLineItem($campaign_data);
+            } catch (Exception $e) {
+                $campaign_data->delete();
+                throw $e;
+            }
+
+            try {
+                $card_data = $api->createWebsiteCard($media->media_key);
+            } catch (Exception $e) {
+                $campaign_data->delete();
                 $line_item_data->delete();
                 throw $e;
             }
 
             try {
-                $tweet_data = $api->createTweet($card_data);
+                $tweet_data = $api->createTweet($card_data, $user_info->open_id);
             } catch (Exception $e) {
+                $campaign_data->delete();
                 $line_item_data->delete();
                 $card_data->delete();
                 throw $e;
@@ -115,15 +120,23 @@ class Twitter extends Root
 
             try {
                 $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
-                $data = [
-                    'data' => $promoted_tweet->getId()
-                ];
             } catch (Exception $e) {
+                $campaign_data->delete();
                 $line_item_data->delete();
                 $card_data->delete();
                 $tweet_data->delete();
                 throw $e;
             }
+
+            try {
+                // $data = [
+                //     'previewData' => $api->getTweetPreviews($tweet_data->id)
+                // ];
+            } catch (Exception $e) {
+                throw $e;
+            }
+
+            $campaign->save();
         } catch (Exception $e) {
             $data = [
                 'errors' => [$e->getMessage()]

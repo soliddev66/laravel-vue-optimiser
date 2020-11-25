@@ -3,7 +3,8 @@
 namespace App\Vendors\Twitter\Creative;
 
 use Hborras\TwitterAdsSDK\TwitterAds\Resource;
-use Hborras\TwitterAdsSDK\TwitterAds\Fields\MediaLibraryFields;
+
+use App\Vendors\Twitter\Field\MediaLibraryFields;
 
 /**
  * Class WebsiteCard

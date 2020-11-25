@@ -503,9 +503,12 @@
                 </div>
 
                 <div class="form-group row">
-                  <label for="card_media_key" class="col-sm-2 control-label mt-2">Media Key</label>
-                  <div class="col-lg-10 col-xl-8">
-                    <input type="text" name="card_media_key" placeholder="Enter a key" class="form-control" v-model="cardMediaKey" />
+                  <label for="card_media" class="col-sm-2 control-label mt-2">Media Image</label>
+                  <div class="col-sm-8">
+                    <input type="text" name="card_media" placeholder="Media Image" class="form-control" v-model="cardMedia" disabled />
+                  </div>
+                  <div class="col-sm-8 offset-sm-2">
+                    <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('cardMedia')">Choose File</button>
                   </div>
                 </div>
 
@@ -604,20 +607,25 @@
           </div>
 
           <div class="card-body" v-if="currentStep == 4">
-
+            <div class="row">
+              <div class="col-sm-12">
+                <h2>Preview</h2>
+                <div v-html="previewData"></div>
+              </div>
+            </div>
           </div>
           <div class="card-footer d-flex justify-content-end">
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 1">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!selectedProvider || !selectedAccount || !selectedAdvertiser || !selectedFundingInstrument">Add Card</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="submitStep1State">Add Card</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep2">Add Tweet</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="submitStep2State">Add Tweet</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 3">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep3">Submit</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep3" :disabled="submitStep3State">Submit</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 4">
               <button type="button" class="btn btn-primary">Finish</button>
@@ -626,6 +634,13 @@
         </div>
       </div>
     </div>
+    <modal width="60%" height="80%" name="cardMedia">
+      <file-manager v-bind:settings="settings" :props="{
+          upload: true,
+          viewType: 'grid',
+          selectionType: 'single'
+      }"></file-manager>
+    </modal>
   </section>
 </template>
 <script>
@@ -660,7 +675,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 1
+      default: 2
     }
   },
   components: {
@@ -668,11 +683,31 @@ export default {
     Select2
   },
   computed: {
+    submitStep1State() {
+      return !this.selectedProvider || !this.selectedAccount || !this.selectedAdvertiser || !this.selectedFundingInstrument
+        || !this.campaignName || !this.campaignStartTime || !this.campaignDailyBudgetAmountLocalMicro || !this.adGroupName
+        || !this.adGroupStartTime
+    },
+    submitStep2State() {
+      return !this.cardName || !this.cardWebsiteTitle || !this.cardWebsiteUrl || !this.cardMedia
+    },
+    submitStep3State() {
+      return !this.tweetText
+    }
   },
   mounted() {
     this.currentStep = this.step
 
     this.loadAdvertisers()
+
+    let vm = this
+    this.$root.$on('fm-selected-items', (value) => {
+      const selectedFilePath = value[0].path
+      if (this.openingFileSelector === 'cardMedia') {
+        this.cardMedia = selectedFilePath
+      }
+      vm.$modal.hide(this.openingFileSelector)
+    });
   },
   watch: {
 
@@ -738,8 +773,12 @@ export default {
       adGroupAudienceExpansion: '',
       adGrouptrackingTags: '',
       cardName: '',
-      cardName: '',
-      cardMediaKey: '',
+      cardMedia: '',
+      cardMediaImage: {
+        size: '',
+        height: '',
+        width: ''
+      },
       cardWebsiteTitle: '',
       cardWebsiteUrl: '',
       // cardComponents: [
@@ -755,7 +794,14 @@ export default {
       tweetTweetMode: '',
       tweetVideoCTAValue: '',
       tweetVideoTitle: '',
-      tweetVideoDescription: ''
+      tweetVideoDescription: '',
+      settings: {
+        baseUrl: '/file-manager', // overwrite base url Axios
+        windowsConfig: 2, // overwrite config
+        lang: 'end'
+      },
+      openingFileSelector: '',
+      previewData: '',
     }
   },
   methods: {
@@ -800,6 +846,11 @@ export default {
     //     destination: {}
     //   });
     // },
+    openChooseFile(name) {
+      this.openingFileSelector = name
+      console.log(this.$modal)
+      this.$modal.show(name)
+    },
     loadAdvertisers() {
       this.isLoading = true
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
@@ -880,7 +931,7 @@ export default {
     submitStep2() {
       const step2Data = {
         cardName: this.cardName,
-        cardMediaKey: this.cardMediaKey,
+        cardMedia: this.cardMedia,
         cardWebsiteTitle: this.cardWebsiteTitle,
         cardWebsiteUrl: this.cardWebsiteUrl
       }
@@ -912,8 +963,9 @@ export default {
       axios.post(url, this.postData).then(response => {
         if (response.data.errors) {
           alert(response.data.errors[0])
-          this.currentStep = 4
         } else {
+          this.currentStep = 4
+          this.previewData = response.data.previewData
           alert('Save successfully!');
         }
       }).catch(error => {
@@ -921,9 +973,6 @@ export default {
       }).finally(() => {
         this.isLoading = false
       })
-    },
-    submitStep4() {
-
     }
   }
 }

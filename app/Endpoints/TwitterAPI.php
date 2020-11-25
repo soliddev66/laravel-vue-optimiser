@@ -20,6 +20,9 @@ use Hborras\TwitterAdsSDK\TwitterAds\Campaign\Campaign;
 use Hborras\TwitterAdsSDK\TwitterAds\Creative\PromotedTweet;
 use Hborras\TwitterAdsSDK\TwitterAds\Campaign\FundingInstrument;
 
+use Hborras\TwitterAdsSDK\TwitterAds\Fields\TweetFields;
+
+
 class TwitterAPI
 {
     private $client;
@@ -58,6 +61,20 @@ class TwitterAPI
     public function getAdGroupCategories()
     {
         return $this->client->get('iab_categories')->getBody()->data;
+    }
+
+    public function getTweetPreviews($tweet_id)
+    {
+        try {
+            $account = new Account($this->account_id);
+            $account->read();
+
+            return Tweet::preview($account, [
+                TweetFields::ID => $tweet_id
+            ]);
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 
     public function createCampaign()
@@ -102,12 +119,12 @@ class TwitterAPI
         }
     }
 
-    public function createWebsiteCard()
+    public function createWebsiteCard($card_media_key)
     {
         try {
             $website_card = new WebsiteCard();
             $website_card->setName(request('cardName'));
-            $website_card->setMediaKey(request('cardMediaKey'));
+            $website_card->setMediaKey($card_media_key);
             $website_card->setWebsiteTitle(request('cardWebsiteTitle'));
             $website_card->setWebsiteUrl(request('cardWebsiteUrl'));
 
@@ -117,7 +134,7 @@ class TwitterAPI
         }
     }
 
-    public function createTweet($card)
+    public function createTweet($card, $user_id)
     {
         try {
             $account = new Account($this->account_id);
@@ -125,7 +142,7 @@ class TwitterAPI
 
             return Tweet::create($account, request('text') . rand(), [
                 'card_uri' => $card->getCardUri(),
-                'as_user_id' => '1323238304666378244'
+                'as_user_id' => $user_id
             ]);
         } catch (Exception $e) {
             throw $e;
@@ -135,9 +152,6 @@ class TwitterAPI
     public function createPromotedTweet($line_item, $tweet)
     {
         try {
-            $account = new Account($this->account_id);
-            $account->read();
-
             $promoted_tweet = new PromotedTweet();
             $promoted_tweet->setLineItemId($line_item->getId());
             $promoted_tweet->setTweetId($tweet->id);
@@ -150,7 +164,7 @@ class TwitterAPI
 
     public function uploadMedia()
     {
-        return $this->client->upload(['media' => base_path() . '/kitten.jpg', 'media_type' => 'image/jpg'], true);
+        return $this->client->upload(['media' => storage_path('app/public/images/') . request('cardMedia'), 'media_type' => 'image/jpg'], true);
     }
 
     public function createMediaLibrary($media_key)
