@@ -12,6 +12,8 @@ use Hborras\TwitterAdsSDK\TwitterAds\Creative\WebsiteCard as HborrasWebsiteCard;
  */
 class WebsiteCard extends HborrasWebsiteCard
 {
+    protected $media_key;
+
     protected $properties = [
         WebsiteCardFields::NAME,
         WebsiteCardFields::WEBSITE_TITLE,
@@ -19,4 +21,20 @@ class WebsiteCard extends HborrasWebsiteCard
         WebsiteCardFields::MEDIA_KEY,
         WebsiteCardFields::IMAGE_MEDIA_ID,
     ];
+
+    /**
+     * @return mixed
+     */
+    public function getMediaKey()
+    {
+        return $this->media_key;
+    }
+
+    /**
+     * @param mixed $media_key
+     */
+    public function setMediaKey($media_key)
+    {
+        $this->media_key = $media_key;
+    }
 }

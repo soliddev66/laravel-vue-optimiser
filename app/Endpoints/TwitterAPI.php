@@ -107,7 +107,7 @@ class TwitterAPI
         try {
             $website_card = new WebsiteCard();
             $website_card->setName(request('cardName'));
-            $website_card->setImageMediaId(request('cardMediaKey'));
+            $website_card->setMediaKey(request('cardMediaKey'));
             $website_card->setWebsiteTitle(request('cardWebsiteTitle'));
             $website_card->setWebsiteUrl(request('cardWebsiteUrl'));
 
