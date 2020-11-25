@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Vendors\Twitter\Creative;
+
+use App\Vendors\Twitter\Field\WebsiteCardFields;
+
+use Hborras\TwitterAdsSDK\TwitterAds\Creative\WebsiteCard as HborrasWebsiteCard;
+
+/**
+ * Class WebsiteCard
+ * @package Hborras\TwitterAdsSDK\TwitterAds\Creative
+ */
+class WebsiteCard extends HborrasWebsiteCard
+{
+    protected $properties = [
+        WebsiteCardFields::NAME,
+        WebsiteCardFields::WEBSITE_TITLE,
+        WebsiteCardFields::WEBSITE_URL,
+        WebsiteCardFields::MEDIA_KEY,
+        WebsiteCardFields::IMAGE_MEDIA_ID,
+    ];
+}

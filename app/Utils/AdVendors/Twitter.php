@@ -114,7 +114,10 @@ class Twitter extends Root
             }
 
             try {
-                $api->createPromotedTweet($line_item_data, $tweet_data);
+                $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+                $data = [
+                    'data' => $promoted_tweet->getId()
+                ];
             } catch (Exception $e) {
                 $line_item_data->delete();
                 $card_data->delete();
