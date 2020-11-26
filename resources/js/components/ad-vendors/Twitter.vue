@@ -119,10 +119,10 @@
                   <div class="col-lg-10 col-xl-8">
                     <div class="btn-group btn-group-toggle">
                       <label class="btn bg-olive" :class="{ active: campaignStandardDelivery }">
-                        <input type="radio" name="standard_delivery" id="campaignStandardDelivery1" autocomplete="off" value="true" v-model="campaignStandardDelivery">TRUE
+                        <input type="radio" name="standard_delivery" id="campaignStandardDelivery1" autocomplete="off" :value="true" v-model="campaignStandardDelivery">TRUE
                       </label>
                       <label class="btn bg-olive" :class="{ active: !campaignStandardDelivery }">
-                        <input type="radio" name="standard_delivery" id="campaignStandardDelivery2" autocomplete="off" value="false" v-model="campaignStandardDelivery">FALSE
+                        <input type="radio" name="standard_delivery" id="campaignStandardDelivery2" autocomplete="off" :value="false" v-model="campaignStandardDelivery">FALSE
                       </label>
                     </div>
                   </div>
@@ -271,10 +271,10 @@
                   <div class="col-lg-4 col-xl-3">
                     <div class="btn-group btn-group-toggle">
                       <label class="btn bg-olive" :class="{ active: adGroupAutomaticallySelectBid }">
-                        <input type="radio" name="ad_group_automatically_select_bid" id="adGroupAutomaticallySelectBid1" autocomplete="off" value="true" v-model="adGroupAutomaticallySelectBid">TRUE
+                        <input type="radio" name="ad_group_automatically_select_bid" id="adGroupAutomaticallySelectBid1" autocomplete="off" :value="true" v-model="adGroupAutomaticallySelectBid">TRUE
                       </label>
                       <label class="btn bg-olive" :class="{ active: !adGroupAutomaticallySelectBid }">
-                        <input type="radio" name="ad_group_automatically_select_bid" id="adGroupAutomaticallySelectBid2" autocomplete="off" value="false" v-model="adGroupAutomaticallySelectBid">FALSE
+                        <input type="radio" name="ad_group_automatically_select_bid" id="adGroupAutomaticallySelectBid2" autocomplete="off" :value="false" v-model="adGroupAutomaticallySelectBid">FALSE
                       </label>
                     </div>
                   </div>
@@ -282,13 +282,13 @@
                   <label for="ad_group_bid_type" class="col-sm-2 control-label mt-2">Bid Type</label>
                   <div class="col-lg-4 col-xl-3">
                     <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: adGroupBidType }">
+                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'AUTO' }">
                         <input type="radio" name="ad_group_bid_type" id="adGroupBidType1" autocomplete="off" value="AUTO" v-model="adGroupBidType">AUTO
                       </label>
-                      <label class="btn bg-olive" :class="{ active: !adGroupBidType }">
+                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'MAX' }">
                         <input type="radio" name="ad_group_bid_type" id="adGroupBidType2" autocomplete="off" value="MAX" v-model="adGroupBidType">MAX
                       </label>
-                      <label class="btn bg-olive" :class="{ active: !adGroupBidType }">
+                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'TARGET' }">
                         <input type="radio" name="ad_group_bid_type" id="adGroupBidType3" autocomplete="off" value="TARGET" v-model="adGroupBidType">TARGET
                       </label>
                     </div>
@@ -541,22 +541,22 @@
               <label for="tweet_nullcast" class="col-sm-2 control-label mt-2">Nullcast</label>
               <div class="col-lg-4 col-xl-3">
                 <div class="btn-group btn-group-toggle">
-                  <label class="btn bg-olive" :class="{ active: tweetNullcast == true }">
-                    <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" value="true" v-model="tweetNullcast">TRUE
+                  <label class="btn bg-olive" :class="{ active: tweetNullcast }">
+                    <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" v-model="tweetNullcast">TRUE
                   </label>
-                  <label class="btn bg-olive" :class="{ active: tweetNullcast == false }">
-                    <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" value="false" v-model="tweetNullcast">FALSE
+                  <label class="btn bg-olive" :class="{ active: !tweetNullcast }">
+                    <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" v-model="tweetNullcast">FALSE
                   </label>
                 </div>
               </div>
               <label for="tweet_trim_user" class="col-sm-2 control-label mt-2">Trim User</label>
               <div class="col-lg-4 col-xl-3">
                 <div class="btn-group btn-group-toggle">
-                  <label class="btn bg-olive" :class="{ active: tweetTrimUser == true }">
-                    <input type="radio" name="tweet_trim_user" id="tweetTrimUser1" autocomplete="off" value="true" v-model="tweetTrimUser">TRUE
+                  <label class="btn bg-olive" :class="{ active: tweetTrimUser }">
+                    <input type="radio" name="tweet_trim_user" id="tweetTrimUser1" autocomplete="off" :value="true" v-model="tweetTrimUser">TRUE
                   </label>
-                  <label class="btn bg-olive" :class="{ active: tweetTrimUser == false }">
-                    <input type="radio" name="tweet_trim_user" id="tweetTrimUser2" autocomplete="off" value="false" v-model="tweetTrimUser">FALSE
+                  <label class="btn bg-olive" :class="{ active: !tweetTrimUser }">
+                    <input type="radio" name="tweet_trim_user" id="tweetTrimUser2" autocomplete="off" :value="false" v-model="tweetTrimUser">FALSE
                   </label>
                 </div>
               </div>
@@ -887,6 +887,7 @@ export default {
       })
     },
     submitStep1() {
+      console.log(this.adGroupAutomaticallySelectBid)
       const step1Data = {
         provider: this.selectedProvider,
         account: this.selectedAccount,
