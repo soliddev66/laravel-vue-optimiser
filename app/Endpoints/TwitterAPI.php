@@ -124,10 +124,13 @@ class TwitterAPI
             $line_item->setProductType(request('adGroupProductType'));
             $line_item->setPlacements(request('adGroupPlacements'));
             $line_item->setObjective(request('adGroupObjective'));
-            $line_item->setBidAmountLocalMicro(request('adGroupBidAmountLocalMicro') * 1E6);
             $line_item->setEntityStatus(request('adGroupStatus'));
             $line_item->setCategories(request('adGroupCategories'));
             $line_item->setAdvertiserDomain(request('adGroupAdvertiserDomain'));
+
+            if (!empty(request('adGroupBidAmountLocalMicro'))) {
+                $line_item->setBidAmountLocalMicro(request('adGroupBidAmountLocalMicro') * 1E6);
+            }
 
             if (!empty(request('adGroupStartTime'))) {
                 $line_item->setStartTime(request('adGroupStartTime'));
@@ -137,14 +140,12 @@ class TwitterAPI
                 $line_item->setEndTime(request('adGroupEndTime'));
             }
 
-            if (!empty(request('adGroupBidType'))) {
-                $line_item->setBidType(request('adGroupBidType'));
-            }
-
             if (request('adGroupAutomaticallySelectBid')) {
                 $line_item->setAutomaticallySelectBid(true);
-            } else {
-                $line_item->setAutomaticallySelectBid(false);
+            }
+
+            if (!request('adGroupAutomaticallySelectBid') && !empty(request('adGroupBidType'))) {
+                $line_item->setBidType(request('adGroupBidType'));
             }
 
             if (!empty(request('adGroupTotalBudgetAmountLocalMicro'))) {
@@ -183,6 +184,8 @@ class TwitterAPI
 
     public function createWebsiteCard($card_media_key)
     {
+        $account = new Account($this->account_id);
+        $account->read();
         try {
             $website_card = new WebsiteCard();
             $website_card->setName(request('cardName'));
@@ -202,17 +205,36 @@ class TwitterAPI
             $account = new Account($this->account_id);
             $account->read();
 
-            return Tweet::create($account, request('text') . rand(), [
+            $param = [
                 'card_uri' => $card->getCardUri(),
                 'as_user_id' => $user_id,
-                'nullcast' => request('tweetNullcast'),
-                'trim_user' => request('tweetTrimUser'),
-                'tweet_mode' => request('tweetTweetMode'),
-                'video_cta' => request('tweetVideoCTA'),
-                'video_cta_value' => request('tweetVideoCTAValue'),
-                'video_title' => request('tweetVideoTitle'),
-                'video_description' => request('tweetVideoDescription'),
-            ]);
+            ];
+
+            if (!empty(request('tweetNullcast'))) {
+                $param['nullcast'] = request('tweetNullcast');
+            }
+
+            if (!empty(request('tweetTrimUser'))) {
+                $param['trim_user'] = request('tweetTrimUser');
+            }
+
+            if (!empty(request('tweetVideoCTA'))) {
+                $param['tweet_mode'] = request('tweetVideoCTA');
+            }
+
+            if (!empty(request('tweetVideoCTAValue'))) {
+                $param['video_cta_value'] = request('tweetVideoCTAValue');
+            }
+
+            if (!empty(request('tweetVideoTitle'))) {
+                $param['video_title'] = request('tweetVideoTitle');
+            }
+
+            if (!empty(request('tweetVideoDescription'))) {
+                $param['video_description'] = request('tweetVideoDescription');
+            }
+
+            return Tweet::create($account, request('text') . rand(), $param);
         } catch (Exception $e) {
             throw $e;
         }

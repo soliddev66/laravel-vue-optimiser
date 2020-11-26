@@ -282,13 +282,13 @@
                   <label for="ad_group_bid_type" class="col-sm-2 control-label mt-2">Bid Type</label>
                   <div class="col-lg-4 col-xl-3">
                     <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'AUTO' }">
+                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'AUTO' && !adGroupBidAmountLocalMicro }">
                         <input type="radio" name="ad_group_bid_type" id="adGroupBidType1" autocomplete="off" value="AUTO" v-model="adGroupBidType">AUTO
                       </label>
-                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'MAX' }">
+                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'MAX' && !adGroupBidAmountLocalMicro }">
                         <input type="radio" name="ad_group_bid_type" id="adGroupBidType2" autocomplete="off" value="MAX" v-model="adGroupBidType">MAX
                       </label>
-                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'TARGET' }">
+                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'TARGET' && !adGroupBidAmountLocalMicro }">
                         <input type="radio" name="ad_group_bid_type" id="adGroupBidType3" autocomplete="off" value="TARGET" v-model="adGroupBidType">TARGET
                       </label>
                     </div>
@@ -763,7 +763,7 @@ export default {
       adGroupCategories: [],
       adGroupAdvertiserUserId: '',
       adGroupAutomaticallySelectBid: false,
-      adGroupBidType: 'AUTO',
+      adGroupBidType: '',
       adGroupStatus: 'PAUSED',
       adGroupBidUnit: '',
       adGroupChargeBy: '',
@@ -887,6 +887,7 @@ export default {
       })
     },
     submitStep1() {
+      console.log(this.adGroupBidAmountLocalMicro)
       console.log(this.adGroupAutomaticallySelectBid)
       const step1Data = {
         provider: this.selectedProvider,

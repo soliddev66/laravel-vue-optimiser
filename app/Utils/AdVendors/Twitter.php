@@ -8,7 +8,7 @@ use App\Models\Campaign;
 use App\Models\Provider;
 use App\Endpoints\TwitterAPI;
 
-use Hborras\TwitterAdsSDK\TwitterAds\Errors\BadRequest;
+use Hborras\TwitterAdsSDK\TwitterAdsException;
 
 class Twitter extends Root
 {
@@ -77,8 +77,8 @@ class Twitter extends Root
 
         try {
             try {
-                $media = $this->api()->uploadMedia();
-                $media_library = $this->api()->createMediaLibrary($media->media_key);
+                //$media = $this->api()->uploadMedia();
+                $media_library = $this->api()->createMediaLibrary('3_1331961062271291393');
             } catch (Exception $e) {
                 throw $e;
             }
@@ -104,7 +104,7 @@ class Twitter extends Root
             }
 
             try {
-                $card_data = $api->createWebsiteCard($media->media_key);
+                $card_data = $api->createWebsiteCard('3_1331961062271291393');
             } catch (Exception $e) {
                 $campaign_data->delete();
                 $line_item_data->delete();
@@ -140,7 +140,7 @@ class Twitter extends Root
 
             $campaign->save();
         } catch (Exception $e) {
-            if ($e instanceof BadRequest) {
+            if ($e instanceof TwitterAdsException) {
                 $data = [
                     'errors' => [$e->getErrors()[0]->message]
                 ];
