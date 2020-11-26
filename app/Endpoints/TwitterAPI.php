@@ -141,8 +141,10 @@ class TwitterAPI
                 $line_item->setBidType(request('adGroupBidType'));
             }
 
-            if (!empty(request('adGroupAutomaticallySelectBid'))) {
-                $line_item->setAutomaticallySelectBid(request('adGroupAutomaticallySelectBid'));
+            if (request('adGroupAutomaticallySelectBid')) {
+                $line_item->setAutomaticallySelectBid(true);
+            } else {
+                $line_item->setAutomaticallySelectBid(false);
             }
 
             if (!empty(request('adGroupTotalBudgetAmountLocalMicro'))) {
