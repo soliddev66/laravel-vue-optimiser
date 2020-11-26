@@ -90,6 +90,22 @@ class TwitterAPI
             $campaign->setEntityStatus(request('campaignStatus'));
             $campaign->setStartTime(request('campaignStartTime'));
 
+            if (!empty(request('campaignEndTime'))) {
+                $campaign->setEndTime(request('campaignEndTime'));
+            }
+
+            if (!empty(request('campaignTotalBudgetAmountLocalMicro'))) {
+                $campaign->setTotalBudgetAmountLocalMicro(request('campaignTotalBudgetAmountLocalMicro'));
+            }
+
+            if (!empty(request('campaignDurationInDays'))) {
+                $campaign->setDurationInDays(request('campaignDurationInDays'));
+            }
+
+            if (!empty(request('campaignFrequencyCap'))) {
+                $campaign->setFrequencyCap(request('campaignFrequencyCap'));
+            }
+
             return $campaign->save();
         } catch (Exception $e) {
             throw $e;
@@ -112,6 +128,50 @@ class TwitterAPI
             $line_item->setEntityStatus(request('adGroupStatus'));
             $line_item->setCategories(request('adGroupCategories'));
             $line_item->setAdvertiserDomain(request('adGroupAdvertiserDomain'));
+
+            if (!empty(request('adGroupStartTime'))) {
+                $line_item->setStartTime(request('adGroupStartTime'));
+            }
+
+            if (!empty(request('adGroupEndTime'))) {
+                $line_item->setEndTime(request('adGroupEndTime'));
+            }
+
+            if (!empty(request('adGroupBidType'))) {
+                $line_item->setBidType(request('adGroupBidType'));
+            }
+
+            if (!empty(request('adGroupAutomaticallySelectBid'))) {
+                $line_item->setAutomaticallySelectBid(request('adGroupAutomaticallySelectBid'));
+            }
+
+            if (!empty(request('adGroupTotalBudgetAmountLocalMicro'))) {
+                $line_item->setTotalBudgetAmountLocalMicro(request('adGroupTotalBudgetAmountLocalMicro'));
+            }
+
+            if (!empty(request('adGroupPrimaryWebEventTag'))) {
+                $line_item->setPrimaryWebEventTag(request('adGroupPrimaryWebEventTag'));
+            }
+
+            if (!empty(request('adGroupOptimization'))) {
+                $line_item->setOptimization(request('adGroupOptimization'));
+            }
+
+            if (!empty(request('adGroupBidUnit'))) {
+                $line_item->setBidUnit(request('adGroupBidUnit'));
+            }
+
+            if (!empty(request('adGroupChargeBy'))) {
+                $line_item->setChargeBy(request('adGroupChargeBy'));
+            }
+
+            if (!empty(request('adGrouptrackingTags'))) {
+                $line_item->setTrackingTags(request('adGrouptrackingTags'));
+            }
+
+            if (!empty(request('adGroupAdvertiserUserId'))) {
+                $line_item->setAdvertiserUserId(request('adGroupAdvertiserUserId'));
+            }
 
             return $line_item->save();
         } catch (Exception $e) {
@@ -142,7 +202,14 @@ class TwitterAPI
 
             return Tweet::create($account, request('text') . rand(), [
                 'card_uri' => $card->getCardUri(),
-                'as_user_id' => $user_id
+                'as_user_id' => $user_id,
+                'nullcast' => request('tweetNullcast'),
+                'trim_user' => request('tweetTrimUser'),
+                'tweet_mode' => request('tweetTweetMode'),
+                'video_cta' => request('tweetVideoCTA'),
+                'video_cta_value' => request('tweetVideoCTAValue'),
+                'video_title' => request('tweetVideoTitle'),
+                'video_description' => request('tweetVideoDescription'),
             ]);
         } catch (Exception $e) {
             throw $e;

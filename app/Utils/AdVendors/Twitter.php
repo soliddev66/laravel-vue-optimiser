@@ -8,6 +8,8 @@ use App\Models\Campaign;
 use App\Models\Provider;
 use App\Endpoints\TwitterAPI;
 
+use Hborras\TwitterAdsSDK\TwitterAds\Errors\BadRequest;
+
 class Twitter extends Root
 {
     private function api()
@@ -138,9 +140,15 @@ class Twitter extends Root
 
             $campaign->save();
         } catch (Exception $e) {
-            $data = [
-                'errors' => [$e->getMessage()]
-            ];
+            if ($e instanceof BadRequest) {
+                $data = [
+                    'errors' => [$e->getErrors()[0]->message]
+                ];
+            } else {
+                $data = [
+                    'errors' => [$e->getMessage()]
+                ];
+            }
         }
 
         return $data;

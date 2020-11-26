@@ -944,8 +944,8 @@ export default {
         tweetText: this.tweetText,
         tweetNullcast: this.tweetNullcast,
         tweetTrimUser: this.tweetTrimUser,
-        tweetVideoCTA: this.tweetVideoCTA,
         tweetTweetMode: this.tweetTweetMode,
+        tweetVideoCTA: this.tweetVideoCTA,
         tweetVideoCTAValue: this.tweetVideoCTAValue,
         tweetVideoTitle: this.tweetVideoTitle,
         tweetVideoDescription: this.tweetVideoDescription
