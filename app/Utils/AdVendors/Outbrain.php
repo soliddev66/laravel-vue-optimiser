@@ -29,7 +29,7 @@ class Outbrain extends Root
 
     public function countries()
     {
-        return $this->api()->getCountries()['geoLocations'];
+        return $this->api()->getCountries();
     }
 
     /**
