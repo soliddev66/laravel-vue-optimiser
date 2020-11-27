@@ -146,4 +146,9 @@ class Twitter extends Root
 
         return $data;
     }
+
+    public function pullCampaign($user_provider)
+    {
+
+    }
 }
