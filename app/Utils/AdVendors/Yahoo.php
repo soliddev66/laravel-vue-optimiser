@@ -115,6 +115,10 @@ class Yahoo extends Root
             $campaign_ids[] = $campaign->id;
         }
 
-        Campaign::whereNotIn('id', $campaign_ids)->delete();
+        Campaign::where([
+            'user_id' => $user_provider->user_id,
+            'provider_id' => $user_provider->provider_id,
+            'open_id' => $user_provider->open_id
+        ])->whereNotIn('id', $campaign_ids)->delete();
     }
 }
