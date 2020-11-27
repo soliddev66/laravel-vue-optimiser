@@ -2,18 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Models\Campaign;
 use App\Models\User;
-use App\Vngodev\Token;
-use GuzzleHttp\Client;
-use Hborras\TwitterAdsSDK\TwitterAds;
-use Hborras\TwitterAdsSDK\TwitterAds\Account;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Str;
 
 class PullCampaign implements ShouldQueue
 {
