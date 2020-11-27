@@ -77,8 +77,8 @@ class Twitter extends Root
 
         try {
             try {
-                //$media = $this->api()->uploadMedia();
-                $media_library = $this->api()->createMediaLibrary('3_1331961062271291393');
+                $media = $this->api()->uploadMedia();
+                $media_library = $this->api()->createMediaLibrary($media->media_key);
             } catch (Exception $e) {
                 throw $e;
             }
@@ -104,7 +104,7 @@ class Twitter extends Root
             }
 
             try {
-                $card_data = $api->createWebsiteCard('3_1331961062271291393');
+                $card_data = $api->createWebsiteCard($media->media_key);
             } catch (Exception $e) {
                 $campaign_data->delete();
                 $line_item_data->delete();
