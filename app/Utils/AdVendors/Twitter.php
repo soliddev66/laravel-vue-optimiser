@@ -8,6 +8,8 @@ use App\Models\Campaign;
 use App\Models\Provider;
 use App\Endpoints\TwitterAPI;
 
+use App\Jobs\PullCampaign;
+
 use Hborras\TwitterAdsSDK\TwitterAdsException;
 
 class Twitter extends Root
@@ -17,6 +19,7 @@ class Twitter extends Root
         $provider = Provider::where('slug', request('provider'))->first();
         return new TwitterAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first(), request('advertiser') ?? null);
     }
+
     public function advertisers()
     {
         $advertisers = $this->api()->getAdvertisers();
@@ -70,10 +73,7 @@ class Twitter extends Root
     public function store()
     {
         $data = [];
-        $provider = Provider::where('slug', request('provider'))->first();
-        $user_info = auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first();
-
-        $api = new TwitterAPI($user_info, request('advertiser') ?? null);
+        $api = $this->api();
 
         try {
             try {
@@ -85,13 +85,6 @@ class Twitter extends Root
 
             try {
                 $campaign_data = $api->createCampaign();
-
-                $campaign = Campaign::firstOrNew([
-                    'campaign_id' => $campaign_data->getId(),
-                    'provider_id' => $provider->id,
-                    'open_id' => $user_info->open_id,
-                    'user_id' => auth()->id()
-                ]);
             } catch (Exception $e) {
                 throw $e;
             }
@@ -138,7 +131,7 @@ class Twitter extends Root
                 throw $e;
             }
 
-            $campaign->save();
+            PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
             if ($e instanceof TwitterAdsException) {
                 $data = [

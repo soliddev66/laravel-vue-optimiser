@@ -42,19 +42,10 @@ class Yahoo extends Root
     public function store()
     {
         $data = [];
-        $provider = Provider::where('slug', request('provider'))->first();
-        $user_info = auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first();
-        $api = new GeminiAPI($user_info);
+        $api = $this->api();
 
         try {
             $campaign_data = $api->createCampaign();
-
-            $campaign = Campaign::firstOrNew([
-                'campaign_id' => $campaign_data['id'],
-                'provider_id' => $provider->id,
-                'open_id' => $user_info->open_id,
-                'user_id' => auth()->id()
-            ]);
 
             try {
                 $ad_group_data = $api->createAdGroup($campaign_data);
@@ -80,7 +71,6 @@ class Yahoo extends Root
                 throw $e;
             }
 
-            $campaign->save();
             PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
             $data = [

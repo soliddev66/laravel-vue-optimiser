@@ -21,7 +21,7 @@ use Carbon\Carbon;
 use DB;
 use DataTables;
 use Exception;
-use Illuminate\Support\Facades\Log;
+
 use Maatwebsite\Excel\Facades\Excel;
 
 class CampaignController extends Controller
@@ -427,42 +427,6 @@ class CampaignController extends Controller
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
         return (new $adVendorClass)->store();
-    }
-
-    private function createOutbrainCampaign($provider, $user_info)
-    {
-        $data = [];
-        $outbrain = new OutbrainAPI($user_info);
-
-        try {
-            $budget_data = $outbrain->createBudget();
-            Log::info('OUTBRAIN: Created budget: ' . $budget_data['id']);
-
-            try {
-                $campaign_data = $outbrain->createAdCampaign($budget_data);
-                Log::info('OUTBRAIN: Created campaign: ' . $campaign_data['id']);
-            } catch (Exception $e) {
-                $outbrain->deleteBudget($budget_data);
-                throw $e;
-            }
-
-            try {
-                $ad_data = $outbrain->createAd($campaign_data);
-                Log::info('OUTBRAIN: Created ad: ' . $ad_data['id']);
-            } catch (Exception $e) {
-                $outbrain->deleteCampaign($campaign_data);
-                $outbrain->deleteBudget($budget_data);
-                throw $e;
-            }
-
-            PullOutbrainCampaign::dispatch(auth()->user());
-        } catch (Exception $e) {
-            $data = [
-                'errors' => [$e->getMessage()]
-            ];
-        }
-
-        return $data;
     }
 
     public function exportExcel()
