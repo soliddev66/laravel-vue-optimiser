@@ -85,29 +85,26 @@ class Yahoo extends Root
 
     public function pullCampaign($user_provider)
     {
-        $api = new GeminiAPI($user_provider);
+        $campaigns = (new GeminiAPI($user_provider))->getCampaigns();
 
-        $campaigns = $api->getCampaigns();
-
-        $this->saveCampaigns($campaigns, $user_provider);
-    }
-
-    private function saveCampaigns($campaigns, $user_provider)
-    {
         $campaign_ids = [];
         foreach ($campaigns as $key => $item) {
             $data = collect($item)->keyBy(function ($value, $key) {
                 return Str::of($key)->snake();
-            });
-            $data['user_id'] = $user_provider->user_id;
-            $data['campaign_id'] = $data['id'];
-            $data['provider_id'] = $user_provider->provider_id;
-            $data['open_id'] = $user_provider->open_id;
+            })->toArray();
+
             $data['name'] = $data['campaign_name'];
-            $data = $data->toArray();
+
+            $campaign = Campaign::firstOrNew([
+                'campaign_id' => $data['id'],
+                'provider_id' => $user_provider->provider_id,
+                'user_id' => $user_provider->user_id,
+                'open_id' => $user_provider->open_id
+            ]);
+
             unset($data['campaign_name']);
             unset($data['id']);
-            $campaign = Campaign::firstOrNew(['campaign_id' => $data['campaign_id']]);
+
             foreach (array_keys($data) as $index => $array_key) {
                 $campaign->{$array_key} = $data[$array_key];
             }

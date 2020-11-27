@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Endpoints\OutbrainAPI;
 use App\Jobs\PullCampaign;
-use App\Jobs\PullOutbrainCampaign;
 use App\Models\Provider;
 use App\Models\Tracker;
 use App\Models\UserProvider;
@@ -108,12 +107,8 @@ class AccountController extends Controller
                 return redirect('account-wizard?step=2&provider=' . $param);
             }
 
-            // If there is no tracker
-            if ($db_provider->id === Provider::whereSlug('outbrain')->first()->id) {
-                $this->pullOutbrainCampaign();
-            } else {
-                $this->pullCampaign();
-            }
+            $this->pullCampaign();
+
             return redirect('account-wizard?step=3');
         }
         if ($db_tracker) {
@@ -134,13 +129,7 @@ class AccountController extends Controller
                 'name' => $tracker_user['firstname'] . ' ' . $tracker_user['lastname']
             ]);
 
-            if (session('provider_id') === Provider::whereSlug('outbrain')->first()->id) {
-                $this->pullOutbrainCampaign();
-            } elseif (session('provider_id') === Provider::whereSlug('taboola')->first()->id) {
-                $this->pullTaboolaCampaign();
-            } else {
-                $this->pullCampaign();
-            }
+            $this->pullCampaign();
 
             return redirect('account-wizard?step=3');
         }
@@ -198,15 +187,5 @@ class AccountController extends Controller
     private function pullCampaign()
     {
         return PullCampaign::dispatch(auth()->user());
-    }
-
-    private function pullOutbrainCampaign()
-    {
-        return PullOutbrainCampaign::dispatch(auth()->user());
-    }
-
-    private function pullTaboolaCampaign()
-    {
-        return PullTaboolaCampaign::dispatch(auth()->user());
     }
 }
