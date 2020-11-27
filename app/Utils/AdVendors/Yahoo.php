@@ -90,11 +90,11 @@ class Yahoo extends Root
         $campaigns = $api->getCampaigns();
 
         $this->saveCampaigns($campaigns, $user_provider);
-        $this->cleanCampaigns($campaigns, $user_provider);
     }
 
     private function saveCampaigns($campaigns, $user_provider)
     {
+        $campaign_ids = [];
         foreach ($campaigns as $key => $item) {
             $data = collect($item)->keyBy(function ($value, $key) {
                 return Str::of($key)->snake();
@@ -112,24 +112,9 @@ class Yahoo extends Root
                 $campaign->{$array_key} = $data[$array_key];
             }
             $campaign->save();
+            $campaign_ids[] = $campaign->id;
         }
-    }
 
-    private function cleanCampaigns($campaigns, $user_provider)
-    {
-        $user_campaigns = $this->user->campaigns->toArray();
-        if (count($campaigns) !== count($user_campaigns)) {
-            foreach ($user_campaigns as $key => $user_campaign) {
-                $should_delete = true;
-                foreach ($campaigns as $campaign) {
-                    if ($campaign['id'] == $user_campaign['campaign_id']) {
-                        $should_delete = false;
-                    }
-                }
-                if ($should_delete) {
-                    Campaign::where('campaign_id', $user_campaign['campaign_id'])->first()->delete();
-                }
-            }
-        }
+        Campaign::whereNotIn('id', $campaign_ids)->delete();
     }
 }
