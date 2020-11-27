@@ -12,7 +12,6 @@ use App\Models\GeminiDomainPerformanceStat;
 use App\Models\GeminiPerformanceStat;
 use App\Models\GeminiSitePerformanceStat;
 use App\Models\Job;
-use App\Models\OutbrainCampaign;
 use App\Models\Provider;
 use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
