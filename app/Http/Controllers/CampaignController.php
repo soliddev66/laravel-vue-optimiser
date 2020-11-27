@@ -6,7 +6,6 @@ use App\Endpoints\GeminiAPI;
 use App\Endpoints\OutbrainAPI;
 use App\Exports\CampaignExport;
 use App\Jobs\PullCampaign;
-use App\Jobs\PullOutbrainCampaign;
 use App\Models\Campaign;
 use App\Models\FailedJob;
 use App\Models\GeminiDomainPerformanceStat;

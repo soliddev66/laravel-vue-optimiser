@@ -7,12 +7,14 @@ use Exception;
 use App\Endpoints\OutbrainAPI;
 
 use App\Models\Provider;
-use App\Endpoints\GeminiAPI;
+use App\Models\OutbrainCampaign;
+
 use GuzzleHttp\Exception\GuzzleException;
 
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
-use App\Jobs\PullOutbrainCampaign;
+use App\Jobs\PullCampaign;
 
 class Outbrain extends Root
 {
@@ -67,7 +69,7 @@ class Outbrain extends Root
                 throw $e;
             }
 
-            PullOutbrainCampaign::dispatch(auth()->user());
+            PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
             $data = [
                 'errors' => [$e->getMessage()]
@@ -79,6 +81,39 @@ class Outbrain extends Root
 
     public function pullCampaign($user_provider)
     {
+        $api = new OutbrainAPI($user_provider);
 
+        $marketers_ids = collect($api->getMarketers()['marketers'])->pluck('id');
+        $campaigns = collect([]);
+
+        $marketers_ids->each(function ($id) use (&$campaigns, $api) {
+            $campaigns_by_marketer = $api->getCampaignsByMarketerId($id);
+            if (array_key_exists('campaigns', $campaigns_by_marketer)) {
+                $campaigns_by_marketer = $campaigns_by_marketer['campaigns'];
+                foreach ($campaigns_by_marketer as $campaign) {
+                    $campaigns->push($campaign);
+                }
+            }
+        });
+
+        $campaigns->each(function ($item) use ($user_provider) {
+            $data = collect($item)->keyBy(function ($value, $key) {
+                return Str::of($key)->snake();
+            })->toArray();
+
+            $campaign = OutbrainCampaign::firstOrNew([
+                'campaign_id' => $data['id'],
+                'provider_id' => $user_provider->provider_id,
+                'open_id' => $user_provider->open_id,
+                'user_id' => $user_provider->user_id
+            ]);
+
+            unset($data['id']);
+            foreach (array_keys($data) as $index => $array_key) {
+                $campaign->{$array_key} = $data[$array_key];
+            }
+
+            $campaign->save();
+        });
     }
 }

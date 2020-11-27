@@ -2,7 +2,6 @@
 
 namespace App\Console;
 use App\Jobs\PullCampaign;
-use App\Jobs\PullOutbrainCampaign;
 use App\Models\Rule;
 use App\Models\User;
 use App\Vngodev\Gemini;
@@ -43,11 +42,6 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             foreach (User::all() as $key => $user) {
                 PullCampaign::dispatch($user);
-            }
-        })->everyMinute();
-        $schedule->call(function () {
-            foreach (User::all() as $key => $user) {
-                PullOutbrainCampaign::dispatch($user);
             }
         })->everyMinute();
 
