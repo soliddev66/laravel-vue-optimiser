@@ -40,16 +40,6 @@ class Twitter extends Root
         return $this->api()->getCountries();
     }
 
-    public function signUp()
-    {
-        $account = $this->api()->createAccount();
-
-        return [
-            'id' => $account->getId(),
-            'name' => $account->getName()
-        ];
-    }
-
     public function fundingInstruments()
     {
         $funding_instruments = $this->api()->getFundingInstruments();
@@ -123,13 +113,13 @@ class Twitter extends Root
                 throw $e;
             }
 
-            try {
-                // $data = [
-                //     'previewData' => $api->getTweetPreviews($tweet_data->id)
-                // ];
-            } catch (Exception $e) {
-                throw $e;
-            }
+            // try {
+            //     $data = [
+            //         'previewData' => $api->getTweetPreviews($tweet_data->id)
+            //     ];
+            // } catch (Exception $e) {
+            //     throw $e;
+            // }
 
             PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
@@ -143,6 +133,31 @@ class Twitter extends Root
 
     public function pullCampaign($user_provider)
     {
+        $advertisers = (new TwitterAPI($user_provider))->getAdvertisers();
 
+        $campaign_ids = [];
+
+        foreach ($advertisers as $advertiser) {
+            $campaigns = (new TwitterAPI($user_provider, $advertiser->getId()))->getCampaigns();
+
+            foreach ($campaigns as $item) {
+                $campaign = Campaign::firstOrNew([
+                    'campaign_id' => $item->getId(),
+                    'provider_id' => $user_provider->provider_id,
+                    'user_id' => $user_provider->user_id,
+                    'open_id' => $user_provider->open_id
+                ]);
+
+                $campaign->name = $item->getName();
+                $campaign->save();
+                $campaign_ids[] = $campaign->id;
+            }
+        }
+
+        Campaign::where([
+            'user_id' => $user_provider->user_id,
+            'provider_id' => $user_provider->provider_id,
+            'open_id' => $user_provider->open_id
+        ])->whereNotIn('id', $campaign_ids)->delete();
     }
 }
