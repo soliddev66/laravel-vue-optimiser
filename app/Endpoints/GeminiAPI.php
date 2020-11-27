@@ -41,6 +41,11 @@ class GeminiAPI
         return $this->client->call('GET', 'campaign/' . $campaign_id);
     }
 
+    public function getCampaigns()
+    {
+        return $this->client->call('GET', 'campaign/');
+    }
+
     public function getAdGroup($ad_group_id)
     {
         return $this->client->call('GET', 'adgroup/' . $ad_group_id);

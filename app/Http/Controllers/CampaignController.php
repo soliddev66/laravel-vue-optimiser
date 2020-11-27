@@ -417,6 +417,10 @@ class CampaignController extends Controller
 
     public function media()
     {
+        PullCampaign::dispatch(auth()->user());
+
+        return;
+
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
         return (new $adVendorClass)->media();
