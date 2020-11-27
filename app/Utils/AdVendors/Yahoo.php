@@ -85,7 +85,7 @@ class Yahoo extends Root
 
     public function pullCampaign($user_provider)
     {
-        $api = new new GeminiAPI($user_provider);
+        $api = new GeminiAPI($user_provider);
 
         $campaigns = $api->getCampaigns();
 
