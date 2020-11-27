@@ -39,6 +39,7 @@ import 'vue-loading-overlay/dist/vue-loading.css'
 
 import {
   yahoo,
+  outbrain,
   twitter
 } from './ad-vendors'
 
@@ -64,6 +65,7 @@ export default {
   components: {
     Loading,
     yahoo,
+    outbrain,
     twitter
   },
   computed: {

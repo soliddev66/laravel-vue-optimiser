@@ -2,26 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use DB;
-use Exception;
-use DataTables;
-
-use Carbon\Carbon;
-
-use App\Models\Job;
+use App\Endpoints\GeminiAPI;
+use App\Endpoints\OutbrainAPI;
+use App\Exports\CampaignExport;
+use App\Jobs\PullCampaign;
+use App\Jobs\PullOutbrainCampaign;
 use App\Models\Campaign;
-use App\Models\Provider;
 use App\Models\FailedJob;
-use App\Models\RedtrackReport;
-use App\Models\RedtrackDomainStat;
+use App\Models\GeminiDomainPerformanceStat;
 use App\Models\GeminiPerformanceStat;
 use App\Models\GeminiSitePerformanceStat;
-use App\Models\GeminiDomainPerformanceStat;
-
-use App\Jobs\PullCampaign;
-use App\Endpoints\GeminiAPI;
-use App\Exports\CampaignExport;
-
+use App\Models\Job;
+use App\Models\OutbrainCampaign;
+use App\Models\Provider;
+use App\Models\RedtrackDomainStat;
+use App\Models\RedtrackReport;
+use Carbon\Carbon;
+use DB;
+use DataTables;
+use Exception;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class CampaignController extends Controller
@@ -88,10 +88,10 @@ class CampaignController extends Controller
             DB::raw('conversions as tr_cvr'),
             DB::raw('ROUND(spend / impressions * 1000, 2) as ecpm'),
             DB::raw('conversions as lp_cr'),
-            DB::raw('conversions as lp_cpc'),
+            DB::raw('conversions as lp_cpc')
         ])
-        ->where('campaign_id', $campaign->campaign_id)
-        ->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
+            ->where('campaign_id', $campaign->campaign_id)
+            ->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
 
         return DataTables::eloquent($widgets)
             ->addColumn('actions', '-')
@@ -123,12 +123,12 @@ class CampaignController extends Controller
                 DB::raw('ROUND(SUM(cost) / SUM(total_conversions), 2) as cpa'),
                 DB::raw('ROUND(SUM(total_revenue) / SUM(clicks), 2) as epc')
             )->where('campaign_id', $campaign->id)
-            ->whereBetween('date', [
-                !request('start') ? $start : request('start'),
-                !request('end') ? $end : request('end')
-            ])
-            ->groupBy('sub1')
-            ->get();
+                ->whereBetween('date', [
+                    !request('start') ? $start : request('start'),
+                    !request('end') ? $end : request('end')
+                ])
+                ->groupBy('sub1')
+                ->get();
         } else {
             $domains = GeminiDomainPerformanceStat::where('campaign_id', $campaign->campaign_id)->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])->get();
         }
@@ -257,20 +257,25 @@ class CampaignController extends Controller
 
     private function getInstanceData(Campaign $campaign)
     {
-        $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first());
+        $user_provider = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
+        if ($user_provider) {
+            $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first());
 
-        $instance = $gemini->getCampaign($campaign->campaign_id);
+            $instance = $gemini->getCampaign($campaign->campaign_id);
 
-        $instance['open_id'] = $campaign['open_id'];
-        $instance['instance_id'] = $campaign['id'];
-        $instance['attributes'] = $gemini->getCampaignAttribute($campaign->campaign_id);
-        $instance['adGroups'] = $gemini->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
+            $instance['open_id'] = $campaign['open_id'];
+            $instance['instance_id'] = $campaign['id'];
+            $instance['attributes'] = $gemini->getCampaignAttribute($campaign->campaign_id);
+            $instance['adGroups'] = $gemini->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
 
-        if (count($instance['adGroups']) > 0) {
-            $instance['ads'] = $gemini->getAds([$instance['adGroups'][0]['id']], $campaign->advertiser_id);
+            if (count($instance['adGroups']) > 0) {
+                $instance['ads'] = $gemini->getAds([$instance['adGroups'][0]['id']], $campaign->advertiser_id);
+            }
+
+            return $instance;
         }
 
-        return $instance;
+        return [];
     }
 
     public function update(Campaign $campaign)
@@ -371,9 +376,9 @@ class CampaignController extends Controller
                 DB::raw('SUM(profit) as total_net'),
                 DB::raw('SUM(roi)/COUNT(*) as avg_roi')
             )
-            ->where('sub6', $campaign->campaign_id)
-            ->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
-            ->first();
+                ->where('sub6', $campaign->campaign_id)
+                ->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
+                ->first();
         } else {
             $summary_data = GeminiPerformanceStat::select(
                 DB::raw('SUM(spend) as total_cost'),
@@ -381,9 +386,9 @@ class CampaignController extends Controller
                 DB::raw('0 - SUM(spend) as total_net'),
                 DB::raw('-100 as avg_roi')
             )
-            ->where('campaign_id', $campaign->campaign_id)
-            ->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
-            ->first();
+                ->where('campaign_id', $campaign->campaign_id)
+                ->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
+                ->first();
         }
 
         return response()->json([
@@ -422,6 +427,42 @@ class CampaignController extends Controller
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
         return (new $adVendorClass)->store();
+    }
+
+    private function createOutbrainCampaign($provider, $user_info)
+    {
+        $data = [];
+        $outbrain = new OutbrainAPI($user_info);
+
+        try {
+            $budget_data = $outbrain->createBudget();
+            Log::info('OUTBRAIN: Created budget: ' . $budget_data['id']);
+
+            try {
+                $campaign_data = $outbrain->createAdCampaign($budget_data);
+                Log::info('OUTBRAIN: Created campaign: ' . $campaign_data['id']);
+            } catch (Exception $e) {
+                $outbrain->deleteBudget($budget_data);
+                throw $e;
+            }
+
+            try {
+                $ad_data = $outbrain->createAd($campaign_data);
+                Log::info('OUTBRAIN: Created ad: ' . $ad_data['id']);
+            } catch (Exception $e) {
+                $outbrain->deleteCampaign($campaign_data);
+                $outbrain->deleteBudget($budget_data);
+                throw $e;
+            }
+
+            PullOutbrainCampaign::dispatch(auth()->user());
+        } catch (Exception $e) {
+            $data = [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+
+        return $data;
     }
 
     public function exportExcel()

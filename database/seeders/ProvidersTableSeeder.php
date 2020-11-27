@@ -34,5 +34,11 @@ class ProvidersTableSeeder extends Seeder
             'scopes' => null,
             'created_at' => Carbon::now()
         ]);
+        DB::table('providers')->insert([
+            'label' => 'Taboola',
+            'slug' => 'taboola',
+            'scopes' => null,
+            'created_at' => Carbon::now()
+        ]);
     }
 }
