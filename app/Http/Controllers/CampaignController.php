@@ -21,7 +21,7 @@ use Carbon\Carbon;
 use DB;
 use DataTables;
 use Exception;
-use Illuminate\Support\Facades\Log;
+
 use Maatwebsite\Excel\Facades\Excel;
 
 class CampaignController extends Controller
@@ -415,107 +415,18 @@ class CampaignController extends Controller
         return $data;
     }
 
+    public function media()
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+
+        return (new $adVendorClass)->media();
+    }
+
     public function store()
     {
-        $provider = Provider::where('slug', request('provider'))->first();
-        $user_info = auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first();
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        switch ($user_info->provider_id) {
-            case 1:
-                return $this->createYahooCampaign($provider, $user_info);
-                break;
-            case 2:
-                $data = $this->createOutbrainCampaign($provider, $user_info);
-                break;
-            case 3:
-                break;
-        }
-    }
-
-    private function createYahooCampaign($provider, $user_info)
-    {
-        $data = [];
-        $gemini = new GeminiAPI($user_info);
-
-        try {
-            $campaign_data = $gemini->createAdCampaign();
-
-            $campaign = Campaign::firstOrNew([
-                'campaign_id' => $campaign_data['id'],
-                'provider_id' => $provider->id,
-                'open_id' => $user_info->open_id,
-                'user_id' => auth()->id()
-            ]);
-
-            try {
-                $ad_group_data = $gemini->createAdGroup($campaign_data);
-            } catch (Exception $e) {
-                $gemini->deleteCampaign($campaign);
-                throw $e;
-            }
-
-            try {
-                $ad = $gemini->createAd($campaign_data, $ad_group_data);
-            } catch (Exception $e) {
-                $gemini->deleteCampaign($campaign);
-                $gemini->deleteAdGroups([$ad_group_data['id']]);
-                throw $e;
-            }
-
-            try {
-                $gemini->createAttributes($campaign_data);
-            } catch (Exception $e) {
-                $gemini->deleteCampaign($campaign);
-                $gemini->deleteAdGroups([$ad_group_data['id']]);
-                $gemini->deleteAds([$ad['id']]);
-                throw $e;
-            }
-
-            $campaign->save();
-            PullCampaign::dispatch(auth()->user());
-        } catch (Exception $e) {
-            $data = [
-                'errors' => [$e->getMessage()]
-            ];
-        }
-
-        return $data;
-    }
-
-    private function createOutbrainCampaign($provider, $user_info)
-    {
-        $data = [];
-        $outbrain = new OutbrainAPI($user_info);
-
-        try {
-            $budget_data = $outbrain->createBudget();
-            Log::info('OUTBRAIN: Created budget: ' . $budget_data['id']);
-
-            try {
-                $campaign_data = $outbrain->createAdCampaign($budget_data);
-                Log::info('OUTBRAIN: Created campaign: ' . $campaign_data['id']);
-            } catch (Exception $e) {
-                $outbrain->deleteBudget($budget_data);
-                throw $e;
-            }
-
-            try {
-                $ad_data = $outbrain->createAd($campaign_data);
-                Log::info('OUTBRAIN: Created ad: ' . $ad_data['id']);
-            } catch (Exception $e) {
-                $outbrain->deleteCampaign($campaign_data);
-                $outbrain->deleteBudget($budget_data);
-                throw $e;
-            }
-
-            PullOutbrainCampaign::dispatch(auth()->user());
-        } catch (Exception $e) {
-            $data = [
-                'errors' => [$e->getMessage()]
-            ];
-        }
-
-        return $data;
+        return (new $adVendorClass)->store();
     }
 
     public function exportExcel()

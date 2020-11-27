@@ -47,38 +47,25 @@ class AccountController extends Controller
         return (new $adVendorClass)->advertisers();
     }
 
-    public function signUp()
+    public function fundingInstruments()
     {
-        $data = [];
-        $provider = Provider::where('slug', request('provider'))->first();
-        $user_info = auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first();
-        try {
-            $data = $this->signUpAdvertiser($user_info);
-        } catch (Exception $e) {
-            if ($e->getCode() == 401) {
-                Token::refresh($user_info, function() use ($user_info, &$data) {
-                    $data = $this->signUpAdvertiser($user_info);
-                });
-            }
-        }
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return $data;
+        return (new $adVendorClass)->fundingInstruments();
     }
 
-    private function signUpAdvertiser($user_info)
+    public function adGroupCategories()
     {
-        $client = new Client();
-        $response = $client->request('POST', env('BASE_URL') . '/v3/rest/advertisersignup', [
-            'body' => json_encode([
-                'advertiserName' => request('name')
-            ]),
-            'headers' => [
-                'Authorization' => 'Bearer ' . $user_info->token,
-                'Content-Type' => 'application/json'
-            ]
-        ]);
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return json_decode($response->getBody(), true);
+        return (new $adVendorClass)->adGroupCategories();
+    }
+
+    public function signUp()
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+
+        return (new $adVendorClass)->signUp();
     }
 
     public function trafficSources()

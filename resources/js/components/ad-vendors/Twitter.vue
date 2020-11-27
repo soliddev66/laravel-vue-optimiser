@@ -9,318 +9,609 @@
           <div class="card-header d-flex justify-content-between align-items-center">
             <label class="p-2" :class="{ 'bg-primary': currentStep === 1 }">Campaign {{ actionName }}</label>
             <i class="fas fa-arrow-right"></i>
-            <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">Add Contents</label>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">Add Card</label>
             <i class="fas fa-arrow-right"></i>
-            <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Generate Variations</label>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Add Tweet</label>
             <i class="fas fa-arrow-right"></i>
             <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Preview</label>
           </div>
+
           <div class="card-body">
-            <form class="form-horizontal" v-if="selectedProvider && selectedAccount">
-              <div v-if="currentStep == 1">
+            <form class="row" v-if="selectedProvider && selectedAccount">
+              <div class="col" v-if="currentStep == 1">
                 <h2>General information</h2>
+
                 <div class="form-group row">
                   <label for="advertiser" class="col-sm-2 control-label mt-2">Advertiser</label>
                   <div class="col-sm-4" v-if="advertisers.length">
-                    <select name="advertiser" class="form-control" v-model="selectedAdvertiser" :disabled="instance">
+                    <select name="advertiser" class="form-control" v-model="selectedAdvertiser" :disabled="instance" @change="selectedAdvertiserChange">
                       <option value="">Select Advertiser</option>
-                      <option :value="advertiser.id" v-for="advertiser in advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.advertiserName }}</option>
+                      <option :value="advertiser.id" v-for="advertiser in advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.name }}</option>
                     </select>
                   </div>
-                  <div class="col-sm-2" v-if="!saveAdvertiser">
-                    <input type="text" name="advertiser_name" v-model="advertiserName" class="form-control" placeholder="Enter advertiser name...">
-                  </div>
-                  <div class="col-sm-2" v-if="saveAdvertiser && !instance">
-                    <button type="button" class="btn btn-primary" @click.prevent="saveAdvertiser = !saveAdvertiser">Create New</button>
-                  </div>
-                  <div class="col-sm-2" v-if="!saveAdvertiser && advertiserName">
-                    <button type="button" class="btn btn-success" @click.prevent="signUp()">Save</button>
-                  </div>
-                  <div class="col-sm-2" v-if="!saveAdvertiser">
-                    <button type="button" class="btn btn-warning" @click.prevent="saveAdvertiser = !saveAdvertiser">Cancel</button>
+                </div>
+
+                <div class="form-group row" v-if="selectedAdvertiser">
+                  <label for="funding_instrument" class="col-sm-2 control-label mt-2">Funding Instrument</label>
+                  <div class="col-lg-10 col-xl-8" v-if="fundingInstruments.length">
+                    <select name="funding_instrument" class="form-control" v-model="selectedFundingInstrument" :disabled="instance">
+                      <option value="">Select Funding Instrument</option>
+                      <option :value="fundingInstrument.id" v-for="fundingInstrument in fundingInstruments" :key="fundingInstrument.id">{{ fundingInstrument.id }} - {{ fundingInstrument.name }}</option>
+                    </select>
                   </div>
                 </div>
+
                 <div class="form-group row">
                   <label for="name" class="col-sm-2 control-label mt-2">Name</label>
-                  <div class="col-sm-8">
+                  <div class="col-lg-10 col-xl-8">
                     <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="campaignName" />
                   </div>
                 </div>
+
                 <div class="form-group row">
-                  <label for="type" class="col-sm-2 control-label mt-2">Type</label>
-                  <div class="col-sm-8">
+                  <label for="entity_status" class="col-sm-2 control-label mt-2">Status</label>
+                  <div class="col-lg-10 col-xl-8">
                     <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: campaignType === 'NATIVE' }">
-                        <input type="radio" name="type" id="campaignType1" autocomplete="off" value="NATIVE" v-model="campaignType"> Native Only
+                      <label class="btn bg-olive" :class="{ active: campaignStatus === 'ACTIVE' }">
+                        <input type="radio" name="entity_status" id="campaignStatus1" autocomplete="off" value="ACTIVE" v-model="campaignStatus">ACTIVE
                       </label>
-                      <label class="btn bg-olive" :class="{ active: campaignType === 'SEARCH' }">
-                        <input type="radio" name="type" id="campaignType2" autocomplete="off" value="SEARCH" v-model="campaignType"> Search Only
+                      <label class="btn bg-olive" :class="{ active: campaignStatus === 'DRAFT' }">
+                        <input type="radio" name="entity_status" id="campaignStatus2" autocomplete="off" value="DRAFT" v-model="campaignStatus">DRAFT
                       </label>
-                      <label class="btn bg-olive" :class="{ active: campaignType === 'SEARCH_AND_NATIVE' }">
-                        <input type="radio" name="type" id="campaignType3" autocomplete="off" value="SEARCH_AND_NATIVE" v-model="campaignType"> Search and Native
+                      <label class="btn bg-olive" :class="{ active: campaignStatus === 'PAUSED' }">
+                        <input type="radio" name="entity_status" id="campaignStatus3" autocomplete="off" value="PAUSED" v-model="campaignStatus">PAUSED
                       </label>
                     </div>
                   </div>
                 </div>
-                <h2>Define your audience</h2>
+
+                <h2>Campaign Setting</h2>
                 <div class="form-group row">
-                  <label for="language" class="col-sm-2 control-label mt-2">Language</label>
-                  <div class="col-sm-8">
-                    <select2 id="language" name="language" :options="languages" v-model="campaignLanguage"></select2>
+                  <label for="start_time" class="col-sm-2 control-label mt-2">Start Time</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <input type="date" name="start_time" class="form-control" v-model="campaignStartTime" />
+                  </div>
+                  <label for="end_time" class="col-sm-2 control-label mt-2">End Time</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <input type="date" name="end_time" class="form-control" v-model="campaignEndTime" />
                   </div>
                 </div>
+
                 <div class="form-group row">
-                  <label for="location" class="col-sm-2 control-label mt-2">Location</label>
-                  <div class="col-sm-8">
-                    <select2 name="location" v-model="campaignLocation" :options="countries" :settings="{ multiple: true }" />
+                  <label for="daily_budget_amount_local_micro" class="col-sm-2 control-label mt-2">Daily Budget Amount Local Micro</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <input type="number" name="daily_budget_amount_local_micro" min="0" class="form-control" v-model="campaignDailyBudgetAmountLocalMicro" />
+                  </div>
+                  <label for="total_budget_amount_local_micro" class="col-sm-2 control-label mt-2">Total Budget Amount Local Micro</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <input type="number" name="total_budget_amount_local_micro" min="0" class="form-control" v-model="campaignTotalBudgetAmountLocalMicro" />
                   </div>
                 </div>
+
                 <div class="form-group row">
-                  <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
-                  <div class="col-sm-8">
-                    <select name="gender" class="form-control" v-model="campaignGender">
-                      <option value="">All</option>
-                      <option value="MALE">Male</option>
-                      <option value="FEMALE">Female</option>
+                  <label for="duration_in_days" class="col-sm-2 control-label mt-2">Duration In Days</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <select name="duration_in_days" class="form-control" v-model="campaignDurationInDays">
+                      <option value="">Select Duration</option>
+                      <option value="1">1 day</option>
+                      <option value="7">7 days</option>
+                      <option value="30">30 days</option>
                     </select>
                   </div>
                 </div>
+
                 <div class="form-group row">
-                  <label for="age" class="col-sm-2 control-label mt-2">Age</label>
-                  <div class="col-sm-8">
-                    <select name="age" class="form-control" v-model="campaignAge" multiple>
-                      <option value="">All</option>
-                      <option value="18-24">18-24</option>
-                      <option value="25-34">25-34</option>
-                      <option value="35-44">35-44</option>
-                      <option value="45-54">45-54</option>
-                      <option value="55-64">55-64</option>
-                      <option value="65-120">65-120</option>
-                    </select>
+                  <label for="frequency_cap" class="col-sm-2 control-label mt-2">Frequency Cap</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="number" name="frequency_cap" min="0" placeholder="Frequency Cap" class="form-control" v-model="campaignFrequencyCap" />
                   </div>
                 </div>
+
                 <div class="form-group row">
-                  <label for="device" class="col-sm-2 control-label mt-2">Device</label>
-                  <div class="col-sm-8">
-                    <select name="device" class="form-control" v-model="campaignDevice">
-                      <option value="">All</option>
-                      <option value="SMARTPHONE">SMARTPHONE</option>
-                      <option value="TABLET">TABLET</option>
-                      <option value="DESKTOP">DESKTOP</option>
-                    </select>
+                  <label for="purchase_order_number" class="col-sm-2 control-label mt-2">Purchase Order Number</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="purchase_order_number" class="form-control" v-model="campaignPurchaseOrderNumber" />
                   </div>
                 </div>
-                <h2>Campaign settings</h2>
+
                 <div class="form-group row">
-                  <label for="budget" class="col-sm-2 control-label mt-2">Budget</label>
-                  <div class="col-sm-2">
-                    <input type="number" name="budget" min="40" class="form-control" v-model="campaignBudget" />
-                  </div>
-                  <div class="col-sm-4">
+                  <label for="standard_delivery" class="col-sm-2 control-label mt-2">Standard Delivery</label>
+                  <div class="col-lg-10 col-xl-8">
                     <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'DAILY' }">
-                        <input type="radio" name="type" id="campaignBudgetType1" autocomplete="off" value="DAILY" v-model="campaignBudgetType"> Per Day
+                      <label class="btn bg-olive" :class="{ active: campaignStandardDelivery }">
+                        <input type="radio" name="standard_delivery" id="campaignStandardDelivery1" autocomplete="off" :value="true" v-model="campaignStandardDelivery">TRUE
                       </label>
-                      <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'MONTHLY' }">
-                        <input type="radio" name="type" id="campaignBudgetType2" autocomplete="off" value="MONTHLY" v-model="campaignBudgetType"> Per Month
-                      </label>
-                      <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'LIFETIME' }">
-                        <input type="radio" name="type" id="campaignBudgetType3" autocomplete="off" value="LIFETIME" v-model="campaignBudgetType"> In Total
+                      <label class="btn bg-olive" :class="{ active: !campaignStandardDelivery }">
+                        <input type="radio" name="standard_delivery" id="campaignStandardDelivery2" autocomplete="off" :value="false" v-model="campaignStandardDelivery">FALSE
                       </label>
                     </div>
                   </div>
                 </div>
+
+                <h2>Ad Group</h2>
+
                 <div class="form-group row">
-                  <label for="bid_strategy" class="col-sm-2 control-label mt-2">Bid Strategy</label>
-                  <div class="col-sm-8">
-                    <select name="bid_strategy" class="form-control" v-model="campaignStrategy">
-                      <option value="OPT_ENHANCED_CPC">Enhanced CPC</option>
-                      <option value="OPT_POST_INSTALL">Post Install</option>
-                      <option value="OPT_CONVERSION">Conversion</option>
-                      <option value="OPT_CLICK">Click</option>
-                      <option value="MAX_OPT_CONVERSION">Max Conversion</option>
-                    </select>
+                  <label for="ad_group_name" class="col-sm-2 control-label mt-2">Name</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="ad_group_name" placeholder="Name" class="form-control" v-model="adGroupName" />
                   </div>
                 </div>
+
                 <div class="form-group row">
-                  <label for="conversion_counting" class="col-sm-2 control-label mt-2">Conversion counting</label>
-                  <div class="col-sm-8">
-                    <select name="conversion_counting" class="form-control" v-model="campaignConversionCounting">
-                      <option value="ALL_PER_INTERACTION">All per interaction</option>
-                      <option value="ONE_PER_INTERACTION">One per interaction</option>
-                    </select>
-                  </div>
-                </div>
-                <h2>Create group</h2>
-                <div class="form-group row">
-                  <label for="ad_group_name" class="col-sm-2 control-label mt-2">Ad group name</label>
-                  <div class="col-sm-8">
-                    <input type="text" name="ad_group_name" class="form-control" v-model="adGroupName" />
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="bid_strategy" class="col-sm-2 control-label mt-2">Bid strategy</label>
-                  <div class="col-sm-8">
-                    <p>{{ campaignStrategy }}</p>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="bid_cpc" class="col-sm-2 control-label mt-2">Bid (CPC)</label>
-                  <div class="col-sm-8">
-                    <input type="number" name="bid_cpc" min="0.05" class="form-control" v-model="bidAmount" />
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="schedule" class="col-sm-2 control-label mt-2">Schedule</label>
-                  <div class="col-sm-8">
+                  <label for="ad_group_status" class="col-sm-2 control-label mt-2">Status</label>
+                  <div class="col-lg-10 col-xl-8">
                     <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: scheduleType === 'IMMEDIATELY' }">
-                        <input type="radio" name="schedule" id="scheduleType1" autocomplete="off" value="IMMEDIATELY" v-model="scheduleType"> Start running ads immediately
+                      <label class="btn bg-olive" :class="{ active: adGroupStatus === 'ACTIVE' }">
+                        <input type="radio" name="ad_group_status" id="adGroupStatus1" autocomplete="off" value="ACTIVE" v-model="adGroupStatus">ACTIVE
                       </label>
-                      <label class="btn bg-olive" :class="{ active: scheduleType === 'CUSTOM' }">
-                        <input type="radio" name="schedule" id="scheduleType2" autocomplete="off" value="CUSTOM" v-model="scheduleType"> Set a start and end date
+                      <label class="btn bg-olive" :class="{ active: adGroupStatus === 'DRAFT' }">
+                        <input type="radio" name="ad_group_status" id="adGroupStatus2" autocomplete="off" value="DRAFT" v-model="adGroupStatus">DRAFT
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: adGroupStatus === 'PAUSED' }">
+                        <input type="radio" name="ad_group_status" id="adGroupStatus3" autocomplete="off" value="PAUSED" v-model="adGroupStatus">PAUSED
                       </label>
                     </div>
                   </div>
                 </div>
-                <div class="form-group row" v-if="scheduleType === 'CUSTOM'">
-                  <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
-                  <div class="col-sm-4">
-                    <input type="date" name="start_date" class="form-control" v-model="campaignStartDate" />
+
+                <div class="form-group row">
+                  <label for="ad_group_start_time" class="col-sm-2 control-label mt-2">Start Time</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <input type="date" name="start_time" class="form-control" v-model="adGroupStartTime" />
                   </div>
-                  <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
-                  <div class="col-sm-4">
-                    <input type="date" name="end_date" class="form-control" v-model="campaignEndDate" />
+                  <label for="ad_group_end_time" class="col-sm-2 control-label mt-2">End Time</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <input type="date" name="end_time" class="form-control" v-model="adGroupEndTime" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_android_app_store_identifier" class="col-sm-2 control-label mt-2">Android App Store Identifier</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <select name="ad_group_android_app_store_identifier" class="form-control" v-model="adGroupAndroidAppStoreIdentifier">
+                      <option value="">Select</option>
+                      <option value="APP_ENGAGEMENTS">APP_ENGAGEMENTS</option>
+                      <option value="APP_INSTALLS">APP_INSTALLS</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_ios_app_store_identifier" class="col-sm-2 control-label mt-2">iOS App Store Identifier</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <select name="ad_group_ios_app_store_identifier" class="form-control" v-model="adGroupIOSAppStoreIdentifier">
+                      <option value="">Select</option>
+                      <option value="APP_ENGAGEMENTS">APP_ENGAGEMENTS</option>
+                      <option value="APP_INSTALLS">APP_INSTALLS</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_objective" class="col-sm-2 control-label mt-2">Objective</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <select name="ad_group_objective" class="form-control" v-model="adGroupObjective">
+                      <option value="APP_ENGAGEMENTS">APP_ENGAGEMENTS</option>
+                      <option value="APP_INSTALLS">APP_INSTALLS</option>
+                      <option value="REACH">REACH</option>
+                      <option value="FOLLOWERS">FOLLOWERS</option>
+                      <option value="ENGAGEMENTS">ENGAGEMENTS</option>
+                      <option value="VIDEO_VIEWS">VIDEO_VIEWS</option>
+                      <option value="PREROLL_VIEWS">PREROLL_VIEWS</option>
+                      <option value="WEBSITE_CLICKS">WEBSITE_CLICKS</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_placements" class="col-sm-2 control-label mt-2">Placements</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <select2 id="ad_group_placements" name="ad_group_placements" :options="placements" v-model="adGroupPlacements" :settings="{ multiple: true }"></select2>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_product_type" class="col-sm-2 control-label mt-2">Product Type</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: adGroupProductType === 'MEDIA' }">
+                        <input type="radio" name="ad_group_product_type" id="adGroupProductType1" autocomplete="off" value="MEDIA" v-model="adGroupProductType">MEDIA
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: adGroupProductType === 'PROMOTED_ACCOUNT' }">
+                        <input type="radio" name="ad_group_product_type" id="adGroupProductType2" autocomplete="off" value="PROMOTED_ACCOUNT" v-model="adGroupProductType">PROMOTED_ACCOUNT
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: adGroupProductType === 'PROMOTED_TWEETS' }">
+                        <input type="radio" name="ad_group_product_type" id="adGroupProductType3" autocomplete="off" value="PROMOTED_TWEETS" v-model="adGroupProductType">PROMOTED_TWEETS
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_advertiser_domain" class="col-sm-2 control-label mt-2">Advertiser Domain</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="ad_group_advertiser_domain" placeholder="Advertiser Domain" class="form-control" v-model="adGroupAdvertiserDomain" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_bid_amount_local_micro" class="col-sm-2 control-label mt-2">Bid Amount Local Micro</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <input type="number" name="ad_group_bid_amount_local_micro" min="0" class="form-control" v-model="adGroupBidAmountLocalMicro" />
+                  </div>
+                  <label for="ad_group_total_budget_amount_local_micro" class="col-sm-2 control-label mt-2">Total Budget Amount Local Micro</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <input type="number" name="ad_group_total_budget_amount_local_micro" min="0" class="form-control" v-model="adGroupTotalBudgetAmountLocalMicro" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_categories" class="col-sm-2 control-label mt-2">Category</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <select2 id="ad_group_categories" name="ad_group_categories" :options="adGroupCategorySelection" v-model="adGroupCategories" :settings="{ multiple: true }"></select2>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_primary_web_event_tag" class="col-sm-2 control-label mt-2">Primary Web Event Tag</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="ad_group_primary_web_event_tag" placeholder="Primary Web Event Tag" class="form-control" v-model="adGroupPrimaryWebEventTag" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_advertiser_user_id" class="col-sm-2 control-label mt-2">Advertiser User Id</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="number" name="ad_group_advertiser_user_id" min="0" class="form-control" v-model="adGroupAdvertiserUserId" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_automatically_select_bid" class="col-sm-2 control-label mt-2">Automatically Select Bid</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: adGroupAutomaticallySelectBid }">
+                        <input type="radio" name="ad_group_automatically_select_bid" id="adGroupAutomaticallySelectBid1" autocomplete="off" :value="true" v-model="adGroupAutomaticallySelectBid">TRUE
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: !adGroupAutomaticallySelectBid }">
+                        <input type="radio" name="ad_group_automatically_select_bid" id="adGroupAutomaticallySelectBid2" autocomplete="off" :value="false" v-model="adGroupAutomaticallySelectBid">FALSE
+                      </label>
+                    </div>
+                  </div>
+
+                  <label for="ad_group_bid_type" class="col-sm-2 control-label mt-2">Bid Type</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'AUTO' && !adGroupBidAmountLocalMicro }">
+                        <input type="radio" name="ad_group_bid_type" id="adGroupBidType1" autocomplete="off" value="AUTO" v-model="adGroupBidType">AUTO
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'MAX' && !adGroupBidAmountLocalMicro }">
+                        <input type="radio" name="ad_group_bid_type" id="adGroupBidType2" autocomplete="off" value="MAX" v-model="adGroupBidType">MAX
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'TARGET' && !adGroupBidAmountLocalMicro }">
+                        <input type="radio" name="ad_group_bid_type" id="adGroupBidType3" autocomplete="off" value="TARGET" v-model="adGroupBidType">TARGET
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_bid_unit" class="col-sm-2 control-label mt-2">Bid Unit</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <select name="ad_group_bid_unit" class="form-control" v-model="adGroupBidUnit">
+                      <option value="">Select</option>
+                      <option value="APP_CLICK">APP_CLICK</option>
+                      <option value="APP_INSTALL">APP_INSTALL</option>
+                      <option value="VIEW">VIEW</option>
+                      <option value="VIEW_3S_100PCT">VIEW_3S_100PCT</option>
+                      <option value="VIEW_6S">VIEW_6S</option>
+                    </select>
+                  </div>
+                  <label for="ad_group_charge_by" class="col-sm-2 control-label mt-2">Charge By</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <select name="ad_group_charge_by" class="form-control" v-model="adGroupChargeBy" disabled>
+                      <option value="">Select</option>
+                      <option value="APP_CLICK">APP_CLICK</option>
+                      <option value="APP_INSTALL">APP_INSTALL</option>
+                      <option value="VIEW">VIEW</option>
+                      <option value="VIEW_3S_100PCT">VIEW_3S_100PCT</option>
+                      <option value="VIEW_6S">VIEW_6S</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_optimization" class="col-sm-2 control-label mt-2">Optimization</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <select name="ad_group_optimization" class="form-control" v-model="adGroupOptimization">
+                      <option value="">Select</option>
+                      <option value="APP_CLICKS">APP_CLICKS</option>
+                      <option value="APP_INSTALLS">APP_INSTALLS</option>
+                      <option value="DEFAULT">DEFAULT</option>
+                      <option value="ENGAGEMENTS">ENGAGEMENTS</option>
+                      <option value="WEBSITE_CONVERSIONS">WEBSITE_CONVERSIONS</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_audience_expansion" class="col-sm-2 control-label mt-2">Audience Expansion</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: adGroupAudienceExpansion === 'BROAD' }">
+                        <input type="radio" name="ad_group_audience_expansion" id="adGroupAudienceExpansion1" autocomplete="off" value="BROAD" v-model="adGroupAudienceExpansion">BROAD
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: adGroupAudienceExpansion === 'DEFINED' }">
+                        <input type="radio" name="ad_group_audience_expansion" id="adGroupAudienceExpansion2" autocomplete="off" value="DEFINED" v-model="adGroupAudienceExpansion">DEFINED
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: adGroupAudienceExpansion === 'EXPANDED' }">
+                        <input type="radio" name="ad_group_audience_expansion" id="adGroupAudienceExpansion3" autocomplete="off" value="EXPANDED" v-model="adGroupAudienceExpansion">EXPANDED
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="ad_group_tracking_tags" class="col-sm-2 control-label mt-2">Tracking Tags</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="ad_group_tracking_tags" placeholder="Tracking Tags" class="form-control" v-model="adGrouptrackingTags" />
                   </div>
                 </div>
               </div>
-              <div class="card-body" v-if="currentStep == 2">
-                <div class="row">
-                  <div class="col-sm-6">
-                    <div class="form-group row">
-                      <label for="title" class="col-sm-4 control-label mt-2">Title</label>
-                      <div class="col-sm-8">
-                        <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title" />
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
-                      <div class="col-sm-8">
-                        <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="brandname" />
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="description" class="col-sm-4 control-label mt-2">Description</label>
-                      <div class="col-sm-8">
-                        <textarea class="form-control" rows="3" placeholder="Enter description" v-model="description"></textarea>
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
-                      <div class="col-sm-8 text-center">
-                        <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="displayUrl" />
-                        <small class="text-danger" v-if="displayUrl && !displayUrlState">URL is invalid. You might need http/https at the beginning.</small>
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
-                      <div class="col-sm-8 text-center">
-                        <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="targetUrl" />
-                        <small class="text-danger" v-if="targetUrl && !targetUrlState">URL is invalid. You might need http/https at the beginning.</small>
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="image_hq_url" class="col-sm-4 control-label mt-2">Image HQ URL</label>
-                      <div class="col-sm-8">
-                        <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="imageUrlHQ" />
-                      </div>
-                      <div class="col-sm-8 offset-sm-4">
-                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('hqModal')">Choose File</button>
-                        <!-- <input type="file" ref="imageHQ" @change="selectedHQFile" accept="image/*"> -->
-                      </div>
-                      <div class="col-sm-8 offset-sm-4 text-center">
-                        <small class="text-danger" v-if="imageUrlHQ && !imageUrlHQState">URL is invalid. You might need http/https at the beginning.</small>
-                        <small class="text-danger" v-if="imageHQ.size && !imageHQState">Image is invalid. You might need an 1200x627 image.</small>
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="image_url" class="col-sm-4 control-label mt-2">Image URL</label>
-                      <div class="col-sm-8">
-                        <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="imageUrl" />
-                      </div>
-                      <div class="col-sm-8 offset-sm-4">
-                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal')">Choose File</button>
-                        <!-- <input type="file" ref="image" @change="selectedFile" accept="image/*"> -->
-                      </div>
-                      <div class="col-sm-8 offset-sm-4 text-center">
-                        <small class="text-danger" v-if="imageUrl && !imageUrlState">URL is invalid. You might need http/https at the beginning.</small>
-                        <small class="text-danger" v-if="image.size && !imageState">Image is invalid. You might need an 627x627 image.</small>
-                      </div>
-                    </div>
+
+              <!-- <div class="col" v-if="currentStep == 2">
+                <h2>General information</h2>
+
+                <div class="form-group row">
+                  <label for="card_name" class="col-sm-2 control-label mt-2">Name</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="cardName" />
                   </div>
-                  <div class="col-sm-6">
-                    <h1>Preview</h1>
-                    <div v-html="previewData"></div>
+                </div>
+                <h2>Component</h2>
+                <div class="row">
+                  <div class="col-10">
+                    <fieldset class="mb-4 p-3 rounded border">
+                      <fieldset class="mb-3 p-3 rounded border" v-for="(cardComponent, index) in cardComponents" :key="index">
+                        <div class="form-group row">
+                          <label for="card_component" class="col-sm-2 control-label mt-2">Component Type</label>
+                          <div class="col-10">
+                            <select name="card_component" class="form-control" v-model="cardComponent.type" @change="cardComponentTypeChange(index)">
+                              <option value="">Select</option>
+                              <option value="MEDIA">MEDIA</option>
+                              <option value="SWIPEABLE_MEDIA">SWIPEABLE_MEDIA</option>
+                              <option value="DETAILS">DETAILS</option>
+                              <option value="BUTTON">BUTTON</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="row" v-if="cardComponent.type == 'MEDIA'">
+                          <div class="col">
+                            <div class="form-group row">
+                              <label for="card_component_MEDIA_media_key" class="col-sm-2 control-label mt-2">Media</label>
+                              <div class="col-10">
+                                <select2 id="card_component_MEDIA_media_key" name="card_component_MEDIA_media_key" :options="placements" v-model="cardComponent.media_key"></select2>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row" v-if="cardComponent.type == 'SWIPEABLE_MEDIA'">
+                          <div class="col">
+                            <div class="form-group row">
+                              <label for="card_component_SWIPEABLE_MEDIA_media_keys" class="col-sm-2 control-label mt-2">Media</label>
+                              <div class="col-10">
+                                <select2 id="card_component_SWIPEABLE_MEDIA_media_keys" name="card_component_SWIPEABLE_MEDIA_media_keys" :options="placements" v-model="cardComponent.media_keys" :settings="{ multiple: true }"></select2>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row" v-if="cardComponent.type == 'DETAILS'">
+                          <div class="col">
+                            <div class="form-group row">
+                              <label for="card_component_DETAILS_title" class="col-sm-2 control-label mt-2">Title</label>
+                              <div class="col-10">
+                                <input type="text" name="card_component_DETAILS_title" placeholder="Enter a title" class="form-control" v-model="cardComponent.title" />
+                              </div>
+                            </div>
+                            <h3>Destination</h3>
+                            <div class="form-group row">
+                              <label for="card_component_DETAILS_destination_type" class="col-sm-2 control-label mt-2">Type</label>
+                              <div class="col-10">
+                                <select name="card_component" class="form-control" v-model="cardComponent.destination.type" @change="cardComponentDestinationTypeChange(index)">
+                                  <option value="">Select</option>
+                                  <option value="WEBSITE">WEBSITE</option>
+                                  <option value="APP">APP</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="row" v-if="cardComponent.destination.type == 'WEBSITE'">
+                              <div class="col">
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_url" class="col-sm-2 control-label mt-2">Url</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_url" placeholder="Enter a url" class="form-control" v-model="cardComponent.destination.url" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="row" v-if="cardComponent.destination.type == 'APP'">
+                              <div class="col">
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_country_code" class="col-sm-2 control-label mt-2">Country</label>
+                                  <div class="col-10">
+                                    <select name="card_component" class="form-control" v-model="cardComponent.destination.country_code">
+                                      <option value="">Select</option>
+                                      <option value="US">US</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_ipad_app_id" class="col-sm-2 control-label mt-2">iPad App ID</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_ipad_app_id" placeholder="iPad App ID" class="form-control" v-model="cardComponent.destination.ipad_app_id" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_iphone_app_id" class="col-sm-2 control-label mt-2">iPhone App ID</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_iphone_app_id" placeholder="iPhone App ID" class="form-control" v-model="cardComponent.destination.iphone_app_id" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_googleplay_app_id" class="col-sm-2 control-label mt-2">Google Play App</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_googleplay_app_id" placeholder="Google Play application package name" class="form-control" v-model="cardComponent.destination.googleplay_app_id" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_ipad_deep_link" class="col-sm-2 control-label mt-2">iPad Deep Link</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_ipad_deep_link" placeholder="iPad Deep Link" class="form-control" v-model="cardComponent.destination.ipad_deep_link" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_iphone_deep_link" class="col-sm-2 control-label mt-2">iPhone Deep Link</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_iphone_deep_link" placeholder="iPhone Deep Link" class="form-control" v-model="cardComponent.destination.iphone_deep_link" />
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="card_component_DETAILS_destination_googleplay_deep_link" class="col-sm-2 control-label mt-2">Android Deep Link</label>
+                                  <div class="col-10">
+                                    <input type="text" name="card_component_DETAILS_destination_googleplay_deep_link" placeholder="Android Deep Link" class="form-control" v-model="cardComponent.destination.googleplay_deep_link" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </fieldset>
+                      <button class="btn btn-primary btn-sm" @click.prevent="addCardComponent()">Add New</button>
+                    </fieldset>
+                  </div>
+                </div>
+              </div> -->
+
+              <div class="col" v-if="currentStep == 2">
+                <h2>General information</h2>
+
+                <div class="form-group row">
+                  <label for="card_name" class="col-sm-2 control-label mt-2">Name</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="cardName" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="card_media" class="col-sm-2 control-label mt-2">Media Image</label>
+                  <div class="col-sm-8">
+                    <input type="text" name="card_media" placeholder="Media Image" class="form-control" v-model="cardMedia" disabled />
+                  </div>
+                  <div class="col-sm-8 offset-sm-2">
+                    <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('cardMedia')">Choose File</button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="card_website_title" class="col-sm-2 control-label mt-2">Website Title</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="card_website_title" placeholder="Enter website title" class="form-control" v-model="cardWebsiteTitle" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="card_website_url" class="col-sm-2 control-label mt-2">Website URL</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="card_website_url" placeholder="Enter a website URL" class="form-control" v-model="cardWebsiteUrl" />
                   </div>
                 </div>
               </div>
             </form>
           </div>
+
           <div class="card-body" v-if="currentStep == 3">
-            <div class="row mb-2" v-for="(attribute, index) in attributes" :key="attribute.id">
-              <div class="col-sm-12" v-if="index === 0">
-                <h4>Main Variation</h4>
-              </div>
-              <div class="col-sm-12">
-                <div class="form-group row">
-                  <label :for="`gender${index}`" class="col-sm-4 control-label mt-2">Gender</label>
-                  <div class="col-sm-8">
-                    <select :name="`gender${index}`" class="form-control" v-model="attribute.gender">
-                      <option value="">All</option>
-                      <option value="MALE">Male</option>
-                      <option value="FEMALE">Female</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="col-sm-12">
-                <div class="form-group row">
-                  <label :for="`age${index}`" class="col-sm-4 control-label mt-2">Age</label>
-                  <div class="col-sm-8">
-                    <select :name="`age${index}`" class="form-control" v-model="attribute.age" multiple>
-                      <option value="">All</option>
-                      <option value="18-24">18-24</option>
-                      <option value="25-34">25-34</option>
-                      <option value="35-44">35-44</option>
-                      <option value="45-54">45-54</option>
-                      <option value="55-64">55-64</option>
-                      <option value="65-120">65-120</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="col-sm-12 border-bottom">
-                <div class="form-group row">
-                  <label :for="`device${index}`" class="col-sm-4 control-label mt-2">Device</label>
-                  <div class="col-sm-8">
-                    <select :name="`device${index}`" class="form-control" v-model="attribute.device">
-                      <option value="">All</option>
-                      <option value="SMARTPHONE">SMARTPHONE</option>
-                      <option value="TABLET">TABLET</option>
-                      <option value="DESKTOP">DESKTOP</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="col-sm-12 text-right mt-3">
-                <button class="btn btn-warning btn-sm" @click="removeAttibute(index)" v-if="index > 0">Remove</button>
+            <div class="form-group row">
+              <label for="tweet_text" class="col-sm-2 control-label mt-2">Text</label>
+              <div class="col-lg-10 col-xl-8">
+                <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="tweetText" />
               </div>
             </div>
-            <button class="btn btn-primary btn-sm" @click="addNewAttibute()">Add New</button>
+
+            <div class="form-group row">
+              <label for="tweet_nullcast" class="col-sm-2 control-label mt-2">Nullcast</label>
+              <div class="col-lg-4 col-xl-3">
+                <div class="btn-group btn-group-toggle">
+                  <label class="btn bg-olive" :class="{ active: tweetNullcast }">
+                    <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" v-model="tweetNullcast">TRUE
+                  </label>
+                  <label class="btn bg-olive" :class="{ active: !tweetNullcast }">
+                    <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" v-model="tweetNullcast">FALSE
+                  </label>
+                </div>
+              </div>
+              <label for="tweet_trim_user" class="col-sm-2 control-label mt-2">Trim User</label>
+              <div class="col-lg-4 col-xl-3">
+                <div class="btn-group btn-group-toggle">
+                  <label class="btn bg-olive" :class="{ active: tweetTrimUser }">
+                    <input type="radio" name="tweet_trim_user" id="tweetTrimUser1" autocomplete="off" :value="true" v-model="tweetTrimUser">TRUE
+                  </label>
+                  <label class="btn bg-olive" :class="{ active: !tweetTrimUser }">
+                    <input type="radio" name="tweet_trim_user" id="tweetTrimUser2" autocomplete="off" :value="false" v-model="tweetTrimUser">FALSE
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="tweet_video_cta" class="col-sm-2 control-label mt-2">Video CTA</label>
+              <div class="col-lg-4 col-xl-3">
+                <select name="tweet_video_cta" class="form-control" v-model="tweetVideoCTA">
+                  <option value="">Select</option>
+                  <option value="VISIT_SITE">VISIT_SITE</option>
+                  <option value="WATCH_NOW">WATCH_NOW</option>
+                </select>
+              </div>
+              <label for="tweet_video_cta_value" class="col-sm-2 control-label mt-2">Video CTA Value</label>
+              <div class="col-lg-4 col-xl-3">
+                <input type="text" name="tweet_video_cta_value" placeholder="Video CTA Value" class="form-control" v-model="tweetVideoCTAValue" />
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="tweet_tweet_mode" class="col-sm-2 control-label mt-2">Tweet Mode</label>
+              <div class="col-lg-10 col-xl-8">
+                <div class="btn-group btn-group-toggle">
+                  <label class="btn bg-olive" :class="{ active: tweetTweetMode == 'compat' }">
+                    <input type="radio" name="tweet_tweet_mode" id="tweetTweetMode1" autocomplete="off" value="compat" v-model="tweetTweetMode">COMPAT
+                  </label>
+                  <label class="btn bg-olive" :class="{ active: tweetTweetMode == 'extended' }">
+                    <input type="radio" name="tweet_trim_user" id="tweetTweetMode2" autocomplete="off" value="extended" v-model="tweetTweetMode">EXTENDED
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="tweet_video_title" class="col-sm-2 control-label mt-2">Video Title</label>
+              <div class="col-lg-10 col-xl-8">
+                <input type="text" name="tweet_video_title" placeholder="Video Title" class="form-control" v-model="tweetVideoTitle" />
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="tweet_video_description" class="col-sm-2 control-label mt-2">Video Description</label>
+              <div class="col-lg-10 col-xl-8">
+               <textarea class="form-control" id="tweet_video_description" name="tweet_video_description" rows="3" v-model="tweetVideoDescription"></textarea>
+              </div>
+            </div>
           </div>
+
           <div class="card-body" v-if="currentStep == 4">
-            <div class="col-sm-12 text-center">
-              <div v-html="previewData"></div>
+            <div class="row">
+              <div class="col-sm-12">
+                <h2>Preview</h2>
+                <div v-html="previewData"></div>
+              </div>
             </div>
           </div>
           <div class="card-footer d-flex justify-content-end">
@@ -328,29 +619,22 @@
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 1">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!campaignNameState || !selectedAdvertiserState || !campaignBudgetState || !adGroupNameState || !bidAmountState">Next</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="submitStep1State">Add Card</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!titleState || !brandnameState || !descriptionState || !displayUrlState || !targetUrlState || !imageUrlHQState || !imageUrlState">Next</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="submitStep2State">Add Tweet</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 3">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep3">Next</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep3" :disabled="submitStep3State">Submit</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 4">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep4">Finish</button>
+              <button type="button" class="btn btn-primary">Finish</button>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <modal width="60%" height="80%" name="hqModal">
-      <file-manager v-bind:settings="settings" :props="{
-          upload: true,
-          viewType: 'grid',
-          selectionType: 'single'
-      }"></file-manager>
-    </modal>
-    <modal width="60%" height="80%" name="imageModal">
+    <modal width="60%" height="80%" name="cardMedia">
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
           viewType: 'grid',
@@ -399,347 +683,177 @@ export default {
     Select2
   },
   computed: {
-    selectedAdvertiserState() {
-      return this.selectedAdvertiser !== ''
+    submitStep1State() {
+      return !this.selectedProvider || !this.selectedAccount || !this.selectedAdvertiser || !this.selectedFundingInstrument
+        || !this.campaignName || !this.campaignStartTime || !this.campaignDailyBudgetAmountLocalMicro || !this.adGroupName
+        || !this.adGroupStartTime
     },
-    campaignNameState() {
-      return this.campaignName !== ''
+    submitStep2State() {
+      return !this.cardName || !this.cardWebsiteTitle || !this.cardWebsiteUrl || !this.cardMedia
     },
-    campaignBudgetState() {
-      return this.campaignBudget > 0
-    },
-    adGroupNameState() {
-      return this.adGroupName !== ''
-    },
-    bidAmountState() {
-      return this.bidAmount > 0
-    },
-    titleState() {
-      return this.title !== ''
-    },
-    brandnameState() {
-      return this.brandname !== ''
-    },
-    descriptionState() {
-      return this.description !== ''
-    },
-    displayUrlState() {
-      return this.displayUrl !== '' && this.validURL(this.displayUrl)
-    },
-    targetUrlState() {
-      return this.targetUrl !== '' && this.validURL(this.targetUrl)
-    },
-    imageUrlHQState() {
-      return (this.imageUrlHQ !== '' && this.validURL(this.imageUrlHQ)) || this.imageHQState
-    },
-    imageHQState() {
-      return this.imageHQ.size !== '' && this.validSize(this.imageHQ, 'HQ')
-    },
-    imageUrlState() {
-      return (this.imageUrl !== '' && this.validURL(this.imageUrl)) || this.imageState
-    },
-    imageState() {
-      return this.image.size !== '' && this.validSize(this.image, '')
+    submitStep3State() {
+      return !this.tweetText
     }
   },
   mounted() {
-    console.log('Component mounted.')
+    this.currentStep = this.step
+
+    this.loadAdvertisers()
+
     let vm = this
     this.$root.$on('fm-selected-items', (value) => {
       const selectedFilePath = value[0].path
-      if (this.openingFileSelector === 'hqModal') {
-        this.imageUrlHQ = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
-      }
-      if (this.openingFileSelector === 'imageModal') {
-        this.imageUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+      if (this.openingFileSelector === 'cardMedia') {
+        this.cardMedia = selectedFilePath
       }
       vm.$modal.hide(this.openingFileSelector)
     });
-    this.currentStep = this.step
-
-    this.getLanguages()
-    this.getCountries()
-    this.getAdvertisers()
-
-    if (this.instance) {
-      this.loadPreview()
-    }
   },
   watch: {
-    title: _.debounce(function(newVal) {
-      this.loadPreview()
-    }, 2000),
-    displayUrl: _.debounce(function(newVal) {
-      this.loadPreview()
-    }, 2000),
-    targetUrl: _.debounce(function(newVal) {
-      this.loadPreview()
-    }, 2000),
-    description: _.debounce(function(newVal) {
-      this.loadPreview()
-    }, 2000),
-    brandname: _.debounce(function(newVal) {
-      this.loadPreview()
-    }, 2000),
-    imageUrlHQ: _.debounce(function(newVal) {
-      this.loadPreview()
-    }, 2000),
-    imageUrl: _.debounce(function(newVal) {
-      this.loadPreview()
-    }, 2000)
+
   },
   data() {
-    let campaignGender = '',
-      campaignAge = [],
-      campaignDevice = '',
-      adGroupName = '',
-      bidAmount = '0.05',
-      campaignLocation = [],
-      adGroupID = '',
-      dataAttributes = [];
-    if (this.instance) {
-      this.instance.attributes.forEach(attribute => {
-        if (attribute.type === 'GENDER') {
-          campaignGender = attribute.value;
-        } else if (attribute.type === 'AGE') {
-          campaignAge.push(attribute.value);
-        } else if (attribute.type === 'DEVICE') {
-          campaignDevice = attribute.value;
-        } else if (attribute.type === 'WOEID') {
-          campaignLocation.push(attribute.value);
-        }
-        dataAttributes.push(attribute.id);
-      });
-
-      if (this.instance.adGroups.length > 0) {
-        adGroupID = this.instance.adGroups[0]['id'];
-        adGroupName = this.instance.adGroups[0]['adGroupName'];
-
-        if (this.instance.adGroups[0]['bidSet']['bids'].length > 0) {
-          bidAmount = this.instance.adGroups[0]['bidSet']['bids'][0]['value'];
-        }
-      }
-    }
-
     return {
       isLoading: false,
       fullPage: true,
       postData: {},
       currentStep: 1,
-      saveAdvertiser: true,
-      advertiserName: '',
       redtrackKey: '',
       languages: [],
       countries: [],
       advertisers: [],
+      fundingInstruments: [],
       accounts: [],
+      placements: [
+        {id: 'ALL_ON_TWITTER', text: 'ALL_ON_TWITTER'},
+        {id: 'PUBLISHER_NETWORK', text: 'PUBLISHER_NETWORK'},
+        {id: 'TAP_BANNER', text: 'TAP_BANNER'},
+        {id: 'TAP_FULL', text: 'TAP_FULL'},
+        {id: 'TAP_FULL_LANDSCAPE', text: 'TAP_FULL_LANDSCAPE'},
+        {id: 'TAP_NATIVE', text: 'TAP_NATIVE'},
+        {id: 'TAP_MRECT', text: 'TAP_MRECT'},
+        {id: 'TWITTER_PROFILE', text: 'TWITTER_PROFILE'},
+        {id: 'TWITTER_SEARCH', text: 'TWITTER_SEARCH'},
+        {id: 'TWITTER_TIMELINE', text: 'TWITTER_TIMELINE'}
+      ],
       actionName: this.action,
       selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
+      selectedFundingInstrument: this.instance ? this.instance.fundingInstrument : '',
       campaignName: this.instance ? this.instance.campaignName : '',
-      campaignType: this.instance ? this.instance.channel : 'SEARCH_AND_NATIVE',
-      campaignLanguage: this.instance ? this.instance.language : 'en',
-      campaignLocation: campaignLocation,
-      campaignGender: campaignGender,
-      campaignAge: campaignAge,
-      campaignDevice: campaignDevice,
-      campaignBudget: this.instance ? this.instance.budget : '',
-      campaignStartDate: '',
-      campaignEndDate: '',
-      campaignBudgetType: this.instance ? this.instance.budgetType : 'DAILY',
-      campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_ENHANCED_CPC',
-      campaignConversionCounting: this.instance ? this.instance.conversionRuleConfig.conversionCounting : 'ALL_PER_INTERACTION',
-      adGroupID: adGroupID,
-      adGroupName: adGroupName,
-      bidAmount: bidAmount,
-      scheduleType: 'IMMEDIATELY',
-      title: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['title'] : '',
-      displayUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['displayUrl'] : '',
-      targetUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['landingUrl'] : '',
-      description: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['description'] : '',
-      brandname: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['sponsoredBy'] : '',
-      imageUrlHQ: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrlHQ'] : '',
-      imageHQ: {
+      campaignStartTime: '',
+      campaignEndTime: '',
+      campaignDailyBudgetAmountLocalMicro: '',
+      campaignTotalBudgetAmountLocalMicro: '',
+      campaignDurationInDays: '',
+      campaignFrequencyCap: '',
+      campaignPurchaseOrderNumber: '',
+      campaignStandardDelivery: true,
+      campaignStatus: this.instance ? this.instance.channel : 'PAUSED',
+      adGroupName: '',
+      adGroupAndroidAppStoreIdentifier: '',
+      adGroupIOSAppStoreIdentifier: '',
+      adGroupPlacements: '',
+      adGroupObjective: 'APP_ENGAGEMENTS',
+      adGroupProductType: 'PROMOTED_TWEETS',
+      adGroupAdvertiserDomain: '',
+      adGroupBidAmountLocalMicro: '',
+      adGroupTotalBudgetAmountLocalMicro: '',
+      adGroupPrimaryWebEventTag: '',
+      adGroupCategorySelection: null,
+      adGroupCategories: [],
+      adGroupAdvertiserUserId: '',
+      adGroupAutomaticallySelectBid: false,
+      adGroupBidType: '',
+      adGroupStatus: 'PAUSED',
+      adGroupBidUnit: '',
+      adGroupChargeBy: '',
+      adGroupStartTime: '',
+      adGroupEndTime: '',
+      adGroupOptimization: '',
+      adGroupAudienceExpansion: '',
+      adGrouptrackingTags: '',
+      cardName: '',
+      cardMedia: '',
+      cardMediaImage: {
         size: '',
         height: '',
         width: ''
       },
-      imageUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrl'] : '',
-      image: {
-        size: '',
-        height: '',
-        width: ''
-      },
-      previewData: '',
-      attributes: [],
-      dataAttributes: dataAttributes,
-      openingFileSelector: '',
+      cardWebsiteTitle: '',
+      cardWebsiteUrl: '',
+      // cardComponents: [
+      //   {
+      //     type: '',
+      //     destination: {}
+      //   }
+      // ],
+      tweetText: '',
+      tweetNullcast: true,
+      tweetTrimUser: false,
+      tweetVideoCTA: '',
+      tweetTweetMode: '',
+      tweetVideoCTAValue: '',
+      tweetVideoTitle: '',
+      tweetVideoDescription: '',
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
         lang: 'end'
-      }
+      },
+      openingFileSelector: '',
+      previewData: '',
     }
   },
   methods: {
+    selectedAdvertiserChange() {
+      this.loadFundingInstruments();
+      this.loadAdGroupCategories();
+    },
+    // cardComponentTypeChange(index) {
+    //   switch (this.cardComponents[index].type) {
+    //     case 'DETAILS':
+    //       this.cardComponents[index].title = '';
+    //       this.cardComponents[index].destination = {
+    //         type: 'WEBSITE',
+    //         url: ''
+    //       }
+
+    //       break;
+    //   }
+    // },
+    // cardComponentDestinationTypeChange(index) {
+    //   if (this.cardComponents[index].destination.type == 'APP') {
+    //     this.cardComponents[index].destination = {
+    //       type: 'APP',
+    //       country_code: '',
+    //       ipad_app_id: '',
+    //       iphone_app_id: '',
+    //       googleplay_app_id: '',
+    //       ipad_deep_link: '',
+    //       iphone_deep_link: '',
+    //       googleplay_deep_link: ''
+    //     }
+    //   } else {
+    //     this.cardComponents[index].destination = {
+    //       type: 'WEBSITE',
+    //       url: ''
+    //     }
+    //   }
+    // },
+    // addCardComponent() {
+    //   this.cardComponents.push({
+    //     type: '',
+    //     destination: {}
+    //   });
+    // },
     openChooseFile(name) {
       this.openingFileSelector = name
+      console.log(this.$modal)
       this.$modal.show(name)
     },
-    validURL(str) {
-      var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
-      return !!pattern.test(str);
-    },
-    validSize(image, type) {
-      if (type === 'HQ') {
-        if (image.width === 1200 && image.height === 627) {
-          return true;
-        }
-      } else {
-        if (image.width === 627 && image.height === 627) {
-          return true
-        }
-      }
-      return false;
-    },
-    selectedHQFile() {
-      let file = this.$refs.imageHQ.files[0];
-      if (!file || file.type.indexOf('image/') !== 0) return;
-      this.imageHQ.size = file.size;
-      let reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = evt => {
-        let img = new Image();
-        img.onload = () => {
-          this.imageHQ.width = img.width;
-          this.imageHQ.height = img.height;
-          if (this.validSize(this.imageHQ, 'HQ')) {
-            let formData = new FormData();
-            formData.append('file', this.$refs.imageHQ.files[0]);
-            axios.post('/general/upload-files', formData, {
-                headers: {
-                  'Content-Type': 'multipart/form-data'
-                }
-              }).then((response) => {
-                this.imageUrlHQ = response.data.path.replace('public', 'storage')
-              })
-              .catch((err) => {
-                alert(err);
-              });
-          }
-        }
-        img.src = evt.target.result;
-      }
-      reader.onerror = evt => {
-        console.error(evt);
-      }
-    },
-    selectedFile() {
-      let file = this.$refs.image.files[0];
-      if (!file || file.type.indexOf('image/') !== 0) return;
-      this.image.size = file.size;
-      let reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = evt => {
-        let img = new Image();
-        img.onload = () => {
-          this.image.width = img.width;
-          this.image.height = img.height;
-          if (this.validSize(this.image, '')) {
-            let formData = new FormData();
-            formData.append('file', this.$refs.image.files[0]);
-            axios.post('/general/upload-files', formData, {
-                headers: {
-                  'Content-Type': 'multipart/form-data'
-                }
-              }).then((response) => {
-                this.imageUrl = response.data.path.replace('public', 'storage')
-              })
-              .catch((err) => {
-                alert(err);
-              });
-          }
-        }
-        img.src = evt.target.result;
-      }
-      reader.onerror = evt => {
-        console.error(evt);
-      }
-    },
-    loadPreview() {
-      this.isLoading = true
-      axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
-        title: this.title,
-        displayUrl: this.displayUrl,
-        landingUrl: this.targetUrl,
-        description: this.description,
-        sponsoredBy: this.brandname,
-        imageUrlHQ: this.imageUrlHQ,
-        imageUrl: this.imageUrl,
-        campaignLanguage: this.campaignLanguage
-      }).then(response => {
-        this.previewData = response.data.replace('height="800"', 'height="450"').replace('width="400"', 'width="100%"')
-      }).catch(err => {
-        console.log(err)
-      }).finally(() => {
-        this.isLoading = false
-      })
-    },
-    selectedAccountChanged() {
-      this.getLanguages()
-      this.getCountries()
-      this.getAdvertisers()
-    },
-    getLanguages() {
-      this.isLoading = true
-      this.languages = []
-      axios.get(`/general/languages?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-        if (response.data) {
-          this.languages = response.data.map(language => {
-            return {
-              id: language.value || language.code,
-              text: language.name.toUpperCase()
-            }
-          })
-        }
-      }).catch(err => {
-        console.log(err)
-      }).finally(() => {
-        this.isLoading = false
-      })
-    },
-    getCountries() {
-      this.isLoading = true
-      this.countries = []
-      axios.get(`/general/countries?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-        if (response.data) {
-          this.countries = response.data.map(country => {
-            return {
-              id: country.woeid,
-              text: country.name
-            }
-          })
-        }
-      }).catch(err => {
-        console.log(err)
-      }).finally(() => {
-        this.isLoading = false
-      })
-    },
-    removeAttibute(index) {
-      this.attributes.splice(index, 1);
-    },
-    addNewAttibute() {
-      this.attributes.push({
-        gender: '',
-        age: '',
-        device: ''
-      })
-    },
-    getAdvertisers() {
-      this.advertisers = []
+    loadAdvertisers() {
       this.isLoading = true
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-        console.log(response.data)
         this.advertisers = response.data
       }).catch(err => {
         console.log(err)
@@ -747,17 +861,25 @@ export default {
         this.isLoading = false
       })
     },
-    signUp() {
+    loadFundingInstruments() {
       this.isLoading = true
-      axios.post('/account/sign-up', {
-        provider: this.selectedProvider,
-        account: this.selectedAccount,
-        name: this.advertiserName
-      }).then(response => {
-        alert('New advertiser has been saved!')
-        this.advertiserName = ''
-        this.saveAdvertiser = true
-        this.getAdvertisers()
+      axios.get(`/account/funding-instruments?provider=${this.selectedProvider}&account=${this.selectedAccount}&advertiser=${this.selectedAdvertiser}`).then(response => {
+        this.fundingInstruments = response.data
+      }).catch(err => {
+        console.log(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
+    },
+    loadAdGroupCategories() {
+      this.isLoading = true
+      axios.get(`/account/ad-group-categories?provider=${this.selectedProvider}&account=${this.selectedAccount}&advertiser=${this.selectedAdvertiser}`).then(response => {
+        this.adGroupCategorySelection = response.data.map(category => {
+          return {
+            id: category.id,
+            text: category.name
+          }
+        })
       }).catch(err => {
         console.log(err)
       }).finally(() => {
@@ -765,59 +887,74 @@ export default {
       })
     },
     submitStep1() {
+      console.log(this.adGroupBidAmountLocalMicro)
+      console.log(this.adGroupAutomaticallySelectBid)
       const step1Data = {
         provider: this.selectedProvider,
         account: this.selectedAccount,
-        selectedAdvertiser: this.selectedAdvertiser,
-        campaignBudget: this.campaignBudget,
-        campaignBudgetType: this.campaignBudgetType,
+        advertiser: this.selectedAdvertiser,
+        fundingInstrument: this.selectedFundingInstrument,
         campaignName: this.campaignName,
-        adGroupID: this.adGroupID,
+        campaignStartTime: this.campaignStartTime,
+        campaignEndTime: this.campaignEndTime,
+        campaignDailyBudgetAmountLocalMicro: this.campaignDailyBudgetAmountLocalMicro,
+        campaignTotalBudgetAmountLocalMicro: this.campaignTotalBudgetAmountLocalMicro,
+        campaignDurationInDays: this.campaignDurationInDays,
+        campaignStatus: this.campaignStatus,
+        campaignFrequencyCap: this.campaignFrequencyCap,
+        campaignPurchaseOrderNumber: this.campaignPurchaseOrderNumber,
+        campaignStandardDelivery: this.campaignStandardDelivery,
         adGroupName: this.adGroupName,
-        adID: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['id'] : '',
-        bidAmount: this.bidAmount,
-        campaignType: this.campaignType,
-        campaignLanguage: this.campaignLanguage,
-        campaignStrategy: this.campaignStrategy,
-        campaignLocation: this.campaignLocation,
-        campaignGender: this.campaignGender,
-        campaignAge: this.campaignAge,
-        campaignDevice: this.campaignDevice,
-        campaignConversionCounting: this.campaignConversionCounting,
-        scheduleType: this.scheduleType,
-        campaignStartDate: this.campaignStartDate,
-        campaignEndDate: this.campaignEndDate
+        adGroupAndroidAppStoreIdentifier: this.adGroupAndroidAppStoreIdentifier,
+        adGroupIOSAppStoreIdentifier: this.adGroupIOSAppStoreIdentifier,
+        adGroupObjective: this.adGroupObjective,
+        adGroupPlacements: this.adGroupPlacements,
+        adGroupProductType: this.adGroupProductType,
+        adGroupAdvertiserDomain: this.adGroupAdvertiserDomain,
+        adGroupCategories: this.adGroupCategories,
+        adGroupPrimaryWebEventTag: this.adGroupPrimaryWebEventTag,
+        adGroupAdvertiserUserId: this.adGroupAdvertiserUserId,
+        adGroupAutomaticallySelectBid: this.adGroupAutomaticallySelectBid,
+        adGroupBidType: this.adGroupBidType,
+        adGroupBidUnit: this.adGroupBidUnit,
+        adGroupChargeBy: this.adGroupChargeBy,
+        adGroupStartTime: this.adGroupStartTime,
+        adGroupEndTime: this.adGroupEndTime,
+        adGroupStatus: this.adGroupStatus,
+        adGroupAudienceExpansion: this.adGroupAudienceExpansion,
+        adGroupOptimization: this.adGroupOptimization,
+        adGroupBidAmountLocalMicro: this.adGroupBidAmountLocalMicro,
+        adGroupTotalBudgetAmountLocalMicro: this.adGroupTotalBudgetAmountLocalMicro,
+        adGrouptrackingTags: this.adGrouptrackingTags
       }
       this.postData = {...this.postData, ...step1Data }
       this.currentStep = 2
     },
     submitStep2() {
       const step2Data = {
-        displayUrl: this.displayUrl,
-        targetUrl: this.targetUrl,
-        title: this.title,
-        brandname: this.brandname,
-        description: this.description,
-        imageUrlHQ: this.imageUrlHQ,
-        imageUrl: this.imageUrl,
-        dataAttributes: this.dataAttributes
+        cardName: this.cardName,
+        cardMedia: this.cardMedia,
+        cardWebsiteTitle: this.cardWebsiteTitle,
+        cardWebsiteUrl: this.cardWebsiteUrl
       }
       this.postData = {...this.postData, ...step2Data }
-      this.attributes[0] = {
-        gender: this.campaignGender,
-        age: this.campaignAge,
-        device: this.campaignDevice
-      }
+
       this.currentStep = 3
     },
     submitStep3() {
       const step3Data = {
-        attributes: this.attributes
+        tweetText: this.tweetText,
+        tweetNullcast: this.tweetNullcast,
+        tweetTrimUser: this.tweetTrimUser,
+        tweetTweetMode: this.tweetTweetMode,
+        tweetVideoCTA: this.tweetVideoCTA,
+        tweetVideoCTAValue: this.tweetVideoCTAValue,
+        tweetVideoTitle: this.tweetVideoTitle,
+        tweetVideoDescription: this.tweetVideoDescription
       }
+
       this.postData = {...this.postData, ...step3Data }
-      this.currentStep = 4
-    },
-    submitStep4() {
+
       this.isLoading = true
       let url = '/campaigns';
 
@@ -829,6 +966,8 @@ export default {
         if (response.data.errors) {
           alert(response.data.errors[0])
         } else {
+          this.currentStep = 4
+          this.previewData = response.data.previewData
           alert('Save successfully!');
         }
       }).catch(error => {

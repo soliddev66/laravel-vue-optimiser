@@ -35,6 +35,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/', [App\Http\Controllers\CampaignController::class, 'index'])->name('campaigns.index');
     Route::post('/', [App\Http\Controllers\CampaignController::class, 'store'])->name('campaigns.store');
     Route::post('/search', [App\Http\Controllers\CampaignController::class, 'search'])->name('campaigns.search');
+    Route::get('/media', [App\Http\Controllers\CampaignController::class, 'media'])->name('campaigns.media');
     Route::get('/user-campaigns', [App\Http\Controllers\CampaignController::class, 'userCampaigns'])->name('campaigns.userCampaigns');
     Route::get('/export-excel', [App\Http\Controllers\CampaignController::class, 'exportExcel'])->name('campaigns.exportexcel');
     Route::get('/export-csv', [App\Http\Controllers\CampaignController::class, 'exportCsv'])->name('campaigns.exportcsv');
@@ -90,6 +91,9 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/account-wizard', [App\Http\Controllers\AccountController::class, 'wizard'])->name('account_wizard');
 Route::get('/account/accounts', [App\Http\Controllers\AccountController::class, 'accounts'])->name('accounts');
 Route::get('/account/advertisers', [App\Http\Controllers\AccountController::class, 'advertisers'])->name('advertisers');
+Route::get('/account/funding-instruments', [App\Http\Controllers\AccountController::class, 'fundingInstruments'])->name('account.fundingInstruments');
+Route::post('/account/create-funding-instrument', [App\Http\Controllers\AccountController::class, 'createFundingInstrument'])->name('account.createFundingInstrument');
+Route::get('/account/ad-group-categories', [App\Http\Controllers\AccountController::class, 'adGroupCategories'])->name('account.adGroupCategories');
 Route::post('/account/sign-up', [App\Http\Controllers\AccountController::class, 'signUp'])->name('sign_up');
 Route::get('/traffic-sources', [App\Http\Controllers\AccountController::class, 'trafficSources'])->name('traffic_sources');
 Route::get('/trackers', [App\Http\Controllers\AccountController::class, 'trackers'])->name('trackers');
