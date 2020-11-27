@@ -89,8 +89,8 @@ class Yahoo extends Root
 
         $campaigns = $api->getCampaigns();
 
-        $this->saveCampaigns($campaign, $user_provider);
-        $this->cleanCampaigns($campaign, $user_provider);
+        $this->saveCampaigns($campaigns, $user_provider);
+        $this->cleanCampaigns($campaigns, $user_provider);
     }
 
     private function saveCampaigns($campaigns, $user_provider)
