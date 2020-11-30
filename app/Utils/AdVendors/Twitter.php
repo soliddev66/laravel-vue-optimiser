@@ -123,10 +123,16 @@ class Twitter extends Root
 
             PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
+            if ($e instanceof TwitterAdsException) {
+                $data = [
+                    'errors' => [$e->getErrors()[0]->message]
+                ];
+            } else {
                 $data = [
                     'errors' => [$e->getMessage()]
                 ];
             }
+        }
 
         return $data;
     }
