@@ -141,12 +141,15 @@ class CampaignController extends Controller
         $start = Carbon::now()->format('Y-m-d');
         $end = Carbon::now()->format('Y-m-d');
         if (request('tracker')) {
-            $campaigns = Campaign::with(['redtrackReport' => function ($q) use ($start, $end) {
+            $campaigns_query = Campaign::with(['redtrackReport' => function ($q) use ($start, $end) {
                 if (request('provider')) {
                     $q->where('provider_id', request('provider'));
                 }
                 $q->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
-            }])->get();
+            }]);
+            if (request('provider')) {
+                $campaigns_query->where('provider_id', request('provider'));
+            }
             $summary_data_query = RedtrackReport::select(
                 DB::raw('SUM(cost) as total_cost'),
                 DB::raw('SUM(total_revenue) as total_revenue'),
@@ -157,30 +160,25 @@ class CampaignController extends Controller
                 $summary_data_query->where('provider_id', request('provider'));
             }
             $summary_data_query->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
-            $summary_data = $summary_data_query->first();
         } else {
-            $campaigns = Campaign::with(['performanceStats' => function ($q) use ($start, $end) {
-                if (request('provider')) {
-                    $q->where('provider_id', request('provider'));
-                }
+            $campaigns_query = Campaign::with(['performanceStats' => function ($q) use ($start, $end) {
                 $q->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
-            }])->get();
-            $summary_data = GeminiPerformanceStat::select(
+            }]);
+            if (request('provider')) {
+                $campaigns_query->where('provider_id', request('provider'));
+            }
+            $summary_data_query = GeminiPerformanceStat::select(
                 DB::raw('SUM(spend) as total_cost'),
                 DB::raw('0 as total_revenue'),
                 DB::raw('0 - SUM(spend) as total_net'),
                 DB::raw('-100 as avg_roi')
             );
-            if (request('provider')) {
-                $summary_data_query->where('provider_id', request('provider'));
-            }
             $summary_data_query->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
-            $summary_data = $summary_data_query->first();
         }
 
         return response()->json([
-            'campaigns' => $campaigns,
-            'summary_data' => $summary_data
+            'campaigns' => $campaigns_query->get(),
+            'summary_data' => $summary_data_query->first()
         ]);
     }
 
