@@ -1,4 +1,10 @@
 /*!
+  * Bootstrap v4.5.2 (https://getbootstrap.com/)
+  * Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
+  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+  */
+
+/*!
  * Chart.js v2.9.4
  * https://www.chartjs.org
  * (c) 2020 Chart.js Contributors

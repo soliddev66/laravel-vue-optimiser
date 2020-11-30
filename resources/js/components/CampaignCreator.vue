@@ -68,8 +68,7 @@ export default {
     outbrain,
     twitter
   },
-  computed: {
-  },
+  computed: {},
   mounted() {
     console.log('Component mounted.')
     this.getAccounts()
@@ -81,7 +80,7 @@ export default {
     return {
       isLoading: false,
       fullPage: true,
-      selectedProvider: 'twitter',
+      selectedProvider: 'yahoo',
       accounts: [],
       selectedAccount: this.instance ? this.instance.open_id : '',
     }

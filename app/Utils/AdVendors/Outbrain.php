@@ -24,6 +24,16 @@ class Outbrain extends Root
         return new OutbrainAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first());
     }
 
+    public function languages()
+    {
+        return config('constants.languages');
+    }
+
+    public function countries()
+    {
+        return $this->api()->getCountries();
+    }
+
     /**
      * @return mixed
      * @throws GuzzleException
