@@ -379,7 +379,7 @@ class CampaignController extends Controller
         $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first());
 
         try {
-            $gemini->deleteCampaign($campaign);
+            $gemini->deleteCampaign($campaign->campaign_id);
             $campaign->delete();
         } catch (Exception $e) {
             $data = [

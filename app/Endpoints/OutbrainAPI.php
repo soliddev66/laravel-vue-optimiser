@@ -113,9 +113,9 @@ class OutbrainAPI
         ]);
     }
 
-    public function deleteCampaign($campaign_data)
+    public function deleteCampaign($campaign_id)
     {
-        return $this->client->call('DELETE', 'campaigns/' . $campaign_data['id']);
+        return $this->client->call('DELETE', 'campaigns/' . $campaign_id);
     }
 
     public function deleteBudget($budget_data)

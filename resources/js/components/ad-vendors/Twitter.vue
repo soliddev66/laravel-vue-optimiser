@@ -15,12 +15,10 @@
             <i class="fas fa-arrow-right"></i>
             <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Preview</label>
           </div>
-
           <div class="card-body">
             <form class="row" v-if="selectedProvider && selectedAccount">
               <div class="col" v-if="currentStep == 1">
                 <h2>General information</h2>
-
                 <div class="form-group row">
                   <label for="advertiser" class="col-sm-2 control-label mt-2">Advertiser</label>
                   <div class="col-sm-4" v-if="advertisers.length">
@@ -30,7 +28,6 @@
                     </select>
                   </div>
                 </div>
-
                 <div class="form-group row" v-if="selectedAdvertiser">
                   <label for="funding_instrument" class="col-sm-2 control-label mt-2">Funding Instrument</label>
                   <div class="col-lg-10 col-xl-8" v-if="fundingInstruments.length">
@@ -40,14 +37,12 @@
                     </select>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="name" class="col-sm-2 control-label mt-2">Name</label>
                   <div class="col-lg-10 col-xl-8">
                     <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="campaignName" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="entity_status" class="col-sm-2 control-label mt-2">Status</label>
                   <div class="col-lg-10 col-xl-8">
@@ -64,7 +59,6 @@
                     </div>
                   </div>
                 </div>
-
                 <h2>Campaign Setting</h2>
                 <div class="form-group row">
                   <label for="start_time" class="col-sm-2 control-label mt-2">Start Time</label>
@@ -76,7 +70,6 @@
                     <input type="date" name="end_time" class="form-control" v-model="campaignEndTime" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="daily_budget_amount_local_micro" class="col-sm-2 control-label mt-2">Daily Budget Amount Local Micro</label>
                   <div class="col-lg-4 col-xl-3">
@@ -87,7 +80,6 @@
                     <input type="number" name="total_budget_amount_local_micro" min="0" class="form-control" v-model="campaignTotalBudgetAmountLocalMicro" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="duration_in_days" class="col-sm-2 control-label mt-2">Duration In Days</label>
                   <div class="col-lg-10 col-xl-8">
@@ -99,21 +91,18 @@
                     </select>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="frequency_cap" class="col-sm-2 control-label mt-2">Frequency Cap</label>
                   <div class="col-lg-10 col-xl-8">
                     <input type="number" name="frequency_cap" min="0" placeholder="Frequency Cap" class="form-control" v-model="campaignFrequencyCap" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="purchase_order_number" class="col-sm-2 control-label mt-2">Purchase Order Number</label>
                   <div class="col-lg-10 col-xl-8">
                     <input type="text" name="purchase_order_number" class="form-control" v-model="campaignPurchaseOrderNumber" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="standard_delivery" class="col-sm-2 control-label mt-2">Standard Delivery</label>
                   <div class="col-lg-10 col-xl-8">
@@ -127,16 +116,13 @@
                     </div>
                   </div>
                 </div>
-
                 <h2>Ad Group</h2>
-
                 <div class="form-group row">
                   <label for="ad_group_name" class="col-sm-2 control-label mt-2">Name</label>
                   <div class="col-lg-10 col-xl-8">
                     <input type="text" name="ad_group_name" placeholder="Name" class="form-control" v-model="adGroupName" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_status" class="col-sm-2 control-label mt-2">Status</label>
                   <div class="col-lg-10 col-xl-8">
@@ -153,7 +139,6 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_start_time" class="col-sm-2 control-label mt-2">Start Time</label>
                   <div class="col-lg-4 col-xl-3">
@@ -164,7 +149,6 @@
                     <input type="date" name="end_time" class="form-control" v-model="adGroupEndTime" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_android_app_store_identifier" class="col-sm-2 control-label mt-2">Android App Store Identifier</label>
                   <div class="col-lg-10 col-xl-8">
@@ -175,7 +159,6 @@
                     </select>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_ios_app_store_identifier" class="col-sm-2 control-label mt-2">iOS App Store Identifier</label>
                   <div class="col-lg-10 col-xl-8">
@@ -186,7 +169,6 @@
                     </select>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_objective" class="col-sm-2 control-label mt-2">Objective</label>
                   <div class="col-lg-10 col-xl-8">
@@ -202,14 +184,12 @@
                     </select>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_placements" class="col-sm-2 control-label mt-2">Placements</label>
                   <div class="col-lg-10 col-xl-8">
                     <select2 id="ad_group_placements" name="ad_group_placements" :options="placements" v-model="adGroupPlacements" :settings="{ multiple: true }"></select2>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_product_type" class="col-sm-2 control-label mt-2">Product Type</label>
                   <div class="col-lg-10 col-xl-8">
@@ -226,14 +206,12 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_advertiser_domain" class="col-sm-2 control-label mt-2">Advertiser Domain</label>
                   <div class="col-lg-10 col-xl-8">
                     <input type="text" name="ad_group_advertiser_domain" placeholder="Advertiser Domain" class="form-control" v-model="adGroupAdvertiserDomain" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_bid_amount_local_micro" class="col-sm-2 control-label mt-2">Bid Amount Local Micro</label>
                   <div class="col-lg-4 col-xl-3">
@@ -244,28 +222,24 @@
                     <input type="number" name="ad_group_total_budget_amount_local_micro" min="0" class="form-control" v-model="adGroupTotalBudgetAmountLocalMicro" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_categories" class="col-sm-2 control-label mt-2">Category</label>
                   <div class="col-lg-10 col-xl-8">
                     <select2 id="ad_group_categories" name="ad_group_categories" :options="adGroupCategorySelection" v-model="adGroupCategories" :settings="{ multiple: true }"></select2>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_primary_web_event_tag" class="col-sm-2 control-label mt-2">Primary Web Event Tag</label>
                   <div class="col-lg-10 col-xl-8">
                     <input type="text" name="ad_group_primary_web_event_tag" placeholder="Primary Web Event Tag" class="form-control" v-model="adGroupPrimaryWebEventTag" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_advertiser_user_id" class="col-sm-2 control-label mt-2">Advertiser User Id</label>
                   <div class="col-lg-10 col-xl-8">
                     <input type="number" name="ad_group_advertiser_user_id" min="0" class="form-control" v-model="adGroupAdvertiserUserId" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_automatically_select_bid" class="col-sm-2 control-label mt-2">Automatically Select Bid</label>
                   <div class="col-lg-4 col-xl-3">
@@ -278,7 +252,6 @@
                       </label>
                     </div>
                   </div>
-
                   <label for="ad_group_bid_type" class="col-sm-2 control-label mt-2">Bid Type</label>
                   <div class="col-lg-4 col-xl-3">
                     <div class="btn-group btn-group-toggle">
@@ -294,7 +267,6 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_bid_unit" class="col-sm-2 control-label mt-2">Bid Unit</label>
                   <div class="col-lg-4 col-xl-3">
@@ -319,7 +291,6 @@
                     </select>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_optimization" class="col-sm-2 control-label mt-2">Optimization</label>
                   <div class="col-lg-10 col-xl-8">
@@ -333,7 +304,6 @@
                     </select>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_audience_expansion" class="col-sm-2 control-label mt-2">Audience Expansion</label>
                   <div class="col-lg-10 col-xl-8">
@@ -350,7 +320,6 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="ad_group_tracking_tags" class="col-sm-2 control-label mt-2">Tracking Tags</label>
                   <div class="col-lg-10 col-xl-8">
@@ -358,7 +327,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- <div class="col" v-if="currentStep == 2">
                 <h2>General information</h2>
 
@@ -491,17 +459,14 @@
                   </div>
                 </div>
               </div> -->
-
               <div class="col" v-if="currentStep == 2">
                 <h2>General information</h2>
-
                 <div class="form-group row">
                   <label for="card_name" class="col-sm-2 control-label mt-2">Name</label>
                   <div class="col-lg-10 col-xl-8">
                     <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="cardName" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="card_media" class="col-sm-2 control-label mt-2">Media Image</label>
                   <div class="col-sm-8">
@@ -511,14 +476,12 @@
                     <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('cardMedia')">Choose File</button>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="card_website_title" class="col-sm-2 control-label mt-2">Website Title</label>
                   <div class="col-lg-10 col-xl-8">
                     <input type="text" name="card_website_title" placeholder="Enter website title" class="form-control" v-model="cardWebsiteTitle" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="card_website_url" class="col-sm-2 control-label mt-2">Website URL</label>
                   <div class="col-lg-10 col-xl-8">
@@ -528,7 +491,6 @@
               </div>
             </form>
           </div>
-
           <div class="card-body" v-if="currentStep == 3">
             <div class="form-group row">
               <label for="tweet_text" class="col-sm-2 control-label mt-2">Text</label>
@@ -536,7 +498,6 @@
                 <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="tweetText" />
               </div>
             </div>
-
             <div class="form-group row">
               <label for="tweet_nullcast" class="col-sm-2 control-label mt-2">Nullcast</label>
               <div class="col-lg-4 col-xl-3">
@@ -561,7 +522,6 @@
                 </div>
               </div>
             </div>
-
             <div class="form-group row">
               <label for="tweet_video_cta" class="col-sm-2 control-label mt-2">Video CTA</label>
               <div class="col-lg-4 col-xl-3">
@@ -576,7 +536,6 @@
                 <input type="text" name="tweet_video_cta_value" placeholder="Video CTA Value" class="form-control" v-model="tweetVideoCTAValue" />
               </div>
             </div>
-
             <div class="form-group row">
               <label for="tweet_tweet_mode" class="col-sm-2 control-label mt-2">Tweet Mode</label>
               <div class="col-lg-10 col-xl-8">
@@ -590,22 +549,19 @@
                 </div>
               </div>
             </div>
-
             <div class="form-group row">
               <label for="tweet_video_title" class="col-sm-2 control-label mt-2">Video Title</label>
               <div class="col-lg-10 col-xl-8">
                 <input type="text" name="tweet_video_title" placeholder="Video Title" class="form-control" v-model="tweetVideoTitle" />
               </div>
             </div>
-
             <div class="form-group row">
               <label for="tweet_video_description" class="col-sm-2 control-label mt-2">Video Description</label>
               <div class="col-lg-10 col-xl-8">
-               <textarea class="form-control" id="tweet_video_description" name="tweet_video_description" rows="3" v-model="tweetVideoDescription"></textarea>
+                <textarea class="form-control" id="tweet_video_description" name="tweet_video_description" rows="3" v-model="tweetVideoDescription"></textarea>
               </div>
             </div>
           </div>
-
           <div class="card-body" v-if="currentStep == 4">
             <div class="row">
               <div class="col-sm-12">
@@ -643,6 +599,7 @@
     </modal>
   </section>
 </template>
+
 <script>
 import _ from 'lodash'
 import Select2 from 'v-select2-component'
@@ -684,9 +641,7 @@ export default {
   },
   computed: {
     submitStep1State() {
-      return !this.selectedProvider || !this.selectedAccount || !this.selectedAdvertiser || !this.selectedFundingInstrument
-        || !this.campaignName || !this.campaignStartTime || !this.campaignDailyBudgetAmountLocalMicro || !this.adGroupName
-        || !this.adGroupStartTime
+      return !this.selectedProvider || !this.selectedAccount || !this.selectedAdvertiser || !this.selectedFundingInstrument || !this.campaignName || !this.campaignStartTime || !this.campaignDailyBudgetAmountLocalMicro || !this.adGroupName || !this.adGroupStartTime
     },
     submitStep2State() {
       return !this.cardName || !this.cardWebsiteTitle || !this.cardWebsiteUrl || !this.cardMedia
@@ -725,16 +680,16 @@ export default {
       fundingInstruments: [],
       accounts: [],
       placements: [
-        {id: 'ALL_ON_TWITTER', text: 'ALL_ON_TWITTER'},
-        {id: 'PUBLISHER_NETWORK', text: 'PUBLISHER_NETWORK'},
-        {id: 'TAP_BANNER', text: 'TAP_BANNER'},
-        {id: 'TAP_FULL', text: 'TAP_FULL'},
-        {id: 'TAP_FULL_LANDSCAPE', text: 'TAP_FULL_LANDSCAPE'},
-        {id: 'TAP_NATIVE', text: 'TAP_NATIVE'},
-        {id: 'TAP_MRECT', text: 'TAP_MRECT'},
-        {id: 'TWITTER_PROFILE', text: 'TWITTER_PROFILE'},
-        {id: 'TWITTER_SEARCH', text: 'TWITTER_SEARCH'},
-        {id: 'TWITTER_TIMELINE', text: 'TWITTER_TIMELINE'}
+        { id: 'ALL_ON_TWITTER', text: 'ALL_ON_TWITTER' },
+        { id: 'PUBLISHER_NETWORK', text: 'PUBLISHER_NETWORK' },
+        { id: 'TAP_BANNER', text: 'TAP_BANNER' },
+        { id: 'TAP_FULL', text: 'TAP_FULL' },
+        { id: 'TAP_FULL_LANDSCAPE', text: 'TAP_FULL_LANDSCAPE' },
+        { id: 'TAP_NATIVE', text: 'TAP_NATIVE' },
+        { id: 'TAP_MRECT', text: 'TAP_MRECT' },
+        { id: 'TWITTER_PROFILE', text: 'TWITTER_PROFILE' },
+        { id: 'TWITTER_SEARCH', text: 'TWITTER_SEARCH' },
+        { id: 'TWITTER_TIMELINE', text: 'TWITTER_TIMELINE' }
       ],
       actionName: this.action,
       selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
@@ -968,7 +923,9 @@ export default {
         } else {
           this.currentStep = 4
           this.previewData = response.data.previewData
-          alert('Save successfully!');
+          this.$dialog.alert('Save successfully!').then(function(dialog) {
+            window.location = '/campaigns';
+          });
         }
       }).catch(error => {
         console.log(error)

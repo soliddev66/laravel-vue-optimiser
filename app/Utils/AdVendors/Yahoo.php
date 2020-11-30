@@ -82,14 +82,14 @@ class Yahoo extends Root
             try {
                 $ad_group_data = $api->createAdGroup($campaign_data);
             } catch (Exception $e) {
-                $api->deleteCampaign($campaign);
+                $api->deleteCampaign($campaign_data['id']);
                 throw $e;
             }
 
             try {
                 $ad = $api->createAd($campaign_data, $ad_group_data);
             } catch (Exception $e) {
-                $api->deleteCampaign($campaign);
+                $api->deleteCampaign($campaign_data['id']);
                 $api->deleteAdGroups([$ad_group_data['id']]);
                 throw $e;
             }
@@ -97,7 +97,7 @@ class Yahoo extends Root
             try {
                 $api->createAttributes($campaign_data);
             } catch (Exception $e) {
-                $api->deleteCampaign($campaign);
+                $api->deleteCampaign($campaign_data['id']);
                 $api->deleteAdGroups([$ad_group_data['id']]);
                 $api->deleteAds([$ad['id']]);
                 throw $e;

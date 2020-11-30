@@ -718,7 +718,9 @@ export default {
         if (response.data.errors) {
           alert(response.data.errors[0])
         } else {
-          alert('Save successfully!');
+          this.$dialog.alert('Save successfully!').then(function(dialog) {
+            window.location = '/campaigns';
+          });
         }
       }).catch(error => {
         console.log(error)
