@@ -48,6 +48,29 @@ class Yahoo extends Root
         return $this->api()->getCountries();
     }
 
+    public function getCampaignInstance(Campaign $campaign)
+    {
+        $user_provider = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
+        if ($user_provider) {
+            $api = new GeminiAPI($user_provider);
+
+            $instance = $api->getCampaign($campaign->campaign_id);
+
+            $instance['open_id'] = $campaign['open_id'];
+            $instance['instance_id'] = $campaign['id'];
+            $instance['attributes'] = $api->getCampaignAttribute($campaign->campaign_id);
+            $instance['adGroups'] = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
+
+            if (count($instance['adGroups']) > 0) {
+                $instance['ads'] = $api->getAds([$instance['adGroups'][0]['id']], $campaign->advertiser_id);
+            }
+
+            return $instance;
+        }
+
+        return [];
+    }
+
     public function store()
     {
         $data = [];

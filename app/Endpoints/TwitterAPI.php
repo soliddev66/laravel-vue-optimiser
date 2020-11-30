@@ -36,14 +36,18 @@ class TwitterAPI
         $this->open_id = $user_info->open_id;
         $this->client = TwitterAds::init(env('TWITTER_CLIENT_ID'), env('TWITTER_CLIENT_SECRET'), $user_info->token, $user_info->secret_token, $account_id, env('TWITTER_SANDBOX'));
         if ($account_id) {
-            $this->account = new Account($account_id);
-            $this->account->read();
+            $this->account = (new Account($account_id))->read();
         }
     }
 
     public function getAdvertisers()
     {
         return $this->client->getAccounts()->getCollection();
+    }
+
+    public function getCampaign($campaign_id)
+    {
+        return $this->account->getCampaigns($campaign_id);
     }
 
     public function getCampaigns()

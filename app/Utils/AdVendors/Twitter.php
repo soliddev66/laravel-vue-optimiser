@@ -40,6 +40,20 @@ class Twitter extends Root
         return $this->api()->getCountries();
     }
 
+    public function getCampaignInstance(Campaign $campaign)
+    {
+        $user_provider = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
+        if ($user_provider) {
+            $api = new TwitterAPI($user_provider);
+
+            $instance = $api->getCampaign($campaign->campaign_id);
+
+            return $instance;
+        }
+
+        return [];
+    }
+
     public function fundingInstruments()
     {
         $funding_instruments = $this->api()->getFundingInstruments();
@@ -154,6 +168,8 @@ class Twitter extends Root
                         'user_id' => $user_provider->user_id,
                         'open_id' => $user_provider->open_id
                     ]);
+
+                    $campaign->advertiser_id = $advertiser->getId();
 
                     $campaign->name = $item->getName();
                     $campaign->save();

@@ -202,7 +202,7 @@ class CampaignController extends Controller
         $instance = null;
 
         if ($campaign) {
-            $instance = $this->getInstanceData($campaign);
+            $instance = $this->getCampaignInstance($campaign);
 
             if (isset($instance['id'])) {
                 $instance['campaignName'] = $instance['campaignName'] . ' - Copy';
@@ -240,7 +240,9 @@ class CampaignController extends Controller
 
     public function edit(Campaign $campaign)
     {
-        $instance = $this->getInstanceData($campaign);
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+
+        $instance = (new $adVendorClass)->getCampaignInstance($campaign);
 
         if (!isset($instance['id'])) {
             return view('error', [
@@ -249,29 +251,6 @@ class CampaignController extends Controller
         }
 
         return view('campaigns.form', compact('instance'));
-    }
-
-    private function getInstanceData(Campaign $campaign)
-    {
-        $user_provider = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
-        if ($user_provider) {
-            $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first());
-
-            $instance = $gemini->getCampaign($campaign->campaign_id);
-
-            $instance['open_id'] = $campaign['open_id'];
-            $instance['instance_id'] = $campaign['id'];
-            $instance['attributes'] = $gemini->getCampaignAttribute($campaign->campaign_id);
-            $instance['adGroups'] = $gemini->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
-
-            if (count($instance['adGroups']) > 0) {
-                $instance['ads'] = $gemini->getAds([$instance['adGroups'][0]['id']], $campaign->advertiser_id);
-            }
-
-            return $instance;
-        }
-
-        return [];
     }
 
     public function update(Campaign $campaign)
