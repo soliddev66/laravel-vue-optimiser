@@ -261,7 +261,9 @@ class TwitterAPI
 
     public function uploadMedia()
     {
-        return $this->client->upload(['media' => storage_path('app/public/images/') . request('cardMedia'), 'additional_owners' => $this->open_id], true);
+        $file = storage_path('app/public/images/') . request('cardMedia');
+        $mime = mime_content_type($file);
+        return $this->client->upload(['media' => $file, 'media_type' => $mime, 'additional_owners' => $this->open_id], true);
     }
 
     public function createMediaLibrary($media_key)

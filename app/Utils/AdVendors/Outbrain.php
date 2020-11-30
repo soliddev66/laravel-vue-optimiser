@@ -2,19 +2,15 @@
 
 namespace App\Utils\AdVendors;
 
-use Exception;
-
 use App\Endpoints\OutbrainAPI;
-
-use App\Models\Provider;
-use App\Models\OutbrainCampaign;
-
-use GuzzleHttp\Exception\GuzzleException;
-
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
-
 use App\Jobs\PullCampaign;
+use App\Models\Campaign;
+use App\Models\OutbrainCampaign;
+use App\Models\Provider;
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class Outbrain extends Root
 {
@@ -101,18 +97,14 @@ class Outbrain extends Root
                 return Str::of($key)->snake();
             })->toArray();
 
-            $campaign = OutbrainCampaign::firstOrNew([
+            $campaign = Campaign::firstOrNew([
                 'campaign_id' => $data['id'],
                 'provider_id' => $user_provider->provider_id,
                 'open_id' => $user_provider->open_id,
                 'user_id' => $user_provider->user_id
             ]);
 
-            unset($data['id']);
-            foreach (array_keys($data) as $index => $array_key) {
-                $campaign->{$array_key} = $data[$array_key];
-            }
-
+            $campaign->name = $data['name'];
             $campaign->save();
         });
     }
