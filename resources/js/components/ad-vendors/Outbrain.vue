@@ -580,7 +580,7 @@ export default {
     getLanguages() {
       this.isLoading = true
       this.languages = []
-      axios.get(`/general/languages?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
+      axios.get(`/general/languages?provider=${this.selectedProvider}&account=${encodeURIComponent(this.selectedAccount)}`).then(response => {
         if (response.data) {
           this.languages = response.data.map(language => {
             return {
@@ -598,7 +598,7 @@ export default {
     getCountries() {
       this.isLoading = true
       this.countries = []
-      axios.get(`/general/countries?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
+      axios.get(`/general/countries?provider=${this.selectedProvider}&account=${encodeURIComponent(this.selectedAccount)}`).then(response => {
         if (response.data) {
           this.countries = response.data.map(country => {
             return {
@@ -627,7 +627,7 @@ export default {
     getAdvertisers() {
       this.advertisers = []
       this.isLoading = true
-      axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
+      axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${encodeURIComponent(this.selectedAccount)}`).then(response => {
         console.log(response.data)
         this.advertisers = response.data.marketers
       }).catch(err => {

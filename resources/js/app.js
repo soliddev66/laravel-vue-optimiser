@@ -14,11 +14,13 @@ import VSwitch from 'v-switch-case';
 import VueTabs from 'vue-nav-tabs';
 import FileManager from 'lv-file-manager';
 import VModal from 'vue-js-modal';
+import Select2 from 'v-select2-component';
 
 import moment from './plugins/moment.js';
 
 import 'vuejs-dialog/dist/vuejs-dialog.min.css';
 import 'vue-nav-tabs/themes/vue-tabs.css';
+import 'select2-bootstrap-theme/dist/select2-bootstrap.css';
 
 Vue.use(Vuex);
 const store = new Vuex.Store();
@@ -40,6 +42,8 @@ Vue.use(moment);
 
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+Vue.component('Select2', Select2);
+$.fn.select2.defaults.set('theme', 'bootstrap');
 
 Vue.component('account-wizard', require('./components/AccountWizard.vue').default);
 Vue.component('traffic-sources', require('./components/TrafficSources.vue').default);

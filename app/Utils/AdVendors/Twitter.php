@@ -123,9 +123,15 @@ class Twitter extends Root
 
             PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
-            $data = [
-                'errors' => [$e->getMessage()]
-            ];
+            if ($e instanceof TwitterAdsException) {
+                $data = [
+                    'errors' => [$e->getErrors()[0]->message]
+                ];
+            } else {
+                $data = [
+                    'errors' => [$e->getMessage()]
+                ];
+            }
         }
 
         return $data;
@@ -140,17 +146,19 @@ class Twitter extends Root
         foreach ($advertisers as $advertiser) {
             $campaigns = (new TwitterAPI($user_provider, $advertiser->getId()))->getCampaigns();
 
-            foreach ($campaigns as $item) {
-                $campaign = Campaign::firstOrNew([
-                    'campaign_id' => $item->getId(),
-                    'provider_id' => $user_provider->provider_id,
-                    'user_id' => $user_provider->user_id,
-                    'open_id' => $user_provider->open_id
-                ]);
+            if (is_array($campaigns)) {
+                foreach ($campaigns as $item) {
+                    $campaign = Campaign::firstOrNew([
+                        'campaign_id' => $item->getId(),
+                        'provider_id' => $user_provider->provider_id,
+                        'user_id' => $user_provider->user_id,
+                        'open_id' => $user_provider->open_id
+                    ]);
 
-                $campaign->name = $item->getName();
-                $campaign->save();
-                $campaign_ids[] = $campaign->id;
+                    $campaign->name = $item->getName();
+                    $campaign->save();
+                    $campaign_ids[] = $campaign->id;
+                }
             }
         }
 
@@ -159,5 +167,10 @@ class Twitter extends Root
             'provider_id' => $user_provider->provider_id,
             'open_id' => $user_provider->open_id
         ])->whereNotIn('id', $campaign_ids)->delete();
+    }
+
+    public function pullRedTrack($campaign)
+    {
+
     }
 }

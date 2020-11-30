@@ -2,13 +2,13 @@
 
 namespace App\Vngodev;
 
-use App\Jobs\PullOutbrainRedTrack;
-use App\Jobs\PullRedTrack;
-use App\Models\RedtrackReport;
+use Carbon\Carbon;
+
 use App\Models\User;
 use App\Models\UserTracker;
-use Carbon\Carbon;
+
 use GuzzleHttp\Client;
+use App\Jobs\PullRedTrack;
 
 /**
  * RedTrack
@@ -22,12 +22,9 @@ class RedTrack
 
     public static function crawl()
     {
-        foreach (User::all() as $key => $user) {
-            foreach ($user->campaigns()->where('status', 'ACTIVE')->get() as $index => $campaign) {
+        foreach (User::all() as $user) {
+            foreach ($user->campaigns as $campaign) {
                 PullRedTrack::dispatch($campaign);
-            }
-            foreach ($user->outbrainCampaigns()->get() as $index => $campaign) {
-                PullOutbrainRedTrack::dispatch($campaign);
             }
         }
     }

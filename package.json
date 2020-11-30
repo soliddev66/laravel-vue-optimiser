@@ -28,6 +28,7 @@
         "chart.js": "^2.9.4",
         "lv-file-manager": "^1.0.17",
         "moment": "^2.29.1",
+        "select2-bootstrap-theme": "0.1.0-beta.10",
         "v-select2-component": "^0.4.3",
         "v-switch-case": "^1.0.3",
         "vue": "^2.6.12",

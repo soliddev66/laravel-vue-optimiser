@@ -34,15 +34,15 @@
           </div>
           <div class="card-body table-responsive">
             <table ref="campaignsTable" id="campaignsTable" class="table table-bordered table-hover text-center">
-              <thead>
+              <thead class="border">
                 <tr>
                   <th>ID</th>
+                  <th>Traffic Source</th>
                   <th colspan="4">Actions</th>
                   <th>Camp. ID</th>
                   <th>Name</th>
                   <th>Status</th>
                   <th>Budget</th>
-                  <th>Traffic Source</th>
                   <th>Payout</th>
                   <th>Clicks</th>
                   <th>LP View</th>
@@ -67,6 +67,7 @@
               <tbody>
                 <tr v-for="campaign in data" :key="campaign.id">
                   <td>{{ campaign.id }}</td>
+                  <td class="text-capitalize">{{ providerName(campaign) }}</td>
                   <td class="border-right-0 px-1">
                     <a class="btn btn-sm btn-default border" :href="'/campaigns/status/' + campaign.id" @click.prevent="updateCampaignStatus">
                       <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': campaign.status == 'ACTIVE' }"></i>
@@ -90,7 +91,6 @@
                     {{ campaign.status }}
                   </td>
                   <td>{{ campaign.budget }}</td>
-                  <td class="text-capitalize">{{ selectedProviderName }}</td>
                   <td>{{ round(count(campaign.redtrack_report, 'revenue') / count(campaign.redtrack_report, 'conversions')) || 0 }}</td>
                   <td>{{ count(campaign.redtrack_report, 'clicks') || count(campaign.performance_stats, 'clicks') || 0 }}</td>
                   <td>{{ count(campaign.redtrack_report, 'lp_views') || 0 }}</td>
@@ -115,7 +115,8 @@
               <tfoot>
                 <tr>
                   <th colspan="6" class="text-center">-</th>
-                  <th>Total:</th>
+                  <!-- <th>Total:</th> -->
+                  <th>-</th>
                   <th class="text-center">-</th>
                   <th>-</th>
                   <th></th>
@@ -197,11 +198,6 @@ export default {
       this.getData()
     }
   },
-  computed: {
-    selectedProviderName() {
-      return this.providers.find(provider => provider.id === this.selectedProvider) ? this.providers.find(provider => provider.id === this.selectedProvider).label : 'All'
-    }
-  },
   data() {
     return {
       data: [],
@@ -240,6 +236,9 @@ export default {
         return _.round(value, 2)
       }
       return 0
+    },
+    providerName(campaign) {
+      return this.providers.find(provider => provider.id === campaign.provider_id) ? this.providers.find(provider => provider.id === campaign.provider_id).label : 'N/A'
     },
     getData() {
       axios.post('/campaigns/search', {...this.targetDate, ... { tracker: this.selectedTracker, provider: this.selectedProvider } })
