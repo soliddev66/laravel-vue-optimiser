@@ -2,8 +2,6 @@
 
 namespace App\Utils\AdVendors;
 
-use Exception;
-
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 
@@ -12,14 +10,14 @@ use App\Models\Campaign;
 use App\Models\UserTracker;
 use App\Models\RedtrackReport;
 
-use App\Endpoints\OutbrainAPI;
+use App\Jobs\PullCampaign;
 
-use GuzzleHttp\Exception\GuzzleException;
+use App\Endpoints\OutbrainAPI;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
-use App\Jobs\PullCampaign;
+use GuzzleHttp\Exception\GuzzleException;
 
 class Outbrain extends Root
 {
@@ -27,6 +25,16 @@ class Outbrain extends Root
     {
         $provider = Provider::where('slug', request('provider'))->first();
         return new OutbrainAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first());
+    }
+
+    public function languages()
+    {
+        return config('constants.languages');
+    }
+
+    public function countries()
+    {
+        return $this->api()->getCountries();
     }
 
     /**

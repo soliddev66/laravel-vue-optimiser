@@ -29,8 +29,11 @@ class TwitterAPI
 
     private $account;
 
+    private $open_id;
+
     public function __construct($user_info, $account_id = null)
     {
+        $this->open_id = $user_info->open_id;
         $this->client = TwitterAds::init(env('TWITTER_CLIENT_ID'), env('TWITTER_CLIENT_SECRET'), $user_info->token, $user_info->secret_token, $account_id, env('TWITTER_SANDBOX'));
         if ($account_id) {
             $this->account = new Account($account_id);
@@ -45,7 +48,6 @@ class TwitterAPI
 
     public function getCampaigns()
     {
-
         return $this->account->getCampaigns()->getCollection();
     }
 
@@ -189,12 +191,12 @@ class TwitterAPI
         }
     }
 
-    public function createTweet($card, $user_id)
+    public function createTweet($card)
     {
         try {
             $param = [
                 'card_uri' => $card->getCardUri(),
-                'as_user_id' => $user_id,
+                'as_user_id' => $this->open_id,
             ];
 
             if (!empty(request('tweetNullcast'))) {
@@ -242,7 +244,9 @@ class TwitterAPI
 
     public function uploadMedia()
     {
-        return $this->client->upload(['media' => storage_path('app/public/images/') . request('cardMedia'), 'media_type' => 'image/jpg'], true);
+        $file = storage_path('app/public/images/') . request('cardMedia');
+        $mime = mime_content_type($file);
+        return $this->client->upload(['media' => $file, 'media_type' => $mime, 'additional_owners' => $this->open_id], true);
     }
 
     public function createMediaLibrary($media_key)

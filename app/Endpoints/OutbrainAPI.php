@@ -29,7 +29,7 @@ class OutbrainAPI
      */
     public function getCountries()
     {
-        return $this->client->call('GET', 'locations/search?term=&limit=&geoType=country');
+        return $this->client->call('GET', 'locations/search?term=Japan');
     }
 
     /**
@@ -69,14 +69,13 @@ class OutbrainAPI
     public function createBudget()
     {
         return $this->client->call('POST', 'marketers/' . request('selectedAdvertiser') . '/budgets', [
-            'name' => request('campaignName') . '\'s budget',
+            'name' => request('campaignName'),
             'amount' => request('campaignBudget'),
             'startDate' => request('campaignStartDate'),
             'endDate' => request('campaignEndDate'),
             'runForever' => request('campaignEndDate') ? false : true,
             'type' => request('campaignBudgetType'),
-            'pacing' => request('campaignPacing'),
-            'dailyTarget' => request('campaignPacing') === 'DAILY_TARGET' ? request('campaignBudget') : ''
+            'pacing' => request('campaignPacing')
         ]);
     }
 

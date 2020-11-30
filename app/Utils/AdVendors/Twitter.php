@@ -95,7 +95,7 @@ class Twitter extends Root
             }
 
             try {
-                $tweet_data = $api->createTweet($card_data, request('account'));
+                $tweet_data = $api->createTweet($card_data);
             } catch (Exception $e) {
                 $campaign_data->delete();
                 $line_item_data->delete();
@@ -123,16 +123,10 @@ class Twitter extends Root
 
             PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
-            if ($e instanceof TwitterAdsException) {
-                $data = [
-                    'errors' => [$e->getErrors()[0]->message]
-                ];
-            } else {
                 $data = [
                     'errors' => [$e->getMessage()]
                 ];
             }
-        }
 
         return $data;
     }
