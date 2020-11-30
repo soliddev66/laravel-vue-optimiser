@@ -32,14 +32,17 @@ class UserProviderController extends Controller
             ]]);
 
             $outbrain_provider_id = Provider::where('slug', 'outbrain')->first()->id;
-            $user_provider = UserProvider::where('provider_id', $outbrain_provider_id)->where('open_id', $request->name)->where('user_id', Auth::id())->firstOrCreate([
-                'open_id' => $request->name,
+            $open_id = $request->name;
+            $user_provider = UserProvider::firstOrNew([
+                'open_id' => $open_id,
                 'user_id' => Auth::id(),
-                'provider_id' => $outbrain_provider_id,
-                'basic_auth' => base64_encode($request->name . ':' . $request->password),
-                'token' => json_decode($response->getBody()->getContents(), true)['OB-TOKEN-V1'],
-                'expires_in' => Carbon::now()->addDays(30)
+                'provider_id' => $outbrain_provider_id
             ]);
+            $user_provider->basic_auth = base64_encode($request->name . ':' . $request->password);
+            $user_provider->token = json_decode($response->getBody()->getContents(), true)['OB-TOKEN-V1'];
+            $user_provider->expires_in = Carbon::now()->addDays(30);
+
+            $user_provider->save();
         }
 
         if (request('provider') === 'taboola') {
