@@ -123,10 +123,10 @@ class Twitter extends Root
 
             PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
-            $data = [
-                'errors' => [$e->getMessage()]
-            ];
-        }
+                $data = [
+                    'errors' => [$e->getMessage()]
+                ];
+            }
 
         return $data;
     }
@@ -161,5 +161,10 @@ class Twitter extends Root
             'provider_id' => $user_provider->provider_id,
             'open_id' => $user_provider->open_id
         ])->whereNotIn('id', $campaign_ids)->delete();
+    }
+
+    public function pullRedTrack($campaign)
+    {
+
     }
 }

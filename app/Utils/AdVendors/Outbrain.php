@@ -2,15 +2,22 @@
 
 namespace App\Utils\AdVendors;
 
-use App\Endpoints\OutbrainAPI;
-use App\Jobs\PullCampaign;
-use App\Models\Campaign;
-use App\Models\OutbrainCampaign;
+use Carbon\Carbon;
+use GuzzleHttp\Client;
+
 use App\Models\Provider;
-use Exception;
-use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Support\Facades\Log;
+use App\Models\Campaign;
+use App\Models\UserTracker;
+use App\Models\RedtrackReport;
+
+use App\Jobs\PullCampaign;
+
+use App\Endpoints\OutbrainAPI;
+
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+
+use GuzzleHttp\Exception\GuzzleException;
 
 class Outbrain extends Root
 {
@@ -105,7 +112,66 @@ class Outbrain extends Root
             ]);
 
             $campaign->name = $data['name'];
+
+            // unset($data['id']);
+            // foreach (array_keys($data) as $index => $array_key) {
+            //     $campaign->{$array_key} = $data[$array_key];
+            // }
+
             $campaign->save();
         });
+    }
+
+    public function pullRedTrack($campaign)
+    {
+        $tracker = UserTracker::where('provider_id', $this->campaign->provider_id)
+            ->where('provider_open_id', $this->campaign->open_id)
+            ->first();
+
+        if ($tracker) {
+            $client = new Client();
+            $date = Carbon::now()->format('Y-m-d');
+            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=hour_of_day&sub5=' . $this->campaign->campaign_id . '&tracks_view=true';
+            $response = $client->get($url);
+
+            $data = json_decode($response->getBody(), true);
+
+            foreach ($data as $i => $value) {
+                $value['date'] = $date;
+                $value['user_id'] = $this->campaign->user_id;
+                $value['campaign_id'] = $this->campaign->id;
+                $value['provider_id'] = $this->campaign->provider_id;
+                $value['open_id'] = $this->campaign->open_id;
+                $redtrack_report = RedtrackReport::firstOrNew([
+                    'date' => $date,
+                    'sub5' => $this->campaign->campaign_id,
+                    'hour_of_day' => $value['hour_of_day']
+                ]);
+                foreach (array_keys($value) as $array_key) {
+                    $redtrack_report->{$array_key} = $value[$array_key];
+                }
+                $redtrack_report->save();
+            }
+
+            // $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub5=' . $this->campaign->campaign_id . '&tracks_view=true';
+            // $response = $client->get($url);
+
+            // $data = json_decode($response->getBody(), true);
+
+            // foreach ($data as $i => $value) {
+            //     $value['date'] = $date;
+            //     $value['user_id'] = $this->campaign->user_id;
+            //     $value['campaign_id'] = $this->campaign->id;
+            //     $value['provider_id'] = $this->campaign->provider_id;
+            //     $value['open_id'] = $this->campaign->open_id;
+            //     $redtrack_report = RedtrackDomainStat::firstOrNew([
+            //         'date' => $date,
+            //     ]);
+            //     foreach (array_keys($value) as $array_key) {
+            //         $redtrack_report->{$array_key} = $value[$array_key];
+            //     }
+            //     $redtrack_report->save();
+            // }
+        }
     }
 }

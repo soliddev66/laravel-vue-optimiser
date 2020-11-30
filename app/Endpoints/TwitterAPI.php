@@ -27,15 +27,18 @@ class TwitterAPI
 {
     private $client;
 
-    private $account_id;
+    private $account;
 
     private $open_id;
 
     public function __construct($user_info, $account_id = null)
     {
-        $this->account_id = $account_id;
         $this->open_id = $user_info->open_id;
         $this->client = TwitterAds::init(env('TWITTER_CLIENT_ID'), env('TWITTER_CLIENT_SECRET'), $user_info->token, $user_info->secret_token, $account_id, env('TWITTER_SANDBOX'));
+        if ($account_id) {
+            $this->account = new Account($account_id);
+            $this->account->read();
+        }
     }
 
     public function getAdvertisers()
@@ -45,10 +48,7 @@ class TwitterAPI
 
     public function getCampaigns()
     {
-        $account = new Account($this->account_id);
-        $account->read();
-
-        return $account->getCampaigns()->getCollection();
+        return $this->account->getCampaigns()->getCollection();
     }
 
     public function getCountries()
@@ -58,10 +58,7 @@ class TwitterAPI
 
     public function getFundingInstruments()
     {
-        $account = new Account($this->account_id);
-        $account->read();
-
-        return $account->getFundingInstruments()->getCollection();
+        return $this->account->getFundingInstruments()->getCollection();
     }
 
     public function getAdGroupCategories()
@@ -72,10 +69,7 @@ class TwitterAPI
     public function getTweetPreviews($tweet_id)
     {
         try {
-            $account = new Account($this->account_id);
-            $account->read();
-
-            return Tweet::preview($account, [
+            return Tweet::preview($this->account, [
                 TweetFields::ID => $tweet_id
             ]);
         } catch (Exception $e) {
@@ -86,9 +80,6 @@ class TwitterAPI
     public function createCampaign()
     {
         try {
-            $account = new Account($this->account_id);
-            $account->read();
-
             $campaign = new Campaign();
             $campaign->setFundingInstrumentId(request('fundingInstrument'));
             $campaign->setDailyBudgetAmountLocalMicro(request('campaignDailyBudgetAmountLocalMicro') * 1E6);
@@ -121,9 +112,6 @@ class TwitterAPI
     public function createLineItem($campaign)
     {
         try {
-            $account = new Account($this->account_id);
-            $account->read();
-
             $line_item = new LineItem();
             $line_item->setCampaignId($campaign->getId());
             $line_item->setName(request('adGroupName'));
@@ -190,8 +178,6 @@ class TwitterAPI
 
     public function createWebsiteCard($card_media_key)
     {
-        $account = new Account($this->account_id);
-        $account->read();
         try {
             $website_card = new WebsiteCard();
             $website_card->setName(request('cardName'));
@@ -208,9 +194,6 @@ class TwitterAPI
     public function createTweet($card)
     {
         try {
-            $account = new Account($this->account_id);
-            $account->read();
-
             $param = [
                 'card_uri' => $card->getCardUri(),
                 'as_user_id' => $this->open_id,
@@ -240,7 +223,7 @@ class TwitterAPI
                 $param['video_description'] = request('tweetVideoDescription');
             }
 
-            return Tweet::create($account, request('text') . rand(), $param);
+            return Tweet::create($this->account, request('text') . rand(), $param);
         } catch (Exception $e) {
             throw $e;
         }
@@ -268,9 +251,6 @@ class TwitterAPI
 
     public function createMediaLibrary($media_key)
     {
-        $account = new Account($this->account_id);
-        $account->read();
-
         $media_library = new MediaLibrary();
         $media_library->setMediaKey($media_key);
         return $media_library->save();
