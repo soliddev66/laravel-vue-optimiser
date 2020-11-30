@@ -4,6 +4,8 @@ namespace App\Utils\AdVendors;
 
 use Exception;
 
+use Illuminate\Support\Str;
+
 use App\Models\Provider;
 use App\Models\Campaign;
 
@@ -13,7 +15,7 @@ use App\Endpoints\GeminiAPI;
 
 class Yahoo extends Root
 {
-    public function api()
+    private function api()
     {
         $provider = Provider::where('slug', request('provider'))->first();
         return new GeminiAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first());
@@ -79,5 +81,41 @@ class Yahoo extends Root
         }
 
         return $data;
+    }
+
+    public function pullCampaign($user_provider)
+    {
+        $campaigns = (new GeminiAPI($user_provider))->getCampaigns();
+
+        $campaign_ids = [];
+        foreach ($campaigns as $key => $item) {
+            $data = collect($item)->keyBy(function ($value, $key) {
+                return Str::of($key)->snake();
+            })->toArray();
+
+            $data['name'] = $data['campaign_name'];
+
+            $campaign = Campaign::firstOrNew([
+                'campaign_id' => $data['id'],
+                'provider_id' => $user_provider->provider_id,
+                'user_id' => $user_provider->user_id,
+                'open_id' => $user_provider->open_id
+            ]);
+
+            unset($data['campaign_name']);
+            unset($data['id']);
+
+            foreach (array_keys($data) as $index => $array_key) {
+                $campaign->{$array_key} = $data[$array_key];
+            }
+            $campaign->save();
+            $campaign_ids[] = $campaign->id;
+        }
+
+        Campaign::where([
+            'user_id' => $user_provider->user_id,
+            'provider_id' => $user_provider->provider_id,
+            'open_id' => $user_provider->open_id
+        ])->whereNotIn('id', $campaign_ids)->delete();
     }
 }
