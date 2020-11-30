@@ -143,9 +143,9 @@ class GeminiAPI
         ]);
     }
 
-    public function deleteCampaign($campaign)
+    public function deleteCampaign($campaign_id)
     {
-        return $this->client->call('DELETE', 'campaign/' . $campaign->campaign_id);
+        return $this->client->call('DELETE', 'campaign/' . $campaign_id);
     }
 
     public function updateCampaignStatus($campaign)

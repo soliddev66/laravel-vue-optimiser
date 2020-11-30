@@ -230,11 +230,9 @@
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label for="image_hq_url" class="col-sm-4 control-label mt-2">Image HQ URL</label>
+                      <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
                       <div class="col-sm-8">
                         <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="imageUrlHQ" />
-                      </div>
-                      <div class="col-sm-8 offset-sm-4">
                         <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('hqModal')">Choose File</button>
                         <!-- <input type="file" ref="imageHQ" @change="selectedHQFile" accept="image/*"> -->
                       </div>
@@ -244,11 +242,9 @@
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label for="image_url" class="col-sm-4 control-label mt-2">Image URL</label>
+                      <label for="image_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
                       <div class="col-sm-8">
                         <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="imageUrl" />
-                      </div>
-                      <div class="col-sm-8 offset-sm-4">
                         <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal')">Choose File</button>
                         <!-- <input type="file" ref="image" @change="selectedFile" accept="image/*"> -->
                       </div>
@@ -828,9 +824,11 @@ export default {
 
       axios.post(url, this.postData).then(response => {
         if (response.data.errors) {
-          alert(response.data.errors[0])
+          alert(response.data.errors[0]);
         } else {
-          alert('Save successfully!');
+          this.$dialog.alert('Save successfully!').then(function(dialog) {
+            window.location = '/campaigns';
+          });
         }
       }).catch(error => {
         console.log(error)

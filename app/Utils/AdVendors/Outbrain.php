@@ -2,22 +2,18 @@
 
 namespace App\Utils\AdVendors;
 
+use App\Endpoints\OutbrainAPI;
+use App\Jobs\PullCampaign;
+use App\Models\Campaign;
+use App\Models\Provider;
+use App\Models\RedtrackReport;
+use App\Models\UserTracker;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
-
-use App\Models\Provider;
-use App\Models\Campaign;
-use App\Models\UserTracker;
-use App\Models\RedtrackReport;
-
-use App\Jobs\PullCampaign;
-
-use App\Endpoints\OutbrainAPI;
-
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
-
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class Outbrain extends Root
 {
@@ -67,12 +63,16 @@ class Outbrain extends Root
                 $ad_data = $api->createAd($campaign_data);
                 Log::info('OUTBRAIN: Created ad: ' . $ad_data['id']);
             } catch (Exception $e) {
-                $api->deleteCampaign($campaign_data);
+                $api->deleteCampaign($campaign_data['id']);
                 $api->deleteBudget($budget_data);
                 throw $e;
             }
 
             PullCampaign::dispatch(auth()->user());
+        } catch (RequestException $e) {
+            $data = [
+                'errors' => [$e->getMessage()]
+            ];
         } catch (Exception $e) {
             $data = [
                 'errors' => [$e->getMessage()]
