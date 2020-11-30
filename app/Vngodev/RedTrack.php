@@ -22,8 +22,8 @@ class RedTrack
 
     public static function crawl()
     {
-        foreach (User::all() as $key => $user) {
-            foreach ($user->campaigns()->where('status', 'ACTIVE')->get() as $index => $campaign) {
+        foreach (User::all() as $user) {
+            foreach ($user->campaigns as $campaign) {
                 PullRedTrack::dispatch($campaign);
             }
         }

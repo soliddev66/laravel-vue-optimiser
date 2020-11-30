@@ -140,17 +140,19 @@ class Twitter extends Root
         foreach ($advertisers as $advertiser) {
             $campaigns = (new TwitterAPI($user_provider, $advertiser->getId()))->getCampaigns();
 
-            foreach ($campaigns as $item) {
-                $campaign = Campaign::firstOrNew([
-                    'campaign_id' => $item->getId(),
-                    'provider_id' => $user_provider->provider_id,
-                    'user_id' => $user_provider->user_id,
-                    'open_id' => $user_provider->open_id
-                ]);
+            if (is_array($campaigns)) {
+                foreach ($campaigns as $item) {
+                    $campaign = Campaign::firstOrNew([
+                        'campaign_id' => $item->getId(),
+                        'provider_id' => $user_provider->provider_id,
+                        'user_id' => $user_provider->user_id,
+                        'open_id' => $user_provider->open_id
+                    ]);
 
-                $campaign->name = $item->getName();
-                $campaign->save();
-                $campaign_ids[] = $campaign->id;
+                    $campaign->name = $item->getName();
+                    $campaign->save();
+                    $campaign_ids[] = $campaign->id;
+                }
             }
         }
 
