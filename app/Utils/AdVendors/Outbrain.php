@@ -111,6 +111,8 @@ class Outbrain extends Root
                 'user_id' => $user_provider->user_id
             ]);
 
+            $campaign->name = $data['name'];
+
             // unset($data['id']);
             // foreach (array_keys($data) as $index => $array_key) {
             //     $campaign->{$array_key} = $data[$array_key];
