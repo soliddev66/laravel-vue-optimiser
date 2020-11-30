@@ -21,6 +21,7 @@ class CreateOutbrainCampaignsTable extends Migration
             $table->string('campaign_id')->nullable();
             $table->string('name')->nullable();
             $table->string('marketer_id')->nullable();
+            $table->string('readonly')->nullable();
             $table->boolean('campaign_on_air')->nullable();
             $table->boolean('enabled')->nullable();
             $table->double('cpc')->nullable();

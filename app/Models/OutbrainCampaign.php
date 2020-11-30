@@ -26,6 +26,7 @@ class OutbrainCampaign extends Model
         'campaign_id',
         'name',
         'marketer_id',
+        'readonly',
         'enabled',
         'cpc',
         'minimum_cpc',
