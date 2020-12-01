@@ -255,13 +255,13 @@
                   <label for="ad_group_bid_type" class="col-sm-2 control-label mt-2">Bid Type</label>
                   <div class="col-lg-4 col-xl-3">
                     <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'AUTO' && !adGroupBidAmountLocalMicro }">
+                      <label class="btn bg-olive" :class="{ active: adGroupBidType == 'AUTO' && !adGroupBidAmountLocalMicro }">
                         <input type="radio" name="ad_group_bid_type" id="adGroupBidType1" autocomplete="off" value="AUTO" v-model="adGroupBidType">AUTO
                       </label>
-                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'MAX' && !adGroupBidAmountLocalMicro }">
+                      <label class="btn bg-olive" :class="{ active: adGroupBidType == 'MAX' && !adGroupBidAmountLocalMicro }">
                         <input type="radio" name="ad_group_bid_type" id="adGroupBidType2" autocomplete="off" value="MAX" v-model="adGroupBidType">MAX
                       </label>
-                      <label class="btn bg-olive" :class="{ active: adGroupBidType === 'TARGET' && !adGroupBidAmountLocalMicro }">
+                      <label class="btn bg-olive" :class="{ active: adGroupBidType == 'TARGET' && !adGroupBidAmountLocalMicro }">
                         <input type="radio" name="ad_group_bid_type" id="adGroupBidType3" autocomplete="off" value="TARGET" v-model="adGroupBidType">TARGET
                       </label>
                     </div>
@@ -271,7 +271,7 @@
                   <label for="ad_group_bid_unit" class="col-sm-2 control-label mt-2">Bid Unit</label>
                   <div class="col-lg-4 col-xl-3">
                     <select name="ad_group_bid_unit" class="form-control" v-model="adGroupBidUnit">
-                      <option value="">Select</option>
+                      <option value="LINK_CLICK">LINK_CLICK</option>
                       <option value="APP_CLICK">APP_CLICK</option>
                       <option value="APP_INSTALL">APP_INSTALL</option>
                       <option value="VIEW">VIEW</option>
@@ -282,7 +282,7 @@
                   <label for="ad_group_charge_by" class="col-sm-2 control-label mt-2">Charge By</label>
                   <div class="col-lg-4 col-xl-3">
                     <select name="ad_group_charge_by" class="form-control" v-model="adGroupChargeBy" disabled>
-                      <option value="">Select</option>
+                      <option value="LINK_CLICK">LINK_CLICK</option>
                       <option value="APP_CLICK">APP_CLICK</option>
                       <option value="APP_INSTALL">APP_INSTALL</option>
                       <option value="VIEW">VIEW</option>
@@ -295,7 +295,7 @@
                   <label for="ad_group_optimization" class="col-sm-2 control-label mt-2">Optimization</label>
                   <div class="col-lg-10 col-xl-8">
                     <select name="ad_group_optimization" class="form-control" v-model="adGroupOptimization">
-                      <option value="">Select</option>
+                      <option value="DEFAULT">DEFAULT</option>
                       <option value="APP_CLICKS">APP_CLICKS</option>
                       <option value="APP_INSTALLS">APP_INSTALLS</option>
                       <option value="DEFAULT">DEFAULT</option>
@@ -461,115 +461,134 @@
               </div> -->
               <div class="col" v-if="currentStep == 2">
                 <h2>General information</h2>
+                <div class="form-group row" v-if="instance">
+                  <p class="col-12">
+                    Not allow to update the card, please create new one if you want to change the card information. Please note that you must to create new tweet in case create new card as well.
+                  </p>
+                  <div class="col-sm-2" v-if="saveCard">
+                    <button type="button" class="btn btn-primary" @click.prevent="saveCard = !saveCard">Create New</button>
+                  </div>
+                  <div class="col-sm-2" v-if="!saveCard">
+                    <button type="button" class="btn btn-warning" @click.prevent="saveCard = !saveCard">Cancel</button>
+                  </div>
+                </div>
+                <section v-if="action == 'create' || !saveCard">
+                  <div class="form-group row">
+                    <label for="card_name" class="col-sm-2 control-label mt-2">Name</label>
+                    <div class="col-lg-10 col-xl-8">
+                      <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="cardName" />
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="card_media" class="col-sm-2 control-label mt-2">Media Image</label>
+                    <div class="col-sm-8">
+                      <input type="text" name="card_media" placeholder="Media Image" class="form-control" v-model="cardMedia" disabled />
+                    </div>
+                    <div class="col-sm-8 offset-sm-2">
+                      <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('cardMedia')">Choose File</button>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="card_website_title" class="col-sm-2 control-label mt-2">Website Title</label>
+                    <div class="col-lg-10 col-xl-8">
+                      <input type="text" name="card_website_title" placeholder="Enter website title" class="form-control" v-model="cardWebsiteTitle" />
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="card_website_url" class="col-sm-2 control-label mt-2">Website URL</label>
+                    <div class="col-lg-10 col-xl-8">
+                      <input type="text" name="card_website_url" placeholder="Enter a website URL" class="form-control" v-model="cardWebsiteUrl" />
+                    </div>
+                  </div>
+                </section>
+              </div>
+              <div class="col" v-if="currentStep == 3">
+                <div class="form-group row" v-if="instance && !saveCard">
+                  <p class="col-12">
+                    You must create new tweet since you recreate the card.
+                  </p>
+                </div>
                 <div class="form-group row">
-                  <label for="card_name" class="col-sm-2 control-label mt-2">Name</label>
+                  <label for="tweet_text" class="col-sm-2 control-label mt-2">Text</label>
                   <div class="col-lg-10 col-xl-8">
-                    <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="cardName" />
+                    <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="tweetText" :disabled="instance && saveCard" />
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label for="card_media" class="col-sm-2 control-label mt-2">Media Image</label>
-                  <div class="col-sm-8">
-                    <input type="text" name="card_media" placeholder="Media Image" class="form-control" v-model="cardMedia" disabled />
+                  <label for="tweet_nullcast" class="col-sm-2 control-label mt-2">Nullcast</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: tweetNullcast }">
+                        <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" v-model="tweetNullcast">TRUE
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: !tweetNullcast }">
+                        <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" v-model="tweetNullcast">FALSE
+                      </label>
+                    </div>
                   </div>
-                  <div class="col-sm-8 offset-sm-2">
-                    <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('cardMedia')">Choose File</button>
+                  <label for="tweet_trim_user" class="col-sm-2 control-label mt-2">Trim User</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: tweetTrimUser }">
+                        <input type="radio" name="tweet_trim_user" id="tweetTrimUser1" autocomplete="off" :value="true" v-model="tweetTrimUser">TRUE
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: !tweetTrimUser }">
+                        <input type="radio" name="tweet_trim_user" id="tweetTrimUser2" autocomplete="off" :value="false" v-model="tweetTrimUser">FALSE
+                      </label>
+                    </div>
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label for="card_website_title" class="col-sm-2 control-label mt-2">Website Title</label>
-                  <div class="col-lg-10 col-xl-8">
-                    <input type="text" name="card_website_title" placeholder="Enter website title" class="form-control" v-model="cardWebsiteTitle" />
+                  <label for="tweet_video_cta" class="col-sm-2 control-label mt-2">Video CTA</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <select name="tweet_video_cta" class="form-control" v-model="tweetVideoCTA">
+                      <option value="">Select</option>
+                      <option value="VISIT_SITE">VISIT_SITE</option>
+                      <option value="WATCH_NOW">WATCH_NOW</option>
+                    </select>
+                  </div>
+                  <label for="tweet_video_cta_value" class="col-sm-2 control-label mt-2">Video CTA Value</label>
+                  <div class="col-lg-4 col-xl-3">
+                    <input type="text" name="tweet_video_cta_value" placeholder="Video CTA Value" class="form-control" v-model="tweetVideoCTAValue" />
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label for="card_website_url" class="col-sm-2 control-label mt-2">Website URL</label>
+                  <label for="tweet_tweet_mode" class="col-sm-2 control-label mt-2">Tweet Mode</label>
                   <div class="col-lg-10 col-xl-8">
-                    <input type="text" name="card_website_url" placeholder="Enter a website URL" class="form-control" v-model="cardWebsiteUrl" />
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: tweetTweetMode == 'compat' }">
+                        <input type="radio" name="tweet_tweet_mode" id="tweetTweetMode1" autocomplete="off" value="compat" v-model="tweetTweetMode">COMPAT
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: tweetTweetMode == 'extended' }">
+                        <input type="radio" name="tweet_trim_user" id="tweetTweetMode2" autocomplete="off" value="extended" v-model="tweetTweetMode">EXTENDED
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="tweet_video_title" class="col-sm-2 control-label mt-2">Video Title</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <input type="text" name="tweet_video_title" placeholder="Video Title" class="form-control" v-model="tweetVideoTitle" />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="tweet_video_description" class="col-sm-2 control-label mt-2">Video Description</label>
+                  <div class="col-lg-10 col-xl-8">
+                    <textarea class="form-control" id="tweet_video_description" name="tweet_video_description" rows="3" v-model="tweetVideoDescription"></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body" v-if="currentStep == 4">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h2>Preview</h2>
+                    <div v-html="previewData"></div>
                   </div>
                 </div>
               </div>
             </form>
           </div>
-          <div class="card-body" v-if="currentStep == 3">
-            <div class="form-group row">
-              <label for="tweet_text" class="col-sm-2 control-label mt-2">Text</label>
-              <div class="col-lg-10 col-xl-8">
-                <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="tweetText" />
-              </div>
-            </div>
-            <div class="form-group row">
-              <label for="tweet_nullcast" class="col-sm-2 control-label mt-2">Nullcast</label>
-              <div class="col-lg-4 col-xl-3">
-                <div class="btn-group btn-group-toggle">
-                  <label class="btn bg-olive" :class="{ active: tweetNullcast }">
-                    <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" v-model="tweetNullcast">TRUE
-                  </label>
-                  <label class="btn bg-olive" :class="{ active: !tweetNullcast }">
-                    <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" v-model="tweetNullcast">FALSE
-                  </label>
-                </div>
-              </div>
-              <label for="tweet_trim_user" class="col-sm-2 control-label mt-2">Trim User</label>
-              <div class="col-lg-4 col-xl-3">
-                <div class="btn-group btn-group-toggle">
-                  <label class="btn bg-olive" :class="{ active: tweetTrimUser }">
-                    <input type="radio" name="tweet_trim_user" id="tweetTrimUser1" autocomplete="off" :value="true" v-model="tweetTrimUser">TRUE
-                  </label>
-                  <label class="btn bg-olive" :class="{ active: !tweetTrimUser }">
-                    <input type="radio" name="tweet_trim_user" id="tweetTrimUser2" autocomplete="off" :value="false" v-model="tweetTrimUser">FALSE
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div class="form-group row">
-              <label for="tweet_video_cta" class="col-sm-2 control-label mt-2">Video CTA</label>
-              <div class="col-lg-4 col-xl-3">
-                <select name="tweet_video_cta" class="form-control" v-model="tweetVideoCTA">
-                  <option value="">Select</option>
-                  <option value="VISIT_SITE">VISIT_SITE</option>
-                  <option value="WATCH_NOW">WATCH_NOW</option>
-                </select>
-              </div>
-              <label for="tweet_video_cta_value" class="col-sm-2 control-label mt-2">Video CTA Value</label>
-              <div class="col-lg-4 col-xl-3">
-                <input type="text" name="tweet_video_cta_value" placeholder="Video CTA Value" class="form-control" v-model="tweetVideoCTAValue" />
-              </div>
-            </div>
-            <div class="form-group row">
-              <label for="tweet_tweet_mode" class="col-sm-2 control-label mt-2">Tweet Mode</label>
-              <div class="col-lg-10 col-xl-8">
-                <div class="btn-group btn-group-toggle">
-                  <label class="btn bg-olive" :class="{ active: tweetTweetMode == 'compat' }">
-                    <input type="radio" name="tweet_tweet_mode" id="tweetTweetMode1" autocomplete="off" value="compat" v-model="tweetTweetMode">COMPAT
-                  </label>
-                  <label class="btn bg-olive" :class="{ active: tweetTweetMode == 'extended' }">
-                    <input type="radio" name="tweet_trim_user" id="tweetTweetMode2" autocomplete="off" value="extended" v-model="tweetTweetMode">EXTENDED
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div class="form-group row">
-              <label for="tweet_video_title" class="col-sm-2 control-label mt-2">Video Title</label>
-              <div class="col-lg-10 col-xl-8">
-                <input type="text" name="tweet_video_title" placeholder="Video Title" class="form-control" v-model="tweetVideoTitle" />
-              </div>
-            </div>
-            <div class="form-group row">
-              <label for="tweet_video_description" class="col-sm-2 control-label mt-2">Video Description</label>
-              <div class="col-lg-10 col-xl-8">
-                <textarea class="form-control" id="tweet_video_description" name="tweet_video_description" rows="3" v-model="tweetVideoDescription"></textarea>
-              </div>
-            </div>
-          </div>
-          <div class="card-body" v-if="currentStep == 4">
-            <div class="row">
-              <div class="col-sm-12">
-                <h2>Preview</h2>
-                <div v-html="previewData"></div>
-              </div>
-            </div>
-          </div>
+
           <div class="card-footer d-flex justify-content-end">
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
@@ -644,7 +663,7 @@ export default {
       return !this.selectedProvider || !this.selectedAccount || !this.selectedAdvertiser || !this.selectedFundingInstrument || !this.campaignName || !this.campaignStartTime || !this.campaignDailyBudgetAmountLocalMicro || !this.adGroupName || !this.adGroupStartTime
     },
     submitStep2State() {
-      return !this.cardName || !this.cardWebsiteTitle || !this.cardWebsiteUrl || !this.cardMedia
+      return ((this.action == 'create' || !this.saveCard) && (!this.cardName || !this.cardWebsiteTitle || !this.cardWebsiteUrl || !this.cardMedia))
     },
     submitStep3State() {
       return !this.tweetText
@@ -674,9 +693,20 @@ export default {
 
   },
   data() {
+    let adGroupID = '',
+      adGroupName = '';
+
+    if (this.instance) {
+      if (this.instance.adGroups.length > 0) {
+        adGroupID = this.instance.adGroups[0]['id'];
+        adGroupName = this.instance.adGroups[0]['name'];
+      }
+    }
+
     return {
       isLoading: false,
       fullPage: true,
+      saveCard: true,
       postData: {},
       currentStep: 1,
       redtrackKey: '',
@@ -709,30 +739,31 @@ export default {
       campaignFrequencyCap:  this.instance && this.instance.frequency_cap ? this.instance.frequency_cap : '',
       campaignPurchaseOrderNumber:  this.instance && this.instance.purchase_order_number ? this.instance.purchase_order_number : '',
       campaignStandardDelivery: true,
-      campaignStatus: this.instance ? this.instance.channel : 'PAUSED',
-      adGroupName: '',
+      campaignStatus: this.instance ? this.instance.entity_status : 'PAUSED',
+      adGroupID: adGroupID,
+      adGroupName: adGroupName,
       adGroupAndroidAppStoreIdentifier: '',
       adGroupIOSAppStoreIdentifier: '',
-      adGroupPlacements: '',
-      adGroupObjective: 'APP_ENGAGEMENTS',
-      adGroupProductType: 'PROMOTED_TWEETS',
-      adGroupAdvertiserDomain: '',
-      adGroupBidAmountLocalMicro: '',
-      adGroupTotalBudgetAmountLocalMicro: '',
-      adGroupPrimaryWebEventTag: '',
-      adGroupCategorySelection: null,
+      adGroupPlacements: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['placements'] : '',
+      adGroupObjective: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['objective'] : 'APP_ENGAGEMENTS',
+      adGroupProductType: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['product_type'] : 'PROMOTED_TWEETS',
+      adGroupAdvertiserDomain: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['advertiser_domain'] : '',
+      adGroupBidAmountLocalMicro: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['bid_amount_local_micro'] / 1e6 : '',
+      adGroupTotalBudgetAmountLocalMicro: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['total_budget_amount_local_micro'] / 1e6 : '',
+      adGroupPrimaryWebEventTag: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['primary_web_event_tag'] : '',
+      adGroupCategorySelection: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['categories'] : null,
       adGroupCategories: [],
-      adGroupAdvertiserUserId: '',
-      adGroupAutomaticallySelectBid: false,
-      adGroupBidType: '',
-      adGroupStatus: 'PAUSED',
-      adGroupBidUnit: '',
-      adGroupChargeBy: '',
-      adGroupStartTime: '',
-      adGroupEndTime: '',
-      adGroupOptimization: '',
+      adGroupAdvertiserUserId: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['advertiser_user_id'] : '',
+      adGroupAutomaticallySelectBid: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['automatically_select_bid'] : false,
+      adGroupBidType: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['bid_type'] : '',
+      adGroupStatus: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['entity_status'] : 'PAUSED',
+      adGroupBidUnit: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['bid_unit'] : '',
+      adGroupChargeBy: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['charge_by'] : '',
+      adGroupStartTime: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['start_time'].date.split(' ')[0] : '',
+      adGroupEndTime: this.instance && this.instance.adGroups.length > 0 && this.instance.adGroups[0]['end_time'] ? this.instance.adGroups[0]['end_time'].date.split(' ')[0] : '',
+      adGroupOptimization: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['optimization'] : 'DEFAULT',
       adGroupAudienceExpansion: '',
-      adGrouptrackingTags: '',
+      adGrouptrackingTags: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['tracking_tags'] : '',
       cardName: '',
       cardMedia: '',
       cardMediaImage: {

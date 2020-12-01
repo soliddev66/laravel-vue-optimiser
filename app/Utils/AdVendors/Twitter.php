@@ -53,6 +53,44 @@ class Twitter extends Root
             $instance['advertiser_id'] = $campaign->advertiser_id;
             $instance['instance_id'] = $campaign['id'];
 
+            $instance['adGroups'] = [];
+
+            $ad_groups = $api->getAdGroups($campaign->campaign_id);
+
+            if ($ad_groups && count($ad_groups) > 0) {
+                foreach ($ad_groups as $ad_group) {
+                    $instance['adGroups'][] = [
+                        'id' => $ad_group->getId(),
+                        'name' => $ad_group->getName(),
+                        'bid_amount_local_micro' => $ad_group->getBidAmountLocalMicro(),
+                        'bid_type' => $ad_group->getBidType(),
+                        'automatically_select_bid' => $ad_group->getAutomaticallySelectdBid(),
+                        'product_type' => $ad_group->getProductType(),
+                        'placements' => $ad_group->getPlacements(),
+                        'objective' => $ad_group->getObjective(),
+                        'entity_status' => $ad_group->getEntityStatus(),
+                        'include_sentiment' => $ad_group->getIncludeSentiment(),
+                        'total_budget_amount_local_micro' => $ad_group->getTotalBudgetAmountLocalMicro(),
+                        'start_time' => $ad_group->getStartTime(),
+                        'end_time' => $ad_group->getEndTime(),
+                        'primary_web_event_tag' => $ad_group->getPrimaryWebEventTag(),
+                        'optimization' => $ad_group->getOptimization(),
+                        'bid_unit' => $ad_group->getBidUnit(),
+                        'charge_by' => $ad_group->getChargeBy(),
+                        'advertiser_domain' => $ad_group->getAdvertiserDomain(),
+                        'tracking_tags' => $ad_group->getTrackingTags(),
+                        'advertiser_user_id' => $ad_group->getAdvertiserUserId(),
+                        'categories' => $ad_group->getCategories(),
+                    ];
+                }
+
+                $promoted_tweets = $api->getPromotedTweet($ad_groups[0]->getId());
+
+                $tweet = $api->getTweet($promoted_tweets[0]->getTweetId());
+
+                var_dump($tweet); exit;
+            }
+
             return $instance;
         }
 

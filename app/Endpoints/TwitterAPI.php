@@ -9,6 +9,7 @@ use Carbon\Carbon;
 
 use App\Helpers\GeminiClient;
 
+use App\Vendors\Twitter\Creative\Tweets;
 use App\Vendors\Twitter\Creative\WebsiteCard;
 use App\Vendors\Twitter\Creative\MediaLibrary;
 
@@ -55,6 +56,13 @@ class TwitterAPI
         return $this->account->getCampaigns()->getCollection();
     }
 
+    public function getAdGroups($campaign_id)
+    {
+        return $this->account->getLineItems('', [
+            'campaign_ids' => $campaign_id
+        ])->getCollection();
+    }
+
     public function getCountries()
     {
         return $this->client->get('targeting_criteria/locations', ['location_type' => 'COUNTRIES'])->getBody()->data;
@@ -68,6 +76,13 @@ class TwitterAPI
     public function getAdGroupCategories()
     {
         return $this->client->get('iab_categories')->getBody()->data;
+    }
+
+    public function getPromotedTweet($line_item_id)
+    {
+        return (new PromotedTweet())->all([
+            'line_item_ids' => $line_item_id
+        ])->getCollection();
     }
 
     public function getTweetPreviews($tweet_id)
@@ -231,6 +246,15 @@ class TwitterAPI
         } catch (Exception $e) {
             throw $e;
         }
+    }
+
+    public function getTweet($tweet_id)
+    {
+        var_dump($tweet_id);
+        return (new Tweets())->all([
+            'tweet_ids' => $tweet_id,
+            'tweet_type' => 'PUBLISHED'
+        ])->getCollection();
     }
 
     public function createPromotedTweet($line_item, $tweet)
