@@ -2,24 +2,20 @@
 
 namespace App\Endpoints;
 
+use App\Helpers\GeminiClient;
+use App\Vendors\Twitter\Creative\MediaLibrary;
+use App\Vendors\Twitter\Creative\WebsiteCard;
+use Carbon\Carbon;
 use DateTime;
 use Exception;
-
-use Carbon\Carbon;
-
-use App\Helpers\GeminiClient;
-
-use App\Vendors\Twitter\Creative\WebsiteCard;
-use App\Vendors\Twitter\Creative\MediaLibrary;
-
 use Hborras\TwitterAdsSDK\TwitterAds;
 use Hborras\TwitterAdsSDK\TwitterAds\Account;
-use Hborras\TwitterAdsSDK\TwitterAds\Campaign\Tweet;
-use Hborras\TwitterAdsSDK\TwitterAds\Campaign\LineItem;
 use Hborras\TwitterAdsSDK\TwitterAds\Campaign\Campaign;
-use Hborras\TwitterAdsSDK\TwitterAds\Creative\PromotedTweet;
 use Hborras\TwitterAdsSDK\TwitterAds\Campaign\FundingInstrument;
-
+use Hborras\TwitterAdsSDK\TwitterAds\Campaign\LineItem;
+use Hborras\TwitterAdsSDK\TwitterAds\Campaign\PromotableUser;
+use Hborras\TwitterAdsSDK\TwitterAds\Campaign\Tweet;
+use Hborras\TwitterAdsSDK\TwitterAds\Creative\PromotedTweet;
 use Hborras\TwitterAdsSDK\TwitterAds\Fields\TweetFields;
 
 
@@ -242,11 +238,22 @@ class TwitterAPI
         }
     }
 
-    public function uploadMedia()
+    public function getPromotableUsers()
+    {
+        $promotable_user = new PromotableUser();
+        return $promotable_user->all();
+    }
+
+    public function uploadMedia($promotable_users)
     {
         $file = storage_path('app/public/images/') . request('cardMedia');
         $mime = mime_content_type($file);
-        return $this->client->upload(['media' => $file, 'media_type' => $mime, 'additional_owners' => $this->open_id], true);
+        $promotable_user_ids = [];
+        foreach ($promotable_users->getCollection() as $key => $promotable_user) {
+            array_push($promotable_user_ids, $promotable_user->getUserId());
+        }
+        $promotable_user_ids = implode(',', $promotable_user_ids);
+        return $this->client->upload(['media' => $file, 'media_type' => $mime, 'additional_owners' => $promotable_user_ids], true);
     }
 
     public function createMediaLibrary($media_key)

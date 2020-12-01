@@ -67,7 +67,8 @@ class Twitter extends Root
 
         try {
             try {
-                $media = $this->api()->uploadMedia();
+                $promotable_users = $this->api()->getPromotableUsers();
+                $media = $this->api()->uploadMedia($promotable_users);
                 $media_library = $this->api()->createMediaLibrary($media->media_key);
             } catch (Exception $e) {
                 throw $e;
@@ -123,7 +124,7 @@ class Twitter extends Root
 
             PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
-            if ($e instanceof TwitterAdsException) {
+            if ($e instanceof TwitterAdsException && is_array($e->getErrors())) {
                 $data = [
                     'errors' => [$e->getErrors()[0]->message]
                 ];
