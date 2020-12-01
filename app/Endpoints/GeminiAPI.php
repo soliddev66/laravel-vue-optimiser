@@ -2,8 +2,8 @@
 
 namespace App\Endpoints;
 
-use Carbon\Carbon;
 use App\Helpers\GeminiClient;
+use Carbon\Carbon;
 
 class GeminiAPI
 {
@@ -71,8 +71,8 @@ class GeminiAPI
             'displayUrl' => request('displayUrl'),
             'landingUrl' => request('targetUrl'),
             'sponsoredBy' => request('brandname'),
-            'imageUrlHQ' => request('imageUrlHQ'),
-            'imageUrl' => request('imageUrl'),
+            'imageUrlHQ' => $this->encodeUrl(request('imageUrlHQ')),
+            'imageUrl' => $this->encodeUrl(request('imageUrl')),
             'title' => request('title'),
             'status' => 'ACTIVE'
         ]);
@@ -193,6 +193,7 @@ class GeminiAPI
         if (in_array(request('campaignStrategy'), ['OPT_ENHANCED_CPC', 'OPT_POST_INSTALL', 'OPT_CONVERSION'])) {
             $data['biddingStrategy'] = request('campaignStrategy');
         }
+
         return $this->client->call('POST', 'adgroup', $data);
     }
 
@@ -213,6 +214,7 @@ class GeminiAPI
         if (in_array(request('campaignStrategy'), ['OPT_ENHANCED_CPC', 'OPT_POST_INSTALL', 'OPT_CONVERSION'])) {
             $data['biddingStrategy'] = request('campaignStrategy');
         }
+
         return $this->client->call('PUT', 'adgroup', $data);
     }
 
@@ -245,8 +247,8 @@ class GeminiAPI
             'displayUrl' => request('displayUrl'),
             'landingUrl' => request('targetUrl'),
             'sponsoredBy' => request('brandname'),
-            'imageUrlHQ' => request('imageUrlHQ'),
-            'imageUrl' => request('imageUrl'),
+            'imageUrlHQ' => $this->encodeUrl(request('imageUrlHQ')),
+            'imageUrl' => $this->encodeUrl(request('imageUrl')),
             'title' => request('title'),
             'status' => 'ACTIVE'
         ]);
@@ -254,8 +256,9 @@ class GeminiAPI
 
     public function deleteAttributes()
     {
-        if (!count(request('dataAttributes')))
+        if (!count(request('dataAttributes'))) {
             return;
+        }
 
         return $this->client->call('DELETE', 'targetingattribute?id=' . implode('&id=', request('dataAttributes')));
     }
@@ -296,5 +299,12 @@ class GeminiAPI
         }
 
         return $this->client->call('POST', 'targetingattribute', $request_body);
+    }
+
+    private function encodeUrl($url)
+    {
+        return preg_replace_callback('#://([^/]+)/([^?]+)#', function ($match) {
+            return '://' . $match[1] . '/' . join('/', array_map('rawurlencode', explode('/', $match[2])));
+        }, $url);
     }
 }
