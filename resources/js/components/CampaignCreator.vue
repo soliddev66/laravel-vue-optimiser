@@ -80,7 +80,7 @@ export default {
     return {
       isLoading: false,
       fullPage: true,
-      selectedProvider: 'yahoo',
+      selectedProvider: this.instance ? this.instance.provider : 'yahoo',
       accounts: [],
       selectedAccount: this.instance ? this.instance.open_id : '',
     }

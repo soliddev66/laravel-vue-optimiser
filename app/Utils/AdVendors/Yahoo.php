@@ -56,6 +56,7 @@ class Yahoo extends Root
 
             $instance = $api->getCampaign($campaign->campaign_id);
 
+            $instance['provider_id'] = $campaign['provider_id'];
             $instance['open_id'] = $campaign['open_id'];
             $instance['instance_id'] = $campaign['id'];
             $instance['attributes'] = $api->getCampaignAttribute($campaign->campaign_id);

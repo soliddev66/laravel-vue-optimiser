@@ -655,6 +655,12 @@ export default {
 
     this.loadAdvertisers()
 
+    console.log(this.instance)
+
+    if (this.instance) {
+      this.loadFundingInstruments();
+    }
+
     let vm = this
     this.$root.$on('fm-selected-items', (value) => {
       const selectedFilePath = value[0].path
@@ -692,16 +698,16 @@ export default {
         { id: 'TWITTER_TIMELINE', text: 'TWITTER_TIMELINE' }
       ],
       actionName: this.action,
-      selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
-      selectedFundingInstrument: this.instance ? this.instance.fundingInstrument : '',
-      campaignName: this.instance ? this.instance.campaignName : '',
-      campaignStartTime: '',
-      campaignEndTime: '',
-      campaignDailyBudgetAmountLocalMicro: '',
-      campaignTotalBudgetAmountLocalMicro: '',
-      campaignDurationInDays: '',
-      campaignFrequencyCap: '',
-      campaignPurchaseOrderNumber: '',
+      selectedAdvertiser: this.instance ? this.instance.advertiser_id : '',
+      selectedFundingInstrument: this.instance ? this.instance.funding_instrument_id : '',
+      campaignName: this.instance ? this.instance.name : '',
+      campaignStartTime: this.instance ? this.instance.start_time.date.split(' ')[0] : '',
+      campaignEndTime: this.instance && this.instance.end_time ? this.instance.end_time.date.split(' ')[0] : '',
+      campaignDailyBudgetAmountLocalMicro: this.instance ? this.instance.daily_budget_amount_local_micro / 1e6 : '',
+      campaignTotalBudgetAmountLocalMicro: this.instance && this.instance.total_budget_amount_local_micro ? this.instance.total_budget_amount_local_micro / 1e6 : '',
+      campaignDurationInDays: this.instance && this.instance.duration_in_days ? this.instance.duration_in_days : '',
+      campaignFrequencyCap:  this.instance && this.instance.frequency_cap ? this.instance.frequency_cap : '',
+      campaignPurchaseOrderNumber:  this.instance && this.instance.purchase_order_number ? this.instance.purchase_order_number : '',
       campaignStandardDelivery: true,
       campaignStatus: this.instance ? this.instance.channel : 'PAUSED',
       adGroupName: '',

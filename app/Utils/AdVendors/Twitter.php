@@ -44,9 +44,14 @@ class Twitter extends Root
     {
         $user_provider = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
         if ($user_provider) {
-            $api = new TwitterAPI($user_provider);
+            $api = new TwitterAPI($user_provider, $campaign->advertiser_id);
 
-            $instance = $api->getCampaign($campaign->campaign_id);
+            $instance = $api->getCampaign($campaign->campaign_id)->toArray();
+
+            $instance['provider'] = $campaign->provider->slug;
+            $instance['open_id'] = $campaign['open_id'];
+            $instance['advertiser_id'] = $campaign->advertiser_id;
+            $instance['instance_id'] = $campaign['id'];
 
             return $instance;
         }
