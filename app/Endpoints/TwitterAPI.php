@@ -92,43 +92,10 @@ class TwitterAPI
         }
     }
 
-    public function createCampaign()
+    public function saveCampaign($campaign_id = null)
     {
         try {
-            $campaign = new Campaign();
-            $campaign->setFundingInstrumentId(request('fundingInstrument'));
-            $campaign->setDailyBudgetAmountLocalMicro(request('campaignDailyBudgetAmountLocalMicro') * 1E6);
-            $campaign->setName(request('campaignName'));
-            $campaign->setEntityStatus(request('campaignStatus'));
-            $campaign->setStartTime(request('campaignStartTime'));
-
-            if (!empty(request('campaignEndTime'))) {
-                $campaign->setEndTime(request('campaignEndTime'));
-            }
-
-            if (!empty(request('campaignTotalBudgetAmountLocalMicro'))) {
-                $campaign->setTotalBudgetAmountLocalMicro(request('campaignTotalBudgetAmountLocalMicro'));
-            }
-
-            if (!empty(request('campaignDurationInDays'))) {
-                $campaign->setDurationInDays(request('campaignDurationInDays'));
-            }
-
-            if (!empty(request('campaignFrequencyCap'))) {
-                $campaign->setFrequencyCap(request('campaignFrequencyCap'));
-            }
-
-            return $campaign->save();
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }
-
-    public function updateCampaign($campaign_id)
-    {
-        try {
-            $campaign = new Campaign();
-            $campaign->setId($campaign_id);
+            $campaign = new Campaign($campaign_id);
             $campaign->setFundingInstrumentId(request('fundingInstrument'));
             $campaign->setDailyBudgetAmountLocalMicro(request('campaignDailyBudgetAmountLocalMicro') * 1E6);
             $campaign->setName(request('campaignName'));

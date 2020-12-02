@@ -114,7 +114,7 @@ class Twitter extends Root
             }
 
             try {
-                $campaign_data = $api->createCampaign();
+                $campaign_data = $api->saveCampaign();
             } catch (Exception $e) {
                 throw $e;
             }
@@ -186,7 +186,7 @@ class Twitter extends Root
         try {
             $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
 
-            $campaign_data = $api->updateCampaign($campaign->campaign_id);
+            $campaign_data = $api->saveCampaign($campaign->campaign_id);
 
             var_dump($campaign_data); exit;
 
