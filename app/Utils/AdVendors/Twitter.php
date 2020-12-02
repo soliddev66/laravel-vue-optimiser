@@ -42,9 +42,8 @@ class Twitter extends Root
 
     public function getCampaignInstance(Campaign $campaign)
     {
-        $user_provider = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
-        if ($user_provider) {
-            $api = new TwitterAPI($user_provider, $campaign->advertiser_id);
+        try {
+            $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
 
             $instance = $api->getCampaign($campaign->campaign_id)->toArray();
 
@@ -59,29 +58,7 @@ class Twitter extends Root
 
             if ($ad_groups && count($ad_groups) > 0) {
                 foreach ($ad_groups as $ad_group) {
-                    $instance['adGroups'][] = [
-                        'id' => $ad_group->getId(),
-                        'name' => $ad_group->getName(),
-                        'bid_amount_local_micro' => $ad_group->getBidAmountLocalMicro(),
-                        'bid_type' => $ad_group->getBidType(),
-                        'automatically_select_bid' => $ad_group->getAutomaticallySelectdBid(),
-                        'product_type' => $ad_group->getProductType(),
-                        'placements' => $ad_group->getPlacements(),
-                        'objective' => $ad_group->getObjective(),
-                        'entity_status' => $ad_group->getEntityStatus(),
-                        'include_sentiment' => $ad_group->getIncludeSentiment(),
-                        'total_budget_amount_local_micro' => $ad_group->getTotalBudgetAmountLocalMicro(),
-                        'start_time' => $ad_group->getStartTime(),
-                        'end_time' => $ad_group->getEndTime(),
-                        'primary_web_event_tag' => $ad_group->getPrimaryWebEventTag(),
-                        'optimization' => $ad_group->getOptimization(),
-                        'bid_unit' => $ad_group->getBidUnit(),
-                        'charge_by' => $ad_group->getChargeBy(),
-                        'advertiser_domain' => $ad_group->getAdvertiserDomain(),
-                        'tracking_tags' => $ad_group->getTrackingTags(),
-                        'advertiser_user_id' => $ad_group->getAdvertiserUserId(),
-                        'categories' => $ad_group->getCategories(),
-                    ];
+                    $instance['adGroups'][] = $ad_group->toArray();
                 }
 
                 $promoted_tweets = $api->getPromotedTweet($ad_groups[0]->getId());
@@ -92,25 +69,15 @@ class Twitter extends Root
 
                 if ($tweets && count($tweets) > 0) {
                     foreach ($tweets as $tweet) {
-                        $instance['ads'][] = [
-                            'id' => $tweet->getId(),
-                            'full_text' => $tweet->getFullText(),
-                            'nullcast' => $tweet->getNullCast(),
-                            'trim_user' => $tweet->getTrimUser(),
-                            'tweet_mode' => $tweet->getTweetMode(),
-                            'video_cta' => $tweet->getVideoCTA(),
-                            'video_cta_value' => $tweet->getVideoCTAValue(),
-                            'video_title' => $tweet->getVideoTitle(),
-                            'video_description' => $tweet->getVideoDescription()
-                        ];
+                        $instance['ads'][] = $tweet->toArray();
                     }
                 }
             }
 
             return $instance;
+        } catch (Exception $e) {
+            return [];
         }
-
-        return [];
     }
 
     public function fundingInstruments()
@@ -135,7 +102,6 @@ class Twitter extends Root
 
     public function store()
     {
-        $data = [];
         $api = $this->api();
 
         try {
@@ -202,22 +168,35 @@ class Twitter extends Root
             PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
             if ($e instanceof TwitterAdsException && is_array($e->getErrors())) {
-                $data = [
+                return [
                     'errors' => [$e->getErrors()[0]->message]
                 ];
             } else {
-                $data = [
+                return [
                     'errors' => [$e->getMessage()]
                 ];
             }
         }
 
-        return $data;
+        return [];
     }
 
     public function update(Campaign $campaign)
     {
+        try {
+            $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
 
+            $campaign_data = $api->updateCampaign($campaign->campaign_id);
+
+            var_dump($campaign_data); exit;
+
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+
+        return [];
     }
 
     public function pullCampaign($user_provider)

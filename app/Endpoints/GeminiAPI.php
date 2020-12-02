@@ -127,7 +127,7 @@ class GeminiAPI
         ]);
     }
 
-    public function updateAdCampaign($campaign)
+    public function updateCampaign($campaign)
     {
         return $this->client->call('PUT', 'campaign', [
             'id' => $campaign->campaign_id,
