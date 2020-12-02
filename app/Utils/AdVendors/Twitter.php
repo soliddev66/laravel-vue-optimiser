@@ -2,21 +2,20 @@
 
 namespace App\Utils\AdVendors;
 
-use Exception;
-
+use App\Endpoints\TwitterAPI;
+use App\Jobs\PullCampaign;
 use App\Models\Campaign;
 use App\Models\Provider;
-use App\Endpoints\TwitterAPI;
-
-use App\Jobs\PullCampaign;
-
+use Exception;
 use Hborras\TwitterAdsSDK\TwitterAdsException;
+use Illuminate\Support\Str;
 
 class Twitter extends Root
 {
     private function api()
     {
         $provider = Provider::where('slug', request('provider'))->first();
+
         return new TwitterAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first(), request('advertiser') ?? null);
     }
 
@@ -32,6 +31,7 @@ class Twitter extends Root
                 'name' => $advertiser->getName()
             ];
         }
+
         return $result;
     }
 
@@ -52,6 +52,7 @@ class Twitter extends Root
                 'name' => $funding_instrument->getName()
             ];
         }
+
         return $result;
     }
 
@@ -161,6 +162,8 @@ class Twitter extends Root
                     ]);
 
                     $campaign->name = $item->getName();
+                    $campaign->status = $item->getEntityStatus();
+                    $campaign->budget = $item->getTotalBudgetAmountLocalMicro() ? ($item->getTotalBudgetAmountLocalMicro() / 1000000) : ($item->getDailyBudgetAmountLocalMicro() / 1000000);
                     $campaign->save();
                     $campaign_ids[] = $campaign->id;
                 }
@@ -176,6 +179,34 @@ class Twitter extends Root
 
     public function pullRedTrack($campaign)
     {
+        $tracker = UserTracker::where('provider_id', $campaign->provider_id)
+            ->where('provider_open_id', $campaign->open_id)
+            ->first();
 
+        if ($tracker) {
+            $client = new Client();
+            $date = Carbon::now()->format('Y-m-d');
+            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=hour_of_day&sub3=[' . Str::of($campaign->name)->snake() . ']&sub9=Twitter&tracks_view=true';
+            $response = $client->get($url);
+
+            $data = json_decode($response->getBody(), true);
+
+            foreach ($data as $i => $value) {
+                $value['date'] = $date;
+                $value['user_id'] = $campaign->user_id;
+                $value['campaign_id'] = $campaign->id;
+                $value['provider_id'] = $campaign->provider_id;
+                $value['open_id'] = $campaign->open_id;
+                $redtrack_report = RedtrackReport::firstOrNew([
+                    'date' => $date,
+                    'sub3' => '[' . Str::of($campaign->name)->snake() . ']',
+                    'hour_of_day' => $value['hour_of_day']
+                ]);
+                foreach (array_keys($value) as $array_key) {
+                    $redtrack_report->{$array_key} = $value[$array_key];
+                }
+                $redtrack_report->save();
+            }
+        }
     }
 }

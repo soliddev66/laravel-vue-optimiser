@@ -219,7 +219,7 @@ class TwitterAPI
                 $param['video_description'] = request('tweetVideoDescription');
             }
 
-            return Tweet::create($this->account, request('text') . rand(), $param);
+            return Tweet::create($this->account, request('text'), $param);
         } catch (Exception $e) {
             throw $e;
         }

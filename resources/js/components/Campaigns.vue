@@ -39,8 +39,8 @@
                   <th>ID</th>
                   <th>Traffic Source</th>
                   <th colspan="4">Actions</th>
-                  <th>Camp. ID</th>
-                  <th>Name</th>
+                  <th class="fit">Camp. ID</th>
+                  <th class="fit">Name</th>
                   <th>Status</th>
                   <th>Budget</th>
                   <th>Payout</th>
@@ -65,7 +65,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="campaign in data" :key="campaign.id">
+                <tr v-for="campaign in campaigns.data" :key="campaign.id">
                   <td>{{ campaign.id }}</td>
                   <td class="text-capitalize">{{ providerName(campaign) }}</td>
                   <td class="border-right-0 px-1">
@@ -82,8 +82,8 @@
                   <td class="px-1">
                     <a class="btn btn-sm btn-default border" :href="'/campaigns/delete/' + campaign.id" @click.prevent="deleteCampaign"><i class="fas fa-trash"></i></a>
                   </td>
-                  <td>{{ campaign.campaign_id }}</td>
-                  <td><a :href="'/campaigns/' + campaign.id">{{ campaign.name }}</a></td>
+                  <td class="fit">{{ campaign.campaign_id }}</td>
+                  <td class="fit"><a :href="'/campaigns/' + campaign.id">{{ campaign.name }}</a></td>
                   <td v-if="campaign.status === 'ACTIVE'" class="text-success">
                     {{ campaign.status }}
                   </td>
@@ -112,42 +112,16 @@
                   <td>{{ round(count(campaign.redtrack_report, 'cost') / count(campaign.redtrack_report, 'lp_clicks')) || 0 }}</td>
                 </tr>
               </tbody>
-              <tfoot>
-                <tr>
-                  <th colspan="6" class="text-center">-</th>
-                  <!-- <th>Total:</th> -->
-                  <th>-</th>
-                  <th class="text-center">-</th>
-                  <th>-</th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                </tr>
-              </tfoot>
             </table>
           </div>
           <div class="card-footer">
             <div class="row justify-content-center">
-              <div class="col-12">
+              <div class="col-12 col-md-6">
                 <button class="btn btn-default border" @click.prevent="exportCsv">Download CSV</button>
                 <button class="btn btn-default border" @click.prevent="exportExcel">Download Excel</button>
+              </div>
+              <div class="col-12 col-md-6">
+                <pagination :data="campaigns" @pagination-change-page="getData"></pagination>
               </div>
             </div>
           </div>
@@ -167,15 +141,7 @@ import 'vue-loading-overlay/dist/vue-loading.css';
 
 export default {
   props: {
-    campaigns: {
-      type: Array,
-      default: []
-    },
     providers: {
-      type: Array,
-      default: []
-    },
-    accounts: {
       type: Array,
       default: []
     },
@@ -190,7 +156,6 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
-    this.data = this.campaigns
     this.getData()
   },
   watch: {
@@ -200,7 +165,8 @@ export default {
   },
   data() {
     return {
-      data: [],
+      accounts: [],
+      campaigns: {},
       summaryData: {
         total_cost: 0,
         total_revenue: 0,
@@ -240,10 +206,11 @@ export default {
     providerName(campaign) {
       return this.providers.find(provider => provider.id === campaign.provider_id) ? this.providers.find(provider => provider.id === campaign.provider_id).label : 'N/A'
     },
-    getData() {
-      axios.post('/campaigns/search', {...this.targetDate, ... { tracker: this.selectedTracker, provider: this.selectedProvider } })
+    getData(page = 1) {
+      axios.post('/campaigns/search', {...this.targetDate, ... { tracker: this.selectedTracker, provider: this.selectedProvider, page: page } })
         .then((response) => {
-          this.data = response.data.campaigns;
+          this.accounts = response.data.accounts;
+          this.campaigns = response.data.campaigns;
           this.summaryData = response.data.summary_data;
         })
         .catch((err) => {
@@ -299,4 +266,9 @@ export default {
 </script>
 
 <style>
+.table td.fit,
+.table th.fit {
+  white-space: nowrap;
+  width: 1%;
+}
 </style>
