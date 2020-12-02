@@ -245,7 +245,6 @@ class TwitterAPI
 
     public function getTweet($tweet_id)
     {
-        var_dump($tweet_id);
         return (new Tweets())->all([
             'tweet_ids' => $tweet_id,
             'tweet_type' => 'PUBLISHED'

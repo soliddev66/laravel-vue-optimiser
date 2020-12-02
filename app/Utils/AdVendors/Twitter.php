@@ -128,18 +128,21 @@ class Twitter extends Root
                 $media = $this->api()->uploadMedia($promotable_users);
                 $media_library = $this->api()->createMediaLibrary($media->media_key);
             } catch (Exception $e) {
+                echo'111';var_dump($e);exit;
                 throw $e;
             }
 
             try {
                 $campaign_data = $api->createCampaign();
             } catch (Exception $e) {
+                echo'222';var_dump($e);exit;
                 throw $e;
             }
 
             try {
                 $line_item_data = $api->createLineItem($campaign_data);
             } catch (Exception $e) {
+                echo'333';var_dump($e);exit;
                 $campaign_data->delete();
                 throw $e;
             }
@@ -147,6 +150,7 @@ class Twitter extends Root
             try {
                 $card_data = $api->createWebsiteCard($media->media_key);
             } catch (Exception $e) {
+                echo'444';var_dump($e);exit;
                 $campaign_data->delete();
                 $line_item_data->delete();
                 throw $e;
@@ -155,6 +159,7 @@ class Twitter extends Root
             try {
                 $tweet_data = $api->createTweet($card_data, $promotable_users);
             } catch (Exception $e) {
+                echo'555';var_dump($e);exit;
                 $campaign_data->delete();
                 $line_item_data->delete();
                 $card_data->delete();
@@ -164,6 +169,7 @@ class Twitter extends Root
             try {
                 $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
             } catch (Exception $e) {
+                echo'666';var_dump($e);exit;
                 $campaign_data->delete();
                 $line_item_data->delete();
                 $card_data->delete();
