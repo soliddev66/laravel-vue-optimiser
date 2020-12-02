@@ -45,9 +45,8 @@ class Yahoo extends Root
 
     public function getCampaignInstance(Campaign $campaign)
     {
-        $user_provider = auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first();
-        if ($user_provider) {
-            $api = new GeminiAPI($user_provider);
+        try {
+            $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first());
 
             $instance = $api->getCampaign($campaign->campaign_id);
 
@@ -63,9 +62,9 @@ class Yahoo extends Root
             }
 
             return $instance;
+        } catch (Exception $e) {
+            return [];
         }
-
-        return [];
     }
 
     public function store()
@@ -113,15 +112,15 @@ class Yahoo extends Root
     public function update(Campaign $campaign)
     {
         $data = [];
-        $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
 
         try {
-            $campaign_data = $gemini->updateAdCampaign($campaign);
-            $ad_group_data = $gemini->updateAdGroup($campaign_data);
-            $ad = $gemini->updateAd($campaign_data, $ad_group_data);
+            $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
+            $campaign_data = $api->updateAdCampaign($campaign);
+            $ad_group_data = $api->updateAdGroup($campaign_data);
+            $ad = $api->updateAd($campaign_data, $ad_group_data);
 
-            $gemini->deleteAttributes();
-            $gemini->createAttributes($campaign_data);
+            $api->deleteAttributes();
+            $api->createAttributes($campaign_data);
 
             PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {

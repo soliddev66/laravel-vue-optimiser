@@ -215,6 +215,11 @@ class Twitter extends Root
         return $data;
     }
 
+    public function update(Campaign $campaign)
+    {
+
+    }
+
     public function pullCampaign($user_provider)
     {
         $advertisers = (new TwitterAPI($user_provider))->getAdvertisers();
