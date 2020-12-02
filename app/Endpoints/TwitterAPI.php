@@ -205,12 +205,12 @@ class TwitterAPI
         }
     }
 
-    public function createTweet($card)
+    public function createTweet($card, $promotable_users)
     {
         try {
             $param = [
                 'card_uri' => $card->getCardUri(),
-                'as_user_id' => $this->open_id,
+                'as_user_id' => $promotable_users->getCollection()[0]->getUserId(),
             ];
 
             if (!empty(request('tweetNullcast'))) {
@@ -279,7 +279,6 @@ class TwitterAPI
         foreach ($promotable_users->getCollection() as $key => $promotable_user) {
             array_push($promotable_user_ids, $promotable_user->getUserId());
         }
-        $promotable_user_ids = implode(',', $promotable_user_ids);
         return $this->client->upload(['media' => $file, 'media_type' => $mime, 'additional_owners' => $promotable_user_ids], true);
     }
 
