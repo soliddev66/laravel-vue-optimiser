@@ -96,7 +96,7 @@ class Twitter extends Root
             }
 
             try {
-                $tweet_data = $api->createTweet($card_data);
+                $tweet_data = $api->createTweet($card_data, $promotable_users);
             } catch (Exception $e) {
                 $campaign_data->delete();
                 $line_item_data->delete();

@@ -187,12 +187,12 @@ class TwitterAPI
         }
     }
 
-    public function createTweet($card)
+    public function createTweet($card, $promotable_users)
     {
         try {
             $param = [
                 'card_uri' => $card->getCardUri(),
-                'as_user_id' => $this->open_id,
+                'as_user_id' => $promotable_users->getCollection()[0]->getUserId(),
             ];
 
             if (!empty(request('tweetNullcast'))) {
