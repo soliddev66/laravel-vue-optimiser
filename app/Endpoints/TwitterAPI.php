@@ -5,6 +5,7 @@ namespace App\Endpoints;
 use App\Helpers\GeminiClient;
 use App\Vendors\Twitter\Creative\MediaLibrary;
 use App\Vendors\Twitter\Creative\WebsiteCard;
+use App\Vendors\Twitter\Creative\Tweets;
 use Carbon\Carbon;
 use DateTime;
 use Exception;
@@ -245,6 +246,7 @@ class TwitterAPI
 
     public function getTweet($tweet_id)
     {
+        var_dump($tweet_id);exit;
         return (new Tweets())->all([
             'tweet_ids' => $tweet_id,
             'tweet_type' => 'PUBLISHED'
