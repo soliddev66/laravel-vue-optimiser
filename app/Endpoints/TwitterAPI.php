@@ -252,7 +252,6 @@ class TwitterAPI
         foreach ($promotable_users->getCollection() as $key => $promotable_user) {
             array_push($promotable_user_ids, $promotable_user->getUserId());
         }
-        $promotable_user_ids = implode(',', $promotable_user_ids);
         return $this->client->upload(['media' => $file, 'media_type' => $mime, 'additional_owners' => $promotable_user_ids], true);
     }
 
