@@ -83,34 +83,38 @@ class Twitter extends Root
             try {
                 $line_item_data = $api->createLineItem($campaign_data);
             } catch (Exception $e) {
-                $campaign_data->delete();
+                // TO-DO: Dispatch job
+                // $campaign_data->delete();
                 throw $e;
             }
 
             try {
                 $card_data = $api->createWebsiteCard($media->media_key);
             } catch (Exception $e) {
-                $campaign_data->delete();
-                $line_item_data->delete();
+                // TO-DO: Dispatch job
+                // $campaign_data->delete();
+                // $line_item_data->delete();
                 throw $e;
             }
 
             try {
                 $tweet_data = $api->createTweet($card_data, $promotable_users);
             } catch (Exception $e) {
-                $campaign_data->delete();
-                $line_item_data->delete();
-                $card_data->delete();
+                // TO-DO: Dispatch job
+                // $campaign_data->delete();
+                // $line_item_data->delete();
+                // $card_data->delete();
                 throw $e;
             }
 
             try {
                 $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
             } catch (Exception $e) {
-                $campaign_data->delete();
-                $line_item_data->delete();
-                $card_data->delete();
-                $tweet_data->delete();
+                // TO-DO: Dispatch job
+                // $campaign_data->delete();
+                // $line_item_data->delete();
+                // $card_data->delete();
+                // $tweet_data->delete();
                 throw $e;
             }
 
