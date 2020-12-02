@@ -677,7 +677,7 @@ export default {
 
     this.loadAdvertisers()
 
-    console.log(this.instance)
+    console.log(this.instance.adGroups[0]['total_budget_amount_local_micro'])
 
     if (this.instance) {
       this.loadFundingInstruments();
@@ -752,7 +752,7 @@ export default {
       adGroupProductType: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['product_type'] : 'PROMOTED_TWEETS',
       adGroupAdvertiserDomain: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['advertiser_domain'] : '',
       adGroupBidAmountLocalMicro: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['bid_amount_local_micro'] / 1e6 : '',
-      adGroupTotalBudgetAmountLocalMicro: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['total_budget_amount_local_micro'] / 1e6 : '',
+      adGroupTotalBudgetAmountLocalMicro: this.instance && this.instance.adGroups.length > 0 && this.instance.adGroups[0]['total_budget_amount_local_micro'] ? this.instance.adGroups[0]['total_budget_amount_local_micro'] / 1e6 : '',
       adGroupPrimaryWebEventTag: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['primary_web_event_tag'] : '',
       adGroupCategorySelection: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['categories'] : null,
       adGroupCategories: [],
