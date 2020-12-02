@@ -2,29 +2,24 @@
 
 namespace App\Utils\AdVendors;
 
-use Exception;
-
-use Carbon\Carbon;
-use GuzzleHttp\Client;
-
-use Illuminate\Support\Str;
-
-use App\Models\Provider;
-use App\Models\Campaign;
-
-use App\Models\UserTracker;
-use App\Models\RedtrackReport;
-use App\Models\RedtrackDomainStat;
-
-use App\Jobs\PullCampaign;
-
 use App\Endpoints\GeminiAPI;
+use App\Jobs\PullCampaign;
+use App\Models\Campaign;
+use App\Models\Provider;
+use App\Models\RedtrackDomainStat;
+use App\Models\RedtrackReport;
+use App\Models\UserTracker;
+use Carbon\Carbon;
+use Exception;
+use GuzzleHttp\Client;
+use Illuminate\Support\Str;
 
 class Yahoo extends Root
 {
     private function api()
     {
         $provider = Provider::where('slug', request('provider'))->first();
+
         return new GeminiAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first());
     }
 

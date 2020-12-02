@@ -22,73 +22,145 @@ class Tweets extends Analytics
     protected $properties = [
         TweetFields::TEXT,
         TweetFields::AS_USER_ID,
+        TweetFields::FULL_TEXT,
+        TweetFields::NULLCAST,
+        TweetFields::TRIM_USER,
+        TweetFields::TWEET_MODE,
+        TweetFields::VIDEO_CTA,
+        TweetFields::VIDEO_CTA_VALUE,
+        TweetFields::VIDEO_TITLE,
+        TweetFields::VIDEO_DESCRIPTION
     ];
 
     /** Writable */
     protected $text;
     protected $as_user_id;
+    protected $full_text;
+    protected $nullcast;
+    protected $trim_user;
+    protected $tweet_mode;
+    protected $video_cta;
+    protected $video_cta_value;
+    protected $video_title;
+    protected $video_description;
 
-    /**
-     * @return mixed
-     */
     public function getId()
     {
         return $this->id;
     }
 
-    /**
-     * @return mixed
-     */
     public function getCreatedAt()
     {
         return $this->created_at;
     }
 
-    /**
-     * @return mixed
-     */
     public function getUpdatedAt()
     {
         return $this->updated_at;
     }
 
-    /**
-     * @return mixed
-     */
     public function getDeleted()
     {
         return $this->deleted;
     }
 
-    /**
-     * @return mixed
-     */
     public function getText()
     {
         return $this->text;
     }
 
-    /**
-     * @param mixed $text
-     */
     public function setText($text)
     {
         $this->text = $text;
     }
 
-    /**
-     * @return mixed
-     */
     public function getAsUserId()
     {
         return $this->as_user_id;
     }
 
-    /**
-     * @param mixed $as_user_id
-     */
     public function setAsUserId($as_user_id)
     {
         $this->as_user_id = $as_user_id;
+    }
+
+    public function getFullText()
+    {
+        return $this->full_text;
+    }
+
+    public function setFullText($full_text)
+    {
+        $this->full_text = $full_text;
+    }
+
+    public function getNullCast()
+    {
+        return $this->nullcast;
+    }
+
+    public function setNullCast($nullcast)
+    {
+        $this->nullcast = $nullcast;
+    }
+
+    public function getTrimUser()
+    {
+        return $this->trim_user;
+    }
+
+    public function setTrimUser($trim_user)
+    {
+        $this->trim_user = $trim_user;
+    }
+
+    public function getTweetMode()
+    {
+        return $this->tweet_mode;
+    }
+
+    public function setTweetMode($tweet_mode)
+    {
+        $this->tweet_mode = $tweet_mode;
+    }
+
+    public function getVideoCTA()
+    {
+        return $this->video_cta;
+    }
+
+    public function setVideoCTA($video_cta)
+    {
+        $this->video_cta = $video_cta;
+    }
+
+    public function getVideoCTAValue()
+    {
+        return $this->video_cta_value;
+    }
+
+    public function setVideoCTAValue($video_cta_value)
+    {
+        $this->video_cta_value = $video_cta_value;
+    }
+
+    public function getVideoTitle()
+    {
+        return $this->video_title;
+    }
+
+    public function setVideoTitle($video_title)
+    {
+        $this->video_title = $video_title;
+    }
+
+    public function getVideoDescription()
+    {
+        return $this->video_description;
+    }
+
+    public function setVideoDescription($video_description)
+    {
+        $this->video_description = $video_description;
     }
 }

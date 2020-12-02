@@ -20,6 +20,7 @@ class Outbrain extends Root
     private function api()
     {
         $provider = Provider::where('slug', request('provider'))->first();
+
         return new OutbrainAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first());
     }
 
@@ -112,6 +113,8 @@ class Outbrain extends Root
             ]);
 
             $campaign->name = $data['name'];
+            $campaign->status = $data['enabled'] ? 'ACTIVE' : 'PAUSED';
+            $campaign->budget = $data['budget']['amount'];
 
             // unset($data['id']);
             // foreach (array_keys($data) as $index => $array_key) {
@@ -152,26 +155,6 @@ class Outbrain extends Root
                 }
                 $redtrack_report->save();
             }
-
-            // $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub5=' . $campaign->campaign_id . '&tracks_view=true';
-            // $response = $client->get($url);
-
-            // $data = json_decode($response->getBody(), true);
-
-            // foreach ($data as $i => $value) {
-            //     $value['date'] = $date;
-            //     $value['user_id'] = $campaign->user_id;
-            //     $value['campaign_id'] = $campaign->id;
-            //     $value['provider_id'] = $campaign->provider_id;
-            //     $value['open_id'] = $campaign->open_id;
-            //     $redtrack_report = RedtrackDomainStat::firstOrNew([
-            //         'date' => $date,
-            //     ]);
-            //     foreach (array_keys($value) as $array_key) {
-            //         $redtrack_report->{$array_key} = $value[$array_key];
-            //     }
-            //     $redtrack_report->save();
-            // }
         }
     }
 }

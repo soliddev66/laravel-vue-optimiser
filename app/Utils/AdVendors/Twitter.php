@@ -86,9 +86,25 @@ class Twitter extends Root
 
                 $promoted_tweets = $api->getPromotedTweet($ad_groups[0]->getId());
 
-                $tweet = $api->getTweet($promoted_tweets[0]->getTweetId());
+                $tweets = $api->getTweet($promoted_tweets[0]->getTweetId());
 
-                var_dump($tweet); exit;
+                $instance['ads'] = [];
+
+                if ($tweets && count($tweets) > 0) {
+                    foreach ($tweets as $tweet) {
+                        $instance['ads'][] = [
+                            'id' => $tweet->getId(),
+                            'full_text' => $tweet->getFullText(),
+                            'nullcast' => $tweet->getNullCast(),
+                            'trim_user' => $tweet->getTrimUser(),
+                            'tweet_mode' => $tweet->getTweetMode(),
+                            'video_cta' => $tweet->getVideoCTA(),
+                            'video_cta_value' => $tweet->getVideoCTAValue(),
+                            'video_title' => $tweet->getVideoTitle(),
+                            'video_description' => $tweet->getVideoDescription()
+                        ];
+                    }
+                }
             }
 
             return $instance;
@@ -128,14 +144,12 @@ class Twitter extends Root
                 $media = $this->api()->uploadMedia($promotable_users);
                 $media_library = $this->api()->createMediaLibrary($media->media_key);
             } catch (Exception $e) {
-                echo'111';var_dump($e);exit;
                 throw $e;
             }
 
             try {
                 $campaign_data = $api->createCampaign();
             } catch (Exception $e) {
-                echo'222';var_dump($e);exit;
                 throw $e;
             }
 

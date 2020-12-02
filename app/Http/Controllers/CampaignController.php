@@ -26,9 +26,7 @@ class CampaignController extends Controller
 {
     public function index()
     {
-        $campaigns = Campaign::all();
-
-        return view('campaigns.index', compact('campaigns'));
+        return view('campaigns.index');
     }
 
     public function userCampaigns()
@@ -176,8 +174,14 @@ class CampaignController extends Controller
             $summary_data_query->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
         }
 
+        $accounts_query = auth()->user()->providers();
+        if (request('provider')) {
+            $accounts_query->where('provider_id', request('provider'));
+        }
+
         return response()->json([
-            'campaigns' => $campaigns_query->get(),
+            'accounts' => $accounts_query->get(),
+            'campaigns' => $campaigns_query->paginate(10),
             'summary_data' => $summary_data_query->first()
         ]);
     }

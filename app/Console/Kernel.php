@@ -38,7 +38,7 @@ class Kernel extends ConsoleKernel
         })->everyThirtyMinutes();
         $schedule->call(function () {
             RedTrack::crawl();
-        })->everyMinute();
+        })->everyTenMinutes();
         $schedule->call(function () {
             foreach (User::all() as $key => $user) {
                 PullCampaign::dispatch($user);

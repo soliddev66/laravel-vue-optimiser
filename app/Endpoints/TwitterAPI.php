@@ -238,7 +238,7 @@ class TwitterAPI
                 $param['video_description'] = request('tweetVideoDescription');
             }
 
-            return Tweet::create($this->account, request('text') . rand(), $param);
+            return Tweet::create($this->account, request('tweetText'), $param);
         } catch (Exception $e) {
             throw $e;
         }
@@ -246,7 +246,6 @@ class TwitterAPI
 
     public function getTweet($tweet_id)
     {
-        var_dump($tweet_id);exit;
         return (new Tweets())->all([
             'tweet_ids' => $tweet_id,
             'tweet_type' => 'PUBLISHED'

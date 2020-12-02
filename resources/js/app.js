@@ -44,6 +44,7 @@ Vue.use(moment);
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 Vue.component('Select2', Select2);
 $.fn.select2.defaults.set('theme', 'bootstrap');
+Vue.component('pagination', require('laravel-vue-pagination'));
 
 Vue.component('account-wizard', require('./components/AccountWizard.vue').default);
 Vue.component('traffic-sources', require('./components/TrafficSources.vue').default);

@@ -503,9 +503,12 @@
                 </section>
               </div>
               <div class="col" v-if="currentStep == 3">
-                <div class="form-group row" v-if="instance && !saveCard">
-                  <p class="col-12">
+                <div class="form-group row">
+                  <p class="col-12" v-if="instance && !saveCard">
                     You must create new tweet since you recreate the card.
+                  </p>
+                  <p class="col-12" v-if="instance && saveCard">
+                    Not allow to update the tweet.
                   </p>
                 </div>
                 <div class="form-group row">
@@ -519,14 +522,14 @@
                   <div class="col-lg-4 col-xl-3">
                     <div class="btn-group btn-group-toggle">
                       <label class="btn bg-olive" :class="{ active: tweetNullcast }">
-                        <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" v-model="tweetNullcast">TRUE
+                        <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" :disabled="instance && saveCard" v-model="tweetNullcast">TRUE
                       </label>
                       <label class="btn bg-olive" :class="{ active: !tweetNullcast }">
-                        <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" v-model="tweetNullcast">FALSE
+                        <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" :disabled="instance && saveCard" v-model="tweetNullcast">FALSE
                       </label>
                     </div>
                   </div>
-                  <label for="tweet_trim_user" class="col-sm-2 control-label mt-2">Trim User</label>
+                  <!-- <label for="tweet_trim_user" class="col-sm-2 control-label mt-2">Trim User</label>
                   <div class="col-lg-4 col-xl-3">
                     <div class="btn-group btn-group-toggle">
                       <label class="btn bg-olive" :class="{ active: tweetTrimUser }">
@@ -536,9 +539,9 @@
                         <input type="radio" name="tweet_trim_user" id="tweetTrimUser2" autocomplete="off" :value="false" v-model="tweetTrimUser">FALSE
                       </label>
                     </div>
-                  </div>
+                  </div> -->
                 </div>
-                <div class="form-group row">
+                <!-- <div class="form-group row">
                   <label for="tweet_video_cta" class="col-sm-2 control-label mt-2">Video CTA</label>
                   <div class="col-lg-4 col-xl-3">
                     <select name="tweet_video_cta" class="form-control" v-model="tweetVideoCTA">
@@ -576,7 +579,7 @@
                   <div class="col-lg-10 col-xl-8">
                     <textarea class="form-control" id="tweet_video_description" name="tweet_video_description" rows="3" v-model="tweetVideoDescription"></textarea>
                   </div>
-                </div>
+                </div> -->
               </div>
               <div class="card-body" v-if="currentStep == 4">
                 <div class="row">
@@ -779,8 +782,8 @@ export default {
       //     destination: {}
       //   }
       // ],
-      tweetText: '',
-      tweetNullcast: true,
+      tweetText: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['full_text'] : '',
+      tweetNullcast: this.instance && this.instance.ads.length > 0 && this.instance.ads[0]['nullcast'],
       tweetTrimUser: false,
       tweetVideoCTA: '',
       tweetTweetMode: '',
