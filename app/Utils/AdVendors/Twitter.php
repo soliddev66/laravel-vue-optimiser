@@ -120,7 +120,7 @@ class Twitter extends Root
             }
 
             try {
-                $line_item_data = $api->createLineItem($campaign_data);
+                $line_item_data = $api->saveLineItem($campaign_data);
             } catch (Exception $e) {
                 // TO-DO: Dispatch job
                 // $campaign_data->delete();
@@ -186,10 +186,47 @@ class Twitter extends Root
         try {
             $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
 
-            $campaign_data = $api->saveCampaign($campaign->campaign_id);
+            try {
+                $campaign_data = $api->saveCampaign($campaign->campaign_id);
+            } catch (Exception $e) {
+                throw $e;
+            }
 
-            var_dump($campaign_data); exit;
+            try {
+                $line_item_data = $api->saveLineItem($campaign_data, request('adGroupID'));
+            } catch (Exception $e) {
+                throw $e;
+            }
 
+            if (!request('saveCard')) {
+                try {
+                    $promotable_users = $api->getPromotableUsers();
+                    $media = $api->uploadMedia($promotable_users);
+                    $media_library = $api->createMediaLibrary($media->media_key);
+                } catch (Exception $e) {
+                    throw $e;
+                }
+
+                try {
+                    $card_data = $api->createWebsiteCard($media->media_key);
+                } catch (Exception $e) {
+                    throw $e;
+                }
+
+                try {
+                    $tweet_data = $api->createTweet($card_data, $promotable_users);
+                } catch (Exception $e) {
+                    throw $e;
+                }
+
+                try {
+                    $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+                } catch (Exception $e) {
+                    throw $e;
+                }
+            }
+
+            PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
             return [
                 'errors' => [$e->getMessage()]

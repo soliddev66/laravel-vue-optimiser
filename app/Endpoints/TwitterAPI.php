@@ -124,10 +124,10 @@ class TwitterAPI
         }
     }
 
-    public function createLineItem($campaign)
+    public function saveLineItem($campaign, $line_item_id = null)
     {
         try {
-            $line_item = new LineItem();
+            $line_item = new LineItem($line_item_id);
             $line_item->setCampaignId($campaign->getId());
             $line_item->setName(request('adGroupName'));
             $line_item->setProductType(request('adGroupProductType'));
@@ -153,7 +153,7 @@ class TwitterAPI
                 $line_item->setAutomaticallySelectBid(true);
             }
 
-            if (!request('adGroupAutomaticallySelectBid') && !empty(request('adGroupBidType'))) {
+            if (request('adGroupAutomaticallySelectBid') && !empty(request('adGroupBidType'))) {
                 $line_item->setBidType(request('adGroupBidType'));
             }
 
@@ -179,10 +179,6 @@ class TwitterAPI
 
             if (!empty(request('adGrouptrackingTags'))) {
                 $line_item->setTrackingTags(request('adGrouptrackingTags'));
-            }
-
-            if (!empty(request('adGroupAdvertiserUserId'))) {
-                $line_item->setAdvertiserUserId(request('adGroupAdvertiserUserId'));
             }
 
             return $line_item->save();

@@ -235,12 +235,6 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label for="ad_group_advertiser_user_id" class="col-sm-2 control-label mt-2">Advertiser User Id</label>
-                  <div class="col-lg-10 col-xl-8">
-                    <input type="number" name="ad_group_advertiser_user_id" min="0" class="form-control" v-model="adGroupAdvertiserUserId" />
-                  </div>
-                </div>
-                <div class="form-group row">
                   <label for="ad_group_automatically_select_bid" class="col-sm-2 control-label mt-2">Automatically Select Bid</label>
                   <div class="col-lg-4 col-xl-3">
                     <div class="btn-group btn-group-toggle">
@@ -505,7 +499,7 @@
               <div class="col" v-if="currentStep == 3">
                 <div class="form-group row">
                   <p class="col-12" v-if="instance && !saveCard">
-                    You must create new tweet since you recreate the card.
+                    You must create a new tweet since you recreate the card.
                   </p>
                   <p class="col-12" v-if="instance && saveCard">
                     Not allow to update the tweet.
@@ -677,10 +671,10 @@ export default {
 
     this.loadAdvertisers()
 
-    console.log(this.instance.adGroups[0]['total_budget_amount_local_micro'])
-
     if (this.instance) {
+      console.log(this.instance.adGroups[0]['bid_type'])
       this.loadFundingInstruments();
+      this.loadAdGroupCategories();
     }
 
     let vm = this
@@ -754,10 +748,9 @@ export default {
       adGroupBidAmountLocalMicro: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['bid_amount_local_micro'] / 1e6 : '',
       adGroupTotalBudgetAmountLocalMicro: this.instance && this.instance.adGroups.length > 0 && this.instance.adGroups[0]['total_budget_amount_local_micro'] ? this.instance.adGroups[0]['total_budget_amount_local_micro'] / 1e6 : '',
       adGroupPrimaryWebEventTag: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['primary_web_event_tag'] : '',
-      adGroupCategorySelection: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['categories'] : null,
-      adGroupCategories: [],
-      adGroupAdvertiserUserId: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['advertiser_user_id'] : '',
-      adGroupAutomaticallySelectBid: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['automatically_select_bid'] : false,
+      adGroupCategorySelection: null,
+      adGroupCategories: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['categories'] : [],
+      adGroupAutomaticallySelectBid: this.instance && this.instance.adGroups.length > 0 && this.instance.adGroups[0]['automatically_select_bid'],
       adGroupBidType: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['bid_type'] : '',
       adGroupStatus: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['entity_status'] : 'PAUSED',
       adGroupBidUnit: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['bid_unit'] : 'LINK_CLICK',
@@ -882,8 +875,6 @@ export default {
       })
     },
     submitStep1() {
-      console.log(this.adGroupBidAmountLocalMicro)
-      console.log(this.adGroupAutomaticallySelectBid)
       const step1Data = {
         provider: this.selectedProvider,
         account: this.selectedAccount,
@@ -899,6 +890,7 @@ export default {
         campaignFrequencyCap: this.campaignFrequencyCap,
         campaignPurchaseOrderNumber: this.campaignPurchaseOrderNumber,
         campaignStandardDelivery: this.campaignStandardDelivery,
+        adGroupID: this.adGroupID,
         adGroupName: this.adGroupName,
         adGroupAndroidAppStoreIdentifier: this.adGroupAndroidAppStoreIdentifier,
         adGroupIOSAppStoreIdentifier: this.adGroupIOSAppStoreIdentifier,
@@ -908,7 +900,6 @@ export default {
         adGroupAdvertiserDomain: this.adGroupAdvertiserDomain,
         adGroupCategories: this.adGroupCategories,
         adGroupPrimaryWebEventTag: this.adGroupPrimaryWebEventTag,
-        adGroupAdvertiserUserId: this.adGroupAdvertiserUserId,
         adGroupAutomaticallySelectBid: this.adGroupAutomaticallySelectBid,
         adGroupBidType: this.adGroupBidType,
         adGroupBidUnit: this.adGroupBidUnit,
@@ -937,6 +928,7 @@ export default {
       this.currentStep = 3
     },
     submitStep3() {
+      console.log(this.saveCard)
       const step3Data = {
         tweetText: this.tweetText,
         tweetNullcast: this.tweetNullcast,
@@ -945,7 +937,8 @@ export default {
         tweetVideoCTA: this.tweetVideoCTA,
         tweetVideoCTAValue: this.tweetVideoCTAValue,
         tweetVideoTitle: this.tweetVideoTitle,
-        tweetVideoDescription: this.tweetVideoDescription
+        tweetVideoDescription: this.tweetVideoDescription,
+        saveCard: this.saveCard
       }
 
       this.postData = {...this.postData, ...step3Data }
