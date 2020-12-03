@@ -65,6 +65,8 @@ class Twitter extends Root
 
                 $tweets = $api->getTweet($promoted_tweets[0]->getTweetId());
 
+                $instance['promoted_tweet_id'] = $promoted_tweets[0]->getId();
+
                 $instance['ads'] = [];
 
                 if ($tweets && count($tweets) > 0) {
@@ -199,6 +201,12 @@ class Twitter extends Root
             }
 
             if (!request('saveCard')) {
+                try {
+                    $api->deletePromotedTweet(request('promotedAdID'));
+                } catch (Exception $e) {
+                    throw $e;
+                }
+
                 try {
                     $promotable_users = $api->getPromotableUsers();
                     $media = $api->uploadMedia($promotable_users);

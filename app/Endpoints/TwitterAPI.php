@@ -76,9 +76,14 @@ class TwitterAPI
 
     public function getPromotedTweet($line_item_id)
     {
-        return (new PromotedTweet())->all([
+        return (new PromotedTweet)->all([
             'line_item_ids' => $line_item_id
         ])->getCollection();
+    }
+
+    public function deletePromotedTweet($promoted_tweet_id)
+    {
+        (new PromotedTweet($promoted_tweet_id))->delete();
     }
 
     public function getTweetPreviews($tweet_id)

@@ -775,6 +775,7 @@ export default {
       //     destination: {}
       //   }
       // ],
+      promotedAdID: this.instance && this.instance.adGroups.length > 0 ? this.instance['promoted_tweet_id'] : '',
       tweetText: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['full_text'] : '',
       tweetNullcast: this.instance && this.instance.ads.length > 0 && this.instance.ads[0]['nullcast'],
       tweetTrimUser: false,
@@ -928,8 +929,9 @@ export default {
       this.currentStep = 3
     },
     submitStep3() {
-      console.log(this.saveCard)
+      console.log(this.promotedAdID)
       const step3Data = {
+        promotedAdID: this.promotedAdID,
         tweetText: this.tweetText,
         tweetNullcast: this.tweetNullcast,
         tweetTrimUser: this.tweetTrimUser,
