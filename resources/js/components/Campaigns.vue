@@ -250,7 +250,6 @@ export default {
             } else {
               this.getData();
               alert('Delete the campaign successfully!');
-              $('#campaignsTable').DataTable().draw('full-reset');
             }
           })
           .catch((err) => {
