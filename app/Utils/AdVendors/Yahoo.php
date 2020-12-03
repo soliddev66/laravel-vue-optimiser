@@ -43,9 +43,32 @@ class Yahoo extends Root
         return $this->api()->getCountries();
     }
 
+    public function getCampaignInstance(Campaign $campaign)
+    {
+        try {
+            $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+
+            $instance = $api->getCampaign($campaign->campaign_id);
+
+            $instance['provider'] = $campaign->provider->slug;
+            $instance['provider_id'] = $campaign['provider_id'];
+            $instance['open_id'] = $campaign['open_id'];
+            $instance['instance_id'] = $campaign['id'];
+            $instance['attributes'] = $api->getCampaignAttribute($campaign->campaign_id);
+            $instance['adGroups'] = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
+
+            if (count($instance['adGroups']) > 0) {
+                $instance['ads'] = $api->getAds([$instance['adGroups'][0]['id']], $campaign->advertiser_id);
+            }
+
+            return $instance;
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
     public function store()
     {
-        $data = [];
         $api = $this->api();
 
         try {
@@ -77,12 +100,48 @@ class Yahoo extends Root
 
             PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
-            $data = [
+            return [
                 'errors' => [$e->getMessage()]
             ];
         }
 
-        return $data;
+        return [];
+    }
+
+    public function update(Campaign $campaign)
+    {
+        try {
+            $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+            $campaign_data = $api->updateCampaign($campaign);
+            $ad_group_data = $api->updateAdGroup($campaign_data);
+            $ad = $api->updateAd($campaign_data, $ad_group_data);
+
+            $api->deleteAttributes();
+            $api->createAttributes($campaign_data);
+
+            PullCampaign::dispatch(auth()->user());
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+
+        return [];
+    }
+
+    public function delete(Campaign $campaign)
+    {
+        try {
+            $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+            $api->deleteCampaign($campaign->campaign_id);
+            $campaign->delete();
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+
+        return [];
     }
 
     public function pullCampaign($user_provider)

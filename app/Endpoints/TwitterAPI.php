@@ -5,6 +5,7 @@ namespace App\Endpoints;
 use App\Helpers\GeminiClient;
 use App\Vendors\Twitter\Creative\MediaLibrary;
 use App\Vendors\Twitter\Creative\WebsiteCard;
+use App\Vendors\Twitter\Creative\Tweets;
 use Carbon\Carbon;
 use DateTime;
 use Exception;
@@ -32,8 +33,7 @@ class TwitterAPI
         $this->open_id = $user_info->open_id;
         $this->client = TwitterAds::init(env('TWITTER_CLIENT_ID'), env('TWITTER_CLIENT_SECRET'), $user_info->token, $user_info->secret_token, $account_id, env('TWITTER_SANDBOX'));
         if ($account_id) {
-            $this->account = new Account($account_id);
-            $this->account->read();
+            $this->account = (new Account($account_id))->read();
         }
     }
 
@@ -42,9 +42,21 @@ class TwitterAPI
         return $this->client->getAccounts()->getCollection();
     }
 
+    public function getCampaign($campaign_id)
+    {
+        return $this->account->getCampaigns($campaign_id);
+    }
+
     public function getCampaigns()
     {
         return $this->account->getCampaigns()->getCollection();
+    }
+
+    public function getAdGroups($campaign_id)
+    {
+        return $this->account->getLineItems('', [
+            'campaign_ids' => $campaign_id
+        ])->getCollection();
     }
 
     public function getCountries()
@@ -62,6 +74,18 @@ class TwitterAPI
         return $this->client->get('iab_categories')->getBody()->data;
     }
 
+    public function getPromotedTweet($line_item_id)
+    {
+        return (new PromotedTweet)->all([
+            'line_item_ids' => $line_item_id
+        ])->getCollection();
+    }
+
+    public function deletePromotedTweet($promoted_tweet_id)
+    {
+        (new PromotedTweet($promoted_tweet_id))->delete();
+    }
+
     public function getTweetPreviews($tweet_id)
     {
         try {
@@ -73,10 +97,10 @@ class TwitterAPI
         }
     }
 
-    public function createCampaign()
+    public function saveCampaign($campaign_id = null)
     {
         try {
-            $campaign = new Campaign();
+            $campaign = new Campaign($campaign_id);
             $campaign->setFundingInstrumentId(request('fundingInstrument'));
             $campaign->setDailyBudgetAmountLocalMicro(request('campaignDailyBudgetAmountLocalMicro') * 1E6);
             $campaign->setName(request('campaignName'));
@@ -105,10 +129,19 @@ class TwitterAPI
         }
     }
 
-    public function createLineItem($campaign)
+    public function deleteCampaign($campaign_id)
     {
         try {
-            $line_item = new LineItem();
+            (new Campaign($campaign_id))->delete();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function saveLineItem($campaign, $line_item_id = null)
+    {
+        try {
+            $line_item = new LineItem($line_item_id);
             $line_item->setCampaignId($campaign->getId());
             $line_item->setName(request('adGroupName'));
             $line_item->setProductType(request('adGroupProductType'));
@@ -134,7 +167,7 @@ class TwitterAPI
                 $line_item->setAutomaticallySelectBid(true);
             }
 
-            if (!request('adGroupAutomaticallySelectBid') && !empty(request('adGroupBidType'))) {
+            if (request('adGroupAutomaticallySelectBid') && !empty(request('adGroupBidType'))) {
                 $line_item->setBidType(request('adGroupBidType'));
             }
 
@@ -160,10 +193,6 @@ class TwitterAPI
 
             if (!empty(request('adGrouptrackingTags'))) {
                 $line_item->setTrackingTags(request('adGrouptrackingTags'));
-            }
-
-            if (!empty(request('adGroupAdvertiserUserId'))) {
-                $line_item->setAdvertiserUserId(request('adGroupAdvertiserUserId'));
             }
 
             return $line_item->save();
@@ -219,10 +248,18 @@ class TwitterAPI
                 $param['video_description'] = request('tweetVideoDescription');
             }
 
-            return Tweet::create($this->account, request('text'), $param);
+            return Tweet::create($this->account, request('tweetText'), $param);
         } catch (Exception $e) {
             throw $e;
         }
+    }
+
+    public function getTweet($tweet_id)
+    {
+        return (new Tweets())->all([
+            'tweet_ids' => $tweet_id,
+            'tweet_type' => 'PUBLISHED'
+        ])->getCollection();
     }
 
     public function createPromotedTweet($line_item, $tweet)

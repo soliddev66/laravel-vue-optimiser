@@ -2,20 +2,27 @@
 
 namespace App\Utils\AdVendors;
 
-use App\Endpoints\TwitterAPI;
-use App\Jobs\PullCampaign;
+use Exception;
+
+use Carbon\Carbon;
+use GuzzleHttp\Client;
+use Illuminate\Support\Str;
+
 use App\Models\Campaign;
 use App\Models\Provider;
-use Exception;
+use App\Models\UserTracker;
+use App\Models\RedtrackReport;
+use App\Endpoints\TwitterAPI;
+
+use App\Jobs\PullCampaign;
+
 use Hborras\TwitterAdsSDK\TwitterAdsException;
-use Illuminate\Support\Str;
 
 class Twitter extends Root
 {
     private function api()
     {
         $provider = Provider::where('slug', request('provider'))->first();
-
         return new TwitterAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first(), request('advertiser') ?? null);
     }
 
@@ -31,13 +38,54 @@ class Twitter extends Root
                 'name' => $advertiser->getName()
             ];
         }
-
         return $result;
     }
 
     public function countries()
     {
         return $this->api()->getCountries();
+    }
+
+    public function getCampaignInstance(Campaign $campaign)
+    {
+        try {
+            $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
+
+            $instance = $api->getCampaign($campaign->campaign_id)->toArray();
+
+            $instance['provider'] = $campaign->provider->slug;
+            $instance['open_id'] = $campaign['open_id'];
+            $instance['advertiser_id'] = $campaign->advertiser_id;
+            $instance['instance_id'] = $campaign['id'];
+
+            $instance['adGroups'] = [];
+
+            $ad_groups = $api->getAdGroups($campaign->campaign_id);
+
+            if ($ad_groups && count($ad_groups) > 0) {
+                foreach ($ad_groups as $ad_group) {
+                    $instance['adGroups'][] = $ad_group->toArray();
+                }
+
+                $promoted_tweets = $api->getPromotedTweet($ad_groups[0]->getId());
+
+                $tweets = $api->getTweet($promoted_tweets[0]->getTweetId());
+
+                $instance['promoted_tweet_id'] = $promoted_tweets[0]->getId();
+
+                $instance['ads'] = [];
+
+                if ($tweets && count($tweets) > 0) {
+                    foreach ($tweets as $tweet) {
+                        $instance['ads'][] = $tweet->toArray();
+                    }
+                }
+            }
+
+            return $instance;
+        } catch (Exception $e) {
+            return [];
+        }
     }
 
     public function fundingInstruments()
@@ -52,7 +100,6 @@ class Twitter extends Root
                 'name' => $funding_instrument->getName()
             ];
         }
-
         return $result;
     }
 
@@ -63,7 +110,6 @@ class Twitter extends Root
 
     public function store()
     {
-        $data = [];
         $api = $this->api();
 
         try {
@@ -76,13 +122,13 @@ class Twitter extends Root
             }
 
             try {
-                $campaign_data = $api->createCampaign();
+                $campaign_data = $api->saveCampaign();
             } catch (Exception $e) {
                 throw $e;
             }
 
             try {
-                $line_item_data = $api->createLineItem($campaign_data);
+                $line_item_data = $api->saveLineItem($campaign_data);
             } catch (Exception $e) {
                 // TO-DO: Dispatch job
                 // $campaign_data->delete();
@@ -130,17 +176,93 @@ class Twitter extends Root
             PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
             if ($e instanceof TwitterAdsException && is_array($e->getErrors())) {
-                $data = [
+                return [
                     'errors' => [$e->getErrors()[0]->message]
                 ];
             } else {
-                $data = [
+                return [
                     'errors' => [$e->getMessage()]
                 ];
             }
         }
 
-        return $data;
+        return [];
+    }
+
+    public function update(Campaign $campaign)
+    {
+        try {
+            $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
+
+            try {
+                $campaign_data = $api->saveCampaign($campaign->campaign_id);
+            } catch (Exception $e) {
+                throw $e;
+            }
+
+            try {
+                $line_item_data = $api->saveLineItem($campaign_data, request('adGroupID'));
+            } catch (Exception $e) {
+                throw $e;
+            }
+
+            if (!request('saveCard')) {
+                try {
+                    $api->deletePromotedTweet(request('promotedAdID'));
+                } catch (Exception $e) {
+                    throw $e;
+                }
+
+                try {
+                    $promotable_users = $api->getPromotableUsers();
+                    $media = $api->uploadMedia($promotable_users);
+                    $media_library = $api->createMediaLibrary($media->media_key);
+                } catch (Exception $e) {
+                    throw $e;
+                }
+
+                try {
+                    $card_data = $api->createWebsiteCard($media->media_key);
+                } catch (Exception $e) {
+                    throw $e;
+                }
+
+                try {
+                    $tweet_data = $api->createTweet($card_data, $promotable_users);
+                } catch (Exception $e) {
+                    throw $e;
+                }
+
+                try {
+                    $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+                } catch (Exception $e) {
+                    throw $e;
+                }
+            }
+
+            PullCampaign::dispatch(auth()->user());
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+
+        return [];
+    }
+
+    public function delete(Campaign $campaign)
+    {
+        try {
+            $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
+            $api->deleteCampaign($campaign->campaign_id);
+            $campaign->delete();
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+
+        return [];
     }
 
     public function pullCampaign($user_provider)
@@ -160,6 +282,8 @@ class Twitter extends Root
                         'user_id' => $user_provider->user_id,
                         'open_id' => $user_provider->open_id
                     ]);
+
+                    $campaign->advertiser_id = $advertiser->getId();
 
                     $campaign->name = $item->getName();
                     $campaign->status = $item->getEntityStatus();
