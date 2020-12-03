@@ -129,6 +129,15 @@ class TwitterAPI
         }
     }
 
+    public function deleteCampaign($campaign_id)
+    {
+        try {
+            (new Campaign($campaign_id))->delete();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     public function saveLineItem($campaign, $line_item_id = null)
     {
         try {

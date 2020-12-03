@@ -244,6 +244,21 @@ class Twitter extends Root
         return [];
     }
 
+    public function delete(Campaign $campaign)
+    {
+        try {
+            $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
+            $api->deleteCampaign($campaign->campaign_id);
+            $campaign->delete();
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+
+        return [];
+    }
+
     public function pullCampaign($user_provider)
     {
         $advertisers = (new TwitterAPI($user_provider))->getAdvertisers();

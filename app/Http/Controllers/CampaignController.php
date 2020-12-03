@@ -363,19 +363,9 @@ class CampaignController extends Controller
 
     public function delete(Campaign $campaign)
     {
-        $data = [];
-        $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first());
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        try {
-            $gemini->deleteCampaign($campaign->campaign_id);
-            $campaign->delete();
-        } catch (Exception $e) {
-            $data = [
-                'errors' => [$e->getMessage()]
-            ];
-        }
-
-        return $data;
+        return (new $adVendorClass)->delete($campaign);
     }
 
     public function media()
