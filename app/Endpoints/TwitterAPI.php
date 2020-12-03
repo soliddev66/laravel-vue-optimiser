@@ -138,6 +138,24 @@ class TwitterAPI
         }
     }
 
+    public function deleteLineItem($line_item_id)
+    {
+        try {
+            (new LineItem($line_item_id))->delete();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function deleteCard($card_id)
+    {
+        try {
+            (new WebsiteCard($card_id))->delete();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     public function saveLineItem($campaign, $line_item_id = null)
     {
         try {

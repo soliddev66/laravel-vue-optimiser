@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Str;
 
+use App\Models\User;
 use App\Models\Campaign;
 use App\Models\Provider;
 use App\Models\UserTracker;
@@ -15,6 +16,9 @@ use App\Models\RedtrackReport;
 use App\Endpoints\TwitterAPI;
 
 use App\Jobs\PullCampaign;
+use App\Jobs\DeleteCampaign;
+use App\Jobs\DeleteAdGroup;
+use App\Jobs\DeleteCard;
 
 use Hborras\TwitterAdsSDK\TwitterAdsException;
 
@@ -113,68 +117,20 @@ class Twitter extends Root
         $api = $this->api();
 
         try {
-            try {
-                $promotable_users = $this->api()->getPromotableUsers();
-                $media = $this->api()->uploadMedia($promotable_users);
-                $media_library = $this->api()->createMediaLibrary($media->media_key);
-            } catch (Exception $e) {
-                throw $e;
-            }
+            $promotable_users = $this->api()->getPromotableUsers();
+            $media = $this->api()->uploadMedia($promotable_users);
+            $media_library = $this->api()->createMediaLibrary($media->media_key);
 
-            try {
-                $campaign_data = $api->saveCampaign();
-            } catch (Exception $e) {
-                throw $e;
-            }
+            $campaign_data = $api->saveCampaign();
+            $line_item_data = $api->saveLineItem($campaign_data);
+            $card_data = $api->createWebsiteCard($media->media_key);
 
-            try {
-                $line_item_data = $api->saveLineItem($campaign_data);
-            } catch (Exception $e) {
-                // TO-DO: Dispatch job
-                // $campaign_data->delete();
-                throw $e;
-            }
-
-            try {
-                $card_data = $api->createWebsiteCard($media->media_key);
-            } catch (Exception $e) {
-                // TO-DO: Dispatch job
-                // $campaign_data->delete();
-                // $line_item_data->delete();
-                throw $e;
-            }
-
-            try {
-                $tweet_data = $api->createTweet($card_data, $promotable_users);
-            } catch (Exception $e) {
-                // TO-DO: Dispatch job
-                // $campaign_data->delete();
-                // $line_item_data->delete();
-                // $card_data->delete();
-                throw $e;
-            }
-
-            try {
-                $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
-            } catch (Exception $e) {
-                // TO-DO: Dispatch job
-                // $campaign_data->delete();
-                // $line_item_data->delete();
-                // $card_data->delete();
-                // $tweet_data->delete();
-                throw $e;
-            }
-
-            // try {
-            //     $data = [
-            //         'previewData' => $api->getTweetPreviews($tweet_data->id)
-            //     ];
-            // } catch (Exception $e) {
-            //     throw $e;
-            // }
+            $tweet_data = $api->createTweet($card_data, $promotable_users);
+            $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
 
             PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
+            $this->rollback($campaign_data ?? null, $line_item_data ?? null, $card_data ?? null);
             if ($e instanceof TwitterAdsException && is_array($e->getErrors())) {
                 return [
                     'errors' => [$e->getErrors()[0]->message]
@@ -189,55 +145,39 @@ class Twitter extends Root
         return [];
     }
 
+    private function rollback($campaign_data = null,  $line_item_data = null, $card_data = null)
+    {
+        if ($campaign_data) {
+            DeleteCampaign::dispatch(auth()->user(), $campaign_data->getId(), request('provider'), request('account'), request('advertiser'));
+        }
+
+        if ($line_item_data) {
+            DeleteAdGroup::dispatch(auth()->user(), $line_item_data->getId(), request('provider'), request('account'), request('advertiser'));
+        }
+
+        if ($card_data) {
+            DeleteCard::dispatch(auth()->user(), $card_data->getId(), request('provider'), request('account'), request('advertiser'));
+        }
+    }
+
     public function update(Campaign $campaign)
     {
         try {
             $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
 
-            try {
-                $campaign_data = $api->saveCampaign($campaign->campaign_id);
-            } catch (Exception $e) {
-                throw $e;
-            }
-
-            try {
-                $line_item_data = $api->saveLineItem($campaign_data, request('adGroupID'));
-            } catch (Exception $e) {
-                throw $e;
-            }
+            $campaign_data = $api->saveCampaign($campaign->campaign_id);
+            $line_item_data = $api->saveLineItem($campaign_data, request('adGroupID'));
 
             if (!request('saveCard')) {
-                try {
-                    $api->deletePromotedTweet(request('promotedAdID'));
-                } catch (Exception $e) {
-                    throw $e;
-                }
+                $api->deletePromotedTweet(request('promotedAdID'));
 
-                try {
-                    $promotable_users = $api->getPromotableUsers();
-                    $media = $api->uploadMedia($promotable_users);
-                    $media_library = $api->createMediaLibrary($media->media_key);
-                } catch (Exception $e) {
-                    throw $e;
-                }
+                $promotable_users = $api->getPromotableUsers();
+                $media = $api->uploadMedia($promotable_users);
+                $media_library = $api->createMediaLibrary($media->media_key);
 
-                try {
-                    $card_data = $api->createWebsiteCard($media->media_key);
-                } catch (Exception $e) {
-                    throw $e;
-                }
-
-                try {
-                    $tweet_data = $api->createTweet($card_data, $promotable_users);
-                } catch (Exception $e) {
-                    throw $e;
-                }
-
-                try {
-                    $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
-                } catch (Exception $e) {
-                    throw $e;
-                }
+                $card_data = $api->createWebsiteCard($media->media_key);
+                $tweet_data = $api->createTweet($card_data, $promotable_users);
+                $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
             }
 
             PullCampaign::dispatch(auth()->user());
@@ -299,6 +239,24 @@ class Twitter extends Root
             'provider_id' => $user_provider->provider_id,
             'open_id' => $user_provider->open_id
         ])->whereNotIn('id', $campaign_ids)->delete();
+    }
+
+    public function deleteCampaign(User $user, $campaign_id, $provider_slug, $account, $advertiser)
+    {
+        $provider = Provider::where('slug', $provider_slug)->first();
+        (new TwitterAPI($user->providers()->where('provider_id', $provider->id)->where('open_id', $account)->first(), $advertiser))->deleteCampaign($campaign_id);
+    }
+
+    public function deleteAdGroup(User $user, $ad_group_id, $provider_slug, $account, $advertiser)
+    {
+        $provider = Provider::where('slug', $provider_slug)->first();
+        (new TwitterAPI($user->providers()->where('provider_id', $provider->id)->where('open_id', $account)->first(), $advertiser))->deleteLineItem($ad_group_id);
+    }
+
+    public function deleteCard(User $user, $card_id, $provider_slug, $account, $advertiser)
+    {
+        $provider = Provider::where('slug', $provider_slug)->first();
+        (new TwitterAPI($user->providers()->where('provider_id', $provider->id)->where('open_id', $account)->first(), $advertiser))->deleteCard($card_id);
     }
 
     public function pullRedTrack($campaign)
