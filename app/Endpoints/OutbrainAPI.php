@@ -122,4 +122,23 @@ class OutbrainAPI
     {
         return $this->client->call('DELETE', 'budgets/' . $budget_data['id']);
     }
+
+    public function updateCampaignStatus($campaign_id, $enabled)
+    {
+        return $this->client->call('PUT', 'campaigns/' . $campaign_id, [
+            'enabled' => $enabled
+        ]);
+    }
+
+    public function getPromotedLinks($campaign_id)
+    {
+        return $this->client->call('GET', 'campaigns/' . $campaign_id . '/promotedLinks');
+    }
+
+    public function updatePromotedLinkStatus($promoted_link_ids, $enabled)
+    {
+        return $this->client->call('PUT', 'promotedLinks/' . $promoted_link_ids, [
+            'enabled' => $enabled
+        ]);
+    }
 }

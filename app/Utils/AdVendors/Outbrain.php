@@ -83,6 +83,33 @@ class Outbrain extends Root
         return $data;
     }
 
+    public function status(Campaign $campaign)
+    {
+        try {
+            $api = new OutbrainAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+            $campaign->status = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+
+            $api->updateCampaignStatus($campaign->campaign_id, $campaign->status == Campaign::STATUS_ACTIVE);
+
+            $promoted_links = $api->getPromotedLinks($campaign->campaign_id);
+
+            if ($promoted_links && isset($promoted_links['promotedLinks'])) {
+                $promoted_ids = array_column($promoted_links['promotedLinks'], 'id');
+                if (count($promoted_ids)) {
+                    $api->updatePromotedLinkStatus(implode(',', $promoted_ids), $campaign->status == Campaign::STATUS_ACTIVE);
+                }
+            }
+
+            $campaign->save();
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+    }
+
     public function pullCampaign($user_provider)
     {
         $api = new OutbrainAPI($user_provider);
