@@ -220,7 +220,8 @@ class CampaignController extends Controller
         $instance = null;
 
         if ($campaign) {
-            $instance = $this->getCampaignInstance($campaign);
+            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            $instance = (new $adVendorClass)->getCampaignInstance($campaign);
 
             if (isset($instance['id'])) {
                 $instance['campaignName'] = $instance['campaignName'] . ' - Copy';
