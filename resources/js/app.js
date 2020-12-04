@@ -15,6 +15,7 @@ import VueTabs from 'vue-nav-tabs';
 import FileManager from 'lv-file-manager';
 import VModal from 'vue-js-modal';
 import Select2 from 'v-select2-component';
+import vueDebounce from 'vue-debounce';
 
 import moment from './plugins/moment.js';
 
@@ -30,6 +31,7 @@ Vue.use(VSwitch);
 Vue.use(VueTabs);
 Vue.use(FileManager, {store});
 Vue.use(VModal);
+Vue.use(vueDebounce)
 Vue.use(moment);
 
 /**

@@ -148,7 +148,14 @@ class CampaignController extends Controller
             if (request('provider')) {
                 $campaigns_query->where('provider_id', request('provider'));
             }
-            $summary_data_query = RedtrackReport::select(
+            if (request('query')) {
+                $campaigns_query->where('name', 'LIKE', '%' . request('query') . '%');
+            }
+            $summary_data_query = RedtrackReport::with(['campaign' => function ($q) {
+                if (request('query')) {
+                    $q->where('name', 'LIKE', '%' . request('query') . '%');
+                }
+            }])->select(
                 DB::raw('SUM(cost) as total_cost'),
                 DB::raw('SUM(total_revenue) as total_revenue'),
                 DB::raw('SUM(profit) as total_net'),
@@ -165,7 +172,14 @@ class CampaignController extends Controller
             if (request('provider')) {
                 $campaigns_query->where('provider_id', request('provider'));
             }
-            $summary_data_query = GeminiPerformanceStat::select(
+            if (request('query')) {
+                $campaigns_query->where('name', 'LIKE', '%' . request('query') . '%');
+            }
+            $summary_data_query = GeminiPerformanceStat::with(['campaign' => function ($q) {
+                if (request('query')) {
+                    $q->where('name', 'LIKE', '%' . request('query') . '%');
+                }
+            }])->select(
                 DB::raw('SUM(spend) as total_cost'),
                 DB::raw('0 as total_revenue'),
                 DB::raw('0 - SUM(spend) as total_net'),

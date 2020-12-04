@@ -31,6 +31,14 @@
                 </select>
               </div>
             </div>
+            <div class="row mt-3">
+              <div class="col-md-6 col-12">
+                <pagination :data="campaigns" @pagination-change-page="getData" class="mb-0"></pagination>
+              </div>
+              <div class="col-md-6 col-12">
+                <input type="text" class="form-control" placeholder="Search campaign by name..." v-model="query" v-debounce:1s="getData">
+              </div>
+            </div>
           </div>
           <div class="card-body table-responsive">
             <table ref="campaignsTable" id="campaignsTable" class="table table-bordered table-hover text-center">
@@ -64,7 +72,7 @@
                   <th>LP CPC</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody v-if="campaigns.data && campaigns.data.length">
                 <tr v-for="campaign in campaigns.data" :key="campaign.id">
                   <td>{{ campaign.id }}</td>
                   <td class="text-capitalize">{{ providerName(campaign) }}</td>
@@ -112,16 +120,18 @@
                   <td>{{ round(count(campaign.redtrack_report, 'cost') / count(campaign.redtrack_report, 'lp_clicks')) || 0 }}</td>
                 </tr>
               </tbody>
+              <tbody v-else>
+                <tr>
+                  <td colspan="29">No campaign found.</td>
+                </tr>
+              </tbody>
             </table>
           </div>
           <div class="card-footer">
             <div class="row justify-content-center">
-              <div class="col-12 col-md-6">
+              <div class="col-12 col-md-12">
                 <button class="btn btn-default border" @click.prevent="exportCsv">Download CSV</button>
                 <button class="btn btn-default border" @click.prevent="exportExcel">Download Excel</button>
-              </div>
-              <div class="col-12 col-md-6">
-                <pagination :data="campaigns" @pagination-change-page="getData"></pagination>
               </div>
             </div>
           </div>
@@ -180,6 +190,7 @@ export default {
         start: this.$moment().format('YYYY-MM-DD'),
         end: this.$moment().format('YYYY-MM-DD')
       },
+      query: '',
       isLoading: false,
       fullPage: true
     }
@@ -207,7 +218,8 @@ export default {
       return this.providers.find(provider => provider.id === campaign.provider_id) ? this.providers.find(provider => provider.id === campaign.provider_id).label : 'N/A'
     },
     getData(page = 1) {
-      axios.post('/campaigns/search', {...this.targetDate, ... { tracker: this.selectedTracker, provider: this.selectedProvider, page: page } })
+      const params = {...this.targetDate, ... { tracker: this.selectedTracker, provider: this.selectedProvider, query: this.query, page: page } };
+      axios.post('/campaigns/search', params)
         .then((response) => {
           this.accounts = response.data.accounts;
           this.campaigns = response.data.campaigns;
