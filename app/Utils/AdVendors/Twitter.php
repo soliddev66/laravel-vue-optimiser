@@ -294,7 +294,7 @@ class Twitter extends Root
         if ($tracker) {
             $client = new Client();
             $date = Carbon::now()->format('Y-m-d');
-            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=hour_of_day&sub3=[' . Str::of($campaign->name)->snake() . ']&sub9=Twitter&tracks_view=true';
+            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=hour_of_day&sub3=[' . $campaign->campaign_id . ']&sub9=Twitter&tracks_view=true';
             $response = $client->get($url);
 
             $data = json_decode($response->getBody(), true);
@@ -307,7 +307,7 @@ class Twitter extends Root
                 $value['open_id'] = $campaign->open_id;
                 $redtrack_report = RedtrackReport::firstOrNew([
                     'date' => $date,
-                    'sub3' => '[' . Str::of($campaign->name)->snake() . ']',
+                    'sub3' => $campaign->campaign_id,
                     'hour_of_day' => $value['hour_of_day']
                 ]);
                 foreach (array_keys($value) as $array_key) {
