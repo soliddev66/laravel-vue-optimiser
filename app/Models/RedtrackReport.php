@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Campaign;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -78,4 +79,9 @@ class RedtrackReport extends Model
         'unique_clicks',
         'date',
     ];
+
+    public function campaign()
+    {
+        return $this->belongsTo(Campaign::class);
+    }
 }
