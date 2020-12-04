@@ -135,13 +135,58 @@ class Yahoo extends Root
             $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
             $api->deleteCampaign($campaign->campaign_id);
             $campaign->delete();
+
+            return [];
         } catch (Exception $e) {
             return [
                 'errors' => [$e->getMessage()]
             ];
         }
+    }
 
-        return [];
+    public function status(Campaign $campaign)
+    {
+        $ad_group_body = [];
+        $ad_group_ids = [];
+        $ad_body = [];
+
+        try {
+            $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
+            $campaign->status = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+
+            $api->updateCampaignStatus($campaign);
+
+            $ad_groups = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
+
+            foreach ($ad_groups as $ad_group) {
+                $ad_group_body[] = [
+                    'id' => $ad_group['id'],
+                    'status' => $campaign->status
+                ];
+                $ad_group_ids[] = $ad_group['id'];
+            }
+
+            $api->updateAdGroups($ad_group_body);
+
+            $ads = $api->getAds($ad_group_ids, $campaign->advertiser_id);
+
+            foreach ($ads as $ad) {
+                $ad_body[] = [
+                    'adGroupId' => $ad['adGroupId'],
+                    'id' => $ad['id'],
+                    'status' => $campaign->status
+                ];
+            }
+
+            $api->updateAds($ad_body);
+            $campaign->save();
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function pullCampaign($user_provider)

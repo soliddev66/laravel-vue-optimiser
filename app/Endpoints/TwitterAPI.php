@@ -138,6 +138,38 @@ class TwitterAPI
         }
     }
 
+    public function updateCampaignStatus($campaign_instance)
+    {
+        $campaign = new Campaign($campaign_instance->campaign_id);
+        $campaign->setEntityStatus($campaign_instance->status);
+        $campaign->save();
+    }
+
+    public function updateAdGroupStatus($ad_group, $status)
+    {
+        $line_item = new LineItem($ad_group->getId());
+        $line_item->setEntityStatus($status);
+        $line_item->save();
+    }
+
+    public function deleteLineItem($line_item_id)
+    {
+        try {
+            (new LineItem($line_item_id))->delete();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function deleteCard($card_id)
+    {
+        try {
+            (new WebsiteCard($card_id))->delete();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     public function saveLineItem($campaign, $line_item_id = null)
     {
         try {
