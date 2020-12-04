@@ -76,41 +76,4 @@ class Campaign extends Model
     {
         return $this->belongsTo('App\Models\User');
     }
-
-    public function status($gemini, $status)
-    {
-        $ad_group_body = [];
-        $ad_group_ids = [];
-        $ad_body = [];
-
-        try {
-            $this->status = $status;
-            $gemini->updateCampaignStatus($this);
-            $ad_groups = $gemini->getAdGroups($this->campaign_id, $this->advertiser_id);
-
-            foreach ($ad_groups as $ad_group) {
-                $ad_group_body[] = [
-                    'id' => $ad_group['id'],
-                    'status' => $this->status
-                ];
-                $ad_group_ids[] = $ad_group['id'];
-            }
-
-            $gemini->updateAdGroups($ad_group_body);
-            $ads = $gemini->getAds($ad_group_ids, $this->advertiser_id);
-
-            foreach ($ads as $ad) {
-                $ad_body[] = [
-                    'adGroupId' => $ad['adGroupId'],
-                    'id' => $ad['id'],
-                    'status' => $this->status
-                ];
-            }
-
-            $gemini->updateAds($ad_body);
-            $this->save();
-        } catch (Exception $e) {
-            throw new Exception($e);
-        }
-    }
 }
