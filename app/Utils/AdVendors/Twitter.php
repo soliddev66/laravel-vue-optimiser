@@ -196,13 +196,39 @@ class Twitter extends Root
             $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
             $api->deleteCampaign($campaign->campaign_id);
             $campaign->delete();
+
+            return [];
         } catch (Exception $e) {
             return [
                 'errors' => [$e->getMessage()]
             ];
         }
+    }
 
-        return [];
+    public function status(Campaign $campaign)
+    {
+        try {
+            $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
+            $campaign->status = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+
+            $api->updateCampaignStatus($campaign);
+
+            $ad_groups = $api->getAdGroups($campaign->campaign_id);
+
+            if ($ad_groups && count($ad_groups) > 0) {
+                foreach ($ad_groups as $ad_group) {
+                    $api->updateAdGroupStatus($ad_group, $campaign->status);
+                }
+            }
+
+            $campaign->save();
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function pullCampaign($user_provider)
