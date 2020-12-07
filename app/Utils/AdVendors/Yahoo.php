@@ -67,6 +67,11 @@ class Yahoo extends Root
         }
     }
 
+    public function cloneCampaignName(&$instance)
+    {
+        $instance['campaignName'] = $instance['campaignName'] . ' - Copy';
+    }
+
     public function store()
     {
         $api = $this->api();

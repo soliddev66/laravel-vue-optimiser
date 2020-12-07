@@ -92,6 +92,11 @@ class Twitter extends Root
         }
     }
 
+    public function cloneCampaignName(&$instance)
+    {
+        $instance['name'] = $instance['name'] . ' - Copy';
+    }
+
     public function fundingInstruments()
     {
         $funding_instruments = $this->api()->getFundingInstruments();
