@@ -45,6 +45,8 @@ class Kernel extends ConsoleKernel
             }
         })->everyMinute();
 
+        $schedule->command('twitter:campaign:report')->everyThreeMinutes();
+
         foreach (Rule::all() as $rule) {
             $schedule->command('rule:action', [
                 $rule->id
