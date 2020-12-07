@@ -18,6 +18,7 @@ use Hborras\TwitterAdsSDK\TwitterAds\Campaign\PromotableUser;
 use Hborras\TwitterAdsSDK\TwitterAds\Campaign\Tweet;
 use Hborras\TwitterAdsSDK\TwitterAds\Creative\PromotedTweet;
 use Hborras\TwitterAdsSDK\TwitterAds\Fields\TweetFields;
+use Hborras\TwitterAdsSDK\TwitterAds\Fields\AnalyticsFields;
 
 
 class TwitterAPI
@@ -329,5 +330,13 @@ class TwitterAPI
         $media_library = new MediaLibrary();
         $media_library->setMediaKey($media_key);
         return $media_library->save();
+    }
+
+    public function getCampaignStats($campaign_id, $param)
+    {
+        $campaign = new Campaign($campaign_id);
+        $resource = str_replace(Campaign::RESOURCE_REPLACE, $campaign->getTwitterAds()->getAccountId(), Campaign::RESOURCE_STATS);
+
+        return $campaign->getTwitterAds()->get($resource, $param)->getBody()->data;
     }
 }

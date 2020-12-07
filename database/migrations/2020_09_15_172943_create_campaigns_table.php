@@ -43,7 +43,6 @@ class CreateCampaignsTable extends Migration
             $table->string('tag_id')->nullable();
             $table->string('created_date')->nullable();
             $table->string('last_update_date')->nullable();
-            $table->boolean('reported')->nullable();
             $table->timestamps();
         });
     }
