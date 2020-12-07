@@ -19,7 +19,7 @@ class CreateTwitterReportsTable extends Migration
             $table->string('granularity')->nullable();
             $table->string('metric_groups')->nullable();
             $table->string('placement')->nullable();
-            $table->text('data')->nullable();
+            $table->longText('data')->nullable();
             $table->date('start_time')->nullable();
             $table->date('end_time')->nullable();
             $table->timestamps();
