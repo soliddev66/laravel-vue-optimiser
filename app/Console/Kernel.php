@@ -5,6 +5,7 @@ use App\Jobs\PullCampaign;
 use App\Models\Rule;
 use App\Models\User;
 use App\Vngodev\Gemini;
+use App\Vngodev\Twitter;
 use App\Vngodev\RedTrack;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
@@ -45,7 +46,9 @@ class Kernel extends ConsoleKernel
             }
         })->everyMinute();
 
-        $schedule->command('twitter:campaign:report')->everyThreeMinutes()->withoutOverlapping();
+        $schedule->call(function () {
+            Twitter::getReport();
+        })->everyThirtyMinutes();
 
         foreach (Rule::all() as $rule) {
             $schedule->command('rule:action', [
