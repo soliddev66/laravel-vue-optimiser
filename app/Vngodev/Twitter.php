@@ -16,9 +16,7 @@ class Twitter
 
     public static function getReport()
     {
-        $provider = Provider::where('slug', 'twitter')->firstOrFail();
-
-        DB::table('campaigns')->where('provider_id', $provider->id)->chunkById(10, function ($campaigns) {
+        DB::table('campaigns')->where('provider_id', 3)->chunkById(10, function ($campaigns) {
             foreach ($campaigns as $campaign) {
                 PullTwitterReport::dispatch($campaign);
             }
