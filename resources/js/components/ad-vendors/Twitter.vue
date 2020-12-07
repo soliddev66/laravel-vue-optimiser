@@ -210,7 +210,7 @@
               </div>
               <div class="col" v-if="currentStep == 2">
                 <h2>General information</h2>
-                <div class="form-group row" v-if="instance">
+                <div class="form-group row" v-if="instance && action == 'edit'">
                   <p class="col-12">
                     Not allow to update the card, please create new one if you want to change the card information. Please note that you must to create new tweet in case create new card as well.
                   </p>
@@ -256,14 +256,14 @@
                   <p class="col-12" v-if="instance && !saveCard">
                     You must create a new tweet since you recreate the card.
                   </p>
-                  <p class="col-12" v-if="instance && saveCard">
+                  <p class="col-12" v-if="instance && action == 'edit' && saveCard">
                     Not allow to update the tweet.
                   </p>
                 </div>
                 <div class="form-group row">
                   <label for="tweet_text" class="col-sm-2 control-label mt-2">Text</label>
                   <div class="col-lg-10 col-xl-8">
-                    <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="tweetText" :disabled="instance && saveCard" />
+                    <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="tweetText" :disabled="instance && action == 'edit' && saveCard" />
                   </div>
                 </div>
                 <div class="form-group row">
@@ -464,7 +464,7 @@ export default {
       cardWebsiteTitle: '',
       cardWebsiteUrl: '',
       promotedAdID: this.instance && this.instance.adGroups.length > 0 ? this.instance['promoted_tweet_id'] : '',
-      tweetText: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['full_text'] : '',
+      tweetText: this.instance && this.action == 'edit' && this.instance.ads.length > 0 ? this.instance.ads[0]['full_text'] : '',
       tweetNullcast: this.instance && this.instance.ads.length > 0 && this.instance.ads[0]['nullcast'],
       tweetTrimUser: false,
       tweetVideoCTA: '',
@@ -569,7 +569,6 @@ export default {
       this.currentStep = 3
     },
     submitStep3() {
-      console.log(this.promotedAdID)
       const step3Data = {
         promotedAdID: this.promotedAdID,
         tweetText: this.tweetText,
