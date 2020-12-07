@@ -50,12 +50,12 @@ class TwitterCampaignReport extends Command
      */
     public function handle()
     {
-        $currentDate = new DateTime;
-        $nextDate = (new DateTime)->add(new DateInterval('P1D'));
+        $current_date = new DateTime;
+        $next_date = (new DateTime)->add(new DateInterval('P1D'));
 
         $provider = Provider::where('slug', 'twitter')->firstOrFail();
 
-        DB::table('campaigns')->where('provider_id', $provider->id)->chunkById(10, function ($campaigns) use ($currentDate, $nextDate) {
+        DB::table('campaigns')->where('provider_id', $provider->id)->chunkById(10, function ($campaigns) use ($current_date, $next_date) {
             foreach ($campaigns as $item) {
                 try {
                     foreach (TwitterReport::METRIC_GROUPS as $metric_group) {
@@ -67,8 +67,8 @@ class TwitterCampaignReport extends Command
                                 'campaign_id' => $item->id,
                                 'granularity' => 'DAY',
                                 'placement' => $placement,
-                                'start_time' => $currentDate->format('Y-m-d'),
-                                'end_time' => $nextDate->format('Y-m-d')
+                                'start_time' => $current_date->format('Y-m-d'),
+                                'end_time' => $next_date->format('Y-m-d')
                             ]);
 
                             $report->data = json_encode($api->getCampaignStats($item->campaign_id, [
@@ -77,8 +77,8 @@ class TwitterCampaignReport extends Command
                                 'entity_ids' => $item->campaign_id,
                                 'granularity' => 'DAY',
                                 'placement' => $placement,
-                                'start_time' => $currentDate->format('Y-m-d'),
-                                'end_time' => $nextDate->format('Y-m-d')
+                                'start_time' => $current_date->format('Y-m-d'),
+                                'end_time' => $next_date->format('Y-m-d')
                             ]));
 
                             $report->save();
