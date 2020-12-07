@@ -141,4 +141,9 @@ class OutbrainAPI
             'enabled' => $enabled
         ]);
     }
+
+    public function getRealtimeReport($campaign, $promoted_link)
+    {
+        return $this->client->call('GET', 'realtime/marketers/' . $campaign->advertiser_id . '/sectionsHourly?hours=24&campaignId=' . $campaign->campaign_id . '&promotedLinkId=' . $promoted_link['id']);
+    }
 }

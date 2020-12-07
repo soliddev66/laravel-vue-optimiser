@@ -2,15 +2,12 @@
 
 namespace App\Vngodev;
 
-use App\Imports\GeminiReportImport;
-use App\Jobs\PullReport;
+use App\Jobs\PullGeminiReport;
 use App\Models\Campaign;
 use App\Models\GeminiJob;
-use App\Models\User;
+use App\Models\UserProvider;
 use App\Vngodev\Token;
 use Carbon\Carbon;
-use Excel;
-use Exception;
 use GuzzleHttp\Client;
 
 /**
@@ -26,14 +23,14 @@ class Gemini
     public static function crawl()
     {
         $date = Carbon::now()->format('Y-m-d');
-        foreach (User::all() as $key => $user) {
-            foreach ($user->campaigns()->where('status', 'ACTIVE')->get() as $index => $campaign) {
-                $existing = GeminiJob::where('user_id', $user->id)->where('campaign_id', $campaign->campaign_id)->where('advertiser_id', $campaign->advertiser_id)->where(function ($q) {
+        Campaign::where('provider_id', 1)->chunk(10, function ($campaigns) use ($date) {
+            foreach ($campaigns as $key => $campaign) {
+                $existing = GeminiJob::where('campaign_id', $campaign->campaign_id)->where('advertiser_id', $campaign->advertiser_id)->where(function ($q) {
                     $q->where('status', 'submitted')->orWhere('status', 'running');
                 })->exists();
                 if (!$existing) {
                     $jobs = [];
-                    $user_info = $user->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first();
+                    $user_info = UserProvider::where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first();
                     Token::refresh($user_info, function () use ($campaign, $user_info, $date, &$jobs) {
                         $job = self::getPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
                         $job['name'] = 'performance_stats';
@@ -82,27 +79,27 @@ class Gemini
                         array_push($jobs, $job);
                     });
 
-                    foreach ($jobs as $key => $job) {
+                    foreach ($jobs as $index => $job) {
                         GeminiJob::create([
-                            'user_id' => $user->id,
+                            'user_id' => $campaign->user_id,
                             'campaign_id' => $campaign->campaign_id,
                             'advertiser_id' => $campaign->advertiser_id,
                             'status' => 'submitted',
                             'name' => $job['name'],
                             'job_id' => $job['response']['jobId'],
                             'job_response' => $job['response']['jobResponse'],
-                            'submited_at' => $job['timestamp'],
+                            'submited_at' => $job['timestamp']
                         ]);
                     }
                 }
             }
-        }
+        });
     }
 
     public static function checkJobs()
     {
         foreach (GeminiJob::where('status', 'submitted')->orWhere('status', 'running')->get() as $key => $job) {
-            PullReport::dispatch($job);
+            PullGeminiReport::dispatch($job);
         }
     }
 

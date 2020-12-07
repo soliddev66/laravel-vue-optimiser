@@ -5,6 +5,7 @@ use App\Jobs\PullCampaign;
 use App\Models\Rule;
 use App\Models\User;
 use App\Vngodev\Gemini;
+use App\Vngodev\Outbrain;
 use App\Vngodev\RedTrack;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
@@ -37,13 +38,16 @@ class Kernel extends ConsoleKernel
             Gemini::checkJobs();
         })->everyThirtyMinutes();
         $schedule->call(function () {
+            Outbrain::getReport();
+        })->everyMinute();
+        $schedule->call(function () {
             RedTrack::crawl();
         })->everyTenMinutes();
-        $schedule->call(function () {
-            foreach (User::all() as $key => $user) {
-                PullCampaign::dispatch($user);
-            }
-        })->everyMinute();
+        // $schedule->call(function () {
+        //     foreach (User::all() as $key => $user) {
+        //         PullCampaign::dispatch($user);
+        //     }
+        // })->everyMinute();
 
         $schedule->command('twitter:campaign:report')->everyThreeMinutes()->withoutOverlapping();
 
