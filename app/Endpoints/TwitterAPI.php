@@ -116,14 +116,6 @@ class TwitterAPI
                 $campaign->setTotalBudgetAmountLocalMicro(request('campaignTotalBudgetAmountLocalMicro'));
             }
 
-            if (!empty(request('campaignDurationInDays'))) {
-                $campaign->setDurationInDays(request('campaignDurationInDays'));
-            }
-
-            if (!empty(request('campaignFrequencyCap'))) {
-                $campaign->setFrequencyCap(request('campaignFrequencyCap'));
-            }
-
             return $campaign->save();
         } catch (Exception $e) {
             throw $e;
@@ -177,7 +169,7 @@ class TwitterAPI
             $line_item = new LineItem($line_item_id);
             $line_item->setCampaignId($campaign->getId());
             $line_item->setName(request('adGroupName'));
-            $line_item->setProductType(request('adGroupProductType'));
+            $line_item->setProductType('PROMOTED_TWEETS');
             $line_item->setPlacements(request('adGroupPlacements'));
             $line_item->setObjective(request('adGroupObjective'));
             $line_item->setEntityStatus(request('adGroupStatus'));
@@ -208,13 +200,7 @@ class TwitterAPI
                 $line_item->setTotalBudgetAmountLocalMicro(request('adGroupTotalBudgetAmountLocalMicro'));
             }
 
-            if (!empty(request('adGroupPrimaryWebEventTag'))) {
-                $line_item->setPrimaryWebEventTag(request('adGroupPrimaryWebEventTag'));
-            }
-
-            if (!empty(request('adGroupOptimization'))) {
-                $line_item->setOptimization(request('adGroupOptimization'));
-            }
+            $line_item->setOptimization('DEFAULT');
 
             if (!empty(request('adGroupBidUnit'))) {
                 $line_item->setBidUnit(request('adGroupBidUnit'));
@@ -222,10 +208,6 @@ class TwitterAPI
 
             if (!empty(request('adGroupChargeBy'))) {
                 $line_item->setChargeBy(request('adGroupChargeBy'));
-            }
-
-            if (!empty(request('adGrouptrackingTags'))) {
-                $line_item->setTrackingTags(request('adGrouptrackingTags'));
             }
 
             return $line_item->save();
