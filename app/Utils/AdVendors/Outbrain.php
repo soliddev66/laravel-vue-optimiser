@@ -114,41 +114,37 @@ class Outbrain extends Root
     {
         $api = new OutbrainAPI($user_provider);
 
-        $marketers_ids = collect($api->getMarketers()['marketers'])->pluck('id');
-        $campaigns = collect([]);
+        $marketer_ids = collect($api->getMarketers()['marketers'])->pluck('id');
 
-        $marketers_ids->each(function ($id) use (&$campaigns, $api) {
+        $marketer_ids->each(function ($id) use ($api, $user_provider) {
             $campaigns_by_marketer = $api->getCampaignsByMarketerId($id);
             if (array_key_exists('campaigns', $campaigns_by_marketer)) {
                 $campaigns_by_marketer = $campaigns_by_marketer['campaigns'];
                 foreach ($campaigns_by_marketer as $campaign) {
-                    $campaigns->push($campaign);
+                    $data = collect($campaign)->keyBy(function ($value, $key) {
+                        return Str::of($key)->snake();
+                    })->toArray();
+
+                    $db_campaign = Campaign::firstOrNew([
+                        'campaign_id' => $data['id'],
+                        'provider_id' => $user_provider->provider_id,
+                        'open_id' => $user_provider->open_id,
+                        'user_id' => $user_provider->user_id
+                    ]);
+
+                    $db_campaign->name = $data['name'];
+                    $db_campaign->status = $data['enabled'] ? 'ACTIVE' : 'PAUSED';
+                    $db_campaign->budget = $data['budget']['amount'];
+                    $db_campaign->advertiser_id = $id;
+
+                    // unset($data['id']);
+                    // foreach (array_keys($data) as $index => $array_key) {
+                    //     $db_campaign->{$array_key} = $data[$array_key];
+                    // }
+
+                    $db_campaign->save();
                 }
             }
-        });
-
-        $campaigns->each(function ($item) use ($user_provider) {
-            $data = collect($item)->keyBy(function ($value, $key) {
-                return Str::of($key)->snake();
-            })->toArray();
-
-            $campaign = Campaign::firstOrNew([
-                'campaign_id' => $data['id'],
-                'provider_id' => $user_provider->provider_id,
-                'open_id' => $user_provider->open_id,
-                'user_id' => $user_provider->user_id
-            ]);
-
-            $campaign->name = $data['name'];
-            $campaign->status = $data['enabled'] ? 'ACTIVE' : 'PAUSED';
-            $campaign->budget = $data['budget']['amount'];
-
-            // unset($data['id']);
-            // foreach (array_keys($data) as $index => $array_key) {
-            //     $campaign->{$array_key} = $data[$array_key];
-            // }
-
-            $campaign->save();
         });
     }
 

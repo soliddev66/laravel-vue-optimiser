@@ -74,6 +74,7 @@ class CreateRedtrackDomainStatsTable extends Migration
             $table->string('sub5')->nullable();
             $table->string('sub6')->nullable();
             $table->string('sub7')->nullable();
+            $table->string('publisher_alias')->nullable();
             $table->double('total_conversions')->nullable();
             $table->double('total_revenue')->nullable();
             $table->double('tr')->nullable();

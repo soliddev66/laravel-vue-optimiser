@@ -1,10 +1,12 @@
 <?php
 
 namespace App\Console;
+
 use App\Jobs\PullCampaign;
 use App\Models\Rule;
 use App\Models\User;
 use App\Vngodev\Gemini;
+use App\Vngodev\Outbrain;
 use App\Vngodev\Twitter;
 use App\Vngodev\RedTrack;
 use Carbon\Carbon;
@@ -31,6 +33,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        // Report data
         $schedule->call(function () {
             Gemini::crawl();
         })->everyThirtyMinutes();
@@ -38,18 +41,25 @@ class Kernel extends ConsoleKernel
             Gemini::checkJobs();
         })->everyThirtyMinutes();
         $schedule->call(function () {
+            Outbrain::getReport();
+        })->everyThirtyMinutes();
+        $schedule->call(function () {
+            Twitter::getReport();
+        })->everyThirtyMinutes();
+
+        // Redtrack
+        $schedule->call(function () {
             RedTrack::crawl();
         })->everyTenMinutes();
+
+        // Campaign
         $schedule->call(function () {
             foreach (User::all() as $key => $user) {
                 PullCampaign::dispatch($user);
             }
         })->everyMinute();
 
-        $schedule->call(function () {
-            Twitter::getReport();
-        })->everyThirtyMinutes();
-
+        // Rules
         foreach (Rule::all() as $rule) {
             $schedule->command('rule:action', [
                 $rule->id
