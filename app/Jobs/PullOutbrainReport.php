@@ -4,7 +4,9 @@ namespace App\Jobs;
 
 use App\Endpoints\OutbrainAPI;
 use App\Models\Campaign;
+use App\Models\OutbrainReport;
 use App\Models\UserProvider;
+use Carbon\Carbon;
 use Dorantor\FileLock;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -41,8 +43,13 @@ class PullOutbrainReport implements ShouldQueue
             $promoted_links = $api->getPromotedLinks($this->campaign->campaign_id);
             if ($promoted_links && isset($promoted_links['promotedLinks'])) {
                 foreach ($promoted_links['promotedLinks'] as $key => $promoted_link) {
-                    $report = $api->getRealtimeReport($this->campaign, $promoted_link);
-                    dd($report);
+                    $date = Carbon::now()->format('Y-m-d');
+                    $report = OutbrainReport::firstOrNew([
+                        'campaign_id' => $this->campaign->id,
+                        'date' => $date
+                    ]);
+                    $report->data = json_encode($api->getPerformanceReport($this->campaign, $promoted_link, $date));
+                    $report->save();
                 }
             }
             $lock->release();

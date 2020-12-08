@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTaboolaCampaignsTable extends Migration
+class CreateOutbrainReportsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class CreateTaboolaCampaignsTable extends Migration
      */
     public function up()
     {
-        Schema::create('taboola_campaigns', function (Blueprint $table) {
+        Schema::create('outbrain_reports', function (Blueprint $table) {
             $table->id();
+            $table->integer('campaign_id')->unsigned();
+            $table->longText('data')->nullable();
+            $table->date('date')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +29,6 @@ class CreateTaboolaCampaignsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('taboola_campaigns');
+        Schema::dropIfExists('outbrain_reports');
     }
 }

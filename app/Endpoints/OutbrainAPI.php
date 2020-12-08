@@ -3,6 +3,7 @@
 namespace App\Endpoints;
 
 use App\Helpers\OutbrainClient;
+use Carbon\Carbon;
 use GuzzleHttp\Exception\GuzzleException;
 
 class OutbrainAPI
@@ -142,8 +143,8 @@ class OutbrainAPI
         ]);
     }
 
-    public function getRealtimeReport($campaign, $promoted_link)
+    public function getPerformanceReport($campaign, $promoted_link, $date)
     {
-        return $this->client->call('GET', 'realtime/marketers/' . $campaign->advertiser_id . '/sectionsHourly?hours=24&campaignId=' . $campaign->campaign_id . '&promotedLinkId=' . $promoted_link['id']);
+        return $this->client->call('GET', 'reports/marketers/' . $campaign->advertiser_id . '/periodic?from=' . $date . '&to=' . $date . '&limit=100&offset=0&includeArchivedCampaigns=true&campaignId=' . $campaign->campaign_id . '&promotedLinkId=' . $promoted_link['id'] . '&breakdown=daily&includeConversionDetails=true&conversionsByClickDate=true');
     }
 }

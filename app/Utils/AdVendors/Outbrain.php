@@ -113,39 +113,49 @@ class Outbrain extends Root
     public function pullCampaign($user_provider)
     {
         $api = new OutbrainAPI($user_provider);
+        $campaign_ids = [];
 
-        $marketer_ids = collect($api->getMarketers()['marketers'])->pluck('id');
+        $marketers_response = $api->getMarketers();
+        if (array_key_exists('marketers', $marketers_response)) {
+            $marketers = $marketers_response['marketers'];
+            foreach ($marketers as $key => $marketer) {
+                $campaigns_by_marketer = $api->getCampaignsByMarketerId($marketer['id']);
+                if (array_key_exists('campaigns', $campaigns_by_marketer)) {
+                    $campaigns_by_marketer = $campaigns_by_marketer['campaigns'];
+                    foreach ($campaigns_by_marketer as $campaign) {
+                        $data = collect($campaign)->keyBy(function ($value, $key) {
+                            return Str::of($key)->snake();
+                        })->toArray();
 
-        $marketer_ids->each(function ($id) use ($api, $user_provider) {
-            $campaigns_by_marketer = $api->getCampaignsByMarketerId($id);
-            if (array_key_exists('campaigns', $campaigns_by_marketer)) {
-                $campaigns_by_marketer = $campaigns_by_marketer['campaigns'];
-                foreach ($campaigns_by_marketer as $campaign) {
-                    $data = collect($campaign)->keyBy(function ($value, $key) {
-                        return Str::of($key)->snake();
-                    })->toArray();
+                        $db_campaign = Campaign::firstOrNew([
+                            'campaign_id' => $data['id'],
+                            'provider_id' => $user_provider->provider_id,
+                            'open_id' => $user_provider->open_id,
+                            'user_id' => $user_provider->user_id
+                        ]);
 
-                    $db_campaign = Campaign::firstOrNew([
-                        'campaign_id' => $data['id'],
-                        'provider_id' => $user_provider->provider_id,
-                        'open_id' => $user_provider->open_id,
-                        'user_id' => $user_provider->user_id
-                    ]);
+                        $db_campaign->name = $data['name'];
+                        $db_campaign->status = $data['enabled'] ? 'ACTIVE' : 'PAUSED';
+                        $db_campaign->budget = $data['budget']['amount'];
+                        $db_campaign->advertiser_id = $marketer['id'];
 
-                    $db_campaign->name = $data['name'];
-                    $db_campaign->status = $data['enabled'] ? 'ACTIVE' : 'PAUSED';
-                    $db_campaign->budget = $data['budget']['amount'];
-                    $db_campaign->advertiser_id = $id;
+                        // unset($data['id']);
+                        // foreach (array_keys($data) as $index => $array_key) {
+                        //     $db_campaign->{$array_key} = $data[$array_key];
+                        // }
 
-                    // unset($data['id']);
-                    // foreach (array_keys($data) as $index => $array_key) {
-                    //     $db_campaign->{$array_key} = $data[$array_key];
-                    // }
-
-                    $db_campaign->save();
+                        $db_campaign->save();
+                        $campaign_ids[] = $db_campaign->id;
+                    }
                 }
             }
-        });
+        }
+
+        Campaign::where([
+            'user_id' => $user_provider->user_id,
+            'provider_id' => $user_provider->provider_id,
+            'open_id' => $user_provider->open_id
+        ])->whereNotIn('id', $campaign_ids)->delete();
     }
 
     public function pullRedTrack($campaign)
