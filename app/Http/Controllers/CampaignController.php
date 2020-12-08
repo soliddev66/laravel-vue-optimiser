@@ -221,10 +221,11 @@ class CampaignController extends Controller
 
         if ($campaign) {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            $instance = (new $adVendorClass)->getCampaignInstance($campaign);
+            $adVendor = new $adVendorClass;
+            $instance = $adVendor->getCampaignInstance($campaign);
 
             if (isset($instance['id'])) {
-                $instance['campaignName'] = $instance['campaignName'] . ' - Copy';
+                $adVendor->cloneCampaignName($instance);
             } else {
                 $instance = null;
             }
