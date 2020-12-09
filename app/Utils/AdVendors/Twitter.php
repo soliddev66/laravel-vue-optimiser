@@ -245,32 +245,36 @@ class Twitter extends Root
         $ad_group_ids = [];
         $ads = [];
 
-        foreach ($ad_group_datas as $ad_group) {
-            $ad_groups[] = [
-                'id' => $ad_group->getId(),
-                'adGroupName' => $ad_group->getName(),
-                'advertiserId' => $campaign->advertiser_id,
-                'campaignId' => $campaign->campaign_id,
-                'startDateStr' => $ad_group->getStartTime() ? $ad_group->getStartTime()->format('Y-m-d') : '',
-                'endDateStr' => $ad_group->getEndTime() ? $ad_group->getEndTime()->format('Y-m-d') : '',
-                'status' => $ad_group->getEntityStatus()
-            ];
+        if ($ad_group_datas && count($ad_group_datas) > 0) {
+            foreach ($ad_group_datas as $ad_group) {
+                $ad_groups[] = [
+                    'id' => $ad_group->getId(),
+                    'adGroupName' => $ad_group->getName(),
+                    'advertiserId' => $campaign->advertiser_id,
+                    'campaignId' => $campaign->campaign_id,
+                    'startDateStr' => $ad_group->getStartTime() ? $ad_group->getStartTime()->format('Y-m-d') : '',
+                    'endDateStr' => $ad_group->getEndTime() ? $ad_group->getEndTime()->format('Y-m-d') : '',
+                    'status' => $ad_group->getEntityStatus()
+                ];
 
-            $ad_group_ids[] = $ad_group->getId();
+                $ad_group_ids[] = $ad_group->getId();
+            }
+
+            $promoted_tweets = $api->getPromotedTweets($ad_group_ids);
+
+            if ($promoted_tweets && count($promoted_tweets)) {
+                foreach ($promoted_tweets as $promoted_tweet) {
+                    $ads[] = [
+                        'id' => $promoted_tweet->getId(),
+                        'title' => $promoted_tweet->getId(),
+                        'advertiserId' => $campaign->advertiser_id,
+                        'campaignId' => $campaign->campaign_id,
+                        'adGroupId' => $promoted_tweet->getLineItemId()
+                    ];
+                }
+            }
         }
-
-        $promoted_tweets = $api->getPromotedTweets($ad_group_ids);
-
-        foreach ($promoted_tweets as $promoted_tweet) {
-            $ads[] = [
-                'id' => $promoted_tweet->getId(),
-                'title' => $promoted_tweet->getId(),
-                'advertiserId' => $campaign->advertiser_id,
-                'campaignId' => $campaign->campaign_id,
-                'adGroupId' => $promoted_tweet->getLineItemId()
-            ];
-        }
-
+        
         return response()->json([
             'ad_groups' => $ad_groups,
             'ads' => $ads,
