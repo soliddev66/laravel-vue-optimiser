@@ -282,28 +282,20 @@ class Yahoo extends Root
         $campaigns = (new GeminiAPI($user_provider))->getCampaigns();
 
         $campaign_ids = [];
-        foreach ($campaigns as $key => $item) {
-            $data = collect($item)->keyBy(function ($value, $key) {
-                return Str::of($key)->snake();
-            })->toArray();
-
-            $data['name'] = $data['campaign_name'];
-
-            $campaign = Campaign::firstOrNew([
-                'campaign_id' => $data['id'],
+        foreach ($campaigns as $key => $campaign) {
+            $db_campaign = Campaign::firstOrNew([
+                'campaign_id' => $campaign['id'],
                 'provider_id' => $user_provider->provider_id,
                 'user_id' => $user_provider->user_id,
                 'open_id' => $user_provider->open_id
             ]);
 
-            unset($data['campaign_name']);
-            unset($data['id']);
-
-            foreach (array_keys($data) as $index => $array_key) {
-                $campaign->{$array_key} = $data[$array_key];
-            }
-            $campaign->save();
-            $campaign_ids[] = $campaign->id;
+            $db_campaign->name = $campaign['campaignName'];
+            $db_campaign->status = $campaign['status'];
+            $db_campaign->budget = $campaign['budget'];
+            $db_campaign->advertiser_id = $campaign['advertiserId'];
+            $db_campaign->save();
+            $campaign_ids[] = $db_campaign->id;
         }
 
         Campaign::where([

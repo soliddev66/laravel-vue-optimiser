@@ -85,7 +85,7 @@
                   <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
                   <div class="col-sm-4">
                     <input type="date" name="start_date" class="form-control" v-model="campaignStartDate" />
-                    <input type="time" name="start_time" class="form-control" v-model="campaignStartTime" />
+                    <input type="text" name="start_time" class="form-control" v-model="campaignStartTime" placeholder="Example: 12:00 AM" />
                   </div>
                   <div class="col-sm-6">
                     Eastern Standard Time (UTC-05:00), NYC
@@ -131,17 +131,17 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label for="schedule" class="col-sm-2 control-label mt-2">Pacing</label>
+                  <label for="pacing" class="col-sm-2 control-label mt-2">Pacing</label>
                   <div class="col-sm-8">
                     <div class="btn-group btn-group-toggle">
                       <label class="btn bg-olive" :class="{ active: campaignPacing === 'SPEND_ASAP' }">
-                        <input type="radio" name="schedule" id="campaignPacing1" autocomplete="off" value="SPEND_ASAP" v-model="campaignPacing"> SPEND_ASAP
+                        <input type="radio" name="pacing" id="campaignPacing1" autocomplete="off" value="SPEND_ASAP" v-model="campaignPacing"> SPEND_ASAP
                       </label>
                       <label class="btn bg-olive" :class="{ active: campaignPacing === 'AUTOMATIC' }">
-                        <input type="radio" name="schedule" id="campaignPacing2" autocomplete="off" value="AUTOMATIC" v-model="campaignPacing"> AUTOMATIC
+                        <input type="radio" name="pacing" id="campaignPacing2" autocomplete="off" value="AUTOMATIC" v-model="campaignPacing"> AUTOMATIC
                       </label>
                       <label class="btn bg-olive" :class="{ active: campaignPacing === 'DAILY_TARGET' }">
-                        <input type="radio" name="schedule" id="campaignPacing3" autocomplete="off" value="DAILY_TARGET" v-model="campaignPacing"> DAILY_TARGET
+                        <input type="radio" name="pacing" id="campaignPacing3" autocomplete="off" value="DAILY_TARGET" v-model="campaignPacing"> DAILY_TARGET
                       </label>
                     </div>
                   </div>
@@ -334,7 +334,7 @@
             <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!campaignNameState || !selectedAdvertiserState || !campaignBudgetState || !campaignCostPerClickState || !campaignStartDateState">Next</button>
           </div>
           <div class="d-flex justify-content-end" v-if="currentStep === 2">
-            <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!titleState || !brandnameState || !cpcState || !targetUrlState || !imageUrlState">Next</button>
+            <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!titleState || !brandnameState || !targetUrlState || !imageUrlState">Next</button>
           </div>
           <div class="d-flex justify-content-end" v-if="currentStep === 3">
             <button type="button" class="btn btn-primary" @click.prevent="submitStep3">Next</button>
@@ -453,22 +453,7 @@ export default {
     //
   },
   data() {
-    let campaginPlatform = ['DESKTOP', 'MOBILE', 'TABLET']
-    let campaignLocation = []
-    let campaignOperatingSystem = ['Ios', 'Android', 'MacOs', 'Windows']
-    let campaignBrowser = ['chrome', 'firefox', 'safari', 'internetExplorer', 'opera', 'samsung', 'ucBrowser', 'inApp']
-    let adGroupID = ''
     let dataAttributes = []
-    if (this.instance) {
-      this.instance.attributes.forEach(attribute => {
-        if (attribute.type === 'DEVICE') {
-          campaginPlatform = attribute.value;
-        } else if (attribute.type === 'WOEID') {
-          campaignLocation.push(attribute.value);
-        }
-        dataAttributes.push(attribute.id);
-      });
-    }
 
     return {
       isLoading: false,
@@ -482,34 +467,34 @@ export default {
       advertisers: [],
       accounts: [],
       actionName: this.action,
-      selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
-      campaignName: this.instance ? this.instance.campaignName : '',
-      campaignObjective: this.instance ? this.instance.campaignObjective : 'Awareness', // Return
+      selectedAdvertiser: this.instance ? this.instance.marketerId : '',
+      campaignName: this.instance ? this.instance.name : '',
+      campaignObjective: this.instance ? this.instance.objective : 'Awareness', // Return
       campaignType: this.instance ? this.instance.channel : 'SEARCH_AND_NATIVE',
       campaignLanguage: this.instance ? this.instance.language : 'en',
-      campaginPlatform: campaginPlatform,
-      campaignLocation: campaignLocation,
-      campaignOperatingSystem: campaignOperatingSystem,
-      campaignBrowser: campaignBrowser,
-      campaignBudget: this.instance ? this.instance.budget : 20,
-      campaignCostPerClick: this.instance ? this.instance.costPerClick : '',
-      campaignPacing: this.instance ? this.instance.campaignPacing : 'SPEND_ASAP',
-      campaignStartDate: '',
-      campaignStartTime: '',
-      campaignEndDate: '',
+      campaginPlatform: this.instance ? this.instance.targeting.platform : ['DESKTOP', 'MOBILE', 'TABLET'],
+      campaignLocation: this.instance ? this.instance.targeting.locations : [],
+      campaignOperatingSystem: this.instance ? this.instance.targeting.operatingSystems : ['Ios', 'Android', 'MacOs', 'Windows'],
+      campaignBrowser: this.instance ? this.instance.targeting.browsers : ['chrome', 'firefox', 'safari', 'internetExplorer', 'opera', 'samsung', 'ucBrowser', 'inApp'],
+      campaignBudget: this.instance ? this.instance.budget.amount : 20,
+      campaignCostPerClick: this.instance ? this.instance.cpc : '',
+      campaignPacing: this.instance ? this.instance.budget.pacing : 'SPEND_ASAP',
+      campaignStartDate: this.instance ? this.instance.budget.startDate : '',
+      campaignStartTime: this.instance ? this.instance.startHour : '',
+      campaignEndDate: this.instance && !this.instance.budget.runForever ? this.instance.budget.endDate : '',
       platforms: ['DESKTOP', 'MOBILE', 'TABLET'],
       operatingSystems: ['Ios', 'Android', 'MacOs', 'Windows'],
       browsers: ['chrome', 'firefox', 'safari', 'internetExplorer', 'opera', 'samsung', 'ucBrowser', 'inApp'],
-      campaignTrackingCode: this.instance ? this.instance.trackingCode : '', // Return
-      campaignUseNetworkExtendedTraffic: this.instance ? this.instance.useNetworkExtendedTraffic : true, // Return
-      campaignExcludeAdBlockUsers: this.instance ? this.instance.excludeAdBlockUsers : true, // Return
-      campaignBudgetType: this.instance ? this.instance.budgetType : 'DAILY',
-      scheduleType: 'CONTINUOUSLY',
-      title: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['title'] : '',
-      targetUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['landingUrl'] : '',
+      campaignTrackingCode: this.instance ? this.instance.suffixTrackingCode : '',
+      campaignUseNetworkExtendedTraffic: this.instance ? this.instance.targeting.useExtendedNetworkTraffic : true,
+      campaignExcludeAdBlockUsers: this.instance ? this.instance.targeting.excludeAdBlockUsers : true,
+      campaignBudgetType: this.instance ? this.instance.budget.type : 'DAILY',
+      scheduleType: this.instance && !this.instance.budget.runForever ? 'CUSTOM' : 'CONTINUOUSLY',
+      title: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['text'] : '',
+      targetUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['url'] : '',
       cpc: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['cpc'] : '',
-      brandname: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['sponsoredBy'] : '',
-      imageUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['imageUrl'] : '',
+      brandname: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['siteName'] : '',
+      imageUrl: this.instance && this.instance.ads.length > 0 && this.instance.ads[0]['imageMetadata'] ? this.instance.ads[0]['imageMetadata']['originalImageUrl'] : '',
       image: {
         size: '',
         height: '',
@@ -628,7 +613,6 @@ export default {
       this.advertisers = []
       this.isLoading = true
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${encodeURIComponent(this.selectedAccount)}`).then(response => {
-        console.log(response.data)
         this.advertisers = response.data.marketers
       }).catch(err => {
         console.log(err)

@@ -101,6 +101,24 @@ class OutbrainAPI
         ]);
     }
 
+    public function updateCampaign($campaign)
+    {
+        return $this->client->call('PUT', 'campaigns/' . $campaign->campaign_id, [
+            'name' => request('campaignName'),
+            'cpc' => request('campaignCostPerClick'),
+            'targeting' => [
+                'platform' => request('campaginPlatform'),
+                'locations' => request('campaignLocation'),
+                'operatingSystems' => request('campaignOperatingSystem'),
+                'browsers' => request('campaignBrowser')
+            ],
+            'suffixTrackingCode' => request('campaignTrackingCode'),
+            'onAirType' => request('campaignStartTime') ? 'StartHour' : 'Scheduled',
+            'startHour' => request('campaignStartTime'),
+            'objective' => request('campaignObjective')
+        ]);
+    }
+
     public function createAd($campaign_data)
     {
         return $this->client->call('POST', 'campaigns/' . $campaign_data['id'] . '/promotedLinks', [
@@ -124,6 +142,11 @@ class OutbrainAPI
         return $this->client->call('DELETE', 'budgets/' . $budget_data['id']);
     }
 
+    public function getCampaign($campaign_id)
+    {
+        return $this->client->call('GET', 'campaigns/' . $campaign_id);
+    }
+
     public function updateCampaignStatus($campaign_id, $enabled)
     {
         return $this->client->call('PUT', 'campaigns/' . $campaign_id, [
@@ -133,7 +156,7 @@ class OutbrainAPI
 
     public function getPromotedLinks($campaign_id)
     {
-        return $this->client->call('GET', 'campaigns/' . $campaign_id . '/promotedLinks');
+        return $this->client->call('GET', 'campaigns/' . $campaign_id . '/promotedLinks?extraFields=ImageMetaData');
     }
 
     public function updatePromotedLinkStatus($promoted_link_ids, $enabled)

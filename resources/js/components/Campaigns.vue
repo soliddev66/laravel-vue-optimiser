@@ -21,7 +21,7 @@
               <div class="col-md-3 col-12">
                 <select class="form-control" v-model="selectedAccount" @change="getData">
                   <option value="">-</option>
-                  <option v-for="account in accounts" :value="account.id">{{ account.open_id }}</option>
+                  <option v-for="account in accounts" :value="account.open_id">{{ account.open_id }}</option>
                 </select>
               </div>
               <div class="col-md-3 col-12">
@@ -218,7 +218,7 @@ export default {
       return this.providers.find(provider => provider.id === campaign.provider_id) ? this.providers.find(provider => provider.id === campaign.provider_id).label : 'N/A'
     },
     getData(page = 1) {
-      const params = {...this.targetDate, ... { tracker: this.selectedTracker, provider: this.selectedProvider, query: this.query, page: page } };
+      const params = {...this.targetDate, ... { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount, query: this.query, page: page } };
       axios.post('/campaigns/search', params)
         .then((response) => {
           this.accounts = response.data.accounts;
