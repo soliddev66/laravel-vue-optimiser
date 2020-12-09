@@ -71,7 +71,7 @@ class Twitter extends Root
                     $instance['adGroups'][] = $ad_group->toArray();
                 }
 
-                $promoted_tweets = $api->getPromotedTweet($ad_groups[0]->getId());
+                $promoted_tweets = $api->getPromotedTweets([$ad_groups[0]->getId()]);
 
                 $tweets = $api->getTweet($promoted_tweets[0]->getTweetId());
 
@@ -234,6 +234,48 @@ class Twitter extends Root
                 'errors' => [$e->getMessage()]
             ];
         }
+    }
+
+    public function adGroupData(Campaign $campaign)
+    {
+        $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
+        $ad_group_datas = $api->getAdGroups($campaign->campaign_id);
+
+        $ad_groups = [];
+        $ad_group_ids = [];
+        $ads = [];
+
+        foreach ($ad_group_datas as $ad_group) {
+            $ad_groups[] = [
+                'id' => $ad_group->getId(),
+                'adGroupName' => $ad_group->getName(),
+                'advertiserId' => $campaign->advertiser_id,
+                'campaignId' => $campaign->campaign_id,
+                'startDateStr' => $ad_group->getStartTime() ? $ad_group->getStartTime()->format('Y-m-d') : '',
+                'endDateStr' => $ad_group->getEndTime() ? $ad_group->getEndTime()->format('Y-m-d') : '',
+                'status' => $ad_group->getEntityStatus()
+            ];
+
+            $ad_group_ids[] = $ad_group->getId();
+        }
+
+        $promoted_tweets = $api->getPromotedTweets($ad_group_ids);
+
+        foreach ($promoted_tweets as $promoted_tweet) {
+            $ads[] = [
+                'id' => $promoted_tweet->getId(),
+                'title' => $promoted_tweet->getId(),
+                'advertiserId' => $campaign->advertiser_id,
+                'campaignId' => $campaign->campaign_id,
+                'adGroupId' => $promoted_tweet->getLineItemId()
+            ];
+        }
+
+        return response()->json([
+            'ad_groups' => $ad_groups,
+            'ads' => $ads,
+            'summary_data' => new \stdClass
+        ]);
     }
 
     public function pullCampaign($user_provider)

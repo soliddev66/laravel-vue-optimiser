@@ -75,10 +75,10 @@ class TwitterAPI
         return $this->client->get('iab_categories')->getBody()->data;
     }
 
-    public function getPromotedTweet($line_item_id)
+    public function getPromotedTweets($line_item_ids)
     {
         return (new PromotedTweet)->all([
-            'line_item_ids' => $line_item_id
+            'line_item_ids' => implode(',', $line_item_ids)
         ])->getCollection();
     }
 
