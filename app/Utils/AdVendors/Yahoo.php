@@ -247,6 +247,36 @@ class Yahoo extends Root
         }
     }
 
+    public function adGroupStatus(Campaign $campaign, $ad_group_id)
+    {
+        $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
+        $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+
+        try {
+            $ad_group = $api->updateAdGroupStatus($ad_group_id, $status);
+            $ads = $api->getAds([$ad_group_id], $campaign->advertiser_id);
+            if (count($ads) > 0) {
+                $ad_body = [];
+
+                foreach ($ads as $ad) {
+                    $ad_body[] = [
+                        'adGroupId' => $ad['adGroupId'],
+                        'id' => $ad['id'],
+                        'status' => $ad_group['status']
+                    ];
+                }
+
+                $api->updateAds($ad_body);
+
+                return [];
+            }
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+    }
+
     public function pullCampaign($user_provider)
     {
         $campaigns = (new GeminiAPI($user_provider))->getCampaigns();
