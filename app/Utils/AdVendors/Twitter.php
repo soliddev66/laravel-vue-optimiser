@@ -222,7 +222,7 @@ class Twitter extends Root
 
             if ($ad_groups && count($ad_groups) > 0) {
                 foreach ($ad_groups as $ad_group) {
-                    $api->updateAdGroupStatus($ad_group, $campaign->status);
+                    $api->updateAdGroupStatus($ad_group->getId(), $campaign->status);
                 }
             }
 
@@ -285,6 +285,22 @@ class Twitter extends Root
     public function adStatus(Campaign $campaign, $ad_group_id, $ad_id)
     {
         return [];
+    }
+
+    public function adGroupStatus(Campaign $campaign, $ad_group_id)
+    {
+        $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
+        $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+
+        try {
+            $api->updateAdGroupStatus($ad_group_id, $status);
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function pullCampaign($user_provider)

@@ -138,9 +138,9 @@ class TwitterAPI
         $campaign->save();
     }
 
-    public function updateAdGroupStatus($ad_group, $status)
+    public function updateAdGroupStatus($ad_group_id, $status)
     {
-        $line_item = new LineItem($ad_group->getId());
+        $line_item = new LineItem($ad_group_id);
         $line_item->setEntityStatus($status);
         $line_item->save();
     }

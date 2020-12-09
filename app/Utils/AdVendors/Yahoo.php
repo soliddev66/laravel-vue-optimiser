@@ -267,9 +267,9 @@ class Yahoo extends Root
                 }
 
                 $api->updateAds($ad_body);
-
-                return [];
             }
+
+            return [];
         } catch (Exception $e) {
             return [
                 'errors' => [$e->getMessage()]
