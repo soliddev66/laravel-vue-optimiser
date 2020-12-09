@@ -290,7 +290,6 @@
               </div>
             </form>
           </div>
-
           <div class="card-footer d-flex justify-content-end">
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
@@ -362,7 +361,7 @@ export default {
   },
   computed: {
     submitStep1State() {
-      return !this.selectedProvider || !this.selectedAccount || !this.selectedAdvertiser || !this.selectedFundingInstrument || !this.campaignName || !this.campaignStartTime || !this.campaignDailyBudgetAmountLocalMicro || !this.adGroupName || !this.adGroupStartTime
+      return !this.selectedProvider || !this.selectedAccount || !this.selectedAdvertiser || !this.selectedFundingInstrument || !this.campaignName || !this.campaignStartTime || !this.campaignDailyBudgetAmountLocalMicro || !this.adGroupName
     },
     submitStep2State() {
       return ((this.action == 'create' || !this.saveCard) && (!this.cardName || !this.cardWebsiteTitle || !this.cardWebsiteUrl || !this.cardMedia))

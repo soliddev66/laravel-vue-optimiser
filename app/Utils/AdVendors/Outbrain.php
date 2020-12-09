@@ -83,6 +83,52 @@ class Outbrain extends Root
         return $data;
     }
 
+    public function update(Campaign $campaign)
+    {
+        $data = [];
+        $api = $this->api();
+
+        try {
+            $campaign_data = $api->updateCampaign($campaign);
+
+            PullCampaign::dispatch(auth()->user());
+        } catch (RequestException $e) {
+            $data = [
+                'errors' => [$e->getMessage()]
+            ];
+        } catch (Exception $e) {
+            $data = [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+
+        return $data;
+    }
+
+    public function getCampaignInstance(Campaign $campaign)
+    {
+        try {
+            $api = new OutbrainAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+
+            $instance = $api->getCampaign($campaign->campaign_id);
+
+            $instance['provider'] = $campaign->provider->slug;
+            $instance['provider_id'] = $campaign['provider_id'];
+            $instance['open_id'] = $campaign['open_id'];
+            $instance['instance_id'] = $campaign['id'];
+            $instance['ads'] = $api->getPromotedLinks($campaign->campaign_id)['promotedLinks'];
+
+            return $instance;
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    public function cloneCampaignName(&$instance)
+    {
+        $instance['name'] = $instance['name'] . ' - Copy';
+    }
+
     public function status(Campaign $campaign)
     {
         try {
@@ -123,27 +169,17 @@ class Outbrain extends Root
                 if (array_key_exists('campaigns', $campaigns_by_marketer)) {
                     $campaigns_by_marketer = $campaigns_by_marketer['campaigns'];
                     foreach ($campaigns_by_marketer as $campaign) {
-                        $data = collect($campaign)->keyBy(function ($value, $key) {
-                            return Str::of($key)->snake();
-                        })->toArray();
-
                         $db_campaign = Campaign::firstOrNew([
-                            'campaign_id' => $data['id'],
+                            'campaign_id' => $campaign['id'],
                             'provider_id' => $user_provider->provider_id,
                             'open_id' => $user_provider->open_id,
                             'user_id' => $user_provider->user_id
                         ]);
 
-                        $db_campaign->name = $data['name'];
-                        $db_campaign->status = $data['enabled'] ? 'ACTIVE' : 'PAUSED';
-                        $db_campaign->budget = $data['budget']['amount'];
+                        $db_campaign->name = $campaign['name'];
+                        $db_campaign->status = $campaign['enabled'] ? 'ACTIVE' : 'PAUSED';
+                        $db_campaign->budget = $campaign['budget']['amount'];
                         $db_campaign->advertiser_id = $marketer['id'];
-
-                        // unset($data['id']);
-                        // foreach (array_keys($data) as $index => $array_key) {
-                        //     $db_campaign->{$array_key} = $data[$array_key];
-                        // }
-
                         $db_campaign->save();
                         $campaign_ids[] = $db_campaign->id;
                     }

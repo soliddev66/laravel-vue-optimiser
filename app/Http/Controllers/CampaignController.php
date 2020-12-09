@@ -148,10 +148,19 @@ class CampaignController extends Controller
             if (request('provider')) {
                 $campaigns_query->where('provider_id', request('provider'));
             }
+            if (request('account')) {
+                $campaigns_query->where('open_id', request('account'));
+            }
             if (request('query')) {
                 $campaigns_query->where('name', 'LIKE', '%' . request('query') . '%');
             }
             $summary_data_query = RedtrackReport::with(['campaign' => function ($q) {
+                if (request('provider')) {
+                    $q->where('provider_id', request('provider'));
+                }
+                if (request('account')) {
+                    $q->where('open_id', request('account'));
+                }
                 if (request('query')) {
                     $q->where('name', 'LIKE', '%' . request('query') . '%');
                 }
@@ -160,11 +169,7 @@ class CampaignController extends Controller
                 DB::raw('SUM(total_revenue) as total_revenue'),
                 DB::raw('SUM(profit) as total_net'),
                 DB::raw('SUM(roi)/COUNT(*) as avg_roi')
-            );
-            if (request('provider')) {
-                $summary_data_query->where('provider_id', request('provider'));
-            }
-            $summary_data_query->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
+            )->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
         } else {
             $campaigns_query = Campaign::with(['performanceStats' => function ($q) use ($start, $end) {
                 $q->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
@@ -172,10 +177,19 @@ class CampaignController extends Controller
             if (request('provider')) {
                 $campaigns_query->where('provider_id', request('provider'));
             }
+            if (request('account')) {
+                $campaigns_query->where('open_id', request('account'));
+            }
             if (request('query')) {
                 $campaigns_query->where('name', 'LIKE', '%' . request('query') . '%');
             }
             $summary_data_query = GeminiPerformanceStat::with(['campaign' => function ($q) {
+                if (request('provider')) {
+                    $q->where('provider_id', request('provider'));
+                }
+                if (request('account')) {
+                    $q->where('open_id', request('account'));
+                }
                 if (request('query')) {
                     $q->where('name', 'LIKE', '%' . request('query') . '%');
                 }
@@ -188,13 +202,13 @@ class CampaignController extends Controller
             $summary_data_query->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
         }
 
-        $accounts_query = auth()->user()->providers();
+        $accounts = [];
         if (request('provider')) {
-            $accounts_query->where('provider_id', request('provider'));
+            $accounts = auth()->user()->providers()->where('provider_id', request('provider'))->get();
         }
 
         return response()->json([
-            'accounts' => $accounts_query->get(),
+            'accounts' => $accounts,
             'campaigns' => $campaigns_query->paginate(10),
             'summary_data' => $summary_data_query->first()
         ]);
