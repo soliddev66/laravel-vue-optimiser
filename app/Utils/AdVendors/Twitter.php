@@ -274,12 +274,17 @@ class Twitter extends Root
                 }
             }
         }
-        
+
         return response()->json([
             'ad_groups' => $ad_groups,
             'ads' => $ads,
             'summary_data' => new \stdClass
         ]);
+    }
+
+    public function adStatus(Campaign $campaign, $ad_group_id, $ad_id)
+    {
+        return [];
     }
 
     public function pullCampaign($user_provider)

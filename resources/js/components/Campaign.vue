@@ -399,6 +399,8 @@ export default {
         }
       }).catch((err) => {
         alert(err);
+      }).finally(() => {
+        this.isLoading = false;
       });
     },
     updateAdStatus(e) {
@@ -413,6 +415,8 @@ export default {
         }
       }).catch((err) => {
         alert(err);
+      }).finally(() => {
+        this.isLoading = false;
       });
     }
   }
