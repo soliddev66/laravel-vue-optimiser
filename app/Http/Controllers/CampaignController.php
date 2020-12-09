@@ -320,19 +320,9 @@ class CampaignController extends Controller
 
     public function adStatus(Campaign $campaign, $ad_group_id, $ad_id)
     {
-        $data = [];
-        $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
-        $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        try {
-            $gemini->updateAdStatus($ad_group_id, $ad_id, $status);
-        } catch (Exception $e) {
-            $data = [
-                'errors' => [$e->getMessage()]
-            ];
-        }
-
-        return $data;
+        return (new $adVendorClass)->adStatus($campaign, $ad_group_id, $ad_id);
     }
 
     public function adGroupData(Campaign $campaign)
