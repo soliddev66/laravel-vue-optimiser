@@ -75,10 +75,10 @@ class TwitterAPI
         return $this->client->get('iab_categories')->getBody()->data;
     }
 
-    public function getPromotedTweet($line_item_id)
+    public function getPromotedTweets($line_item_ids)
     {
         return (new PromotedTweet)->all([
-            'line_item_ids' => $line_item_id
+            'line_item_ids' => implode(',', $line_item_ids)
         ])->getCollection();
     }
 
@@ -138,9 +138,9 @@ class TwitterAPI
         $campaign->save();
     }
 
-    public function updateAdGroupStatus($ad_group, $status)
+    public function updateAdGroupStatus($ad_group_id, $status)
     {
-        $line_item = new LineItem($ad_group->getId());
+        $line_item = new LineItem($ad_group_id);
         $line_item->setEntityStatus($status);
         $line_item->save();
     }

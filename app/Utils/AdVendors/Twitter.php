@@ -71,7 +71,7 @@ class Twitter extends Root
                     $instance['adGroups'][] = $ad_group->toArray();
                 }
 
-                $promoted_tweets = $api->getPromotedTweet($ad_groups[0]->getId());
+                $promoted_tweets = $api->getPromotedTweets([$ad_groups[0]->getId()]);
 
                 $tweets = $api->getTweet($promoted_tweets[0]->getTweetId());
 
@@ -222,11 +222,78 @@ class Twitter extends Root
 
             if ($ad_groups && count($ad_groups) > 0) {
                 foreach ($ad_groups as $ad_group) {
-                    $api->updateAdGroupStatus($ad_group, $campaign->status);
+                    $api->updateAdGroupStatus($ad_group->getId(), $campaign->status);
                 }
             }
 
             $campaign->save();
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+    }
+
+    public function adGroupData(Campaign $campaign)
+    {
+        $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
+        $ad_group_datas = $api->getAdGroups($campaign->campaign_id);
+
+        $ad_groups = [];
+        $ad_group_ids = [];
+        $ads = [];
+
+        if ($ad_group_datas && count($ad_group_datas) > 0) {
+            foreach ($ad_group_datas as $ad_group) {
+                $ad_groups[] = [
+                    'id' => $ad_group->getId(),
+                    'adGroupName' => $ad_group->getName(),
+                    'advertiserId' => $campaign->advertiser_id,
+                    'campaignId' => $campaign->campaign_id,
+                    'startDateStr' => $ad_group->getStartTime() ? $ad_group->getStartTime()->format('Y-m-d') : '',
+                    'endDateStr' => $ad_group->getEndTime() ? $ad_group->getEndTime()->format('Y-m-d') : '',
+                    'status' => $ad_group->getEntityStatus()
+                ];
+
+                $ad_group_ids[] = $ad_group->getId();
+            }
+
+            $promoted_tweets = $api->getPromotedTweets($ad_group_ids);
+
+            if ($promoted_tweets && count($promoted_tweets)) {
+                foreach ($promoted_tweets as $promoted_tweet) {
+                    $ads[] = [
+                        'id' => $promoted_tweet->getId(),
+                        'title' => $promoted_tweet->getId(),
+                        'advertiserId' => $campaign->advertiser_id,
+                        'campaignId' => $campaign->campaign_id,
+                        'adGroupId' => $promoted_tweet->getLineItemId()
+                    ];
+                }
+            }
+        }
+
+        return response()->json([
+            'ad_groups' => $ad_groups,
+            'ads' => $ads,
+            'summary_data' => new \stdClass
+        ]);
+    }
+
+    public function adStatus(Campaign $campaign, $ad_group_id, $ad_id)
+    {
+        return [];
+    }
+
+    public function adGroupStatus(Campaign $campaign, $ad_group_id)
+    {
+        $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
+        $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+
+        try {
+            $api->updateAdGroupStatus($ad_group_id, $status);
 
             return [];
         } catch (Exception $e) {

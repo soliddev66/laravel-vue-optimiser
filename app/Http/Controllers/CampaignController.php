@@ -289,84 +289,23 @@ class CampaignController extends Controller
 
     public function adGroupStatus(Campaign $campaign, $ad_group_id)
     {
-        $data = [];
-        $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
-        $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        try {
-            $ad_group = $gemini->updateAdGroupStatus($ad_group_id, $status);
-            $ads = $gemini->getAds([$ad_group_id], $campaign->advertiser_id);
-            if (count($ads) > 0) {
-                $ad_body = [];
-
-                foreach ($ads as $ad) {
-                    $ad_body[] = [
-                        'adGroupId' => $ad['adGroupId'],
-                        'id' => $ad['id'],
-                        'status' => $ad_group['status']
-                    ];
-                }
-
-                $gemini->updateAds($ad_body);
-            }
-        } catch (Exception $e) {
-            $data = [
-                'errors' => [$e->getMessage()]
-            ];
-        }
-
-        return $data;
+        return (new $adVendorClass)->adGroupStatus($campaign, $ad_group_id);
     }
 
     public function adStatus(Campaign $campaign, $ad_group_id, $ad_id)
     {
-        $data = [];
-        $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
-        $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        try {
-            $gemini->updateAdStatus($ad_group_id, $ad_id, $status);
-        } catch (Exception $e) {
-            $data = [
-                'errors' => [$e->getMessage()]
-            ];
-        }
-
-        return $data;
+        return (new $adVendorClass)->adStatus($campaign, $ad_group_id, $ad_id);
     }
 
     public function adGroupData(Campaign $campaign)
     {
-        $start = Carbon::now()->format('Y-m-d');
-        $end = Carbon::now()->format('Y-m-d');
-        $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first());
-        if (request('tracker')) {
-            $summary_data = RedtrackReport::select(
-                DB::raw('SUM(cost) as total_cost'),
-                DB::raw('SUM(total_revenue) as total_revenue'),
-                DB::raw('SUM(profit) as total_net'),
-                DB::raw('SUM(roi)/COUNT(*) as avg_roi')
-            )
-                ->where('sub6', $campaign->campaign_id)
-                ->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
-                ->first();
-        } else {
-            $summary_data = GeminiPerformanceStat::select(
-                DB::raw('SUM(spend) as total_cost'),
-                DB::raw('0 as total_revenue'),
-                DB::raw('0 - SUM(spend) as total_net'),
-                DB::raw('-100 as avg_roi')
-            )
-                ->where('campaign_id', $campaign->campaign_id)
-                ->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')])
-                ->first();
-        }
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return response()->json([
-            'ad_groups' => $gemini->getAdGroups($campaign->campaign_id, $campaign->advertiser_id),
-            'ads' => $gemini->getAdsByCampaign($campaign->campaign_id, $campaign->advertiser_id),
-            'summary_data' => $summary_data
-        ]);
+        return (new $adVendorClass)->adGroupData($campaign);
     }
 
     public function delete(Campaign $campaign)
