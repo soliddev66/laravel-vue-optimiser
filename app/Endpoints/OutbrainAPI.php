@@ -80,7 +80,20 @@ class OutbrainAPI
         ]);
     }
 
-    public function createAdCampaign($budget_data)
+    public function updateBudget($budget_id)
+    {
+        return $this->client->call('PUT', 'budgets/' . $budget_id, [
+            'name' => request('campaignName'),
+            'amount' => request('campaignBudget'),
+            'startDate' => request('campaignStartDate'),
+            'endDate' => request('campaignEndDate'),
+            'runForever' => request('campaignEndDate') ? false : true,
+            'type' => request('campaignBudgetType'),
+            'pacing' => request('campaignPacing')
+        ]);
+    }
+
+    public function createCampaign($budget_data)
     {
         return $this->client->call('POST', 'campaigns', [
             'marketerId' => request('selectedAdvertiser'),
@@ -92,7 +105,9 @@ class OutbrainAPI
                 'platform' => request('campaginPlatform'),
                 'locations' => request('campaignLocation'),
                 'operatingSystems' => request('campaignOperatingSystem'),
-                'browsers' => request('campaignBrowser')
+                'browsers' => request('campaignBrowser'),
+                'useExtendedNetworkTraffic' => request('campaignUseNetworkExtendedTraffic'),
+                'excludeAdBlockUsers' => request('campaignExcludeAdBlockUsers')
             ],
             'suffixTrackingCode' => request('campaignTrackingCode'),
             'onAirType' => request('campaignStartTime') ? 'StartHour' : 'Scheduled',
@@ -101,16 +116,18 @@ class OutbrainAPI
         ]);
     }
 
-    public function updateCampaign($campaign)
+    public function updateCampaign($campaign_id)
     {
-        return $this->client->call('PUT', 'campaigns/' . $campaign->campaign_id, [
+        return $this->client->call('PUT', 'campaigns/' . $campaign_id . '?extraFields=CustomAudience,Locations,InterestsTargeting,BidBySections,BlockedSites,PlatformTargeting,CampaignOptimization,Scheduling', [
             'name' => request('campaignName'),
             'cpc' => request('campaignCostPerClick'),
             'targeting' => [
                 'platform' => request('campaginPlatform'),
                 'locations' => request('campaignLocation'),
                 'operatingSystems' => request('campaignOperatingSystem'),
-                'browsers' => request('campaignBrowser')
+                'browsers' => request('campaignBrowser'),
+                'useExtendedNetworkTraffic' => request('campaignUseNetworkExtendedTraffic'),
+                'excludeAdBlockUsers' => request('campaignExcludeAdBlockUsers')
             ],
             'suffixTrackingCode' => request('campaignTrackingCode'),
             'onAirType' => request('campaignStartTime') ? 'StartHour' : 'Scheduled',
@@ -128,6 +145,20 @@ class OutbrainAPI
             'cpc' => request('cpc'),
             'imageMetadata' => [
                 'url' => request('imageUrl')
+            ]
+        ]);
+    }
+
+    public function updateAd($campaign_id, $ad_id)
+    {
+        return $this->client->call('PUT', 'campaigns/' . $campaign_id . '/promotedLinks', [
+            [
+                'id' => $ad_id,
+                'text' => request('title'),
+                'enabled' => true,
+                'imageMetadata' => [
+                    'url' => request('imageUrl')
+                ]
             ]
         ]);
     }

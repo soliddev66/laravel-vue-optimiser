@@ -206,6 +206,15 @@
               <div class="card-body" v-if="currentStep == 2">
                 <div class="row">
                   <div class="col-sm-6">
+                    <div class="form-group row" v-if="ads.length">
+                      <label for="ad" class="col-sm-4 control-label mt-2">Select Ad</label>
+                      <div class="col-sm-8">
+                        <select name="ad" class="form-control" v-model="selectedAd" @change="selectedAdChanged">
+                          <option value="">Select Ad</option>
+                          <option :value="ad" v-for="ad in ads" :key="ad.id">{{ ad.id }} - {{ ad.name }}</option>
+                        </select>
+                      </div>
+                    </div>
                     <div class="form-group row">
                       <label for="title" class="col-sm-4 control-label mt-2">Title</label>
                       <div class="col-sm-8">
@@ -221,13 +230,13 @@
                     <div class="form-group row">
                       <label for="cpc" class="col-sm-4 control-label mt-2">CPC</label>
                       <div class="col-sm-8">
-                        <input type="number" name="cpc" placeholder="Enter cpc" class="form-control" v-model="cpc" />
+                        <input type="number" name="cpc" placeholder="Enter cpc" class="form-control" v-model="cpc" :disabled="instance" />
                       </div>
                     </div>
                     <div class="form-group row">
                       <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
                       <div class="col-sm-8 text-center">
-                        <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="targetUrl" />
+                        <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="targetUrl" :disabled="instance" />
                         <small class="text-danger" v-if="targetUrl && !targetUrlState">URL is invalid. You might need http/https at the beginning.</small>
                       </div>
                     </div>
@@ -474,8 +483,8 @@ export default {
       campaignLanguage: this.instance ? this.instance.language : 'en',
       campaginPlatform: this.instance ? this.instance.targeting.platform : ['DESKTOP', 'MOBILE', 'TABLET'],
       campaignLocation: this.instance ? this.instance.targeting.locations : [],
-      campaignOperatingSystem: this.instance ? this.instance.targeting.operatingSystems : ['Ios', 'Android', 'MacOs', 'Windows'],
-      campaignBrowser: this.instance ? this.instance.targeting.browsers : ['chrome', 'firefox', 'safari', 'internetExplorer', 'opera', 'samsung', 'ucBrowser', 'inApp'],
+      campaignOperatingSystem: this.instance ? this.instance.targeting.operatingSystems : ['Ios', 'MacOs', 'Android', 'Windows'],
+      campaignBrowser: this.instance ? this.instance.targeting.browsers : ['Safari', 'Opera', 'Chrome', 'UCBrowser', 'InApp', 'Samsung', 'Firefox', 'InternetExplorer', 'Edge'],
       campaignBudget: this.instance ? this.instance.budget.amount : 20,
       campaignCostPerClick: this.instance ? this.instance.cpc : '',
       campaignPacing: this.instance ? this.instance.budget.pacing : 'SPEND_ASAP',
@@ -483,18 +492,20 @@ export default {
       campaignStartTime: this.instance ? this.instance.startHour : '',
       campaignEndDate: this.instance && !this.instance.budget.runForever ? this.instance.budget.endDate : '',
       platforms: ['DESKTOP', 'MOBILE', 'TABLET'],
-      operatingSystems: ['Ios', 'Android', 'MacOs', 'Windows'],
-      browsers: ['chrome', 'firefox', 'safari', 'internetExplorer', 'opera', 'samsung', 'ucBrowser', 'inApp'],
+      operatingSystems: ['Ios', 'MacOs', 'Android', 'Windows'],
+      browsers: ['Safari', 'Opera', 'Chrome', 'UCBrowser', 'InApp', 'Samsung', 'Firefox', 'InternetExplorer', 'Edge'],
       campaignTrackingCode: this.instance ? this.instance.suffixTrackingCode : '',
       campaignUseNetworkExtendedTraffic: this.instance ? this.instance.targeting.useExtendedNetworkTraffic : true,
       campaignExcludeAdBlockUsers: this.instance ? this.instance.targeting.excludeAdBlockUsers : true,
       campaignBudgetType: this.instance ? this.instance.budget.type : 'DAILY',
       scheduleType: this.instance && !this.instance.budget.runForever ? 'CUSTOM' : 'CONTINUOUSLY',
-      title: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['text'] : '',
-      targetUrl: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['url'] : '',
-      cpc: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['cpc'] : '',
-      brandname: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['siteName'] : '',
-      imageUrl: this.instance && this.instance.ads.length > 0 && this.instance.ads[0]['imageMetadata'] ? this.instance.ads[0]['imageMetadata']['originalImageUrl'] : '',
+      ads: this.instance ? this.instance.ads : [],
+      selectedAd: '',
+      title: this.instance && this.selectedAd ? this.selectedAd.text : '',
+      targetUrl: this.instance && this.selectedAd ? this.selectedAd.url : '',
+      cpc: this.instance && this.selectedAd ? this.selectedAd.cpc : '',
+      brandname: this.instance && this.selectedAd ? this.selectedAd.siteName : '',
+      imageUrl: this.instance && this.selectedAd ? this.selectedAd.imageMetadata.originalImageUrl : '',
       image: {
         size: '',
         height: '',
@@ -561,6 +572,14 @@ export default {
       this.getLanguages()
       this.getCountries()
       this.getAdvertisers()
+    },
+    selectedAdChanged() {
+      this.adId = this.selectedAd.id
+      this.title = this.selectedAd.text
+      this.targetUrl = this.selectedAd.url
+      this.cpc = this.selectedAd.cpc
+      this.brandname = this.selectedAd.siteName
+      this.imageUrl = this.selectedAd.imageMetadata.originalImageUrl
     },
     getLanguages() {
       this.isLoading = true
@@ -645,7 +664,8 @@ export default {
         campaignBudget: this.campaignBudget,
         campaignBudgetType: this.campaignBudgetType,
         campaignName: this.campaignName,
-        adID: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['id'] : '',
+        budgetId: this.instance ? this.instance.budget.id : '',
+        adId: this.instance ? this.selectedAd.id : '',
         campaignType: this.campaignType,
         campaignLanguage: this.campaignLanguage,
         campaginPlatform: this.campaginPlatform,
@@ -659,6 +679,8 @@ export default {
         campaignCostPerClick: this.campaignCostPerClick,
         campaignObjective: this.campaignObjective,
         campaignStartTime: this.campaignStartTime,
+        campaignUseNetworkExtendedTraffic: this.campaignUseNetworkExtendedTraffic,
+        campaignExcludeAdBlockUsers: this.campaignExcludeAdBlockUsers,
         campaignTrackingCode: this.campaignTrackingCode,
         campaignEndDate: this.campaignEndDate
       }
@@ -667,6 +689,7 @@ export default {
     },
     submitStep2() {
       const step2Data = {
+        adId: this.adId,
         targetUrl: this.targetUrl,
         title: this.title,
         cpc: this.cpc,

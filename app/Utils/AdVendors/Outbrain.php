@@ -53,7 +53,7 @@ class Outbrain extends Root
             Log::info('OUTBRAIN: Created budget: ' . $budget_data['id']);
 
             try {
-                $campaign_data = $api->createAdCampaign($budget_data);
+                $campaign_data = $api->createCampaign($budget_data);
                 Log::info('OUTBRAIN: Created campaign: ' . $campaign_data['id']);
             } catch (Exception $e) {
                 $api->deleteBudget($budget_data);
@@ -89,7 +89,9 @@ class Outbrain extends Root
         $api = $this->api();
 
         try {
-            $campaign_data = $api->updateCampaign($campaign);
+            $budget_data = $api->updateBudget(request('budgetId'));
+            $campaign_data = $api->updateCampaign($campaign->campaign_id);
+            $ad_data = $api->updateAd($campaign->campaign_id, request('adId'));
 
             PullCampaign::dispatch(auth()->user());
         } catch (RequestException $e) {
