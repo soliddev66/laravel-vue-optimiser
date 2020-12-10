@@ -46,7 +46,7 @@
                 <tr>
                   <th>ID</th>
                   <th>Traffic Source</th>
-                  <th colspan="4">Actions</th>
+                  <th>Actions</th>
                   <th class="fit">Camp. ID</th>
                   <th class="fit">Name</th>
                   <th>Status</th>
@@ -77,18 +77,19 @@
                   <td>{{ campaign.id }}</td>
                   <td class="text-capitalize">{{ providerName(campaign) }}</td>
                   <td class="border-right-0 px-1">
-                    <a class="btn btn-sm btn-default border" :href="'/campaigns/status/' + campaign.id" @click.prevent="updateCampaignStatus">
-                      <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': campaign.status == 'ACTIVE' }"></i>
-                    </a>
-                  </td>
-                  <td class="border-right-0 px-1">
-                    <a class="btn btn-sm btn-default border" :href="'/campaigns/edit/' + campaign.id"><i class="fas fa-edit"></i></a>
-                  </td>
-                  <td class="border-right-0 px-1">
-                    <a class="btn btn-sm btn-default border" :href="'/campaigns/create/' + campaign.id"><i class="fas fa-clone"></i></a>
-                  </td>
-                  <td class="px-1">
-                    <a class="btn btn-sm btn-default border" :href="'/campaigns/delete/' + campaign.id" @click.prevent="deleteCampaign"><i class="fas fa-trash"></i></a>
+                    <div class="dropdown">
+                      <button class="btn btn-sm border" type="button" @click="showQuickAct(campaign.id)">
+                        <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                      </button>
+                      <div class="dropdown-menu px-2" :class="{ 'show': showQuickActions === campaign.id }">
+                        <a class="btn btn-sm btn-default border" :href="'/campaigns/status/' + campaign.id" @click.prevent="updateCampaignStatus">
+                          <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': campaign.status == 'ACTIVE' }"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default border" :href="'/campaigns/edit/' + campaign.id"><i class="fas fa-edit"></i></a>
+                        <a class="btn btn-sm btn-default border" :href="'/campaigns/create/' + campaign.id"><i class="fas fa-clone"></i></a>
+                        <a class="btn btn-sm btn-default border" :href="'/campaigns/delete/' + campaign.id" @click.prevent="deleteCampaign"><i class="fas fa-trash"></i></a>
+                      </div>
+                    </div>
                   </td>
                   <td class="fit">{{ campaign.campaign_id }}</td>
                   <td class="fit"><a :href="'/campaigns/' + campaign.id">{{ campaign.name }}</a></td>
@@ -122,7 +123,7 @@
               </tbody>
               <tbody v-else>
                 <tr>
-                  <td colspan="29">No campaign found.</td>
+                  <td colspan="26">No campaign found.</td>
                 </tr>
               </tbody>
             </table>
@@ -187,15 +188,23 @@ export default {
       selectedAccount: '',
       selectedTracker: 'redtrack',
       targetDate: {
-        start: this.$moment().format('YYYY-MM-DD'),
+        start: this.$moment().subtract(30, 'days').format('YYYY-MM-DD'),
         end: this.$moment().format('YYYY-MM-DD')
       },
       query: '',
       isLoading: false,
+      showQuickActions: '',
       fullPage: true
     }
   },
   methods: {
+    showQuickAct(campaignId) {
+      if (this.showQuickActions === campaignId) {
+        this.showQuickActions = ''
+      } else {
+        this.showQuickActions = campaignId
+      }
+    },
     avg(array, key) {
       if (array !== undefined) {
         return _.round(_.meanBy(array, (value) => value[key]), 2)

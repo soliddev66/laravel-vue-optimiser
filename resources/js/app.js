@@ -31,7 +31,7 @@ Vue.use(VSwitch);
 Vue.use(VueTabs);
 Vue.use(FileManager, {store});
 Vue.use(VModal);
-Vue.use(vueDebounce)
+Vue.use(vueDebounce);
 Vue.use(moment);
 
 /**
