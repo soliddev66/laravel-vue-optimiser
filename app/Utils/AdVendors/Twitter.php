@@ -64,6 +64,8 @@ class Twitter extends Root
 
             $instance['adGroups'] = [];
 
+            $instance['ads'] = [];
+
             $ad_groups = $api->getAdGroups($campaign->campaign_id);
 
             if ($ad_groups && count($ad_groups) > 0) {
@@ -73,15 +75,15 @@ class Twitter extends Root
 
                 $promoted_tweets = $api->getPromotedTweets([$ad_groups[0]->getId()]);
 
-                $tweets = $api->getTweet($promoted_tweets[0]->getTweetId());
+                if ($promoted_tweets && count($promoted_tweets) > 0) {
+                    $tweets = $api->getTweet($promoted_tweets[0]->getTweetId());
 
-                $instance['promoted_tweet_id'] = $promoted_tweets[0]->getId();
+                    $instance['promoted_tweet_id'] = $promoted_tweets[0]->getId();
 
-                $instance['ads'] = [];
-
-                if ($tweets && count($tweets) > 0) {
-                    foreach ($tweets as $tweet) {
-                        $instance['ads'][] = $tweet->toArray();
+                    if ($tweets && count($tweets) > 0) {
+                        foreach ($tweets as $tweet) {
+                            $instance['ads'][] = $tweet->toArray();
+                        }
                     }
                 }
             }
