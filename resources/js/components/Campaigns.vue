@@ -15,19 +15,19 @@
               <div class="col-md-3 col-12">
                 <select class="form-control" v-model="selectedProvider" @change="getData">
                   <option value="">-</option>
-                  <option v-for="provider in providers" :value="provider.id">{{ provider.label }}</option>
+                  <option v-for="provider in providers" :value="provider.id" :key="provider.id">{{ provider.label }}</option>
                 </select>
               </div>
               <div class="col-md-3 col-12">
                 <select class="form-control" v-model="selectedAccount" @change="getData">
                   <option value="">-</option>
-                  <option v-for="account in accounts" :value="account.open_id">{{ account.open_id }}</option>
+                  <option v-for="account in accounts" :value="account.open_id" :key="account.open_id">{{ account.open_id }}</option>
                 </select>
               </div>
               <div class="col-md-3 col-12">
                 <select class="form-control" v-model="selectedTracker" @change="getData">
                   <option value="">-</option>
-                  <option v-for="tracker in trackers" :value="tracker.slug">{{ tracker.label }}</option>
+                  <option v-for="tracker in trackers" :value="tracker.slug" :key="tracker.slug">{{ tracker.label }}</option>
                 </select>
               </div>
             </div>
@@ -167,14 +167,17 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
-    this.getData()
+    let params = (new URL(document.location)).searchParams;
+    this.getData(params.get('page') || 1, true)
   },
   watch: {
-    selectedTracker() {
-      this.getData()
-    }
+    // selectedTracker() {
+    //   this.getData()
+    // }
   },
   data() {
+    let params = (new URL(document.location)).searchParams;
+
     return {
       accounts: [],
       campaigns: {},
@@ -184,14 +187,14 @@ export default {
         total_net: 0,
         avg_roi: 0
       },
-      selectedProvider: '',
-      selectedAccount: '',
-      selectedTracker: 'redtrack',
+      selectedProvider: params.get('provider') || '',
+      selectedAccount: params.get('account') || '',
+      selectedTracker: params.get('tracker') || 'redtrack',
       targetDate: {
         start: this.$moment().subtract(30, 'days').format('YYYY-MM-DD'),
         end: this.$moment().format('YYYY-MM-DD')
       },
-      query: '',
+      query: params.get('query') || '',
       isLoading: false,
       showQuickActions: '',
       fullPage: true
@@ -226,13 +229,17 @@ export default {
     providerName(campaign) {
       return this.providers.find(provider => provider.id === campaign.provider_id) ? this.providers.find(provider => provider.id === campaign.provider_id).label : 'N/A'
     },
-    getData(page = 1) {
-      const params = {...this.targetDate, ... { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount, query: this.query, page: page } };
+    getData(page = 1, state = false) {
+      const data = { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount, query: this.query, page: page }
+      const params = {...this.targetDate, ...data };
       axios.post('/campaigns/search', params)
         .then((response) => {
           this.accounts = response.data.accounts;
           this.campaigns = response.data.campaigns;
           this.summaryData = response.data.summary_data;
+          if (!state) {
+            window.history.pushState({}, null, '/campaigns?' + Object.keys(data).map(function(k) {return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])}).join('&'))
+          }
         })
         .catch((err) => {
           alert(err);
