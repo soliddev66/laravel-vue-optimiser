@@ -141,7 +141,6 @@ class OutbrainAPI
             'text' => request('title'),
             'url' => request('targetUrl'),
             'enabled' => true,
-            'cpc' => request('cpc'),
             'imageMetadata' => [
                 'url' => request('imageUrl')
             ]
