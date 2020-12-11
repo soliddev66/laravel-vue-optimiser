@@ -96,7 +96,6 @@ class OutbrainAPI
     public function createCampaign($budget_data)
     {
         return $this->client->call('POST', 'campaigns', [
-            'marketerId' => request('selectedAdvertiser'),
             'name' => request('campaignName'),
             'cpc' => request('campaignCostPerClick'),
             'enabled' => true,
