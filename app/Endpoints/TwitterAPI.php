@@ -314,9 +314,9 @@ class TwitterAPI
         return $media_library->save();
     }
 
-    public function getCampaignStats($campaign_id, $param)
+    public function getCampaignStats($param)
     {
-        $campaign = new Campaign($campaign_id);
+        $campaign = new Campaign();
         $resource = str_replace(Campaign::RESOURCE_REPLACE, $campaign->getTwitterAds()->getAccountId(), Campaign::RESOURCE_STATS);
 
         return $campaign->getTwitterAds()->get($resource, $param)->getBody()->data;
