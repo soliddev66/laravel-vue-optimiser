@@ -367,7 +367,15 @@ export default {
       return !this.selectedProvider || !this.selectedAccount || !this.selectedAdvertiser || !this.selectedFundingInstrument || !this.campaignName || !this.campaignStartTime || !this.campaignDailyBudgetAmountLocalMicro || !this.adGroupName
     },
     submitStep2State() {
-      return ((this.action == 'create' || !this.saveCard) && (1))
+      return ((this.action == 'create' || !this.saveCard) && !this.cardState)
+    },
+    cardState() {
+      for (let i = 0; i < this.cards.length; i++) {
+        if (!this.cards[i].name || !this.cards[i].media || !this.cards[i].websiteTitle || !this.cards[i].websiteUrl || !this.cards[i].tweetText) {
+          return false
+        }
+      }
+      return true
     }
   },
   mounted() {
@@ -376,7 +384,6 @@ export default {
     this.loadAdvertisers()
 
     if (this.instance) {
-      console.log(this.instance.adGroups[0]['bid_type'])
       this.loadFundingInstruments();
       this.loadAdGroupCategories();
     }
