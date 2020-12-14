@@ -168,7 +168,7 @@ class CampaignController extends Controller
                 DB::raw('SUM(cost) as total_cost'),
                 DB::raw('SUM(total_revenue) as total_revenue'),
                 DB::raw('SUM(profit) as total_net'),
-                DB::raw('SUM(roi)/COUNT(*) as avg_roi')
+                DB::raw('(SUM(profit)/SUM(cost)) * 100 as avg_roi'),
             )->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
         } else {
             $campaigns_query = Campaign::with(['performanceStats' => function ($q) use ($start, $end) {
