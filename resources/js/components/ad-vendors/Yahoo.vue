@@ -195,7 +195,7 @@
                 </div>
               </div>
               <div class="card-body" v-if="currentStep == 2">
-                <fieldset v-for="(content, index) in contents" :key="index">
+                <fieldset class="mb-3 p-3 rounded border" v-for="(content, index) in contents" :key="index">
                   <div class="row">
                     <div class="col-sm-6">
                       <div class="form-group row">
@@ -220,14 +220,14 @@
                         <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
                         <div class="col-sm-8 text-center">
                           <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" />
-                          <small class="text-danger" v-if="displayUrl && !displayUrlState">URL is invalid. You might need http/https at the beginning.</small>
+                          <small class="text-danger" v-if="content.displayUrl">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
                         <div class="col-sm-8 text-center">
                           <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" />
-                          <small class="text-danger" v-if="targetUrl && !targetUrlState">URL is invalid. You might need http/https at the beginning.</small>
+                          <small class="text-danger" v-if="content.targetUrl">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
                       <div class="form-group row">
@@ -457,25 +457,25 @@ export default {
   },
   watch: {
     title: _.debounce(function(newVal) {
-      this.loadPreview()
+      //this.loadPreview()
     }, 2000),
     displayUrl: _.debounce(function(newVal) {
-      this.loadPreview()
+      //this.loadPreview()
     }, 2000),
     targetUrl: _.debounce(function(newVal) {
-      this.loadPreview()
+      //this.loadPreview()
     }, 2000),
     description: _.debounce(function(newVal) {
-      this.loadPreview()
+      //this.loadPreview()
     }, 2000),
     brandname: _.debounce(function(newVal) {
-      this.loadPreview()
+      //this.loadPreview()
     }, 2000),
     imageUrlHQ: _.debounce(function(newVal) {
-      this.loadPreview()
+      //this.loadPreview()
     }, 2000),
     imageUrl: _.debounce(function(newVal) {
-      this.loadPreview()
+      //this.loadPreview()
     }, 2000)
   },
   data() {
@@ -666,7 +666,7 @@ export default {
     //   }
     // },
     addContent() {
-      this.cards.push({
+      this.contents.push({
         title: '',
         displayUrl: '',
         targetUrl: '',
