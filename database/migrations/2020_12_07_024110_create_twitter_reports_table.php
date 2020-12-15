@@ -17,7 +17,6 @@ class CreateTwitterReportsTable extends Migration
             $table->id();
             $table->integer('campaign_id')->unsigned();
             $table->string('granularity')->nullable();
-            $table->string('metric_groups')->nullable();
             $table->string('placement')->nullable();
             $table->longText('data')->nullable();
             $table->date('start_time')->nullable();

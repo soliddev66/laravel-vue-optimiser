@@ -114,7 +114,7 @@
                       <div class="col text-right">
                         <button class="btn btn-warning btn-sm" @click.prevent="removeOrRuleCondition(index)">Remove</button>
                       </div>
-                      </div>
+                    </div>
                   </fieldset>
 
                   <div class="form-group row mb-0">

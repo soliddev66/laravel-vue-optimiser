@@ -9,11 +9,9 @@
           <div class="card-header d-flex justify-content-between align-items-center">
             <label class="p-2" :class="{ 'bg-primary': currentStep === 1 }">Campaign {{ actionName }}</label>
             <i class="fas fa-arrow-right"></i>
-            <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">Add Card</label>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">Add Tweet</label>
             <i class="fas fa-arrow-right"></i>
-            <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Add Tweet</label>
-            <i class="fas fa-arrow-right"></i>
-            <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Preview</label>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Preview</label>
           </div>
           <div class="card-body">
             <form class="row" v-if="selectedProvider && selectedAccount">
@@ -222,65 +220,70 @@
                   </div>
                 </div>
                 <section v-if="action == 'create' || !saveCard">
-                  <div class="form-group row">
-                    <label for="card_name" class="col-sm-2 control-label mt-2">Name</label>
-                    <div class="col-lg-10 col-xl-8">
-                      <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="cardName" />
+                  <fieldset class="mb-3 p-3 rounded border" v-for="(card, index) in cards" :key="index">
+                    <div class="form-group row">
+                      <label for="card_name" class="col-sm-2 control-label mt-2">Card Name</label>
+                      <div class="col-lg-10 col-xl-8">
+                        <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="card.name" />
+                      </div>
                     </div>
-                  </div>
-                  <div class="form-group row">
-                    <label for="card_media" class="col-sm-2 control-label mt-2">Media Image</label>
-                    <div class="col-sm-8">
-                      <input type="text" name="card_media" placeholder="Media Image" class="form-control" v-model="cardMedia" disabled />
+                    <div class="form-group row">
+                      <label for="card_media" class="col-sm-2 control-label mt-2">Card Media Image</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="card_media" placeholder="Media Image" class="form-control" v-model="card.media" disabled />
+                      </div>
+                      <div class="col-sm-8 offset-sm-2">
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('cardMedia', index)">Choose File</button>
+                      </div>
                     </div>
-                    <div class="col-sm-8 offset-sm-2">
-                      <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('cardMedia')">Choose File</button>
+                    <div class="form-group row">
+                      <label for="card_website_title" class="col-sm-2 control-label mt-2">Card Website Title</label>
+                      <div class="col-lg-10 col-xl-8">
+                        <input type="text" name="card_website_title" placeholder="Enter website title" class="form-control" v-model="card.websiteTitle" />
+                      </div>
                     </div>
-                  </div>
-                  <div class="form-group row">
-                    <label for="card_website_title" class="col-sm-2 control-label mt-2">Website Title</label>
-                    <div class="col-lg-10 col-xl-8">
-                      <input type="text" name="card_website_title" placeholder="Enter website title" class="form-control" v-model="cardWebsiteTitle" />
+                    <div class="form-group row">
+                      <label for="card_website_url" class="col-sm-2 control-label mt-2">Card Website URL</label>
+                      <div class="col-lg-10 col-xl-8">
+                        <input type="text" name="card_website_url" placeholder="Enter a website URL" class="form-control" v-model="card.websiteUrl" />
+                      </div>
                     </div>
-                  </div>
-                  <div class="form-group row">
-                    <label for="card_website_url" class="col-sm-2 control-label mt-2">Website URL</label>
-                    <div class="col-lg-10 col-xl-8">
-                      <input type="text" name="card_website_url" placeholder="Enter a website URL" class="form-control" v-model="cardWebsiteUrl" />
+
+                    <div class="form-group row">
+                      <p class="col-12" v-if="instance && action == 'edit' && saveCard">
+                        Not allow to update the tweet.
+                      </p>
                     </div>
-                  </div>
+                    <div class="form-group row">
+                      <label for="tweet_text" class="col-sm-2 control-label mt-2">Tweet Text</label>
+                      <div class="col-lg-10 col-xl-8">
+                        <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="card.tweetText" :disabled="instance && action == 'edit' && saveCard" />
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="tweet_nullcast" class="col-sm-2 control-label mt-2">Tweet Nullcast</label>
+                      <div class="col-lg-4 col-xl-3">
+                        <div class="btn-group btn-group-toggle">
+                          <label class="btn bg-olive" :class="{ active: card.tweetNullcast }">
+                            <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" :disabled="instance && saveCard" v-model="card.tweetNullcast">TRUE
+                          </label>
+                          <label class="btn bg-olive" :class="{ active: !card.tweetNullcast }">
+                            <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" :disabled="instance && saveCard" v-model="card.tweetNullcast">FALSE
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row" v-if="index > 0">
+                      <div class="col text-right">
+                        <button class="btn btn-warning btn-sm" @click.prevent="removeCard(index)">Remove</button>
+                      </div>
+                    </div>
+                  </fieldset>
+                  <button class="btn btn-primary btn-sm" @click.prevent="addCard()">Add New</button>
                 </section>
               </div>
-              <div class="col" v-if="currentStep == 3">
-                <div class="form-group row">
-                  <p class="col-12" v-if="instance && !saveCard">
-                    You must create a new tweet since you recreate the card.
-                  </p>
-                  <p class="col-12" v-if="instance && action == 'edit' && saveCard">
-                    Not allow to update the tweet.
-                  </p>
-                </div>
-                <div class="form-group row">
-                  <label for="tweet_text" class="col-sm-2 control-label mt-2">Text</label>
-                  <div class="col-lg-10 col-xl-8">
-                    <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="tweetText" :disabled="instance && action == 'edit' && saveCard" />
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="tweet_nullcast" class="col-sm-2 control-label mt-2">Nullcast</label>
-                  <div class="col-lg-4 col-xl-3">
-                    <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: tweetNullcast }">
-                        <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" :disabled="instance && saveCard" v-model="tweetNullcast">TRUE
-                      </label>
-                      <label class="btn bg-olive" :class="{ active: !tweetNullcast }">
-                        <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" :disabled="instance && saveCard" v-model="tweetNullcast">FALSE
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body" v-if="currentStep == 4">
+              <div class="card-body" v-if="currentStep == 3">
                 <div class="row">
                   <div class="col-sm-12">
                     <h2>Preview</h2>
@@ -298,10 +301,7 @@
               <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="submitStep1State">Add Card</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="submitStep2State">Add Tweet</button>
-            </div>
-            <div class="d-flex justify-content-end" v-if="currentStep === 3">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep3" :disabled="submitStep3State">Submit</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="submitStep2State">Submit</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 4">
               <button type="button" class="btn btn-primary">Finish</button>
@@ -364,10 +364,15 @@ export default {
       return !this.selectedProvider || !this.selectedAccount || !this.selectedAdvertiser || !this.selectedFundingInstrument || !this.campaignName || !this.campaignStartTime || !this.campaignDailyBudgetAmountLocalMicro || !this.adGroupName
     },
     submitStep2State() {
-      return ((this.action == 'create' || !this.saveCard) && (!this.cardName || !this.cardWebsiteTitle || !this.cardWebsiteUrl || !this.cardMedia))
+      return ((this.action == 'create' || !this.saveCard) && !this.cardState)
     },
-    submitStep3State() {
-      return !this.tweetText
+    cardState() {
+      for (let i = 0; i < this.cards.length; i++) {
+        if (!this.cards[i].name || !this.cards[i].media || !this.cards[i].websiteTitle || !this.cards[i].websiteUrl || !this.cards[i].tweetText) {
+          return false
+        }
+      }
+      return true
     }
   },
   mounted() {
@@ -376,7 +381,6 @@ export default {
     this.loadAdvertisers()
 
     if (this.instance) {
-      console.log(this.instance.adGroups[0]['bid_type'])
       this.loadFundingInstruments();
       this.loadAdGroupCategories();
     }
@@ -385,7 +389,7 @@ export default {
     this.$root.$on('fm-selected-items', (value) => {
       const selectedFilePath = value[0].path
       if (this.openingFileSelector === 'cardMedia') {
-        this.cardMedia = selectedFilePath
+        this.cards[this.fileSelectorIndex].media = selectedFilePath
       }
       vm.$modal.hide(this.openingFileSelector)
     });
@@ -453,30 +457,21 @@ export default {
       adGroupChargeBy: this.instance && this.instance.adGroups.length > 0 ? this.instance.adGroups[0]['charge_by'] : 'LINK_CLICK',
       adGroupStartTime: this.instance && this.instance.adGroups.length > 0 && this.instance.adGroups[0]['start_time'] ? this.instance.adGroups[0]['start_time'].date.split(' ')[0] : '',
       adGroupEndTime: this.instance && this.instance.adGroups.length > 0 && this.instance.adGroups[0]['end_time'] ? this.instance.adGroups[0]['end_time'].date.split(' ')[0] : '',
-      cardName: '',
-      cardMedia: '',
-      cardMediaImage: {
-        size: '',
-        height: '',
-        width: ''
-      },
-      cardWebsiteTitle: '',
-      cardWebsiteUrl: '',
-      promotedAdID: this.instance && this.instance.adGroups.length > 0 ? this.instance['promoted_tweet_id'] : '',
+      cards: [{
+        name: '',
+        media: '',
+        websiteTitle: '',
+        websiteUrl: ''
+      }],
       tweetText: this.instance && this.action == 'edit' && this.instance.ads.length > 0 ? this.instance.ads[0]['full_text'] : '',
       tweetNullcast: this.instance && this.instance.ads.length > 0 && this.instance.ads[0]['nullcast'],
-      tweetTrimUser: false,
-      tweetVideoCTA: '',
-      tweetTweetMode: '',
-      tweetVideoCTAValue: '',
-      tweetVideoTitle: '',
-      tweetVideoDescription: '',
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
         lang: 'end'
       },
       openingFileSelector: '',
+      fileSelectorIndex: 0,
       previewData: '',
     }
   },
@@ -485,9 +480,9 @@ export default {
       this.loadFundingInstruments();
       this.loadAdGroupCategories();
     },
-    openChooseFile(name) {
+    openChooseFile(name, index = 0) {
       this.openingFileSelector = name
-      console.log(this.$modal)
+      this.fileSelectorIndex = index
       this.$modal.show(name)
     },
     loadAdvertisers() {
@@ -520,10 +515,22 @@ export default {
           }
         })
       }).catch(err => {
-        console.log(err)
       }).finally(() => {
         this.isLoading = false
       })
+    },
+    addCard() {
+      this.cards.push({
+        name: '',
+        media: '',
+        websiteTitle: '',
+        websiteUrl: '',
+        tweetText: '',
+        tweetNullcast: ''
+      })
+    },
+    removeCard(index) {
+      this.cards.splice(index, 1);
     },
     submitStep1() {
       const step1Data = {
@@ -558,30 +565,10 @@ export default {
     },
     submitStep2() {
       const step2Data = {
-        cardName: this.cardName,
-        cardMedia: this.cardMedia,
-        cardWebsiteTitle: this.cardWebsiteTitle,
-        cardWebsiteUrl: this.cardWebsiteUrl
-      }
-      this.postData = {...this.postData, ...step2Data }
-
-      this.currentStep = 3
-    },
-    submitStep3() {
-      const step3Data = {
-        promotedAdID: this.promotedAdID,
-        tweetText: this.tweetText,
-        tweetNullcast: this.tweetNullcast,
-        tweetTrimUser: this.tweetTrimUser,
-        tweetTweetMode: this.tweetTweetMode,
-        tweetVideoCTA: this.tweetVideoCTA,
-        tweetVideoCTAValue: this.tweetVideoCTAValue,
-        tweetVideoTitle: this.tweetVideoTitle,
-        tweetVideoDescription: this.tweetVideoDescription,
+        cards: this.cards,
         saveCard: this.saveCard
       }
-
-      this.postData = {...this.postData, ...step3Data }
+      this.postData = {...this.postData, ...step2Data }
 
       this.isLoading = true
       let url = '/campaigns';
@@ -594,14 +581,12 @@ export default {
         if (response.data.errors) {
           alert(response.data.errors[0])
         } else {
-          this.currentStep = 4
-          this.previewData = response.data.previewData
+          this.currentStep = 3
           this.$dialog.alert('Save successfully!').then(function(dialog) {
             window.location = '/campaigns';
           });
         }
       }).catch(error => {
-        console.log(error)
       }).finally(() => {
         this.isLoading = false
       })

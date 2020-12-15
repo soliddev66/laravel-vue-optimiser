@@ -16,7 +16,6 @@ class TwitterReport extends Model
     protected $fillable = [
         'campaign_id',
         'granularity',
-        'metric_groups',
         'placement',
         'data',
         'start_time',
