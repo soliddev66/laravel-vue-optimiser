@@ -216,14 +216,14 @@ class TwitterAPI
         }
     }
 
-    public function createWebsiteCard($card_media_key)
+    public function createWebsiteCard($card_media_key, $card)
     {
         try {
             $website_card = new WebsiteCard();
-            $website_card->setName(request('cardName'));
+            $website_card->setName($card['name']);
             $website_card->setMediaKey($card_media_key);
-            $website_card->setWebsiteTitle(request('cardWebsiteTitle'));
-            $website_card->setWebsiteUrl(request('cardWebsiteUrl'));
+            $website_card->setWebsiteTitle($card['websiteTitle']);
+            $website_card->setWebsiteUrl($card['websiteUrl']);
 
             return $website_card->save();
         } catch (Exception $e) {
@@ -231,7 +231,7 @@ class TwitterAPI
         }
     }
 
-    public function createTweet($card, $promotable_users)
+    public function createTweet($card, $promotable_users, $tweet)
     {
         try {
             $param = [
@@ -239,31 +239,11 @@ class TwitterAPI
                 'as_user_id' => $promotable_users->getCollection()[0]->getUserId(),
             ];
 
-            if (!empty(request('tweetNullcast'))) {
-                $param['nullcast'] = request('tweetNullcast');
+            if (!empty($tweet['tweetNullcast'])) {
+                $param['nullcast'] = $tweet['tweetNullcast'];
             }
 
-            if (!empty(request('tweetTrimUser'))) {
-                $param['trim_user'] = request('tweetTrimUser');
-            }
-
-            if (!empty(request('tweetVideoCTA'))) {
-                $param['tweet_mode'] = request('tweetVideoCTA');
-            }
-
-            if (!empty(request('tweetVideoCTAValue'))) {
-                $param['video_cta_value'] = request('tweetVideoCTAValue');
-            }
-
-            if (!empty(request('tweetVideoTitle'))) {
-                $param['video_title'] = request('tweetVideoTitle');
-            }
-
-            if (!empty(request('tweetVideoDescription'))) {
-                $param['video_description'] = request('tweetVideoDescription');
-            }
-
-            return Tweet::create($this->account, request('tweetText'), $param);
+            return Tweet::create($this->account, $tweet['tweetText'], $param);
         } catch (Exception $e) {
             throw $e;
         }
@@ -296,9 +276,9 @@ class TwitterAPI
         return $promotable_user->all();
     }
 
-    public function uploadMedia($promotable_users)
+    public function uploadMedia($promotable_users, $media)
     {
-        $file = storage_path('app/public/images/') . request('cardMedia');
+        $file = storage_path('app/public/images/') . $media;
         $mime = mime_content_type($file);
         $promotable_user_ids = [];
         foreach ($promotable_users->getCollection() as $key => $promotable_user) {

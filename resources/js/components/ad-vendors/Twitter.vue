@@ -592,7 +592,6 @@ export default {
           });
         }
       }).catch(error => {
-        console.log(error)
       }).finally(() => {
         this.isLoading = false
       })
