@@ -42,51 +42,47 @@ class PullTwitterReport implements ShouldQueue
      */
     public function handle()
     {
-        try {
-            $current_date = new DateTime;
-            $next_date = (new DateTime)->add(new DateInterval('P1D'));
+        $current_date = new DateTime;
+        $next_date = (new DateTime)->add(new DateInterval('P1D'));
 
-            $campaign_ids = [];
+        $campaign_ids = [];
 
-            foreach ($this->campaigns as $campaign) {
-                $campaign_ids[] = $campaign->campaign_id;
-            }
+        foreach ($this->campaigns as $campaign) {
+            $campaign_ids[] = $campaign->campaign_id;
+        }
 
-            $api = new TwitterAPI(UserProvider::where([
-                'provider_id' => $this->campaign_account->provider_id,
-                'open_id' => $this->campaign_account->open_id
-            ])->first(), $this->campaign_account->advertiser_id);
+        $api = new TwitterAPI(UserProvider::where([
+            'provider_id' => $this->campaign_account->provider_id,
+            'open_id' => $this->campaign_account->open_id
+        ])->first(), $this->campaign_account->advertiser_id);
 
-            foreach (TwitterReport::PLACEMENTS as $placement) {
-                $report_datas = $api->getCampaignStats([
-                    'metric_groups' => implode(',', TwitterReport::METRIC_GROUPS),
-                    'entity' => 'CAMPAIGN',
-                    'entity_ids' => implode(',', $campaign_ids),
-                    'granularity' => 'DAY',
-                    'placement' => $placement,
-                    'start_time' => $current_date->format('Y-m-d'),
-                    'end_time' => $next_date->format('Y-m-d')
-                ]);
+        foreach (TwitterReport::PLACEMENTS as $placement) {
+            $report_datas = $api->getCampaignStats([
+                'metric_groups' => implode(',', TwitterReport::METRIC_GROUPS),
+                'entity' => 'CAMPAIGN',
+                'entity_ids' => implode(',', $campaign_ids),
+                'granularity' => 'DAY',
+                'placement' => $placement,
+                'start_time' => $current_date->format('Y-m-d'),
+                'end_time' => $next_date->format('Y-m-d')
+            ]);
 
-                foreach ($report_datas as $report_data) {
-                    $campaign = Campaign::where('campaign_id', $report_data->id)->first();
-                    if ($campaign) {
-                        $report = TwitterReport::firstOrNew([
-                            'campaign_id' => $campaign->id,
-                            'granularity' => 'DAY',
-                            'placement' => $placement,
-                            'start_time' => $current_date->format('Y-m-d'),
-                            'end_time' => $next_date->format('Y-m-d')
-                        ]);
+            foreach ($report_datas as $report_data) {
+                $campaign = Campaign::where('campaign_id', $report_data->id)->first();
+                if ($campaign) {
+                    $report = TwitterReport::firstOrNew([
+                        'campaign_id' => $campaign->id,
+                        'granularity' => 'DAY',
+                        'placement' => $placement,
+                        'start_time' => $current_date->format('Y-m-d'),
+                        'end_time' => $next_date->format('Y-m-d')
+                    ]);
 
-                        $report->data = json_encode($report_data->id_data);
+                    $report->data = json_encode($report_data->id_data);
 
-                        $report->save();
-                    }
+                    $report->save();
                 }
             }
-        } catch (\Exception $e) {
-            var_dump($e->getMessage());
         }
     }
 }
