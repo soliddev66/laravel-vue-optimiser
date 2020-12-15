@@ -303,7 +303,7 @@
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="submitStep2State">Submit</button>
             </div>
-            <div class="d-flex justify-content-end" v-if="currentStep === 4">
+            <div class="d-flex justify-content-end" v-if="currentStep === 3">
               <button type="button" class="btn btn-primary">Finish</button>
             </div>
           </div>
