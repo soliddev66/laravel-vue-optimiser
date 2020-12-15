@@ -250,9 +250,6 @@
                     </div>
 
                     <div class="form-group row">
-                      <p class="col-12" v-if="instance && !saveCard">
-                        You must create a new tweet since you recreate the card.
-                      </p>
                       <p class="col-12" v-if="instance && action == 'edit' && saveCard">
                         Not allow to update the tweet.
                       </p>
@@ -466,7 +463,6 @@ export default {
         websiteTitle: '',
         websiteUrl: ''
       }],
-      promotedAdID: this.instance && this.instance.adGroups.length > 0 ? this.instance['promoted_tweet_id'] : '',
       tweetText: this.instance && this.action == 'edit' && this.instance.ads.length > 0 ? this.instance.ads[0]['full_text'] : '',
       tweetNullcast: this.instance && this.instance.ads.length > 0 && this.instance.ads[0]['nullcast'],
       settings: {
@@ -570,7 +566,6 @@ export default {
     submitStep2() {
       const step2Data = {
         cards: this.cards,
-        promotedAdID: this.promotedAdID,
         saveCard: this.saveCard
       }
       this.postData = {...this.postData, ...step2Data }
