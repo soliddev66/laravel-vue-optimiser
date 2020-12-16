@@ -86,10 +86,10 @@
       </div>
     </div>
     <div class="row justify-content-center mb-3">
-      <div class="col-md-6 col-12">
+      <div class="col-md-12 col-12">
         <h3>Performace by Traffic Source</h3>
       </div>
-      <div class="col-md-6 col-12">
+      <div class="col-md-6 col-12 d-none">
         <select class="form-control" v-model="selectedProvider">
           <option value="">Traffic Source</option>
           <option v-for="provider in providers" :value="provider.slug">{{ provider.label }}</option>
@@ -111,8 +111,8 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Yahoo Gemini</td>
+                <tr v-for="data in dataByProvider">
+                  <td>{{ providerName(data.provider_id) }}</td>
                   <td>{{ round(summaryData.total_views, 2) || 0 }}</td>
                   <td>{{ round(summaryData.total_clicks, 2) || 0 }}</td>
                   <td>{{ round(summaryData.total_cost, 2) || 0 }}</td>
@@ -127,10 +127,10 @@
       </div>
     </div>
     <div class="row justify-content-center mb-3">
-      <div class="col-md-6 col-12">
+      <div class="col-md-12 col-12">
         <h3>TOP Winners/Losers</h3>
       </div>
-      <div class="col-md-6 col-12">
+      <div class="col-md-6 col-12 d-none">
         <select class="form-control">
           <option value="total_net">NET</option>
         </select>
@@ -151,8 +151,8 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Yahoo Gemini</td>
+                <tr v-for="data in topWinners">
+                  <td>{{ providerName(data.provider_id) }}</td>
                   <td>{{ round(summaryData.total_views, 2) || 0 }}</td>
                   <td>{{ round(summaryData.total_clicks, 2) || 0 }}</td>
                   <td>{{ round(summaryData.total_cost, 2) || 0 }}</td>
@@ -181,8 +181,8 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Yahoo Gemini</td>
+                <tr v-for="data in topLosers">
+                  <td>{{ providerName(data.provider_id) }}</td>
                   <td>{{ round(summaryData.total_views, 2) || 0 }}</td>
                   <td>{{ round(summaryData.total_clicks, 2) || 0 }}</td>
                   <td>{{ round(summaryData.total_cost, 2) || 0 }}</td>
@@ -209,14 +209,6 @@ import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
 
 export default {
   props: {
-    data1: {
-      type: Object,
-      default: null
-    },
-    data2: {
-      type: Array,
-      default: []
-    },
     providers: {
       type: Array,
       default: []
@@ -229,15 +221,14 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
-    this.summaryData = this.data1
-    this.fillData()
+    this.getData()
   },
   data() {
     return {
       selectedProvider: 'yahoo',
       targetDate: {
-        start: this.$moment().subtract('30', 'days'),
-        end: this.$moment()
+        start: this.$moment().subtract('30', 'days').format('YYYY-MM-DD'),
+        end: this.$moment().format('YYYY-MM-DD')
       },
       summaryData: {
         total_cost: 0,
@@ -249,25 +240,34 @@ export default {
         total_conversions: 0,
         epc: 0
       },
-      dataByDate: null
+      dataByDate: null,
+      dataByProvider: [],
+      topWinners: [],
+      topLosers: []
     }
   },
   methods: {
     round(value) {
       return _.round(value, 2)
     },
+    providerName(providerId) {
+      return this.providers.find(provider => provider.id === providerId) ? this.providers.find(provider => provider.id === providerId).label : 'N/A'
+    },
     getData() {
       axios.get('/home', {
           params: this.targetDate
         }).then((response) => {
           this.summaryData = response.data.summary_data
-          this.fillData()
+          this.dataByProvider = response.data.data_by_provider
+          this.topWinners = response.data.top_winners
+          this.topLosers = response.data.top_losers
+          this.fillData(response.data.data_by_date)
         })
         .catch((err) => {
           alert(err);
         });
     },
-    fillData() {
+    fillData(dataByDate) {
       let dates = []
       let currDate = this.$moment.utc(new Date(this.targetDate.start)).startOf('day')
       let lastDate = this.$moment.utc(new Date(this.targetDate.end)).startOf('day')
@@ -303,7 +303,7 @@ export default {
         datasets[2].data.push(0)
         datasets[3].data.push(0)
         datasets[4].data.push(0)
-        _.each(this.data2, (data, i) => {
+        _.each(dataByDate, (data, i) => {
           if (data.date === date) {
             datasets[0].data[index] = data.total_net
             datasets[1].data[index] = data.total_clicks
