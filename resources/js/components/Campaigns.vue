@@ -46,7 +46,6 @@
                 <tr>
                   <th>ID</th>
                   <th>Traffic Source</th>
-                  <th>Actions</th>
                   <th class="fit">Camp. ID</th>
                   <th class="fit">Name</th>
                   <th>Status</th>
@@ -76,8 +75,10 @@
                 <tr v-for="campaign in campaigns.data" :key="campaign.id">
                   <td>{{ campaign.id }}</td>
                   <td class="text-capitalize">{{ providerName(campaign) }}</td>
-                  <td class="border-right-0 px-1">
-                    <div class="dropdown">
+                  <td class="fit">{{ campaign.campaign_id }}</td>
+                  <td class="fit">
+                    <a :href="'/campaigns/' + campaign.id">{{ campaign.name }}</a>
+                    <div class="dropdown d-inline ml-2">
                       <button class="btn btn-sm border" type="button" @click="showQuickAct(campaign.id)">
                         <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
                       </button>
@@ -91,8 +92,6 @@
                       </div>
                     </div>
                   </td>
-                  <td class="fit">{{ campaign.campaign_id }}</td>
-                  <td class="fit"><a :href="'/campaigns/' + campaign.id">{{ campaign.name }}</a></td>
                   <td v-if="campaign.status === 'ACTIVE'" class="text-success">
                     {{ campaign.status }}
                   </td>
@@ -238,7 +237,9 @@ export default {
           this.campaigns = response.data.campaigns;
           this.summaryData = response.data.summary_data;
           if (!state) {
-            window.history.pushState({}, null, '/campaigns?' + Object.keys(data).map(function(k) {return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])}).join('&'))
+            window.history.pushState({}, null, '/campaigns?' + Object.keys(data).map(function(k) {
+              return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
+            }).join('&'))
           }
         })
         .catch((err) => {
