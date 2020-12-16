@@ -2,18 +2,18 @@
 
 namespace App\Utils\AdVendors;
 
-use DB;
-use Exception;
-
 use App\Endpoints\GeminiAPI;
 use App\Jobs\PullCampaign;
 use App\Models\Campaign;
 use App\Models\Provider;
+use App\Models\RedtrackContentStat;
 use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
+use App\Models\UserProvider;
 use App\Models\UserTracker;
-
 use Carbon\Carbon;
+use DB;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Str;
 
@@ -333,6 +333,7 @@ class Yahoo extends Root
                 $redtrack_report->save();
             }
 
+            // Domain stats
             $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub1&sub6=' . $campaign->campaign_id . '&tracks_view=true';
             $response = $client->get($url);
 
@@ -352,6 +353,31 @@ class Yahoo extends Root
                     $redtrack_report->{$array_key} = $value[$array_key];
                 }
                 $redtrack_report->save();
+            }
+
+            // Content stats
+            $ads = (new GeminiAPI(UserProvider::where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first()))->getAdsByCampaign($campaign->campaign_id, $campaign->advertiser_id);
+            foreach ($ads as $key => $ad) {
+                $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub5&sub6=' . $campaign->campaign_id . '&sub5=' . $ad['id'] . '&tracks_view=true';
+                $response = $client->get($url);
+
+                $data = json_decode($response->getBody(), true);
+
+                foreach ($data as $i => $value) {
+                    $value['date'] = $date;
+                    $value['user_id'] = $campaign->user_id;
+                    $value['campaign_id'] = $campaign->id;
+                    $value['provider_id'] = $campaign->provider_id;
+                    $value['open_id'] = $campaign->open_id;
+                    $redtrack_report = RedtrackContentStat::firstOrNew([
+                        'date' => $date,
+                        'sub5' => $value['sub5']
+                    ]);
+                    foreach (array_keys($value) as $array_key) {
+                        $redtrack_report->{$array_key} = $value[$array_key];
+                    }
+                    $redtrack_report->save();
+                }
             }
         }
     }
