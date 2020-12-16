@@ -61,19 +61,19 @@ class GeminiAPI
         return $this->client->call('GET', 'ad?adGroupId=' . implode('&adGroupId=', $ad_group_ids) . '&advertiserid=' . $advertiser_id);
     }
 
-    public function createAd($campaign_data, $ad_group_data)
+    public function createAd($campaign_data, $ad_group_data, $content)
     {
         return $this->client->call('POST', 'ad', [
             'adGroupId' => $ad_group_data['id'],
             'advertiserId' => request('selectedAdvertiser'),
             'campaignId' => $campaign_data['id'],
-            'description' => request('description'),
-            'displayUrl' => request('displayUrl'),
-            'landingUrl' => request('targetUrl'),
-            'sponsoredBy' => request('brandname'),
-            'imageUrlHQ' => $this->encodeUrl(request('imageUrlHQ')),
-            'imageUrl' => $this->encodeUrl(request('imageUrl')),
-            'title' => request('title'),
+            'description' => $content['description'],
+            'displayUrl' => $content['displayUrl'],
+            'landingUrl' => $content['targetUrl'],
+            'sponsoredBy' => $content['brandname'],
+            'imageUrlHQ' => $this->encodeUrl($content['imageUrlHQ']),
+            'imageUrl' => $this->encodeUrl($content['imageUrl']),
+            'title' => $content['title'],
             'status' => 'ACTIVE'
         ]);
     }

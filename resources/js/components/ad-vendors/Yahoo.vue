@@ -201,57 +201,53 @@
                       <div class="form-group row">
                         <label for="title" class="col-sm-4 control-label mt-2">Title</label>
                         <div class="col-sm-8">
-                          <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="content.title" />
+                          <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="content.title" v-on:blur="loadPreviewEvent($event, index)" />
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
                         <div class="col-sm-8">
-                          <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" />
+                          <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" v-on:blur="loadPreviewEvent($event, index)" />
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="description" class="col-sm-4 control-label mt-2">Description</label>
                         <div class="col-sm-8">
-                          <textarea class="form-control" rows="3" placeholder="Enter description" v-model="content.description"></textarea>
+                          <textarea class="form-control" rows="3" placeholder="Enter description" v-model="content.description" v-on:blur="loadPreviewEvent($event, index)"></textarea>
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
                         <div class="col-sm-8 text-center">
-                          <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" />
-                          <small class="text-danger" v-if="content.displayUrl">URL is invalid. You might need http/https at the beginning.</small>
+                          <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                          <small class="text-danger" v-if="content.displayUrl && !validURL(content.displayUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
                         <div class="col-sm-8 text-center">
-                          <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" />
-                          <small class="text-danger" v-if="content.targetUrl">URL is invalid. You might need http/https at the beginning.</small>
+                          <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                          <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
                         <div class="col-sm-8">
-                          <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrlHQ" />
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('hqModal')">Choose File</button>
-                          <!-- <input type="file" ref="imageHQ" @change="selectedHQFile" accept="image/*"> -->
+                          <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index)" />
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index)">Choose File</button>
                         </div>
                         <div class="col-sm-8 offset-sm-4 text-center">
-                          <small class="text-danger" v-if="content.imageUrlHQ && !content.imageUrlHQState">URL is invalid. You might need http/https at the beginning.</small>
-                          <!-- <small class="text-danger" v-if="imageHQ.size && !imageHQState">Image is invalid. You might need an 1200x627 image.</small> -->
+                          <small class="text-danger" v-if="content.imageUrlHQ && !validURL(content.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="image_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
                         <div class="col-sm-8">
-                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrl" />
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal')">Choose File</button>
-                          <!-- <input type="file" ref="image" @change="selectedFile" accept="image/*"> -->
+                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index)">Choose File</button>
                         </div>
                         <div class="col-sm-8 offset-sm-4 text-center">
-                          <small class="text-danger" v-if="content.imageUrl && !content.imageUrlState">URL is invalid. You might need http/https at the beginning.</small>
-                          <!-- <small class="text-danger" v-if="image.size && !imageState">Image is invalid. You might need an 627x627 image.</small> -->
+                          <small class="text-danger" v-if="content.imageUrl && !validURL(content.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
                     </div>
@@ -324,7 +320,7 @@
           </div>
           <div class="card-body" v-if="currentStep == 4">
             <div class="col-sm-12 text-center">
-              <div v-html="previewData"></div>
+              <!-- <div v-html="previewData"></div> -->
             </div>
           </div>
           <div class="card-footer d-flex justify-content-end">
@@ -335,7 +331,7 @@
               <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!campaignNameState || !selectedAdvertiserState || !campaignBudgetState || !adGroupNameState || !bidAmountState">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="submitStep2State">Next</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!submitStep2State">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 3">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep3">Next</button>
@@ -347,13 +343,6 @@
         </div>
       </div>
     </div>
-    <modal width="60%" height="80%" name="hqModal">
-      <file-manager v-bind:settings="settings" :props="{
-          upload: true,
-          viewType: 'grid',
-          selectionType: 'single'
-      }"></file-manager>
-    </modal>
     <modal width="60%" height="80%" name="imageModal">
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
@@ -437,46 +426,24 @@ export default {
     let vm = this
     this.$root.$on('fm-selected-items', (value) => {
       const selectedFilePath = value[0].path
-      if (this.openingFileSelector === 'hqModal') {
-        this.imageUrlHQ = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+      if (this.openingFileSelector === 'imageHQUrl') {
+        this.contents[this.fileSelectorIndex].imageUrlHQ = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+        this.loadPreview(this.fileSelectorIndex)
       }
-      if (this.openingFileSelector === 'imageModal') {
-        this.imageUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+      if (this.openingFileSelector === 'imageUrl') {
+        this.contents[this.fileSelectorIndex].imageUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+        this.loadPreview(this.fileSelectorIndex)
       }
-      vm.$modal.hide(this.openingFileSelector)
+      vm.$modal.hide('imageModal')
     });
     this.currentStep = this.step
 
     this.getLanguages()
     this.getCountries()
     this.getAdvertisers()
-
-    if (this.instance) {
-      this.loadPreview()
-    }
   },
   watch: {
-    title: _.debounce(function(newVal) {
-      //this.loadPreview()
-    }, 2000),
-    displayUrl: _.debounce(function(newVal) {
-      //this.loadPreview()
-    }, 2000),
-    targetUrl: _.debounce(function(newVal) {
-      //this.loadPreview()
-    }, 2000),
-    description: _.debounce(function(newVal) {
-      //this.loadPreview()
-    }, 2000),
-    brandname: _.debounce(function(newVal) {
-      //this.loadPreview()
-    }, 2000),
-    imageUrlHQ: _.debounce(function(newVal) {
-      //this.loadPreview()
-    }, 2000),
-    imageUrl: _.debounce(function(newVal) {
-      //this.loadPreview()
-    }, 2000)
+
   },
   data() {
     let campaignGender = '',
@@ -573,6 +540,7 @@ export default {
       attributes: [],
       dataAttributes: dataAttributes,
       openingFileSelector: '',
+      fileSelectorIndex: 0,
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
@@ -581,9 +549,10 @@ export default {
     }
   },
   methods: {
-    openChooseFile(name) {
+    openChooseFile(name, index) {
       this.openingFileSelector = name
-      this.$modal.show(name)
+      this.fileSelectorIndex = index
+      this.$modal.show('imageModal')
     },
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
@@ -601,70 +570,6 @@ export default {
       }
       return false;
     },
-    // selectedHQFile() {
-    //   let file = this.$refs.imageHQ.files[0];
-    //   if (!file || file.type.indexOf('image/') !== 0) return;
-    //   this.imageHQ.size = file.size;
-    //   let reader = new FileReader();
-    //   reader.readAsDataURL(file);
-    //   reader.onload = evt => {
-    //     let img = new Image();
-    //     img.onload = () => {
-    //       this.imageHQ.width = img.width;
-    //       this.imageHQ.height = img.height;
-    //       if (this.validSize(this.imageHQ, 'HQ')) {
-    //         let formData = new FormData();
-    //         formData.append('file', this.$refs.imageHQ.files[0]);
-    //         axios.post('/general/upload-files', formData, {
-    //             headers: {
-    //               'Content-Type': 'multipart/form-data'
-    //             }
-    //           }).then((response) => {
-    //             this.imageUrlHQ = response.data.path.replace('public', 'storage')
-    //           })
-    //           .catch((err) => {
-    //             alert(err);
-    //           });
-    //       }
-    //     }
-    //     img.src = evt.target.result;
-    //   }
-    //   reader.onerror = evt => {
-    //     console.error(evt);
-    //   }
-    // },
-    // selectedFile() {
-    //   let file = this.$refs.image.files[0];
-    //   if (!file || file.type.indexOf('image/') !== 0) return;
-    //   this.image.size = file.size;
-    //   let reader = new FileReader();
-    //   reader.readAsDataURL(file);
-    //   reader.onload = evt => {
-    //     let img = new Image();
-    //     img.onload = () => {
-    //       this.image.width = img.width;
-    //       this.image.height = img.height;
-    //       if (this.validSize(this.image, '')) {
-    //         let formData = new FormData();
-    //         formData.append('file', this.$refs.image.files[0]);
-    //         axios.post('/general/upload-files', formData, {
-    //             headers: {
-    //               'Content-Type': 'multipart/form-data'
-    //             }
-    //           }).then((response) => {
-    //             this.imageUrl = response.data.path.replace('public', 'storage')
-    //           })
-    //           .catch((err) => {
-    //             alert(err);
-    //           });
-    //       }
-    //     }
-    //     img.src = evt.target.result;
-    //   }
-    //   reader.onerror = evt => {
-    //     console.error(evt);
-    //   }
-    // },
     addContent() {
       this.contents.push({
         title: '',
@@ -680,21 +585,23 @@ export default {
     removeContent(index) {
       this.contents.splice(index, 1);
     },
-    loadPreview() {
+    loadPreviewEvent(event, index) {
+      this.loadPreview(index)
+    },
+    loadPreview(index) {
       this.isLoading = true
       axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
-        title: this.title,
-        displayUrl: this.displayUrl,
-        landingUrl: this.targetUrl,
-        description: this.description,
-        sponsoredBy: this.brandname,
-        imageUrlHQ: this.imageUrlHQ,
-        imageUrl: this.imageUrl,
+        title: this.contents[index].title,
+        displayUrl: this.contents[index].displayUrl,
+        landingUrl: this.contents[index].targetUrl,
+        description: this.contents[index].description,
+        sponsoredBy: this.contents[index].brandname,
+        imageUrlHQ: this.contents[index].imageUrlHQ,
+        imageUrl: this.contents[index].imageUrl,
         campaignLanguage: this.campaignLanguage
       }).then(response => {
-        this.previewData = response.data.replace('height="800"', 'height="450"').replace('width="400"', 'width="100%"')
+        this.contents[index].previewData = response.data.replace('height="800"', 'height="450"').replace('width="400"', 'width="100%"')
       }).catch(err => {
-        console.log(err)
       }).finally(() => {
         this.isLoading = false
       })
