@@ -50,7 +50,7 @@ class Kernel extends ConsoleKernel
         // Redtrack
         $schedule->call(function () {
             RedTrack::crawl();
-        })->everyTenMinutes();
+        })->everyMinute();
 
         // Campaign
         $schedule->call(function () {

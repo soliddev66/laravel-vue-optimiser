@@ -27,11 +27,17 @@ class HomeController extends Controller
 
         $summary_data = $this->getQuery($start_date, $end_date)->first();
         $data_by_date = $this->getQuery($start_date, $end_date, 'date')->groupBy('date')->get();
+        $data_by_provider = $this->getQuery($start_date, $end_date, 'provider_id')->groupBy('provider_id')->get();
+        $top_winners = $this->getQuery($start_date, $end_date, 'provider_id')->having(DB::raw('SUM(profit)'), '>=', 0)->groupBy('provider_id')->get();
+        $top_losers = $this->getQuery($start_date, $end_date, 'provider_id')->having(DB::raw('SUM(profit)'), '<', 0)->groupBy('provider_id')->get();
 
         if (request()->ajax()) {
             return response()->json([
                 'summary_data' => $summary_data,
-                'data_by_date' => $data_by_date
+                'data_by_date' => $data_by_date,
+                'data_by_provider' => $data_by_provider,
+                'top_winners' => $top_winners,
+                'top_losers' => $top_losers
             ]);
         }
 
