@@ -125,15 +125,20 @@ class Twitter extends Root
 
         try {
             $promotable_users = $this->api()->getPromotableUsers();
-            $media = $this->api()->uploadMedia($promotable_users);
-            $media_library = $this->api()->createMediaLibrary($media->media_key);
 
             $campaign_data = $api->saveCampaign();
             $line_item_data = $api->saveLineItem($campaign_data);
-            $card_data = $api->createWebsiteCard($media->media_key);
 
-            $tweet_data = $api->createTweet($card_data, $promotable_users);
-            $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+            foreach (request('cards') as $card) {
+                $media = $this->api()->uploadMedia($promotable_users, $card['media']);
+
+                $media_library = $this->api()->createMediaLibrary($media->media_key);
+
+                $card_data = $api->createWebsiteCard($media->media_key, $card);
+
+                $tweet_data = $api->createTweet($card_data, $promotable_users, $card);
+                $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+            }
 
             PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
@@ -176,15 +181,25 @@ class Twitter extends Root
             $line_item_data = $api->saveLineItem($campaign_data, request('adGroupID'));
 
             if (!request('saveCard')) {
-                $api->deletePromotedTweet(request('promotedAdID'));
+                $promotable_users = $this->api()->getPromotableUsers();
+                $promoted_tweets = $api->getPromotedTweets([$line_item_data->getId()]);
 
-                $promotable_users = $api->getPromotableUsers();
-                $media = $api->uploadMedia($promotable_users);
-                $media_library = $api->createMediaLibrary($media->media_key);
+                if ($promoted_tweets && count($promoted_tweets) > 0) {
+                    foreach ($promoted_tweets as $promoted_tweet) {
+                        $api->deletePromotedTweet($promoted_tweet->getId());
+                    }
+                }
 
-                $card_data = $api->createWebsiteCard($media->media_key);
-                $tweet_data = $api->createTweet($card_data, $promotable_users);
-                $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+                foreach (request('cards') as $card) {
+                    $media = $this->api()->uploadMedia($promotable_users, $card['media']);
+
+                    $media_library = $this->api()->createMediaLibrary($media->media_key);
+
+                    $card_data = $api->createWebsiteCard($media->media_key, $card);
+
+                    $tweet_data = $api->createTweet($card_data, $promotable_users, $card);
+                    $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+                }
             }
 
             PullCampaign::dispatch(auth()->user());
