@@ -319,9 +319,13 @@
             <button class="btn btn-primary btn-sm" @click="addNewAttibute()">Add New</button>
           </div>
           <div class="card-body" v-if="currentStep == 4">
-            <div class="col-sm-12 text-center">
-              <!-- <div v-html="previewData"></div> -->
-            </div>
+            <fieldset class="mb-3 p-3 rounded border" v-for="(content, index) in contents" :key="index">
+              <div class="row">
+                <div class="col text-center">
+                  <div v-html="content.previewData"></div>
+                </div>
+              </div>
+            </fieldset>
           </div>
           <div class="card-footer d-flex justify-content-end">
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
