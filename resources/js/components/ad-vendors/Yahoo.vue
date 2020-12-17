@@ -584,11 +584,9 @@ export default {
       return !!pattern.test(str);
     },
     validImageSize(imageUrl, width, height) {
-      console.log(imageUrl)
       return new Promise((resolve) => {
         var image = new Image();
         image.onload = function() {
-          console.log(image.width, image.height)
           resolve(this.width == width && this.height == height);
         };
         image.src = imageUrl;
@@ -661,7 +659,6 @@ export default {
           })
         }
       }).catch(err => {
-        console.log(err)
       }).finally(() => {
         this.isLoading = false
       })
