@@ -445,6 +445,12 @@ export default {
     this.getLanguages()
     this.getCountries()
     this.getAdvertisers()
+
+    if (this.instance) {
+      for (let i = 0; i < this.instance.ads.length; i++) {
+        this.loadPreview(i);
+      }
+    }
   },
   watch: {
 
@@ -460,6 +466,7 @@ export default {
       dataAttributes = [],
       contents = [
         {
+          id: '',
           title: '',
           displayUrl: '',
           targetUrl: '',
@@ -497,6 +504,7 @@ export default {
 
       for (let i = 0; i < this.instance.ads.length; i++) {
         contents.push({
+          id: this.instance.ads[i]['id'],
           title: this.instance.ads[i]['title'],
           displayUrl: this.instance.ads[i]['displayUrl'],
           targetUrl: this.instance.ads[i]['landingUrl'],
@@ -576,6 +584,7 @@ export default {
     },
     addContent() {
       this.contents.push({
+        id: '',
         title: '',
         displayUrl: '',
         targetUrl: '',
@@ -696,7 +705,6 @@ export default {
         campaignName: this.campaignName,
         adGroupID: this.adGroupID,
         adGroupName: this.adGroupName,
-        adID: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['id'] : '',
         bidAmount: this.bidAmount,
         campaignType: this.campaignType,
         campaignLanguage: this.campaignLanguage,
