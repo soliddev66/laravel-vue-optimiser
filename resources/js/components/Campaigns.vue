@@ -10,38 +10,31 @@
           <div class="card-header">
             <div class="row">
               <div class="col-md-3 col-12">
-                <VueCtkDateTimePicker position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData"></VueCtkDateTimePicker>
+                <VueCtkDateTimePicker position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData()"></VueCtkDateTimePicker>
               </div>
               <div class="col-md-3 col-12">
-                <select class="form-control" v-model="selectedProvider" @change="getData">
+                <select class="form-control" v-model="selectedProvider" @change="getData()">
                   <option value="">-</option>
                   <option v-for="provider in providers" :value="provider.id" :key="provider.id">{{ provider.label }}</option>
                 </select>
               </div>
               <div class="col-md-3 col-12">
-                <select class="form-control" v-model="selectedAccount" @change="getData">
+                <select class="form-control" v-model="selectedAccount" @change="getData()">
                   <option value="">-</option>
                   <option v-for="account in accounts" :value="account.open_id" :key="account.open_id">{{ account.open_id }}</option>
                 </select>
               </div>
               <div class="col-md-3 col-12">
-                <select class="form-control" v-model="selectedTracker" @change="getData">
+                <select class="form-control" v-model="selectedTracker" @change="getData()">
                   <option value="">-</option>
                   <option v-for="tracker in trackers" :value="tracker.slug" :key="tracker.slug">{{ tracker.label }}</option>
                 </select>
               </div>
             </div>
-            <div class="row mt-3">
-              <div class="col-md-6 col-12">
-                <pagination :data="campaigns" @pagination-change-page="getData" class="mb-0"></pagination>
-              </div>
-              <div class="col-md-6 col-12">
-                <input type="text" class="form-control" placeholder="Search campaign by name..." v-model="query" v-debounce:1s="getData">
-              </div>
-            </div>
           </div>
           <div class="card-body table-responsive">
-            <table ref="campaignsTable" id="campaignsTable" class="table table-bordered table-hover text-center">
+            <data-table :data="campaigns" :columns="campaignColumns" @on-table-props-changed="reloadData"></data-table>
+            <table ref="campaignsTable" id="campaignsTable" class="table table-bordered table-hover text-center d-none">
               <thead class="border">
                 <tr>
                   <th>ID</th>
@@ -166,8 +159,7 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
-    let params = (new URL(document.location)).searchParams;
-    this.getData(params.get('page') || 1, true)
+    this.getData(this.tableProps, true)
   },
   watch: {
     // selectedTracker() {
@@ -180,6 +172,42 @@ export default {
     return {
       accounts: [],
       campaigns: {},
+      tableProps: {
+        page: params.get('page') || '',
+        search: params.get('query') || '',
+        length: params.get('query') || 10,
+        column: params.get('column') || 'id',
+        dir: params.get('dir') || 'asc',
+      },
+      campaignColumns: [{
+        label: 'Name',
+        name: 'name',
+        orderable: true,
+      }, {
+        label: 'Imp.',
+        name: 'total_views',
+        orderable: true,
+      }, {
+        label: 'TR Clicks',
+        name: 'total_clicks',
+        orderable: true,
+      }, {
+        label: 'Cost',
+        name: 'total_cost',
+        orderable: true,
+      }, {
+        label: 'Rev.',
+        name: 'total_revenue',
+        orderable: true,
+      }, {
+        label: 'NET',
+        name: 'total_net',
+        orderable: true,
+      }, {
+        label: 'ROI',
+        name: 'roi',
+        orderable: true,
+      }],
       summaryData: {
         total_cost: 0,
         total_revenue: 0,
@@ -193,7 +221,6 @@ export default {
         start: this.$moment().subtract(30, 'days').format('YYYY-MM-DD'),
         end: this.$moment().format('YYYY-MM-DD')
       },
-      query: params.get('query') || '',
       isLoading: false,
       showQuickActions: '',
       fullPage: true
@@ -228,23 +255,37 @@ export default {
     providerName(campaign) {
       return this.providers.find(provider => provider.id === campaign.provider_id) ? this.providers.find(provider => provider.id === campaign.provider_id).label : 'N/A'
     },
-    getData(page = 1, state = false) {
-      const data = { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount, query: this.query, page: page }
+    getData(options = this.tableProps, state = false) {
+      const filters = { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount };
+      const data = {
+        ...filters,
+        ...options
+      };
       const params = {...this.targetDate, ...data };
       axios.post('/campaigns/search', params)
         .then((response) => {
           this.accounts = response.data.accounts;
-          this.campaigns = response.data.campaigns;
           this.summaryData = response.data.summary_data;
           if (!state) {
-            window.history.pushState({}, null, '/campaigns?' + Object.keys(data).map(function(k) {
-              return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
+            window.history.pushState({}, null, '/campaigns?' + Object.keys(params).map(function(k) {
+              return encodeURIComponent(k) + '=' + encodeURIComponent(params[k])
             }).join('&'))
           }
         })
         .catch((err) => {
           alert(err);
         });
+      axios.get('/campaigns', {
+          params: params
+        }).then((response) => {
+          this.campaigns = response.data;
+        })
+        .catch((err) => {
+          alert(err);
+        });
+    },
+    reloadData(tableProps) {
+      this.getData(tableProps);
     },
     exportExcel() {
       location.href = '/campaigns/export-excel?start=' + this.targetDate.start.split('T')[0] + '&end=' + this.targetDate.end.split('T')[0]

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Campaign;
+use App\Models\Provider;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -83,5 +84,10 @@ class RedtrackReport extends Model
     public function campaign()
     {
         return $this->belongsTo(Campaign::class);
+    }
+
+    public function provider()
+    {
+        return $this->belongsTo(Provider::class);
     }
 }

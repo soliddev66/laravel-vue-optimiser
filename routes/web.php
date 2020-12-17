@@ -88,6 +88,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'rule-groups'], function() {
 });
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/get-data-by-provider', [App\Http\Controllers\HomeController::class, 'getDataByProvider'])->name('get_data_by_provider');
 Route::get('/account-wizard', [App\Http\Controllers\AccountController::class, 'wizard'])->name('account_wizard');
 Route::get('/account/accounts', [App\Http\Controllers\AccountController::class, 'accounts'])->name('accounts');
 Route::get('/account/advertisers', [App\Http\Controllers\AccountController::class, 'advertisers'])->name('advertisers');

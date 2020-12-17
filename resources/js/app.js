@@ -16,6 +16,7 @@ import FileManager from 'lv-file-manager';
 import VModal from 'vue-js-modal';
 import Select2 from 'v-select2-component';
 import vueDebounce from 'vue-debounce';
+import DataTable from 'laravel-vue-datatable';
 
 import moment from './plugins/moment.js';
 
@@ -33,6 +34,7 @@ Vue.use(FileManager, {store});
 Vue.use(VModal);
 Vue.use(vueDebounce);
 Vue.use(moment);
+Vue.use(DataTable);
 
 /**
  * The following block of code may be used to automatically register your

@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Endpoints\GeminiAPI;
-use App\Endpoints\OutbrainAPI;
 use App\Exports\CampaignExport;
-use App\Jobs\PullCampaign;
 use App\Models\Campaign;
 use App\Models\FailedJob;
 use App\Models\GeminiDomainPerformanceStat;
@@ -16,16 +14,53 @@ use App\Models\Provider;
 use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use Carbon\Carbon;
-use DB;
 use DataTables;
+use DB;
 use Exception;
-
+use JamesDordoy\LaravelVueDatatable\Http\Resources\DataTableCollectionResource;
 use Maatwebsite\Excel\Facades\Excel;
 
 class CampaignController extends Controller
 {
     public function index()
     {
+        if (request()->ajax()) {
+            $start = Carbon::now()->format('Y-m-d');
+            $end = Carbon::now()->format('Y-m-d');
+            if (request('tracker')) {
+                $campaigns_query = Campaign::with(['redtrackReport' => function ($q) use ($start, $end) {
+                    if (request('provider')) {
+                        $q->where('provider_id', request('provider'));
+                    }
+                    $q->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
+                }]);
+                if (request('provider')) {
+                    $campaigns_query->where('provider_id', request('provider'));
+                }
+                if (request('account')) {
+                    $campaigns_query->where('open_id', request('account'));
+                }
+                if (request('search')) {
+                    $campaigns_query->where('name', 'LIKE', '%' . request('search') . '%');
+                }
+            } else {
+                $campaigns_query = Campaign::with(['performanceStats' => function ($q) use ($start, $end) {
+                    $q->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
+                }]);
+                if (request('provider')) {
+                    $campaigns_query->where('provider_id', request('provider'));
+                }
+                if (request('account')) {
+                    $campaigns_query->where('open_id', request('account'));
+                }
+                if (request('search')) {
+                    $campaigns_query->where('name', 'LIKE', '%' . request('search') . '%');
+                }
+            }
+
+            return new DataTableCollectionResource($campaigns_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
+        }
+
         return view('campaigns.index');
     }
 
@@ -139,21 +174,6 @@ class CampaignController extends Controller
         $start = Carbon::now()->format('Y-m-d');
         $end = Carbon::now()->format('Y-m-d');
         if (request('tracker')) {
-            $campaigns_query = Campaign::with(['redtrackReport' => function ($q) use ($start, $end) {
-                if (request('provider')) {
-                    $q->where('provider_id', request('provider'));
-                }
-                $q->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
-            }]);
-            if (request('provider')) {
-                $campaigns_query->where('provider_id', request('provider'));
-            }
-            if (request('account')) {
-                $campaigns_query->where('open_id', request('account'));
-            }
-            if (request('query')) {
-                $campaigns_query->where('name', 'LIKE', '%' . request('query') . '%');
-            }
             $summary_data_query = RedtrackReport::with(['campaign' => function ($q) {
                 if (request('provider')) {
                     $q->where('provider_id', request('provider'));
@@ -171,18 +191,6 @@ class CampaignController extends Controller
                 DB::raw('(SUM(profit)/SUM(cost)) * 100 as avg_roi'),
             )->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
         } else {
-            $campaigns_query = Campaign::with(['performanceStats' => function ($q) use ($start, $end) {
-                $q->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
-            }]);
-            if (request('provider')) {
-                $campaigns_query->where('provider_id', request('provider'));
-            }
-            if (request('account')) {
-                $campaigns_query->where('open_id', request('account'));
-            }
-            if (request('query')) {
-                $campaigns_query->where('name', 'LIKE', '%' . request('query') . '%');
-            }
             $summary_data_query = GeminiPerformanceStat::with(['campaign' => function ($q) {
                 if (request('provider')) {
                     $q->where('provider_id', request('provider'));
@@ -207,11 +215,10 @@ class CampaignController extends Controller
             $accounts = auth()->user()->providers()->where('provider_id', request('provider'))->get();
         }
 
-        return response()->json([
+        return [
             'accounts' => $accounts,
-            'campaigns' => $campaigns_query->paginate(10),
             'summary_data' => $summary_data_query->first()
-        ]);
+        ];
     }
 
     public function show(Campaign $campaign)
@@ -235,7 +242,7 @@ class CampaignController extends Controller
 
         if ($campaign) {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            $adVendor = new $adVendorClass;
+            $adVendor = new $adVendorClass();
             $instance = $adVendor->getCampaignInstance($campaign);
 
             if (isset($instance['id'])) {
@@ -276,7 +283,7 @@ class CampaignController extends Controller
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        $instance = (new $adVendorClass)->getCampaignInstance($campaign);
+        $instance = (new $adVendorClass())->getCampaignInstance($campaign);
 
         if (!isset($instance['id'])) {
             return view('error', [
@@ -291,56 +298,56 @@ class CampaignController extends Controller
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass)->update($campaign);
+        return (new $adVendorClass())->update($campaign);
     }
 
     public function status(Campaign $campaign)
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass)->status($campaign);
+        return (new $adVendorClass())->status($campaign);
     }
 
     public function adGroupStatus(Campaign $campaign, $ad_group_id)
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass)->adGroupStatus($campaign, $ad_group_id);
+        return (new $adVendorClass())->adGroupStatus($campaign, $ad_group_id);
     }
 
     public function adStatus(Campaign $campaign, $ad_group_id, $ad_id)
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass)->adStatus($campaign, $ad_group_id, $ad_id);
+        return (new $adVendorClass())->adStatus($campaign, $ad_group_id, $ad_id);
     }
 
     public function adGroupData(Campaign $campaign)
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass)->adGroupData($campaign);
+        return (new $adVendorClass())->adGroupData($campaign);
     }
 
     public function delete(Campaign $campaign)
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass)->delete($campaign);
+        return (new $adVendorClass())->delete($campaign);
     }
 
     public function media()
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass)->media();
+        return (new $adVendorClass())->media();
     }
 
     public function store()
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass)->store();
+        return (new $adVendorClass())->store();
     }
 
     public function exportExcel()

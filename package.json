@@ -26,6 +26,7 @@
     "dependencies": {
         "babel-helper-vue-jsx-merge-props": "^2.0.3",
         "chart.js": "^2.9.4",
+        "laravel-vue-datatable": "^0.6.0",
         "laravel-vue-pagination": "^2.3.1",
         "lv-file-manager": "github:finalblast/lv-file-manager#master",
         "moment": "^2.29.1",

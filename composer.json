@@ -16,6 +16,7 @@
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "hborras/twitter-php-ads-sdk": "^7.0",
+        "jamesdordoy/laravelvuedatatable": "^1.3",
         "jeroennoten/laravel-adminlte": "^3.4",
         "laravel/framework": "^8.0",
         "laravel/socialite": "^5.0",

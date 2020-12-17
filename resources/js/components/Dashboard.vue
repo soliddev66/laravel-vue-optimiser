@@ -98,30 +98,7 @@
       <div class="col-12 mt-3">
         <div class="card">
           <div class="card-body table-responsive">
-            <table class="table table-bordered table-hover text-center">
-              <thead class="border text-bold">
-                <tr>
-                  <th>Name</th>
-                  <th>Imp.</th>
-                  <th>TR Clicks</th>
-                  <th>Cost</th>
-                  <th>Rev.</th>
-                  <th>NET</th>
-                  <th>ROI</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="data in dataByProvider">
-                  <td>{{ providerName(data.provider_id) }}</td>
-                  <td>{{ round(summaryData.total_views, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.total_clicks, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.total_cost, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.total_revenue, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.total_net, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.roi, 2) || 0 }}%</td>
-                </tr>
-              </tbody>
-            </table>
+            <data-table order-by="provider_id" :data="dataByProvider" :columns="dataByProviderColumns" @on-table-props-changed="reloadData"></data-table>
           </div>
         </div>
       </div>
@@ -241,7 +218,42 @@ export default {
         epc: 0
       },
       dataByDate: null,
-      dataByProvider: [],
+      tableProps: {
+        search: '',
+        length: 10,
+        column: 'provider_id',
+        dir: 'asc'
+      },
+      dataByProvider: {},
+      dataByProviderColumns: [{
+        label: 'Name',
+        name: 'name',
+        orderable: true,
+      }, {
+        label: 'Imp.',
+        name: 'total_views',
+        orderable: true,
+      }, {
+        label: 'TR Clicks',
+        name: 'total_clicks',
+        orderable: true,
+      }, {
+        label: 'Cost',
+        name: 'total_cost',
+        orderable: true,
+      }, {
+        label: 'Rev.',
+        name: 'total_revenue',
+        orderable: true,
+      }, {
+        label: 'NET',
+        name: 'total_net',
+        orderable: true,
+      }, {
+        label: 'ROI',
+        name: 'roi',
+        orderable: true,
+      }],
       topWinners: [],
       topLosers: []
     }
@@ -253,15 +265,28 @@ export default {
     providerName(providerId) {
       return this.providers.find(provider => provider.id === providerId) ? this.providers.find(provider => provider.id === providerId).label : 'N/A'
     },
-    getData() {
+    reloadData(tableProps) {
+      this.getData(tableProps);
+    },
+    getData(options = this.tableProps) {
       axios.get('/home', {
           params: this.targetDate
         }).then((response) => {
           this.summaryData = response.data.summary_data
-          this.dataByProvider = response.data.data_by_provider
           this.topWinners = response.data.top_winners
           this.topLosers = response.data.top_losers
           this.fillData(response.data.data_by_date)
+        })
+        .catch((err) => {
+          alert(err);
+        });
+      axios.get('/get-data-by-provider', {
+          params: {
+            ...this.targetDate,
+            ...options
+          }
+        }).then((response) => {
+          this.dataByProvider = response.data
         })
         .catch((err) => {
           alert(err);
