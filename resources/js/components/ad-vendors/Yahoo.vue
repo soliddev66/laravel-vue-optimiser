@@ -705,7 +705,6 @@ export default {
         campaignName: this.campaignName,
         adGroupID: this.adGroupID,
         adGroupName: this.adGroupName,
-        id: this.instance && this.instance.ads.length > 0 ? this.instance.ads[0]['id'] : '',
         bidAmount: this.bidAmount,
         campaignType: this.campaignType,
         campaignLanguage: this.campaignLanguage,
