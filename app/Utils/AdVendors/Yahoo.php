@@ -130,7 +130,15 @@ class Yahoo extends Root
             $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
             $campaign_data = $api->updateCampaign($campaign);
             $ad_group_data = $api->updateAdGroup($campaign_data);
-            $ad = $api->updateAd($campaign_data, $ad_group_data);
+
+            foreach (request('contents') as $content) {
+                var_dump($content);
+                if (!empty($content['id'])) {
+                    $api->updateAd($campaign_data, $ad_group_data, $content);
+                } else {
+                    $api->createAd($campaign_data, $ad_group_data, $content);
+                }
+            }
 
             $api->deleteAttributes();
             $api->createAttributes($campaign_data);
