@@ -233,21 +233,23 @@
                       <div class="form-group row">
                         <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
                         <div class="col-sm-8">
-                          <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index)" />
+                          <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index)" />
                           <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index)">Choose File</button>
                         </div>
                         <div class="col-sm-8 offset-sm-4 text-center">
                           <small class="text-danger" v-if="content.imageUrlHQ && !validURL(content.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
+                          <small class="text-danger" v-if="!content.imageUrlHQState">Image is invalid. You might need an 1200x627 image.</small>
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="image_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
                         <div class="col-sm-8">
-                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index)" />
                           <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index)">Choose File</button>
                         </div>
                         <div class="col-sm-8 offset-sm-4 text-center">
                           <small class="text-danger" v-if="content.imageUrl && !validURL(content.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
+                          <small class="text-danger" v-if="!content.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
                         </div>
                       </div>
                     </div>
@@ -418,7 +420,8 @@ export default {
           || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl)
           || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)
           || !this.contents[i].imageUrlHQ || !this.validURL(this.contents[i].imageUrlHQ)
-          || !this.contents[i].imageUrl || !this.validURL(this.contents[i].imageUrl)) {
+          || !this.contents[i].imageUrl || !this.validURL(this.contents[i].imageUrl)
+          || !this.contents[i].imageUrlHQState || !this.contents[i].imageUrlState) {
             return false
           }
       }
@@ -432,10 +435,16 @@ export default {
       const selectedFilePath = value[0].path
       if (this.openingFileSelector === 'imageHQUrl') {
         this.contents[this.fileSelectorIndex].imageUrlHQ = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+        this.validImageSize(this.contents[this.fileSelectorIndex].imageUrlHQ, 1200, 627).then(result => {
+          this.contents[this.fileSelectorIndex].imageUrlHQState = result
+        });
         this.loadPreview(this.fileSelectorIndex)
       }
       if (this.openingFileSelector === 'imageUrl') {
         this.contents[this.fileSelectorIndex].imageUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+        this.validImageSize(this.contents[this.fileSelectorIndex].imageUrl, 1200, 627).then(result => {
+          this.contents[this.fileSelectorIndex].imageUrlState = result
+        });
         this.loadPreview(this.fileSelectorIndex)
       }
       vm.$modal.hide('imageModal')
@@ -473,7 +482,9 @@ export default {
           description: '',
           brandname: '',
           imageUrlHQ: '',
+          imageUrlHQState: true,
           imageUrl: '',
+          imageUrlState: true,
           previewData: ''
         }
       ];
@@ -511,7 +522,9 @@ export default {
           description: this.instance.ads[i]['description'],
           brandname: this.instance.ads[i]['sponsoredBy'],
           imageUrlHQ: this.instance.ads[i]['imageUrlHQ'],
+          imageUrlHQState: true,
           imageUrl: this.instance.ads[i]['imageUrl'],
+          imageUrlState: true,
           previewData: '',
         });
       }
@@ -570,17 +583,16 @@ export default {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
     },
-    validSize(image, type) {
-      if (type === 'HQ') {
-        if (image.width === 1200 && image.height === 627) {
-          return true;
-        }
-      } else {
-        if (image.width === 627 && image.height === 627) {
-          return true
-        }
-      }
-      return false;
+    validImageSize(imageUrl, width, height) {
+      console.log(imageUrl)
+      return new Promise((resolve) => {
+        var image = new Image();
+        image.onload = function() {
+          console.log(image.width, image.height)
+          resolve(this.width == width && this.height == height);
+        };
+        image.src = imageUrl;
+      });
     },
     addContent() {
       this.contents.push({
@@ -591,7 +603,9 @@ export default {
         description: '',
         brandname: '',
         imageUrlHQ: '',
+        imageUrlHQState: true,
         imageUrl: '',
+        imageUrlState: true,
         previewData: ''
       })
     },
@@ -600,6 +614,16 @@ export default {
     },
     loadPreviewEvent(event, index) {
       this.loadPreview(index)
+    },
+    validImageHQSizeEvent(event, index) {
+      this.validImageSize(this.contents[index].imageUrlHQ, 1200, 627).then(result => {
+        this.contents[index].imageUrlHQState = result
+      });
+    },
+    validImageSizeEvent(event, index) {
+      this.validImageSize(this.contents[index].imageUrl, 627, 627).then(result => {
+        this.contents[index].imageUrlState = result
+      });
     },
     loadPreview(index) {
       this.isLoading = true
