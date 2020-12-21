@@ -5,6 +5,8 @@ namespace App\Endpoints;
 use App\Helpers\GeminiClient;
 use Carbon\Carbon;
 
+use App\Vngodev\Helper;
+
 class GeminiAPI
 {
     private $client;
@@ -61,21 +63,9 @@ class GeminiAPI
         return $this->client->call('GET', 'ad?adGroupId=' . implode('&adGroupId=', $ad_group_ids) . '&advertiserid=' . $advertiser_id);
     }
 
-    public function createAd($campaign_data, $ad_group_data, $content)
+    public function createAd($ads)
     {
-        return $this->client->call('POST', 'ad', [
-            'adGroupId' => $ad_group_data['id'],
-            'advertiserId' => request('selectedAdvertiser'),
-            'campaignId' => $campaign_data['id'],
-            'description' => $content['description'],
-            'displayUrl' => $content['displayUrl'],
-            'landingUrl' => $content['targetUrl'],
-            'sponsoredBy' => $content['brandname'],
-            'imageUrlHQ' => $this->encodeUrl($content['imageUrlHQ']),
-            'imageUrl' => $this->encodeUrl($content['imageUrl']),
-            'title' => $content['title'],
-            'status' => 'ACTIVE'
-        ]);
+        return $this->client->call('POST', 'ad', $ads);
     }
 
     public function updateAdStatus($ad_group_id, $ad_id, $status)
@@ -247,8 +237,8 @@ class GeminiAPI
             'displayUrl' => $content['displayUrl'],
             'landingUrl' => $content['targetUrl'],
             'sponsoredBy' => $content['brandname'],
-            'imageUrlHQ' => $this->encodeUrl($content['imageUrlHQ']),
-            'imageUrl' => $this->encodeUrl($content['imageUrl']),
+            'imageUrlHQ' => Helper::encodeUrl($content['imageUrlHQ']),
+            'imageUrl' => Helper::encodeUrl($content['imageUrl']),
             'title' => $content['title'],
             'status' => 'ACTIVE'
         ]);
@@ -299,12 +289,5 @@ class GeminiAPI
         }
 
         return $this->client->call('POST', 'targetingattribute', $request_body);
-    }
-
-    private function encodeUrl($url)
-    {
-        return preg_replace_callback('#://([^/]+)/([^?]+)#', function ($match) {
-            return '://' . $match[1] . '/' . join('/', array_map('rawurlencode', explode('/', $match[2])));
-        }, $url);
     }
 }
