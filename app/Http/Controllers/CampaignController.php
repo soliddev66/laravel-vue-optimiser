@@ -25,24 +25,50 @@ class CampaignController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $start = Carbon::now()->format('Y-m-d');
-            $end = Carbon::now()->format('Y-m-d');
+            $start_date = Carbon::now()->subDays(30)->format('Y-m-d');
+            $end_date = Carbon::now()->format('Y-m-d');
             if (request('tracker')) {
-                $campaigns_query = Campaign::with(['redtrackReport' => function ($q) use ($start, $end) {
-                    if (request('provider')) {
-                        $q->where('provider_id', request('provider'));
-                    }
-                    $q->whereBetween('date', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);
-                }]);
+                $campaigns_query = Campaign::select(
+                    'campaigns.id',
+                    'name',
+                    DB::raw('MAX(providers.label) as provider_name'),
+                    DB::raw('MAX(campaigns.campaign_id) as campaign_id'),
+                    DB::raw('MAX(campaigns.budget) as budget'),
+                    DB::raw('MAX(campaigns.status) as status'),
+                    DB::raw('ROUND(SUM(total_revenue)/SUM(total_conversions), 2) as payout'),
+                    DB::raw('SUM(clicks) as clicks'),
+                    DB::raw('SUM(lp_views) as lp_views'),
+                    DB::raw('SUM(lp_clicks) as lp_clicks'),
+                    DB::raw('SUM(total_conversions) as total_conversions'),
+                    DB::raw('SUM(total_conversions) as total_actions'),
+                    DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as total_actions_cr'),
+                    DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as cr'),
+                    DB::raw('ROUND(SUM(total_revenue), 2) as total_revenue'),
+                    DB::raw('ROUND(SUM(cost), 2) as cost'),
+                    DB::raw('ROUND(SUM(profit), 2) as profit'),
+                    DB::raw('ROUND((SUM(profit)/SUM(cost)) * 100, 2) as roi'),
+                    DB::raw('ROUND(SUM(cost)/SUM(clicks), 2) as cpc'),
+                    DB::raw('ROUND(SUM(cost)/SUM(total_conversions), 2) as cpa'),
+                    DB::raw('ROUND(SUM(total_revenue)/SUM(clicks), 2) as epc'),
+                    DB::raw('ROUND((SUM(lp_clicks)/SUM(lp_views)) * 100, 2) as lp_ctr'),
+                    DB::raw('ROUND((SUM(total_conversions)/SUM(lp_views)) * 100, 2) as lp_views_cr'),
+                    DB::raw('ROUND((SUM(total_conversions)/SUM(lp_clicks)) * 100, 2) as lp_clicks_cr'),
+                    DB::raw('ROUND(SUM(cost)/SUM(lp_clicks), 2) as lp_cpc')
+                )
+                ->leftJoin('redtrack_reports', function($join) use ($start_date, $end_date) {
+                    $join->on('redtrack_reports.campaign_id', '=', 'campaigns.id')->whereBetween('redtrack_reports.date', [$start_date, $end_date]);
+                })
+                ->leftJoin('providers', 'providers.id', '=', 'campaigns.provider_id');
                 if (request('provider')) {
-                    $campaigns_query->where('provider_id', request('provider'));
+                    $campaigns_query->where('campaigns.provider_id', request('provider'));
                 }
                 if (request('account')) {
-                    $campaigns_query->where('open_id', request('account'));
+                    $campaigns_query->where('campaigns.open_id', request('account'));
                 }
                 if (request('search')) {
                     $campaigns_query->where('name', 'LIKE', '%' . request('search') . '%');
                 }
+                $campaigns_query->groupBy('campaigns.id');
             } else {
                 $campaigns_query = Campaign::with(['performanceStats' => function ($q) use ($start, $end) {
                     $q->whereBetween('day', [!request('start') ? $start : request('start'), !request('end') ? $end : request('end')]);

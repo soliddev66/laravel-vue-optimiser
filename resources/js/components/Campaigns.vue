@@ -32,42 +32,12 @@
               </div>
             </div>
           </div>
-          <div class="card-body table-responsive">
-            <data-table :data="campaigns" :columns="campaignColumns" @on-table-props-changed="reloadData"></data-table>
-            <table ref="campaignsTable" id="campaignsTable" class="table table-bordered table-hover text-center d-none">
-              <thead class="border">
-                <tr>
-                  <th>ID</th>
-                  <th>Traffic Source</th>
-                  <th class="fit">Camp. ID</th>
-                  <th class="fit">Name</th>
-                  <th>Status</th>
-                  <th>Budget</th>
-                  <th>Payout</th>
-                  <th>Clicks</th>
-                  <th>LP View</th>
-                  <th>LP Clicks</th>
-                  <th>Conversion</th>
-                  <th>Total Actions</th>
-                  <th>Total Actions CR</th>
-                  <th>CR</th>
-                  <th>Total Revenue</th>
-                  <th>Cost</th>
-                  <th>Profit</th>
-                  <th>ROI</th>
-                  <th>CPC</th>
-                  <th>CPA</th>
-                  <th>EPC</th>
-                  <th>LP CTR</th>
-                  <th>LP Views CR</th>
-                  <th>LP Clicks CR</th>
-                  <th>LP CPC</th>
-                </tr>
-              </thead>
-              <tbody v-if="campaigns.data && campaigns.data.length">
-                <tr v-for="campaign in campaigns.data" :key="campaign.id">
+          <div class="card-body">
+            <data-table :data="campaigns" :columns="campaignColumns" @on-table-props-changed="reloadData">
+              <tbody slot="body" slot-scope="{ data }">
+                <tr v-for="campaign in data" :key="campaign.id">
                   <td>{{ campaign.id }}</td>
-                  <td class="text-capitalize">{{ providerName(campaign) }}</td>
+                  <td class="text-capitalize">{{ campaign.provider_name }}</td>
                   <td class="fit">{{ campaign.campaign_id }}</td>
                   <td class="fit">
                     <a :href="'/campaigns/' + campaign.id">{{ campaign.name }}</a>
@@ -92,33 +62,28 @@
                     {{ campaign.status }}
                   </td>
                   <td>{{ campaign.budget }}</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'revenue') / count(campaign.redtrack_report, 'conversions')) || 0 }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'clicks') || count(campaign.performance_stats, 'clicks') || 0 }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'lp_views') || 0 }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'lp_clicks') || 0 }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'conversions') || count(campaign.performance_stats, 'conversions') || 0 }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'total_conversions') || count(campaign.performance_stats, 'total_conversions') || 0 }}</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'conversions') / count(campaign.redtrack_report, 'clicks') * 100) || round(count(campaign.performance_stats, 'conversions') / count(campaign.performance_stats, 'clicks') * 100) || 0 }}%</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'total_conversions') / count(campaign.redtrack_report, 'clicks') * 100) || round(count(campaign.performance_stats, 'total_conversions') / count(campaign.performance_stats, 'clicks') * 100) || 0 }}%</td>
-                  <td>{{ count(campaign.redtrack_report, 'total_revenue') || 0 }}</td>
-                  <td>{{ count(campaign.redtrack_report, 'cost') || count(campaign.performance_stats, 'spend') || 0 }}</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'total_revenue') - count(campaign.redtrack_report, 'cost')) || round(0 - count(campaign.performance_stats, 'spend')) || 0 }}</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'profit') / count(campaign.redtrack_report, 'cost') * 100) || round((0 - count(campaign.performance_stats, 'spend')) / count(campaign.performance_stats, 'spend') * 100) || 0 }}%</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'cost') / count(campaign.redtrack_report, 'clicks')) || round(count(campaign.performance_stats, 'spend') / count(campaign.performance_stats, 'clicks')) || 0 }}</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'cost') / count(campaign.redtrack_report, 'total_conversions')) || round(count(campaign.performance_stats, 'spend') / count(campaign.performance_stats, 'total_conversions')) || 0 }}</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'total_revenue') / count(campaign.redtrack_report, 'clicks')) || 0 }}</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'lp_clicks') / count(campaign.redtrack_report, 'lp_views') * 100) || 0 }}%</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'total_conversions') / count(campaign.redtrack_report, 'lp_views') * 100) || 0 }}%</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'total_conversions') / count(campaign.redtrack_report, 'lp_clicks') * 100) || 0 }}%</td>
-                  <td>{{ round(count(campaign.redtrack_report, 'cost') / count(campaign.redtrack_report, 'lp_clicks')) || 0 }}</td>
+                  <td>{{ campaign.payout || 0 }}</td>
+                  <td>{{ campaign.clicks || 0 }}</td>
+                  <td>{{ campaign.lp_views || 0 }}</td>
+                  <td>{{ campaign.lp_clicks || 0 }}</td>
+                  <td>{{ campaign.total_conversions || 0 }}</td>
+                  <td>{{ campaign.total_actions || 0 }}</td>
+                  <td>{{ campaign.total_actions_cr || 0 }}%</td>
+                  <td>{{ campaign.cr || 0 }}%</td>
+                  <td>{{ campaign.total_revenue || 0 }}</td>
+                  <td>{{ campaign.cost || 0 }}</td>
+                  <td>{{ campaign.profit || 0 }}</td>
+                  <td>{{ campaign.roi || 0 }}%</td>
+                  <td>{{ campaign.cpc || 0 }}</td>
+                  <td>{{ campaign.cpa || 0 }}</td>
+                  <td>{{ campaign.epc || 0 }}</td>
+                  <td>{{ campaign.lp_ctr || 0 }}%</td>
+                  <td>{{ campaign.lp_views_cr || 0 }}%</td>
+                  <td>{{ campaign.lp_clicks_cr || 0 }}%</td>
+                  <td>{{ campaign.lp_cpc || 0 }}</td>
                 </tr>
               </tbody>
-              <tbody v-else>
-                <tr>
-                  <td colspan="26">No campaign found.</td>
-                </tr>
-              </tbody>
-            </table>
+            </data-table>
           </div>
           <div class="card-footer">
             <div class="row justify-content-center">
@@ -174,38 +139,110 @@ export default {
       campaigns: {},
       tableProps: {
         page: params.get('page') || '',
-        search: params.get('query') || '',
-        length: params.get('query') || 10,
+        search: params.get('search') || '',
+        length: params.get('length') || 10,
         column: params.get('column') || 'id',
         dir: params.get('dir') || 'asc',
       },
       campaignColumns: [{
+        label: 'ID',
+        name: 'id',
+        orderable: true,
+      }, {
+        label: 'Traffic Source',
+        name: 'provider_id',
+        orderable: false,
+      }, {
+        label: 'Camp. ID',
+        name: 'campaign_id',
+        orderable: true,
+      }, {
         label: 'Name',
         name: 'name',
         orderable: true,
       }, {
-        label: 'Imp.',
-        name: 'total_views',
+        label: 'Status',
+        name: 'status',
         orderable: true,
       }, {
-        label: 'TR Clicks',
-        name: 'total_clicks',
+        label: 'Budget',
+        name: 'budget',
         orderable: true,
       }, {
-        label: 'Cost',
-        name: 'total_cost',
+        label: 'Payout',
+        name: 'payout',
         orderable: true,
       }, {
-        label: 'Rev.',
+        label: 'Clicks',
+        name: 'clicks',
+        orderable: true,
+      }, {
+        label: 'LP View',
+        name: 'lp_views',
+        orderable: true,
+      }, {
+        label: 'LP Clicks',
+        name: 'lp_clicks',
+        orderable: true,
+      }, {
+        label: 'Conversion',
+        name: 'conversions',
+        orderable: true,
+      }, {
+        label: 'Total Actions',
+        name: 'total_actions',
+        orderable: true,
+      }, {
+        label: 'Total Actions CR',
+        name: 'total_actions_cr',
+        orderable: true,
+      }, {
+        label: 'CR',
+        name: 'cr',
+        orderable: true,
+      }, {
+        label: 'Total Revenue',
         name: 'total_revenue',
         orderable: true,
       }, {
-        label: 'NET',
-        name: 'total_net',
+        label: 'Cost',
+        name: 'cost',
+        orderable: true,
+      }, {
+        label: 'Profit',
+        name: 'profit',
         orderable: true,
       }, {
         label: 'ROI',
         name: 'roi',
+        orderable: true,
+      }, {
+        label: 'CPC',
+        name: 'cpc',
+        orderable: true,
+      }, {
+        label: 'CPA',
+        name: 'cpa',
+        orderable: true,
+      }, {
+        label: 'EPC',
+        name: 'epc',
+        orderable: true,
+      }, {
+        label: 'LP CTR',
+        name: 'lp_ctr',
+        orderable: true,
+      }, {
+        label: 'LP Views CR',
+        name: 'lp_views_cr',
+        orderable: true,
+      }, {
+        label: 'LP Clicks CR',
+        name: 'lp_clicks_cr',
+        orderable: true,
+      }, {
+        label: 'LP CPC',
+        name: 'lp_cpc',
         orderable: true,
       }],
       summaryData: {
@@ -218,8 +255,8 @@ export default {
       selectedAccount: params.get('account') || '',
       selectedTracker: params.get('tracker') || 'redtrack',
       targetDate: {
-        start: this.$moment().subtract(30, 'days').format('YYYY-MM-DD'),
-        end: this.$moment().format('YYYY-MM-DD')
+        start: params.get('start') || this.$moment().subtract(30, 'days').format('YYYY-MM-DD'),
+        end: params.get('end') || this.$moment().format('YYYY-MM-DD')
       },
       isLoading: false,
       showQuickActions: '',
