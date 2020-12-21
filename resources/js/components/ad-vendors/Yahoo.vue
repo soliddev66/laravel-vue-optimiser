@@ -197,11 +197,19 @@
               <div class="card-body" v-if="currentStep == 2">
                 <fieldset class="mb-3 p-3 rounded border" v-for="(content, index) in contents" :key="index">
                   <div class="row">
-                    <div class="col-sm-6">
+                    <div class="col-sm-7">
                       <div class="form-group row">
                         <label for="title" class="col-sm-4 control-label mt-2">Title</label>
                         <div class="col-sm-8">
-                          <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="content.title" v-on:blur="loadPreviewEvent($event, index)" />
+                          <div class="row mb-2" v-for="(title, indexTitle) in content.titles" :key="indexTitle">
+                            <div class="col-sm-8">
+                              <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" v-on:blur="loadPreviewEvent($event, index)" />
+                            </div>
+                            <div class="col-sm-4">
+                              <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle); loadPreviewEvent($event, index)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
+                              <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length"><i class="fa fa-plus"></i></button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div class="form-group row">
@@ -230,32 +238,39 @@
                           <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
-                      <div class="form-group row">
-                        <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
-                        <div class="col-sm-8">
-                          <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index)" />
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index)">Choose File</button>
+
+                      <fieldset class="mb-3 p-3 rounded border" v-for="(image, indexImage) in content.images" :key="indexImage">
+                        <div class="form-group row">
+                          <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
+                          <div class="col-sm-8">
+                            <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index)" />
+                            <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index, indexImage)">Choose File</button>
+                          </div>
+                          <div class="col-sm-8 offset-sm-4 text-center">
+                            <small class="text-danger" v-if="image.imageUrlHQ && !validURL(image.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
+                            <small class="text-danger" v-if="!image.imageUrlHQState">Image is invalid. You might need an 1200x627 image.</small>
+                          </div>
                         </div>
-                        <div class="col-sm-8 offset-sm-4 text-center">
-                          <small class="text-danger" v-if="content.imageUrlHQ && !validURL(content.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
-                          <small class="text-danger" v-if="!content.imageUrlHQState">Image is invalid. You might need an 1200x627 image.</small>
+                        <div class="form-group row">
+                          <label for="image_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
+                          <div class="col-sm-8">
+                            <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index)" />
+                            <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, indexImage)">Choose File</button>
+                          </div>
+                          <div class="col-sm-8 offset-sm-4 text-center">
+                            <small class="text-danger" v-if="image.imageUrl && !validURL(image.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
+                            <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
+                          </div>
                         </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="image_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
-                        <div class="col-sm-8">
-                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index)" />
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index)">Choose File</button>
-                        </div>
-                        <div class="col-sm-8 offset-sm-4 text-center">
-                          <small class="text-danger" v-if="content.imageUrl && !validURL(content.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
-                          <small class="text-danger" v-if="!content.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
-                        </div>
-                      </div>
+                        <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeImage(index, indexImage); loadPreviewEvent($event, index)" v-if="indexImage > 0">Remove Image</button>
+                      </fieldset>
+                      <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)">Add Image</button>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-5">
                       <h1>Preview</h1>
-                      <div v-html="content.previewData"></div>
+                      <div class="row mb-2" v-for="(preview, indexPreview) in content.adPreviews" :key="indexPreview">
+                        <div class="col" v-html="preview.data"></div>
+                      </div>
                     </div>
                   </div>
                   <div class="row" v-if="index > 0">
@@ -323,11 +338,12 @@
           <div class="card-body" v-if="currentStep == 4">
             <fieldset class="mb-3 p-3 rounded border" v-for="(content, index) in contents" :key="index">
               <div class="row">
-                <div class="col text-center">
-                  <div v-html="content.previewData"></div>
+                <div class="col-sm-6" v-for="(preview, indexY) in content.adPreviews" :key="indexY">
+                  <div v-html="preview.data"></div>
                 </div>
               </div>
             </fieldset>
+            </div>
           </div>
           <div class="card-footer d-flex justify-content-end">
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
@@ -366,6 +382,8 @@ import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
 import 'vue-loading-overlay/dist/vue-loading.css'
+
+let adPreviewCancels = []
 
 export default {
   props: {
@@ -416,15 +434,27 @@ export default {
     },
     submitStep2State() {
       for (let i = 0; i < this.contents.length; i++) {
-        if (!this.contents[i].title || !this.contents[i].brandname || !this.contents[i].description
+        if (!this.contents[i].brandname || !this.contents[i].description
           || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl)
-          || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)
-          || !this.contents[i].imageUrlHQ || !this.validURL(this.contents[i].imageUrlHQ)
-          || !this.contents[i].imageUrl || !this.validURL(this.contents[i].imageUrl)
-          || !this.contents[i].imageUrlHQState || !this.contents[i].imageUrlState) {
+          || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)) {
+          return false
+        }
+
+        for (let j = 0; j < this.contents[i].titles.length; j++) {
+          if (!this.contents[i].titles[j]) {
             return false
           }
+        }
+
+        for (let j = 0; j < this.contents[i].images.length; j++) {
+          if (!this.contents[i].images[j].imageUrlHQ || !this.validURL(this.contents[i].images[j].imageUrlHQ)
+            || !this.contents[i].images[j].imageUrl || !this.validURL(this.contents[i].images[j].imageUrl)
+            || !this.contents[i].images[j].imageUrlHQState || !this.contents[i].images[j].imageUrlState) {
+            return false
+          }
+        }
       }
+
       return true
     }
   },
@@ -434,16 +464,16 @@ export default {
     this.$root.$on('fm-selected-items', (value) => {
       const selectedFilePath = value[0].path
       if (this.openingFileSelector === 'imageHQUrl') {
-        this.contents[this.fileSelectorIndex].imageUrlHQ = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
-        this.validImageSize(this.contents[this.fileSelectorIndex].imageUrlHQ, 1200, 627).then(result => {
-          this.contents[this.fileSelectorIndex].imageUrlHQState = result
+        this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrlHQ = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+        this.validImageSize(this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrlHQ, 1200, 627).then(result => {
+          this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrlHQState = result
         });
         this.loadPreview(this.fileSelectorIndex)
       }
       if (this.openingFileSelector === 'imageUrl') {
-        this.contents[this.fileSelectorIndex].imageUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
-        this.validImageSize(this.contents[this.fileSelectorIndex].imageUrl, 1200, 627).then(result => {
-          this.contents[this.fileSelectorIndex].imageUrlState = result
+        this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+        this.validImageSize(this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrl, 1200, 627).then(result => {
+          this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrlState = result
         });
         this.loadPreview(this.fileSelectorIndex)
       }
@@ -476,16 +506,20 @@ export default {
       contents = [
         {
           id: '',
-          title: '',
+          titles: [{
+            title: ''
+          }],
           displayUrl: '',
           targetUrl: '',
           description: '',
           brandname: '',
-          imageUrlHQ: '',
-          imageUrlHQState: true,
-          imageUrl: '',
-          imageUrlState: true,
-          previewData: ''
+          images: [{
+            imageUrlHQ: '',
+            imageUrlHQState: true,
+            imageUrl: '',
+            imageUrlState: true,
+          }],
+          adPreviews: []
         }
       ];
     if (this.instance) {
@@ -516,7 +550,9 @@ export default {
       for (let i = 0; i < this.instance.ads.length; i++) {
         contents.push({
           id: this.instance.ads[i]['id'],
-          title: this.instance.ads[i]['title'],
+          titles: [{
+            title: this.instance.ads[i]['title']
+          }],
           displayUrl: this.instance.ads[i]['displayUrl'],
           targetUrl: this.instance.ads[i]['landingUrl'],
           description: this.instance.ads[i]['description'],
@@ -566,6 +602,7 @@ export default {
       dataAttributes: dataAttributes,
       openingFileSelector: '',
       fileSelectorIndex: 0,
+      fileSelectorIndexImage: 0,
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
@@ -574,9 +611,10 @@ export default {
     }
   },
   methods: {
-    openChooseFile(name, index) {
+    openChooseFile(name, index, indexImage) {
       this.openingFileSelector = name
       this.fileSelectorIndex = index
+      this.fileSelectorIndexImage = indexImage
       this.$modal.show('imageModal')
     },
     validURL(str) {
@@ -595,20 +633,43 @@ export default {
     addContent() {
       this.contents.push({
         id: '',
-        title: '',
+        titles: [{
+          title: ''
+        }],
         displayUrl: '',
         targetUrl: '',
         description: '',
         brandname: '',
-        imageUrlHQ: '',
-        imageUrlHQState: true,
-        imageUrl: '',
-        imageUrlState: true,
-        previewData: ''
+        images: [{
+          imageUrlHQ: '',
+          imageUrlHQState: true,
+          imageUrl: '',
+          imageUrlState: true,
+        }],
+        adPreviews: []
       })
     },
     removeContent(index) {
       this.contents.splice(index, 1);
+    },
+    addTitle(index) {
+      this.contents[index].titles.push({
+        title: ''
+      })
+    },
+    removeTitle(index, indexTitle) {
+      this.contents[index].titles.splice(indexTitle, 1)
+    },
+    addImage(index) {
+      this.contents[index].images.push({
+        imageUrlHQ: '',
+        imageUrlHQState: true,
+        imageUrl: '',
+        imageUrlState: true,
+      })
+    },
+    removeImage(index, indexImage) {
+      this.contents[index].images.splice(indexImage, 1)
     },
     loadPreviewEvent(event, index) {
       this.loadPreview(index)
@@ -624,22 +685,39 @@ export default {
       });
     },
     loadPreview(index) {
+      if (adPreviewCancels.length > 0) {
+        for (let i = 0; i < adPreviewCancels.length; i++) {
+          adPreviewCancels[i]()
+        }
+      }
       this.isLoading = true
-      axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
-        title: this.contents[index].title,
-        displayUrl: this.contents[index].displayUrl,
-        landingUrl: this.contents[index].targetUrl,
-        description: this.contents[index].description,
-        sponsoredBy: this.contents[index].brandname,
-        imageUrlHQ: this.contents[index].imageUrlHQ,
-        imageUrl: this.contents[index].imageUrl,
-        campaignLanguage: this.campaignLanguage
-      }).then(response => {
-        this.contents[index].previewData = response.data.replace('height="800"', 'height="450"').replace('width="400"', 'width="100%"')
-      }).catch(err => {
-      }).finally(() => {
-        this.isLoading = false
-      })
+      this.contents[index].adPreviews = [];
+
+      for (let i = 0; i < this.contents[index].titles.length; i++) {
+        for (let y = 0; y < this.contents[index].images.length; y++) {
+          axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
+            title: this.contents[index].titles[i].title,
+            displayUrl: this.contents[index].displayUrl,
+            landingUrl: this.contents[index].targetUrl,
+            description: this.contents[index].description,
+            sponsoredBy: this.contents[index].brandname,
+            imageUrlHQ: this.contents[index].images[y].imageUrlHQ,
+            imageUrl: this.contents[index].images[y].imageUrl,
+            campaignLanguage: this.campaignLanguage
+          }, {
+            cancelToken: new axios.CancelToken(function executor(c) {
+              adPreviewCancels.push(c);
+            })
+          }).then(response => {
+            this.contents[index].adPreviews.push({
+              data: response.data.replace('height="800"', 'height="450"').replace('width="400"', 'width="100%"')
+            })
+          }).catch(err => {
+          }).finally(() => {
+            this.isLoading = false
+          })
+        }
+      }
     },
     selectedAccountChanged() {
       this.getLanguages()

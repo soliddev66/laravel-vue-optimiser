@@ -17,6 +17,8 @@ use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Str;
 
+use App\Vngodev\Helper;
+
 class Yahoo extends Root
 {
     private function api()
@@ -89,19 +91,33 @@ class Yahoo extends Root
                 throw $e;
             }
 
-            $ad_ids = [];
+            $ads = [];
 
             try {
                 foreach (request('contents') as $content) {
-                    $ad = $api->createAd($campaign_data, $ad_group_data, $content);
-                    $ad_ids[] = $ad['id'];
+                    foreach ($content['titles'] as $title) {
+                        foreach ($content['images'] as $image) {
+                            $ads[] = [
+                                'adGroupId' => $ad_group_data['id'],
+                                'advertiserId' => request('selectedAdvertiser'),
+                                'campaignId' => $campaign_data['id'],
+                                'description' => $content['description'],
+                                'displayUrl' => $content['displayUrl'],
+                                'landingUrl' => $content['targetUrl'],
+                                'sponsoredBy' => $content['brandname'],
+                                'imageUrlHQ' => Helper::encodeUrl($image['imageUrlHQ']),
+                                'imageUrl' => Helper::encodeUrl($image['imageUrl']),
+                                'title' => $title['title'],
+                                'status' => 'ACTIVE'
+                            ];
+                        }
+                    }
                 }
+
+                $ad_data = $api->createAd($ads);
             } catch (Exception $e) {
                 $api->deleteCampaign($campaign_data['id']);
                 $api->deleteAdGroups([$ad_group_data['id']]);
-                if (count($ad_ids) > 0) {
-                    $api->deleteAds($ad_ids);
-                }
                 throw $e;
             }
 
@@ -110,6 +126,12 @@ class Yahoo extends Root
             } catch (Exception $e) {
                 $api->deleteCampaign($campaign_data['id']);
                 $api->deleteAdGroups([$ad_group_data['id']]);
+
+                $ad_ids = [];
+
+                foreach ($ad_data as $ad) {
+                    $ad_ids[] = $ad['id'];
+                }
                 $api->deleteAds($ad_ids);
                 throw $e;
             }
@@ -132,7 +154,6 @@ class Yahoo extends Root
             $ad_group_data = $api->updateAdGroup($campaign_data);
 
             foreach (request('contents') as $content) {
-                var_dump($content);
                 if (!empty($content['id'])) {
                     $api->updateAd($campaign_data, $ad_group_data, $content);
                 } else {
