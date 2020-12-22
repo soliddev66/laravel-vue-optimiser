@@ -226,22 +226,9 @@ class GeminiAPI
         return $this->client->call('DELETE', 'adgroup?id=' . implode('&id=', $ad_group_ids));
     }
 
-    public function updateAd($campaign_data, $ad_group_data, $content)
+    public function updateAd($ads)
     {
-        return $this->client->call('PUT', 'ad', [
-            'id' => $content['id'],
-            'adGroupId' => $ad_group_data['id'],
-            'advertiserId' => request('selectedAdvertiser'),
-            'campaignId' => $campaign_data['id'],
-            'description' => $content['description'],
-            'displayUrl' => $content['displayUrl'],
-            'landingUrl' => $content['targetUrl'],
-            'sponsoredBy' => $content['brandname'],
-            'imageUrlHQ' => Helper::encodeUrl($content['imageUrlHQ']),
-            'imageUrl' => Helper::encodeUrl($content['imageUrl']),
-            'title' => $content['title'],
-            'status' => 'ACTIVE'
-        ]);
+        return $this->client->call('PUT', 'ad', $ads);
     }
 
     public function deleteAttributes()

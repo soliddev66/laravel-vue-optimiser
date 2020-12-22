@@ -153,13 +153,41 @@ class Yahoo extends Root
             $campaign_data = $api->updateCampaign($campaign);
             $ad_group_data = $api->updateAdGroup($campaign_data);
 
+            $ads = [];
+
+            $uAds = [];
+
             foreach (request('contents') as $content) {
-                if (!empty($content['id'])) {
-                    $api->updateAd($campaign_data, $ad_group_data, $content);
-                } else {
-                    $api->createAd($campaign_data, $ad_group_data, $content);
+                foreach ($content['titles'] as $title) {
+                    foreach ($content['images'] as $image) {
+                        $ad = [
+                            'adGroupId' => $ad_group_data['id'],
+                            'advertiserId' => request('selectedAdvertiser'),
+                            'campaignId' => $campaign_data['id'],
+                            'description' => $content['description'],
+                            'displayUrl' => $content['displayUrl'],
+                            'landingUrl' => $content['targetUrl'],
+                            'sponsoredBy' => $content['brandname'],
+                            'imageUrlHQ' => Helper::encodeUrl($image['imageUrlHQ']),
+                            'imageUrl' => Helper::encodeUrl($image['imageUrl']),
+                            'title' => $title['title'],
+                            'status' => 'ACTIVE'
+                        ];
+                        if ($title['existing'] && $image['existing']) {
+                            $ad['id'] = $content['id'];
+                            $uAds[] = $ad;
+                        } else {
+                            $ads[] = $ad;
+                        }
+                    }
                 }
             }
+
+            if (count($ads) > 0) {
+                $api->createAd($ads);
+            }
+            $api->updateAd($uAds);
+
 
             $api->deleteAttributes();
             $api->createAttributes($campaign_data);
