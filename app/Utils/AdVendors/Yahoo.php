@@ -4,6 +4,8 @@ namespace App\Utils\AdVendors;
 
 use App\Endpoints\GeminiAPI;
 use App\Jobs\PullCampaign;
+use App\Models\Ad;
+use App\Models\AdGroup;
 use App\Models\Campaign;
 use App\Models\Provider;
 use App\Models\RedtrackContentStat;
@@ -11,13 +13,12 @@ use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
+use App\Vngodev\Helper;
 use Carbon\Carbon;
 use DB;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Str;
-
-use App\Vngodev\Helper;
 
 class Yahoo extends Root
 {
@@ -291,7 +292,6 @@ class Yahoo extends Root
 
         return response()->json([
             'ad_groups' => $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id),
-            'ads' => $api->getAdsByCampaign($campaign->campaign_id, $campaign->advertiser_id),
             'summary_data' => $summary_data
         ]);
     }
@@ -370,6 +370,69 @@ class Yahoo extends Root
         ])->whereNotIn('id', $campaign_ids)->delete();
     }
 
+    public function pullAdGroup($user_provider)
+    {
+        $ad_group_ids = [];
+        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 1)->chunk(10, function ($campaigns) use ($user_provider, &$ad_group_ids) {
+            foreach ($campaigns as $key => $campaign) {
+                $ad_groups = (new GeminiAPI($user_provider))->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
+                foreach ($ad_groups as $key => $ad_group) {
+                    $db_ad_group = AdGroup::firstOrNew([
+                        'ad_group_id' => $ad_group['id'],
+                        'user_id' => $user_provider->user_id,
+                        'provider_id' => $user_provider->provider_id,
+                        'campaign_id' => $campaign->campaign_id,
+                        'advertiser_id' => $campaign->advertiser_id,
+                        'open_id' => $user_provider->open_id
+                    ]);
+
+                    $db_ad_group->name = $ad_group['adGroupName'];
+                    $db_ad_group->status = $ad_group['status'];
+                    $db_ad_group->save();
+                    $ad_group_ids[] = $db_ad_group->id;
+                }
+            }
+        });
+
+        AdGroup::where([
+            'user_id' => $user_provider->user_id,
+            'provider_id' => $user_provider->provider_id,
+            'open_id' => $user_provider->open_id
+        ])->whereNotIn('id', $ad_group_ids)->delete();
+    }
+
+    public function pullAd($user_provider)
+    {
+        $ad_ids = [];
+        AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 1)->chunk(10, function ($ad_groups) use ($user_provider, &$ad_ids) {
+            foreach ($ad_groups as $key => $ad_group) {
+                $ads = (new GeminiAPI($user_provider))->getAds([$ad_group->ad_group_id], $ad_group->advertiser_id);
+                foreach ($ads as $key => $ad) {
+                    $db_ad = Ad::firstOrNew([
+                        'ad_id' => $ad['id'],
+                        'user_id' => $user_provider->user_id,
+                        'provider_id' => $user_provider->provider_id,
+                        'campaign_id' => $ad_group->campaign_id,
+                        'advertiser_id' => $ad_group->advertiser_id,
+                        'ad_group_id' => $ad_group->ad_group_id,
+                        'open_id' => $user_provider->open_id
+                    ]);
+
+                    $db_ad->name = $ad['adName'] ?? $ad['title'];
+                    $db_ad->status = $ad['status'];
+                    $db_ad->save();
+                    $ad_ids[] = $db_ad->id;
+                }
+            }
+        });
+
+        Ad::where([
+            'user_id' => $user_provider->user_id,
+            'provider_id' => $user_provider->provider_id,
+            'open_id' => $user_provider->open_id
+        ])->whereNotIn('id', $ad_ids)->delete();
+    }
+
     public function pullRedTrack($campaign)
     {
         $tracker = UserTracker::where('provider_id', $campaign->provider_id)->where('provider_open_id', $campaign->open_id)->first();
@@ -421,9 +484,8 @@ class Yahoo extends Root
             }
 
             // Content stats
-            $ads = (new GeminiAPI(UserProvider::where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first()))->getAdsByCampaign($campaign->campaign_id, $campaign->advertiser_id);
-            foreach ($ads as $key => $ad) {
-                $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub5&sub6=' . $campaign->campaign_id . '&sub5=' . $ad['id'] . '&tracks_view=true';
+            foreach ($campaign->ads as $key => $ad) {
+                $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub5&sub6=' . $campaign->campaign_id . '&sub5=' . $ad->ad_id . '&tracks_view=true';
                 $response = $client->get($url);
 
                 $data = json_decode($response->getBody(), true);

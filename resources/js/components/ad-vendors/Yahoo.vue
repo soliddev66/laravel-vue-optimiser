@@ -238,7 +238,6 @@
                           <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
-
                       <fieldset class="mb-3 p-3 rounded border" v-for="(image, indexImage) in content.images" :key="indexImage">
                         <div class="form-group row">
                           <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
@@ -274,10 +273,10 @@
                     </div>
                   </div>
                   <div class="row" v-if="index > 0">
-                      <div class="col text-right">
-                        <button class="btn btn-warning btn-sm" @click.prevent="removeContent(index)">Remove</button>
-                      </div>
+                    <div class="col text-right">
+                      <button class="btn btn-warning btn-sm" @click.prevent="removeContent(index)">Remove</button>
                     </div>
+                  </div>
                 </fieldset>
                 <button class="btn btn-primary btn-sm" @click.prevent="addContent()">Add New</button>
               </div>
@@ -433,9 +432,7 @@ export default {
     },
     submitStep2State() {
       for (let i = 0; i < this.contents.length; i++) {
-        if (!this.contents[i].brandname || !this.contents[i].description
-          || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl)
-          || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)) {
+        if (!this.contents[i].brandname || !this.contents[i].description || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl) || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)) {
           return false
         }
 
@@ -446,9 +443,7 @@ export default {
         }
 
         for (let j = 0; j < this.contents[i].images.length; j++) {
-          if (!this.contents[i].images[j].imageUrlHQ || !this.validURL(this.contents[i].images[j].imageUrlHQ)
-            || !this.contents[i].images[j].imageUrl || !this.validURL(this.contents[i].images[j].imageUrl)
-            || !this.contents[i].images[j].imageUrlHQState || !this.contents[i].images[j].imageUrlState) {
+          if (!this.contents[i].images[j].imageUrlHQ || !this.validURL(this.contents[i].images[j].imageUrlHQ) || !this.contents[i].images[j].imageUrl || !this.validURL(this.contents[i].images[j].imageUrl) || !this.contents[i].images[j].imageUrlHQState || !this.contents[i].images[j].imageUrlState) {
             return false
           }
         }
@@ -502,27 +497,25 @@ export default {
       campaignLocation = [],
       adGroupID = '',
       dataAttributes = [],
-      contents = [
-        {
-          id: '',
-          titles: [{
-            title: '',
-            existing: false
-          }],
-          displayUrl: '',
-          targetUrl: '',
-          description: '',
-          brandname: '',
-          images: [{
-            imageUrlHQ: '',
-            imageUrlHQState: true,
-            imageUrl: '',
-            imageUrlState: true,
-            existing: false
-          }],
-          adPreviews: []
-        }
-      ];
+      contents = [{
+        id: '',
+        titles: [{
+          title: '',
+          existing: false
+        }],
+        displayUrl: '',
+        targetUrl: '',
+        description: '',
+        brandname: '',
+        images: [{
+          imageUrlHQ: '',
+          imageUrlHQState: true,
+          imageUrl: '',
+          imageUrlState: true,
+          existing: false
+        }],
+        adPreviews: []
+      }];
     if (this.instance) {
       this.instance.attributes.forEach(attribute => {
         if (attribute.type === 'GENDER') {
@@ -746,8 +739,7 @@ export default {
             }
           })
         }
-      }).catch(err => {
-      }).finally(() => {
+      }).catch(err => {}).finally(() => {
         this.isLoading = false
       })
     },
@@ -763,8 +755,7 @@ export default {
             }
           })
         }
-      }).catch(err => {
-      }).finally(() => {
+      }).catch(err => {}).finally(() => {
         this.isLoading = false
       })
     },
@@ -783,8 +774,7 @@ export default {
       this.isLoading = true
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
         this.advertisers = response.data
-      }).catch(err => {
-      }).finally(() => {
+      }).catch(err => {}).finally(() => {
         this.isLoading = false
       })
     },
@@ -799,8 +789,7 @@ export default {
         this.advertiserName = ''
         this.saveAdvertiser = true
         this.getAdvertisers()
-      }).catch(err => {
-      }).finally(() => {
+      }).catch(err => {}).finally(() => {
         this.isLoading = false
       })
     },
@@ -866,8 +855,7 @@ export default {
             window.location = '/campaigns';
           });
         }
-      }).catch(error => {
-      }).finally(() => {
+      }).catch(error => {}).finally(() => {
         this.isLoading = false
       })
     }

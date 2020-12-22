@@ -92,11 +92,6 @@ class GeminiAPI
         return $this->client->call('GET', 'adgroup?campaignId=' . $campaign_id . '&advertiserid=' . $advertiser_id);
     }
 
-    public function getAdsByCampaign($campaign_id, $advertiser_id)
-    {
-        return $this->client->call('GET', 'ad?campaignId=' . $campaign_id . '&advertiserid=' . $advertiser_id);
-    }
-
     public function updateAds($body)
     {
         return $this->client->call('PUT', 'ad', $body);

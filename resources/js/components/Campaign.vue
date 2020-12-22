@@ -9,20 +9,10 @@
         <div class="card">
           <div class="card-header">
             <div class="row">
-              <div class="col-md-3 col-12">
+              <div class="col-md-6 col-12">
                 <VueCtkDateTimePicker id="targetDate" position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData"></VueCtkDateTimePicker>
               </div>
-              <div class="col-md-3 col-12">
-                <select id="provider" class="form-control" v-model="selectedProvider" @change="getData">
-                  <option v-for="provider in providers" :value="provider.slug">{{ provider.label }}</option>
-                </select>
-              </div>
-              <div class="col-md-3 col-12">
-                <select id="account" class="form-control" v-model="selectedAccount" @change="getData">
-                  <option v-for="account in accounts" :value="account.id">{{ account.open_id }}</option>
-                </select>
-              </div>
-              <div class="col-md-3 col-12">
+              <div class="col-md-6 col-12">
                 <select id="tracker" class="form-control" v-model="selectedTracker" @change="getData">
                   <option value="">-</option>
                   <option v-for="tracker in trackers" :value="tracker.slug">{{ tracker.label }}</option>
@@ -31,14 +21,14 @@
             </div>
           </div>
           <div class="card-body">
-            <vue-tabs>
-              <v-tab title="Widgets">
-                <div class="table-responsive mt-3">
+            <tabs :theme="theme">
+              <tab title="Widgets" hash="widgets" @click.prevent="getWidgetData()">
+                <data-table :data="widgets" :columns="widgetColumns" @on-table-props-changed="reloadWidgetData"></data-table>
+                <div class="table-responsive mt-3 d-none">
                   <table id="widgetsTable" class="table table-bordered table-hover">
                     <thead>
                       <tr>
                         <th>ID</th>
-                        <th>Actions</th>
                         <th>Widget ID</th>
                         <th>Bid Modifier</th>
                         <th>Calc. CPC</th>
@@ -67,93 +57,14 @@
                     </tbody>
                   </table>
                 </div>
-              </v-tab>
-              <v-tab title="Contents">
-                <div class="table-responsive mt-3">
-                  <table id="adsTable" class="table table-bordered table-hover">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Actions</th>
-                        <th>Name</th>
-                        <th>Advertiser ID</th>
-                        <th>Campaign ID</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="ad in adData" class="text-center" :key="ad.id">
-                        <td>{{ ad.id }}</td>
-                        <td class="px-1">
-                          <a class="btn btn-sm btn-default border" :data-status="ad.status" :href="`/campaigns/${campaign.id}/ad-groups/${ad.adGroupId}/ads/status/${ad.id}`" @click.prevent="updateAdStatus">
-                            <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': ad.status == 'ACTIVE' }"></i>
-                          </a>
-                        </td>
-                        <td>
-                          <a class="btn btn-sm btn-success" :href="`/campaigns/${campaign.id}/ad-groups/${ad.adGroupId}/ads/${ad.id}`">{{ ad.title }}</a>
-                        </td>
-                        <td>{{ ad.advertiserId }}</td>
-                        <td>{{ ad.campaignId }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </v-tab>
-              <v-tab title="AdGroups">
-                <div class="table-responsive mt-3">
-                  <table id="adGroupsTable" class="table table-bordered table-hover">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th colspan="2">Actions</th>
-                        <th>Name</th>
-                        <th>Advertiser ID</th>
-                        <th>Campaign ID</th>
-                        <th>ECPA Goal</th>
-                        <th>DPA Audience Strategy</th>
-                        <th>Tracking Url</th>
-                        <th>Advanced Geo Pos</th>
-                        <th>Advanced Geo Neg</th>
-                        <th>Bidding Strategy</th>
-                        <th>Custom Parameters</th>
-                        <th>Product Set ID</th>
-                        <th>Editorial Status</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="adGroup in data" class="text-center" :key="adGroup.id">
-                        <td>{{ adGroup.id }}</td>
-                        <td class="border-right-0 px-1">
-                          <a class="btn btn-sm btn-default border" :data-status="adGroup.status" :href="`/campaigns/${campaign.id}/ad-groups/${adGroup.id}/status`" @click.prevent="updateAdGroupStatus">
-                            <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': adGroup.status == 'ACTIVE' }"></i>
-                          </a>
-                        </td>
-                        <td class="border-left-0 px-1">
-                          <a class="btn btn-sm btn-default border" :data-status="adGroup.status" :href="`/campaigns/${campaign.id}/ad-groups/${adGroup.id}/ads/create`">
-                            <i aria-hidden="true" title="Create new ad" class="fas fa-plus"></i>
-                          </a>
-                        </td>
-                        <td>{{ adGroup.adGroupName }}</td>
-                        <td>{{ adGroup.advertiserId }}</td>
-                        <td>{{ adGroup.campaignId }}</td>
-                        <td>{{ adGroup.ecpaGoal }}</td>
-                        <td>{{ adGroup.dpaAudienceStrategy }}</td>
-                        <td>{{ adGroup.trackingUrl }}</td>
-                        <td>{{ adGroup.advancedGeoPos }}</td>
-                        <td>{{ adGroup.advancedGeoNeg }}</td>
-                        <td>{{ adGroup.biddingStrategy }}</td>
-                        <td>{{ adGroup.customParameters }}</td>
-                        <td>{{ adGroup.productSetId }}</td>
-                        <td>{{ adGroup.editorialStatus }}</td>
-                        <td>{{ adGroup.startDateStr }}</td>
-                        <td>{{ adGroup.endDateStr }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </v-tab>
-              <v-tab title="Domains">
+              </tab>
+              <tab title="Contents" hash="contents" @click.prevent="getContentData()">
+                <data-table :data="contents" :columns="contentColumns" @on-table-props-changed="reloadContentData"></data-table>
+              </tab>
+              <tab title="AdGroups" hash="ad-groups" @click.prevent="getAdGroupData()">
+                <data-table :data="adGroups" :columns="adGroupColumns" @on-table-props-changed="reloadAdGroupData"></data-table>
+              </tab>
+              <tab title="Domains" hash="domains" @click.prevent="getDomainData()">
                 <div class="table-responsive mt-3">
                   <table id="domainsTable" class="table table-bordered table-hover">
                     <thead>
@@ -251,14 +162,14 @@
                     </tbody>
                   </table>
                 </div>
-              </v-tab>
-              <v-tab title="Rules">
+              </tab>
+              <tab title="Rules" hash="rules">
                 Rules
-              </v-tab>
-              <v-tab title="Performance">
+              </tab>
+              <tab title="Performance" hash="performance">
                 Performance
-              </v-tab>
-            </vue-tabs>
+              </tab>
+            </tabs>
           </div>
         </div>
       </div>
@@ -268,8 +179,9 @@
 
 <script>
 import _ from 'lodash';
+import { Tabs, Tab } from '@hiendv/vue-tabs';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
-import Loading from 'vue-loading-overlay'
+import Loading from 'vue-loading-overlay';
 
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
 import 'vue-loading-overlay/dist/vue-loading.css';
@@ -280,47 +192,114 @@ export default {
       type: Object,
       default: null
     },
-    providers: {
-      type: Array,
-      default: []
-    },
-    accounts: {
-      type: Array,
-      default: []
-    },
     trackers: {
       type: Array,
       default: []
     }
   },
   components: {
+    Tabs,
+    Tab,
     VueCtkDateTimePicker,
     Loading
   },
   mounted() {
     console.log('Component mounted.')
-    this.getData()
+    this.getData();
   },
   data() {
+    let params = (new URL(document.location)).searchParams;
     return {
-      data: [],
+      widgets: {},
+      contents: {},
+      adGroups: {},
+      domains: {},
+      widgetColumns: [
+        { label: 'ID', name: 'id', orderable: true },
+        { label: 'Widget ID', name: 'widget_id', orderable: true },
+        { label: 'Bid Modifier', name: 'bid_modifier', orderable: true },
+        { label: 'Calc. CPC', name: 'calc_cpc', orderable: true },
+        { label: 'Avg. CPC', name: 'average_cpc', orderable: true },
+        { label: 'Spend', name: 'spend', orderable: true },
+        { label: 'TR Conv.', name: 'tr_conv', orderable: true },
+        { label: 'TR Rev.', name: 'tr_rev', orderable: true },
+        { label: 'TR NET', name: 'tr_net', orderable: true },
+        { label: 'TR ROI', name: 'tr_roi', orderable: true },
+        { label: 'TR EPC', name: 'tr_epc', orderable: true },
+        { label: 'EPC', name: 'epc', orderable: true },
+        { label: 'TR CPA', name: 'tr_cpa', orderable: true },
+        { label: 'Impressions', name: 'impressions', orderable: true },
+        { label: 'TS Clicks', name: 'ts_clicks', orderable: true },
+        { label: 'TRK Clicks', name: 'trk_clicks', orderable: true },
+        { label: 'LP Clicks', name: 'lp_clicks', orderable: true },
+        { label: 'LP CTR', name: 'lp_ctr', orderable: true },
+        { label: 'CTR', name: 'ctr', orderable: true },
+        { label: 'TR CVR', name: 'tr_cvr', orderable: true },
+        { label: 'eCPM', name: 'ecpm', orderable: true },
+        { label: 'LP CR', name: 'lp_cr', orderable: true },
+        { label: 'LP CPC', name: 'lp_cpc', orderable: true }
+      ],
+      contentColumns: [
+        { label: 'ID', name: 'id', orderable: true },
+        { label: 'Ad. ID', name: 'ad_id', orderable: true },
+        { label: 'Name', name: 'name', orderable: true },
+        { label: 'Status', name: 'status', orderable: true },
+        { label: 'Payout', name: 'payout', orderable: true },
+        { label: 'Clicks', name: 'clicks', orderable: true },
+        { label: 'LP View', name: 'lp_views', orderable: true },
+        { label: 'LP Clicks', name: 'lp_clicks', orderable: true },
+        { label: 'Conversion', name: 'conversions', orderable: true },
+        { label: 'Total Actions', name: 'total_actions', orderable: true },
+        { label: 'Total Actions CR', name: 'total_actions_cr', orderable: true },
+        { label: 'CR', name: 'cr', orderable: true },
+        { label: 'Total Revenue', name: 'total_revenue', orderable: true },
+        { label: 'Cost', name: 'cost', orderable: true },
+        { label: 'Profit', name: 'profit', orderable: true },
+        { label: 'ROI', name: 'roi', orderable: true },
+        { label: 'CPC', name: 'cpc', orderable: true },
+        { label: 'CPA', name: 'cpa', orderable: true },
+        { label: 'EPC', name: 'epc', orderable: true },
+        { label: 'LP CTR', name: 'lp_ctr', orderable: true },
+        { label: 'LP Views CR', name: 'lp_views_cr', orderable: true },
+        { label: 'LP Clicks CR', name: 'lp_clicks_cr', orderable: true },
+        { label: 'LP CPC', name: 'lp_cpc', orderable: true }
+      ],
+      adGroupColumns: [
+        { label: 'ID', name: 'id', orderable: true },
+        { label: 'Camp. ID', name: 'campaign_id', orderable: true },
+        { label: 'Ad Group ID', name: 'ad_group_id', orderable: true },
+        { label: 'Name', name: 'name', orderable: true },
+        { label: 'Status', name: 'status', orderable: true }
+      ],
       summaryData: {
         total_cost: 0,
         total_revenue: 0,
         total_net: 0,
         avg_roi: 0
       },
-      domains: [],
       adData: [],
-      selectedProvider: 'yahoo',
-      selectedAccount: 1,
       selectedTracker: 'redtrack',
       targetDate: {
-        start: this.$moment().format('YYYY-MM-DD'),
+        start: this.$moment().subtract(30, 'days').format('YYYY-MM-DD'),
         end: this.$moment().format('YYYY-MM-DD')
       },
       isLoading: false,
-      fullPage: true
+      fullPage: true,
+      tableProps: {
+        page: params.get('page') || 1,
+        search: params.get('search') || '',
+        length: params.get('length') || 10,
+        column: params.get('column') || 'id',
+        dir: params.get('dir') || 'asc',
+      },
+      theme: {
+        tabs: 'custom-tabs',
+        items: 'custom-items',
+        item: 'custom-item',
+        'item--active': 'custom-item-active',
+        'item--end': 'custom-item-end',
+        panel: 'custom-panel'
+      }
     }
   },
   methods: {
@@ -341,9 +320,53 @@ export default {
         return ad.adGroupId === adGroup.id
       })
     },
-    getDomainData() {
+    getData() {
+      switch (location.hash) {
+        case '#contents':
+          this.getContentData();
+          break;
+        case '#ad-groups':
+          this.getAdGroupData();
+          break;
+        case '#domains':
+          this.getDomainData();
+          break;
+        case '#rules':
+          break;
+        case '#performance':
+          break;
+        default:
+          this.getWidgetData();
+          break;
+      }
+    },
+    reloadWidgetData(tableProps) {
+      this.getWidgetData(tableProps);
+    },
+    reloadContentData(tableProps) {
+      this.getContentData(tableProps);
+    },
+    reloadAdGroupData(tableProps) {
+      this.getAdGroupData(tableProps);
+    },
+    getWidgetData(options = this.tableProps) {
+      this.isLoading = true;
+      axios.get(`/campaigns/${this.campaign.id}/widgets`, {
+          params: {...this.targetDate, ... { tracker: this.selectedTracker }, ...options }
+        })
+        .then((response) => {
+          this.widgets = response.data;
+        })
+        .catch((err) => {
+          alert(err);
+        }).finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getDomainData(options = this.tableProps) {
+      this.isLoading = true;
       axios.get(`/campaigns/${this.campaign.id}/domains`, {
-          params: {...this.targetDate, ... { tracker: this.selectedTracker } }
+          params: {...this.targetDate, ... { tracker: this.selectedTracker }, ...options }
         })
         .then((response) => {
           this.domains = response.data.domains;
@@ -351,40 +374,35 @@ export default {
         .catch((err) => {
           alert(err);
         }).finally(() => {
-          $('#domainsTable').DataTable({
-            retrieve: true,
-            paging: true,
-            ordering: true,
-            info: true,
-            stateSave: true,
-            autoWidth: false,
-            pageLength: 50,
-          });
+          this.isLoading = false;
         });
     },
-    getData() {
+    getAdGroupData(options = this.tableProps) {
       this.isLoading = true;
-      $('#targetDate-input').trigger('change');
-      this.getDomainData();
-      axios.post('/campaigns/' + this.campaign.id + '/ad-groups/data', {...this.targetDate, ... { tracker: this.selectedTracker } })
+      axios.get('/campaigns/' + this.campaign.id + '/ad-groups', {
+          params: {...this.targetDate, ... { tracker: this.selectedTracker }, ...options }
+        })
         .then((response) => {
-          this.data = response.data.ad_groups
-          this.adData = response.data.ads.filter(ad => ad.adGroupId === this.data[0].id)
-          this.summaryData = response.data.summary_data
+          this.adGroups = response.data
         })
         .catch((err) => {
           alert(err);
         }).finally(() => {
           this.isLoading = false;
-          $('#adGroupsTable, #adsTable').DataTable({
-            retrieve: true,
-            paging: true,
-            ordering: true,
-            info: true,
-            stateSave: true,
-            autoWidth: false,
-            pageLength: 50,
-          });
+        });
+    },
+    getContentData(options = this.tableProps) {
+      this.isLoading = true;
+      axios.get(`/campaigns/${this.campaign.id}/contents`, {
+          params: {...this.targetDate, ... { tracker: this.selectedTracker }, ...options }
+        })
+        .then((response) => {
+          this.contents = response.data;
+        })
+        .catch((err) => {
+          alert(err);
+        }).finally(() => {
+          this.isLoading = false;
         });
     },
     updateAdGroupStatus(e) {
@@ -395,7 +413,7 @@ export default {
         if (response.data.errors) {
           alert(response.data.errors[0])
         } else {
-          this.getData();
+          this.getAdGroupData();
         }
       }).catch((err) => {
         alert(err);
@@ -411,7 +429,7 @@ export default {
         if (response.data.errors) {
           alert(response.data.errors[0])
         } else {
-          this.getData();
+          this.getContentData();
         }
       }).catch((err) => {
         alert(err);
@@ -424,4 +442,31 @@ export default {
 </script>
 
 <style>
+.table td,
+.table th {
+  white-space: nowrap;
+  width: 1%;
+}
+
+.custom-tabs {}
+
+.custom-items {}
+
+.custom-item {
+  display: inline-block;
+  padding: .5rem;
+  text-decoration: none;
+  color: #07a;
+}
+
+.custom-item-active {
+  color: #905;
+}
+
+.custom-item-end {}
+
+.custom-panel {
+  padding: 1rem;
+  border: 1px dashed #cdcdcd;
+}
 </style>

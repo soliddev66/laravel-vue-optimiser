@@ -356,6 +356,16 @@ class Twitter extends Root
         ])->whereNotIn('id', $campaign_ids)->delete();
     }
 
+    public function pullAdGroup($user_provider)
+    {
+        //
+    }
+
+    public function pullAd($user_provider)
+    {
+        //
+    }
+
     public function deleteCampaign(User $user, $campaign_id, $provider_slug, $account, $advertiser)
     {
         $provider = Provider::where('slug', $provider_slug)->first();

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Endpoints\OutbrainAPI;
+use App\Jobs\PullAd;
+use App\Jobs\PullAdGroup;
 use App\Jobs\PullCampaign;
 use App\Models\Provider;
 use App\Models\Tracker;
@@ -187,5 +189,7 @@ class AccountController extends Controller
     private function pullCampaign()
     {
         return PullCampaign::dispatch(auth()->user());
+        return PullAdGroup::dispatch(auth()->user());
+        return PullAd::dispatch(auth()->user());
     }
 }

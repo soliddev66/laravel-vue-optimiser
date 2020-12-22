@@ -138,7 +138,7 @@ export default {
       accounts: [],
       campaigns: {},
       tableProps: {
-        page: params.get('page') || '',
+        page: params.get('page') || 1,
         search: params.get('search') || '',
         length: params.get('length') || 10,
         column: params.get('column') || 'id',
@@ -372,8 +372,8 @@ export default {
 </script>
 
 <style>
-.table td.fit,
-.table th.fit {
+.table td,
+.table th {
   white-space: nowrap;
   width: 1%;
 }

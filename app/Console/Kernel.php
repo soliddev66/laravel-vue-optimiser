@@ -2,13 +2,15 @@
 
 namespace App\Console;
 
+use App\Jobs\PullAd;
+use App\Jobs\PullAdGroup;
 use App\Jobs\PullCampaign;
 use App\Models\Rule;
 use App\Models\User;
 use App\Vngodev\Gemini;
 use App\Vngodev\Outbrain;
-use App\Vngodev\Twitter;
 use App\Vngodev\RedTrack;
+use App\Vngodev\Twitter;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -58,6 +60,14 @@ class Kernel extends ConsoleKernel
                 PullCampaign::dispatch($user);
             }
         })->everyMinute();
+
+        // Ad group and ad
+        $schedule->call(function () {
+            foreach (User::all() as $key => $user) {
+                PullAdGroup::dispatch($user);
+                PullAd::dispatch($user);
+            }
+        })->everyThirtyMinutes();
 
         // Rules
         foreach (Rule::all() as $rule) {

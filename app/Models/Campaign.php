@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Exception;
-
-use App\Models\RedtrackReport;
+use App\Models\Ad;
+use App\Models\AdGroup;
 use App\Models\GeminiPerformanceStat;
-
-use Illuminate\Database\Eloquent\Model;
+use App\Models\RedtrackReport;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Campaign extends Model
 {
@@ -75,5 +75,15 @@ class Campaign extends Model
     public function user()
     {
         return $this->belongsTo('App\Models\User');
+    }
+
+    public function ads()
+    {
+        return $this->hasMany(Ad::class, 'campaign_id', 'campaign_id');
+    }
+
+    public function adGroups()
+    {
+        return $this->hasMany(AdGroup::class, 'campaign_id', 'campaign_id');
     }
 }

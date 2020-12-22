@@ -196,6 +196,16 @@ class Outbrain extends Root
         ])->whereNotIn('id', $campaign_ids)->delete();
     }
 
+    public function pullAdGroup($user_provider)
+    {
+        //
+    }
+
+    public function pullAd($user_provider)
+    {
+        //
+    }
+
     public function pullRedTrack($campaign)
     {
         $tracker = UserTracker::where('provider_id', $campaign->provider_id)
