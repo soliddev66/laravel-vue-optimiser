@@ -343,7 +343,6 @@
                 </div>
               </div>
             </fieldset>
-            </div>
           </div>
           <div class="card-footer d-flex justify-content-end">
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
@@ -487,7 +486,7 @@ export default {
 
     if (this.instance) {
       for (let i = 0; i < this.instance.ads.length; i++) {
-        this.loadPreview(i);
+        this.loadPreview(i, true);
       }
     }
   },
@@ -507,7 +506,8 @@ export default {
         {
           id: '',
           titles: [{
-            title: ''
+            title: '',
+            existing: false
           }],
           displayUrl: '',
           targetUrl: '',
@@ -518,6 +518,7 @@ export default {
             imageUrlHQState: true,
             imageUrl: '',
             imageUrlState: true,
+            existing: false
           }],
           adPreviews: []
         }
@@ -551,17 +552,21 @@ export default {
         contents.push({
           id: this.instance.ads[i]['id'],
           titles: [{
-            title: this.instance.ads[i]['title']
+            title: this.instance.ads[i]['title'],
+            existing: true
           }],
           displayUrl: this.instance.ads[i]['displayUrl'],
           targetUrl: this.instance.ads[i]['landingUrl'],
           description: this.instance.ads[i]['description'],
           brandname: this.instance.ads[i]['sponsoredBy'],
-          imageUrlHQ: this.instance.ads[i]['imageUrlHQ'],
-          imageUrlHQState: true,
-          imageUrl: this.instance.ads[i]['imageUrl'],
-          imageUrlState: true,
-          previewData: '',
+          images: [{
+            imageUrlHQ: this.instance.ads[i]['imageUrlHQ'],
+            imageUrlHQState: true,
+            imageUrl: this.instance.ads[i]['imageUrl'],
+            imageUrlState: true,
+            existing: true
+          }],
+          adPreviews: [],
         });
       }
     }
@@ -634,7 +639,8 @@ export default {
       this.contents.push({
         id: '',
         titles: [{
-          title: ''
+          title: '',
+          existing: false
         }],
         displayUrl: '',
         targetUrl: '',
@@ -645,6 +651,7 @@ export default {
           imageUrlHQState: true,
           imageUrl: '',
           imageUrlState: true,
+          existing: false
         }],
         adPreviews: []
       })
@@ -654,7 +661,8 @@ export default {
     },
     addTitle(index) {
       this.contents[index].titles.push({
-        title: ''
+        title: '',
+        existing: false
       })
     },
     removeTitle(index, indexTitle) {
@@ -666,6 +674,7 @@ export default {
         imageUrlHQState: true,
         imageUrl: '',
         imageUrlState: true,
+        existing: false
       })
     },
     removeImage(index, indexImage) {
@@ -684,8 +693,8 @@ export default {
         this.contents[index].imageUrlState = result
       });
     },
-    loadPreview(index) {
-      if (adPreviewCancels.length > 0) {
+    loadPreview(index, firstLoad = false) {
+      if (!firstLoad && adPreviewCancels.length > 0) {
         for (let i = 0; i < adPreviewCancels.length; i++) {
           adPreviewCancels[i]()
         }
@@ -713,6 +722,7 @@ export default {
               data: response.data.replace('height="800"', 'height="450"').replace('width="400"', 'width="100%"')
             })
           }).catch(err => {
+            console.log(err)
           }).finally(() => {
             this.isLoading = false
           })
