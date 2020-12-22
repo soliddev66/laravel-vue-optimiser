@@ -95,7 +95,6 @@ export default {
       this.isLoading = true
       axios.get(`/account/accounts?provider=${this.selectedProvider}`).then(response => {
         this.accounts = response.data
-        console.log(this.accounts)
         this.selectedAccount = this.accounts[0].open_id
       }).catch(err => {
         console.log(err)
