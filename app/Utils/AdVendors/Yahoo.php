@@ -183,14 +183,16 @@ class Yahoo extends Root
                 }
             }
 
-            $api->createAd($ads);
+            if (count($ads) > 0) {
+                $api->createAd($ads);
+            }
             $api->updateAd($uAds);
 
 
             $api->deleteAttributes();
             $api->createAttributes($campaign_data);
 
-            //PullCampaign::dispatch(auth()->user());
+            PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
             return [
                 'errors' => [$e->getMessage()]
