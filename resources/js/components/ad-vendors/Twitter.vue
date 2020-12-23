@@ -222,6 +222,33 @@
                 <section v-if="action == 'create' || !saveCard">
                   <fieldset class="mb-3 p-3 rounded border" v-for="(card, index) in cards" :key="index">
                     <div class="form-group row">
+                      <label for="tweet_text" class="col-sm-2 control-label mt-2">Tweet Text</label>
+                      <div class="col-lg-10 col-xl-8">
+                        <div class="row mb-2" v-for="(tweetText, indexText) in card.tweetTexts" :key="indexText">
+                          <div class="col-sm-8">
+                            <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="tweetText.text" :disabled="instance && action == 'edit' && saveCard" />
+                          </div>
+                          <div class="col-sm-4">
+                            <button type="button" class="btn btn-light" @click.prevent="removeTweetText(index, indexText)" v-if="indexText > 0"><i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-primary" @click.prevent="addTweetText(index)" v-if="indexText + 1 == card.tweetTexts.length"><i class="fa fa-plus"></i></button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="tweet_nullcast" class="col-sm-2 control-label mt-2">Tweet Nullcast</label>
+                      <div class="col-lg-4 col-xl-3">
+                        <div class="btn-group btn-group-toggle">
+                          <label class="btn bg-olive" :class="{ active: card.tweetNullcast }">
+                            <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" :disabled="instance && saveCard" v-model="card.tweetNullcast">TRUE
+                          </label>
+                          <label class="btn bg-olive" :class="{ active: !card.tweetNullcast }">
+                            <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" :disabled="instance && saveCard" v-model="card.tweetNullcast">FALSE
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group row">
                       <label for="card_name" class="col-sm-2 control-label mt-2">Card Name</label>
                       <div class="col-lg-10 col-xl-8">
                         <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="card.name" />
@@ -253,25 +280,6 @@
                       <p class="col-12" v-if="instance && action == 'edit' && saveCard">
                         Not allow to update the tweet.
                       </p>
-                    </div>
-                    <div class="form-group row">
-                      <label for="tweet_text" class="col-sm-2 control-label mt-2">Tweet Text</label>
-                      <div class="col-lg-10 col-xl-8">
-                        <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="card.tweetText" :disabled="instance && action == 'edit' && saveCard" />
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="tweet_nullcast" class="col-sm-2 control-label mt-2">Tweet Nullcast</label>
-                      <div class="col-lg-4 col-xl-3">
-                        <div class="btn-group btn-group-toggle">
-                          <label class="btn bg-olive" :class="{ active: card.tweetNullcast }">
-                            <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" :disabled="instance && saveCard" v-model="card.tweetNullcast">TRUE
-                          </label>
-                          <label class="btn bg-olive" :class="{ active: !card.tweetNullcast }">
-                            <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" :disabled="instance && saveCard" v-model="card.tweetNullcast">FALSE
-                          </label>
-                        </div>
-                      </div>
                     </div>
 
                     <div class="row" v-if="index > 0">
@@ -314,7 +322,7 @@
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
           viewType: 'grid',
-          selectionType: 'single'
+          selectionType: 'multiple'
       }"></file-manager>
     </modal>
   </section>
@@ -387,6 +395,7 @@ export default {
 
     let vm = this
     this.$root.$on('fm-selected-items', (value) => {
+      console.log(value)
       const selectedFilePath = value[0].path
       if (this.openingFileSelector === 'cardMedia') {
         this.cards[this.fileSelectorIndex].media = selectedFilePath
@@ -525,12 +534,20 @@ export default {
         media: '',
         websiteTitle: '',
         websiteUrl: '',
-        tweetText: '',
+        tweetTexts: [{
+          text: ''
+        }],
         tweetNullcast: ''
       })
     },
     removeCard(index) {
       this.cards.splice(index, 1);
+    },
+    addText(index) {
+
+    },
+    removeTweetText(index, indexText) {
+
     },
     submitStep1() {
       const step1Data = {
