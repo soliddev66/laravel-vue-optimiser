@@ -72,42 +72,25 @@
                 <div class="form-group row">
                   <label for="location" class="col-sm-2 control-label mt-2">Location</label>
                   <div class="col-sm-8">
-                    <select2 name="location" v-model="campaignLocation" :options="countries" :settings="{ multiple: true }" />
+                    <select2 id="location" name="location" v-model="campaignLocation" :options="countries" :settings="{ multiple: true }" />
                   </div>
                 </div>
                 <div class="form-group row">
                   <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
                   <div class="col-sm-8">
-                    <select name="gender" class="form-control" v-model="campaignGender">
-                      <option value="">All</option>
-                      <option value="MALE">Male</option>
-                      <option value="FEMALE">Female</option>
-                    </select>
+                    <select2 id="gender" name="gender" v-model="campaignGender" :options="genders" :settings="{ multiple: true }" />
                   </div>
                 </div>
                 <div class="form-group row">
                   <label for="age" class="col-sm-2 control-label mt-2">Age</label>
                   <div class="col-sm-8">
-                    <select name="age" class="form-control" v-model="campaignAge" multiple>
-                      <option value="">All</option>
-                      <option value="18-24">18-24</option>
-                      <option value="25-34">25-34</option>
-                      <option value="35-44">35-44</option>
-                      <option value="45-54">45-54</option>
-                      <option value="55-64">55-64</option>
-                      <option value="65-120">65-120</option>
-                    </select>
+                    <select2 id="age" name="age" v-model="campaignAge" :options="ages" :settings="{ multiple: true }" />
                   </div>
                 </div>
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device</label>
                   <div class="col-sm-8">
-                    <select name="device" class="form-control" v-model="campaignDevice">
-                      <option value="">All</option>
-                      <option value="SMARTPHONE">SMARTPHONE</option>
-                      <option value="TABLET">TABLET</option>
-                      <option value="DESKTOP">DESKTOP</option>
-                    </select>
+                    <select2 name="device" v-model="campaignDevice" :options="devices" :settings="{ multiple: true }" />
                   </div>
                 </div>
                 <h2>Campaign settings</h2>
@@ -283,56 +266,35 @@
             </form>
           </div>
           <div class="card-body" v-if="currentStep == 3">
-            <div class="row mb-2" v-for="(attribute, index) in attributes" :key="attribute.id">
-              <div class="col-sm-12" v-if="index === 0">
+            <div class="row mb-2">
+              <div class="col-sm-12">
                 <h4>Main Variation</h4>
               </div>
               <div class="col-sm-12">
                 <div class="form-group row">
-                  <label :for="`gender${index}`" class="col-sm-4 control-label mt-2">Gender</label>
+                  <label for="variantGender" class="col-sm-4 control-label mt-2">Gender</label>
                   <div class="col-sm-8">
-                    <select :name="`gender${index}`" class="form-control" v-model="attribute.gender">
-                      <option value="">All</option>
-                      <option value="MALE">Male</option>
-                      <option value="FEMALE">Female</option>
-                    </select>
+                    <select2 id="variantGender" name="variantGender" v-model="campaignGender" :options="genders" :settings="{ multiple: true }" />
                   </div>
                 </div>
               </div>
               <div class="col-sm-12">
                 <div class="form-group row">
-                  <label :for="`age${index}`" class="col-sm-4 control-label mt-2">Age</label>
+                  <label for="variantAge" class="col-sm-4 control-label mt-2">Age</label>
                   <div class="col-sm-8">
-                    <select :name="`age${index}`" class="form-control" v-model="attribute.age" multiple>
-                      <option value="">All</option>
-                      <option value="18-24">18-24</option>
-                      <option value="25-34">25-34</option>
-                      <option value="35-44">35-44</option>
-                      <option value="45-54">45-54</option>
-                      <option value="55-64">55-64</option>
-                      <option value="65-120">65-120</option>
-                    </select>
+                    <select2 id="variantAge" name="variantAge" v-model="campaignAge" :options="ages" :settings="{ multiple: true }" />
                   </div>
                 </div>
               </div>
               <div class="col-sm-12 border-bottom">
                 <div class="form-group row">
-                  <label :for="`device${index}`" class="col-sm-4 control-label mt-2">Device</label>
+                  <label for="variantDevice" class="col-sm-4 control-label mt-2">Device</label>
                   <div class="col-sm-8">
-                    <select :name="`device${index}`" class="form-control" v-model="attribute.device">
-                      <option value="">All</option>
-                      <option value="SMARTPHONE">SMARTPHONE</option>
-                      <option value="TABLET">TABLET</option>
-                      <option value="DESKTOP">DESKTOP</option>
-                    </select>
+                    <select2 id="variantDevice" name="variantDevice" v-model="campaignDevice" :options="devices" :settings="{ multiple: true }" />
                   </div>
                 </div>
               </div>
-              <div class="col-sm-12 text-right mt-3">
-                <button class="btn btn-warning btn-sm" @click="removeAttibute(index)" v-if="index > 0">Remove</button>
-              </div>
             </div>
-            <button class="btn btn-primary btn-sm" @click="addNewAttibute()">Add New</button>
           </div>
           <div class="card-body" v-if="currentStep == 4">
             <fieldset class="mb-3 p-3 rounded border" v-for="(content, index) in contents" :key="index">
@@ -489,9 +451,9 @@ export default {
 
   },
   data() {
-    let campaignGender = '',
+    let campaignGender = [],
       campaignAge = [],
-      campaignDevice = '',
+      campaignDevice = [],
       adGroupName = '',
       bidAmount = '0.05',
       campaignLocation = [],
@@ -519,11 +481,11 @@ export default {
     if (this.instance) {
       this.instance.attributes.forEach(attribute => {
         if (attribute.type === 'GENDER') {
-          campaignGender = attribute.value;
+          campaignGender.push(attribute.value);
         } else if (attribute.type === 'AGE') {
           campaignAge.push(attribute.value);
         } else if (attribute.type === 'DEVICE') {
-          campaignDevice = attribute.value;
+          campaignDevice.push(attribute.value);
         } else if (attribute.type === 'WOEID') {
           campaignLocation.push(attribute.value);
         }
@@ -574,6 +536,51 @@ export default {
       redtrackKey: '',
       languages: [],
       countries: [],
+      genders: [{
+        id: '',
+        text: 'All'
+      }, {
+        id: 'MALE',
+        text: 'Male'
+      }, {
+        id: 'FEMALE',
+        text: 'Female'
+      }],
+      ages: [{
+        id: '',
+        text: 'All',
+      }, {
+        id: '18-24',
+        text: '18-24',
+      }, {
+        id: '25-34',
+        text: '25-34',
+      }, {
+        id: '35-44',
+        text: '35-44',
+      }, {
+        id: '45-54',
+        text: '45-54',
+      }, {
+        id: '55-64',
+        text: '55-64',
+      }, {
+        id: '65-120',
+        text: '65-120',
+      }],
+      devices: [{
+        id: '',
+        text: 'All',
+      }, {
+        id: 'SMARTPHONE',
+        text: 'SMARTPHONE',
+      }, {
+        id: 'TABLET',
+        text: 'TABLET',
+      }, {
+        id: 'DESKTOP',
+        text: 'DESKTOP',
+      }],
       advertisers: [],
       accounts: [],
       actionName: this.action,
@@ -596,7 +603,6 @@ export default {
       bidAmount: bidAmount,
       scheduleType: 'IMMEDIATELY',
       contents: contents,
-      attributes: [],
       dataAttributes: dataAttributes,
       openingFileSelector: '',
       fileSelectorIndex: 0,
@@ -759,16 +765,6 @@ export default {
         this.isLoading = false
       })
     },
-    removeAttibute(index) {
-      this.attributes.splice(index, 1);
-    },
-    addNewAttibute() {
-      this.attributes.push({
-        gender: '',
-        age: '',
-        device: ''
-      })
-    },
     getAdvertisers() {
       this.advertisers = []
       this.isLoading = true
@@ -825,18 +821,9 @@ export default {
         dataAttributes: this.dataAttributes
       }
       this.postData = {...this.postData, ...step2Data }
-      this.attributes[0] = {
-        gender: this.campaignGender,
-        age: this.campaignAge,
-        device: this.campaignDevice
-      }
       this.currentStep = 3
     },
     submitStep3() {
-      const step3Data = {
-        attributes: this.attributes
-      }
-      this.postData = {...this.postData, ...step3Data }
       this.currentStep = 4
     },
     submitStep4() {
