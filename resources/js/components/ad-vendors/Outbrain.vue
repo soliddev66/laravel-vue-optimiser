@@ -479,10 +479,7 @@ export default {
       cpc: '',
       brandname: '',
       imageUrl: '',
-      images: [{
-        url: '',
-        existing: false
-      }]
+      images: []
     }]
 
     if (this.instance) {
@@ -500,6 +497,7 @@ export default {
           imageUrl: this.instance.ads[i].imageMetadata.originalImageUrl,
           images: [{
             url: this.instance.ads[i].imageMetadata.originalImageUrl,
+            state: true,
             existing: true
           }]
         })
@@ -564,7 +562,7 @@ export default {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
     },
-    validSize(image, type) {
+    validSize(image) {
       if (image.width === 1200 && image.height === 800) {
         return true
       }
@@ -686,13 +684,7 @@ export default {
     },
     submitStep2() {
       const step2Data = {
-        adId: this.adId,
-        targetUrl: this.targetUrl,
-        title: this.title,
-        cpc: this.cpc,
-        brandname: this.brandname,
-        imageUrl: this.imageUrl,
-        dataAttributes: this.dataAttributes
+        ads: this.ads,
       }
       this.postData = {...this.postData, ...step2Data }
       this.attributes[0] = {
