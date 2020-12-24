@@ -247,26 +247,26 @@ class GeminiAPI
         ];
 
         if (count(request('campaignLocation'))) {
-            foreach (request('campaignLocation') as $key => $location) {
-                $request_body[] = $body + ['type' => 'WOEID', 'value' => $location];
+            foreach (request('campaignLocation') as $key => $item) {
+                $request_body[] = $body + ['type' => 'WOEID', 'value' => $item];
             }
         }
 
-        if (count(request('attributes'))) {
-            foreach (request('attributes') as $key => $attribute) {
-                if ($attribute['gender']) {
-                    $request_body[] = $body + ['type' => 'GENDER', 'value' => $attribute['gender']];
-                }
+        if (count(request('campaignGender'))) {
+            foreach (request('campaignGender') as $key => $item) {
+                $request_body[] = $body + ['type' => 'GENDER', 'value' => $item];
+            }
+        }
 
-                if ($attribute['age']) {
-                    foreach ($attribute['age'] as $index => $age) {
-                        $request_body[] = $body + ['type' => 'AGE', 'value' => $age];
-                    }
-                }
+        if (count(request('campaignAge'))) {
+            foreach (request('campaignAge') as $key => $item) {
+                $request_body[] = $body + ['type' => 'AGE', 'value' => $item];
+            }
+        }
 
-                if ($attribute['device']) {
-                    $request_body[] = $body + ['type' => 'DEVICE', 'value' => $attribute['device']];
-                }
+        if (count(request('campaignDevice'))) {
+            foreach (request('campaignDevice') as $key => $item) {
+                $request_body[] = $body + ['type' => 'DEVICE', 'value' => $item];
             }
         }
 
