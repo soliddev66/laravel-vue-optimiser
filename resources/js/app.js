@@ -20,7 +20,6 @@ import DataTable from 'laravel-vue-datatable';
 import moment from './plugins/moment.js';
 
 import 'vuejs-dialog/dist/vuejs-dialog.min.css';
-import 'vue-nav-tabs/themes/vue-tabs.css';
 import 'select2-bootstrap-theme/dist/select2-bootstrap.css';
 
 Vue.use(Vuex);
