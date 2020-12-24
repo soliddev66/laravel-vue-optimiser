@@ -450,7 +450,10 @@ export default {
     console.log('Component mounted.')
     let vm = this
     this.$root.$on('fm-selected-items', (values) => {
-      const selectedFilePath = value[0].path
+      this.ads[fileSelectorIndex].images = []
+      for (var i = 0; i < values.length; i++) {
+        _this.cards[_this.fileSelectorIndex].media.push(values[i].path);
+      }
       if (this.openingFileSelector === 'imageModal') {
         this.imageUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
       }
