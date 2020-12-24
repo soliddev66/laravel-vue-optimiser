@@ -222,6 +222,33 @@
                 <section v-if="action == 'create' || !saveCard">
                   <fieldset class="mb-3 p-3 rounded border" v-for="(card, index) in cards" :key="index">
                     <div class="form-group row">
+                      <label for="tweet_text" class="col-sm-2 control-label mt-2">Tweet Text</label>
+                      <div class="col-lg-10 col-xl-8">
+                        <div class="row mb-2" v-for="(tweetText, indexText) in card.tweetTexts" :key="indexText">
+                          <div class="col-sm-8">
+                            <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="tweetText.text" :disabled="instance && action == 'edit' && saveCard" />
+                          </div>
+                          <div class="col-sm-4">
+                            <button type="button" class="btn btn-light" @click.prevent="removeTweetText(index, indexText)" v-if="indexText > 0"><i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-primary" @click.prevent="addTweetText(index)" v-if="indexText + 1 == card.tweetTexts.length"><i class="fa fa-plus"></i></button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="tweet_nullcast" class="col-sm-2 control-label mt-2">Tweet Nullcast</label>
+                      <div class="col-lg-4 col-xl-3">
+                        <div class="btn-group btn-group-toggle">
+                          <label class="btn bg-olive" :class="{ active: card.tweetNullcast }">
+                            <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" :disabled="instance && saveCard" v-model="card.tweetNullcast">TRUE
+                          </label>
+                          <label class="btn bg-olive" :class="{ active: !card.tweetNullcast }">
+                            <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" :disabled="instance && saveCard" v-model="card.tweetNullcast">FALSE
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group row">
                       <label for="card_name" class="col-sm-2 control-label mt-2">Card Name</label>
                       <div class="col-lg-10 col-xl-8">
                         <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="card.name" />
@@ -230,7 +257,7 @@
                     <div class="form-group row">
                       <label for="card_media" class="col-sm-2 control-label mt-2">Card Media Image</label>
                       <div class="col-sm-8">
-                        <input type="text" name="card_media" placeholder="Media Image" class="form-control" v-model="card.media" disabled />
+                        <input type="text" name="card_media" placeholder="Media Image" class="form-control" v-model="card.mediaPath" disabled />
                       </div>
                       <div class="col-sm-8 offset-sm-2">
                         <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('cardMedia', index)">Choose File</button>
@@ -253,25 +280,6 @@
                       <p class="col-12" v-if="instance && action == 'edit' && saveCard">
                         Not allow to update the tweet.
                       </p>
-                    </div>
-                    <div class="form-group row">
-                      <label for="tweet_text" class="col-sm-2 control-label mt-2">Tweet Text</label>
-                      <div class="col-lg-10 col-xl-8">
-                        <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="card.tweetText" :disabled="instance && action == 'edit' && saveCard" />
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="tweet_nullcast" class="col-sm-2 control-label mt-2">Tweet Nullcast</label>
-                      <div class="col-lg-4 col-xl-3">
-                        <div class="btn-group btn-group-toggle">
-                          <label class="btn bg-olive" :class="{ active: card.tweetNullcast }">
-                            <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" :disabled="instance && saveCard" v-model="card.tweetNullcast">TRUE
-                          </label>
-                          <label class="btn bg-olive" :class="{ active: !card.tweetNullcast }">
-                            <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" :disabled="instance && saveCard" v-model="card.tweetNullcast">FALSE
-                          </label>
-                        </div>
-                      </div>
                     </div>
 
                     <div class="row" v-if="index > 0">
@@ -314,7 +322,7 @@
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
           viewType: 'grid',
-          selectionType: 'single'
+          selectionType: 'multiple'
       }"></file-manager>
     </modal>
   </section>
@@ -368,8 +376,13 @@ export default {
     },
     cardState() {
       for (let i = 0; i < this.cards.length; i++) {
-        if (!this.cards[i].name || !this.cards[i].media || !this.cards[i].websiteTitle || !this.cards[i].websiteUrl || !this.cards[i].tweetText) {
+        if (!this.cards[i].name || !this.cards[i].mediaPath || !this.cards[i].websiteTitle || !this.cards[i].websiteUrl) {
           return false
+        }
+        for (let j = 0; j < this.cards[i].tweetTexts.length; j++) {
+          if (!this.cards[i].tweetTexts[j]) {
+            return false
+          }
         }
       }
       return true
@@ -386,10 +399,13 @@ export default {
     }
 
     let vm = this
-    this.$root.$on('fm-selected-items', (value) => {
-      const selectedFilePath = value[0].path
+    this.$root.$on('fm-selected-items', (values) => {
+      this.cards[this.fileSelectorIndex].media = [];
+      for (let i = 0; i < values.length; i++) {
+        this.cards[this.fileSelectorIndex].media.push(values[i].path)
+      }
       if (this.openingFileSelector === 'cardMedia') {
-        this.cards[this.fileSelectorIndex].media = selectedFilePath
+        this.cards[this.fileSelectorIndex].mediaPath = this.cards[this.fileSelectorIndex].media.join(';')
       }
       vm.$modal.hide(this.openingFileSelector)
     });
@@ -459,9 +475,13 @@ export default {
       adGroupEndTime: this.instance && this.instance.adGroups.length > 0 && this.instance.adGroups[0]['end_time'] ? this.instance.adGroups[0]['end_time'].date.split(' ')[0] : '',
       cards: [{
         name: '',
-        media: '',
+        media: [],
+        mediaPath: '',
         websiteTitle: '',
-        websiteUrl: ''
+        websiteUrl: '',
+        tweetTexts: [{
+          text: ''
+        }],
       }],
       tweetText: this.instance && this.action == 'edit' && this.instance.ads.length > 0 ? this.instance.ads[0]['full_text'] : '',
       tweetNullcast: this.instance && this.instance.ads.length > 0 && this.instance.ads[0]['nullcast'],
@@ -490,7 +510,6 @@ export default {
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
         this.advertisers = response.data
       }).catch(err => {
-        console.log(err)
       }).finally(() => {
         this.isLoading = false
       })
@@ -500,7 +519,6 @@ export default {
       axios.get(`/account/funding-instruments?provider=${this.selectedProvider}&account=${this.selectedAccount}&advertiser=${this.selectedAdvertiser}`).then(response => {
         this.fundingInstruments = response.data
       }).catch(err => {
-        console.log(err)
       }).finally(() => {
         this.isLoading = false
       })
@@ -522,15 +540,24 @@ export default {
     addCard() {
       this.cards.push({
         name: '',
-        media: '',
+        media: [],
+        mediaPath: '',
         websiteTitle: '',
         websiteUrl: '',
-        tweetText: '',
+        tweetTexts: [{
+          text: ''
+        }],
         tweetNullcast: ''
       })
     },
     removeCard(index) {
       this.cards.splice(index, 1);
+    },
+    addTweetText(index) {
+      this.cards[index].tweetTexts.push({text: ''})
+    },
+    removeTweetText(index, indexText) {
+      this.cards[index].tweetTexts.splice(indexText, 1)
     },
     submitStep1() {
       const step1Data = {
