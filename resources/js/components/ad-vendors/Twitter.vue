@@ -275,20 +275,18 @@
                         <input type="text" name="card_website_url" placeholder="Enter a website URL" class="form-control" v-model="card.websiteUrl" />
                       </div>
                     </div>
-
                     <div class="form-group row">
                       <p class="col-12" v-if="instance && action == 'edit' && saveCard">
                         Not allow to update the tweet.
                       </p>
                     </div>
-
                     <div class="row" v-if="index > 0">
                       <div class="col text-right">
                         <button class="btn btn-warning btn-sm" @click.prevent="removeCard(index)">Remove</button>
                       </div>
                     </div>
                   </fieldset>
-                  <button class="btn btn-primary btn-sm" @click.prevent="addCard()">Add New</button>
+                  <button class="btn btn-primary btn-sm d-none" @click.prevent="addCard()">Add New</button>
                 </section>
               </div>
               <div class="card-body" v-if="currentStep == 3">
@@ -509,8 +507,7 @@ export default {
       this.isLoading = true
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
         this.advertisers = response.data
-      }).catch(err => {
-      }).finally(() => {
+      }).catch(err => {}).finally(() => {
         this.isLoading = false
       })
     },
@@ -518,8 +515,7 @@ export default {
       this.isLoading = true
       axios.get(`/account/funding-instruments?provider=${this.selectedProvider}&account=${this.selectedAccount}&advertiser=${this.selectedAdvertiser}`).then(response => {
         this.fundingInstruments = response.data
-      }).catch(err => {
-      }).finally(() => {
+      }).catch(err => {}).finally(() => {
         this.isLoading = false
       })
     },
@@ -532,8 +528,7 @@ export default {
             text: category.name
           }
         })
-      }).catch(err => {
-      }).finally(() => {
+      }).catch(err => {}).finally(() => {
         this.isLoading = false
       })
     },
@@ -554,7 +549,7 @@ export default {
       this.cards.splice(index, 1);
     },
     addTweetText(index) {
-      this.cards[index].tweetTexts.push({text: ''})
+      this.cards[index].tweetTexts.push({ text: '' })
     },
     removeTweetText(index, indexText) {
       this.cards[index].tweetTexts.splice(indexText, 1)
@@ -613,8 +608,7 @@ export default {
             window.location = '/campaigns';
           });
         }
-      }).catch(error => {
-      }).finally(() => {
+      }).catch(error => {}).finally(() => {
         this.isLoading = false
       })
     }

@@ -315,7 +315,7 @@
                 <button class="btn btn-warning btn-sm" @click="removeAttibute(index)" v-if="index > 0">Remove</button>
               </div>
             </div>
-            <button class="btn btn-primary btn-sm" @click="addNewAttibute()">Add New</button>
+            <button class="btn btn-primary btn-sm d-none" @click="addNewAttibute()">Add New</button>
           </div>
           <div class="card-body" v-if="currentStep == 4">
             <div class="col-sm-12">
