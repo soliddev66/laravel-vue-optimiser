@@ -303,6 +303,9 @@ class Yahoo extends Root
 
         try {
             $api->updateAdStatus($ad_group_id, $ad_id, $status);
+            $ad = Ad::where('ad_id', $ad_id)->first();
+            $ad->status = $status;
+            $ad->save();
 
             return [];
         } catch (Exception $e) {
@@ -332,7 +335,16 @@ class Yahoo extends Root
                 }
 
                 $api->updateAds($ad_body);
+
+                foreach ($ads as $key => $ad) {
+                    $db_ad = Ad::where('ad_id', $ad['id'])->first();
+                    $db_ad->status = $status;
+                    $db_ad->save();
+                }
             }
+            $ad_group = AdGroup::where('ad_group_id', $ad_group_id)->first();
+            $ad_group->status = $status;
+            $ad_group->save();
 
             return [];
         } catch (Exception $e) {

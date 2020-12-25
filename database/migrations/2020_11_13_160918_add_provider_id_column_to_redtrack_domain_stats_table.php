@@ -14,7 +14,7 @@ class AddProviderIdColumnToRedtrackDomainStatsTable extends Migration
     public function up()
     {
         Schema::table('redtrack_domain_stats', function (Blueprint $table) {
-            $table->integer('provider_id')->after('campaign_id')->default(1);
+            $table->integer('provider_id')->after('campaign_id');
         });
     }
 
