@@ -3,6 +3,7 @@
 namespace App\Utils\AdVendors;
 
 use Exception;
+use Log;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -130,14 +131,16 @@ class Twitter extends Root
             $line_item_data = $api->saveLineItem($campaign_data);
 
             foreach (request('cards') as $card) {
-                $media = $this->api()->uploadMedia($promotable_users, $card['media']);
+                foreach ($card['media'] as $mediaPath) {
+                    $media = $this->api()->uploadMedia($promotable_users, $mediaPath);
+                    $media_library = $this->api()->createMediaLibrary($media->media_key);
+                    $card_data = $api->createWebsiteCard($media->media_key, $card);
 
-                $media_library = $this->api()->createMediaLibrary($media->media_key);
-
-                $card_data = $api->createWebsiteCard($media->media_key, $card);
-
-                $tweet_data = $api->createTweet($card_data, $promotable_users, $card);
-                $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+                    foreach ($card['tweetTexts'] as $tweetText) {
+                        $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweetText);
+                        $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+                    }
+                }
             }
 
             PullCampaign::dispatch(auth()->user());
@@ -191,14 +194,16 @@ class Twitter extends Root
                 }
 
                 foreach (request('cards') as $card) {
-                    $media = $this->api()->uploadMedia($promotable_users, $card['media']);
+                    foreach ($card['media'] as $mediaPath) {
+                        $media = $this->api()->uploadMedia($promotable_users, $mediaPath);
+                        $media_library = $this->api()->createMediaLibrary($media->media_key);
+                        $card_data = $api->createWebsiteCard($media->media_key, $card);
 
-                    $media_library = $this->api()->createMediaLibrary($media->media_key);
-
-                    $card_data = $api->createWebsiteCard($media->media_key, $card);
-
-                    $tweet_data = $api->createTweet($card_data, $promotable_users, $card);
-                    $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+                        foreach ($card['tweetTexts'] as $tweetText) {
+                            $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweetText);
+                            $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+                        }
+                    }
                 }
             }
 
