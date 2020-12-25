@@ -228,7 +228,7 @@
                             <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index)" />
                             <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index, indexImage)">Choose File</button>
                           </div>
-                          <div class="col-sm-8 offset-sm-4 text-center">
+                          <div class="col-sm-8 offset-sm-4">
                             <small class="text-danger" v-if="image.imageUrlHQ && !validURL(image.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
                             <small class="text-danger" v-if="!image.imageUrlHQState">Image is invalid. You might need an 1200x627 image.</small>
                           </div>
@@ -239,7 +239,7 @@
                             <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index)" />
                             <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, indexImage)">Choose File</button>
                           </div>
-                          <div class="col-sm-8 offset-sm-4 text-center">
+                          <div class="col-sm-8 offset-sm-4">
                             <small class="text-danger" v-if="image.imageUrl && !validURL(image.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
                             <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
                           </div>
@@ -399,7 +399,7 @@ export default {
         }
 
         for (let j = 0; j < this.contents[i].titles.length; j++) {
-          if (!this.contents[i].titles[j]) {
+          if (!this.contents[i].titles[j].title) {
             return false
           }
         }

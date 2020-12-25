@@ -61,8 +61,25 @@ class Outbrain extends Root
             }
 
             try {
-                $ad_data = $api->createAd($campaign_data);
-                Log::info('OUTBRAIN: Created ad: ' . $ad_data['id']);
+
+                $ads = [];
+
+                foreach (request('ads') as $ad) {
+                    foreach ($ad['titles'] as $title) {
+                        foreach ($ad['images'] as $image) {
+                            $ads[] = [
+                                'text' => $title['title'],
+                                'url' => $ad['targetUrl'],
+                                'enabled' => true,
+                                'imageMetadata' => [
+                                    'url' => $image['url']
+                                ]
+                            ];
+                        }
+                    }
+                }
+
+                $api->createAds($campaign_data, $ads);
             } catch (Exception $e) {
                 $api->deleteCampaign($campaign_data['id']);
                 $api->deleteBudget($budget_data);
@@ -91,7 +108,40 @@ class Outbrain extends Root
         try {
             $budget_data = $api->updateBudget(request('budgetId'));
             $campaign_data = $api->updateCampaign($campaign->campaign_id);
-            $ad_data = $api->updateAd($campaign->campaign_id, request('adId'));
+
+            $ads = [];
+            $updated_ads = [];
+
+            foreach (request('ads') as $content) {
+                foreach ($content['titles'] as $title) {
+                    foreach ($content['images'] as $image) {
+                        $ad = [
+                            'text' => $title['title'],
+                            'url' => $content['targetUrl'],
+                            'enabled' => true,
+                            'imageMetadata' => [
+                                'url' => $image['url']
+                            ]
+                        ];
+
+                        if ($title['existing'] && $image['existing']) {
+                            $ad['id'] = $content['aId'];
+
+                            $updated_ads[] = $ad;
+                        } else {
+                            $ads[] = $ad;
+                        }
+                    }
+                }
+            }
+
+            if (count($updated_ads) > 0) {
+                $ad_data = $api->updateAds($campaign->campaign_id, $updated_ads);
+            }
+
+            if (count($ads) > 0) {
+                $ad_data = $api->createAds($campaign_data, $ads);
+            }
 
             PullCampaign::dispatch(auth()->user());
         } catch (RequestException $e) {
