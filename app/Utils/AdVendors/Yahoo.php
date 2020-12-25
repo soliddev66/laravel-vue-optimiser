@@ -156,7 +156,7 @@ class Yahoo extends Root
 
             $ads = [];
 
-            $uAds = [];
+            $uupdate_ads = [];
 
             foreach (request('contents') as $content) {
                 foreach ($content['titles'] as $title) {
@@ -176,7 +176,7 @@ class Yahoo extends Root
                         ];
                         if ($title['existing'] && $image['existing']) {
                             $ad['id'] = $content['id'];
-                            $uAds[] = $ad;
+                            $uupdate_ads[] = $ad;
                         } else {
                             $ads[] = $ad;
                         }
@@ -187,7 +187,7 @@ class Yahoo extends Root
             if (count($ads) > 0) {
                 $api->createAd($ads);
             }
-            $api->updateAd($uAds);
+            $api->updateAd($uupdate_ads);
 
 
             $api->deleteAttributes();

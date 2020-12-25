@@ -260,7 +260,7 @@
                       <h1>Preview</h1>
                       <section v-for="(title, indexTitle) in content.titles" :key="indexTitle">
                         <section v-for="(image, indexImage) in content.images" :key="indexImage">
-                          <div class="row no-gutters" v-if="image.url">
+                          <div class="row no-gutters mb-2" v-if="image.url">
                             <div class="col-sm-5">
                               <img :src="image.url" class="card-img-top h-100">
                             </div>
@@ -330,21 +330,25 @@
             <button class="btn btn-primary btn-sm" @click="addNewAttibute()">Add New</button>
           </div>
           <div class="card-body" v-if="currentStep == 4">
-            <div class="col-sm-12">
-              <div class="card" v-if="false">
-                <div class="row no-gutters">
-                  <div class="col-sm-5">
-                    <img :src="imageUrl" class="card-img-top h-100">
-                  </div>
-                  <div class="col-sm-7">
-                    <div class="card-body">
-                      <h3 class="card-title">{{ title }}</h3>
-                      <h6 class="card-text mt-5"><i>{{ brandname }}</i></h6>
+            <fieldset class="mb-3 p-3 rounded border" v-for="(content, index) in ads" :key="index">
+              <div class="row">
+                <div class="col-sm-6" v-for="(title, indexTitle) in content.titles" :key="indexTitle">
+                  <div class="row" v-for="(image, indexImage) in content.images" :key="indexImage">
+                    <div v-if="image.url">
+                      <div class="col-sm-5">
+                        <img :src="image.url" class="card-img-top h-100">
+                      </div>
+                      <div class="col-sm-7">
+                        <div class="card-body">
+                          <h3 class="card-title">{{ title.title }}</h3>
+                          <h6 class="card-text mt-5"><i>{{ content.brandname }}</i></h6>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </fieldset>
           </div>
         </div>
         <div class="card-footer d-flex justify-content-end">
@@ -441,7 +445,7 @@ export default {
         }
 
         for (let j = 0; j < this.ads[i].titles.length; j++) {
-          if (!this.ads[i].titles[j]) {
+          if (!this.ads[i].titles[j].title) {
             return false
           }
         }
@@ -738,10 +742,11 @@ export default {
         ads: this.ads,
       }
       this.postData = {...this.postData, ...step2Data }
+
       this.attributes[0] = {
         name: this.campaignName,
         platform: this.campaginPlatform,
-        cpc: this.cpc,
+        cpc: this.campaignCostPerClick,
         targetUrl: this.targetUrl
       }
       this.currentStep = 3

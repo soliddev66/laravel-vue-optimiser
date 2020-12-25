@@ -135,30 +135,14 @@ class OutbrainAPI
         ]);
     }
 
-    public function createAd($campaign_data)
+    public function createAds($campaign_data, $ads)
     {
-        return $this->client->call('POST', 'campaigns/' . $campaign_data['id'] . '/promotedLinks', [
-            'text' => request('title'),
-            'url' => request('targetUrl'),
-            'enabled' => true,
-            'imageMetadata' => [
-                'url' => request('imageUrl')
-            ]
-        ]);
+        return $this->client->call('POST', 'campaigns/' . $campaign_data['id'] . '/promotedLinks', $ads);
     }
 
-    public function updateAd($campaign_id, $ad_id)
+    public function updateAds($campaign_id, $ads)
     {
-        return $this->client->call('PUT', 'campaigns/' . $campaign_id . '/promotedLinks', [
-            [
-                'id' => $ad_id,
-                'text' => request('title'),
-                'enabled' => true,
-                'imageMetadata' => [
-                    'url' => request('imageUrl')
-                ]
-            ]
-        ]);
+        return $this->client->call('PUT', 'campaigns/' . $campaign_id . '/promotedLinks', $ads);
     }
 
     public function deleteCampaign($campaign_id)
