@@ -231,7 +231,7 @@ class TwitterAPI
         }
     }
 
-    public function createTweet($card, $promotable_users, $tweet)
+    public function createTweet($card, $promotable_users, $tweet, $tweetText)
     {
         try {
             $param = [
@@ -243,7 +243,7 @@ class TwitterAPI
                 $param['nullcast'] = $tweet['tweetNullcast'];
             }
 
-            return Tweet::create($this->account, $tweet['tweetText'], $param);
+            return Tweet::create($this->account, $tweetText, $param);
         } catch (Exception $e) {
             throw $e;
         }
