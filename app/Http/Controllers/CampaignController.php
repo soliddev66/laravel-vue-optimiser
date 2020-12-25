@@ -31,8 +31,8 @@ class CampaignController extends Controller
             $end_date = Carbon::now()->format('Y-m-d');
             if (request('tracker')) {
                 $campaigns_query = Campaign::select(
-                    'campaigns.id',
-                    'name',
+                    DB::raw('MAX(campaigns.id) as id'),
+                    DB::raw('MAX(campaigns.name) as name'),
                     DB::raw('MAX(providers.label) as provider_name'),
                     DB::raw('MAX(campaigns.campaign_id) as campaign_id'),
                     DB::raw('MAX(campaigns.budget) as budget'),
