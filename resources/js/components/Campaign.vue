@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="vld-parent">
-      <loading :active.sync="isLoading" :can-cancel="false" :is-full-page="fullPage"></loading>
+      <loading :active.sync="isLoading" :can-cancel="false" :is-full-page="true"></loading>
     </div>
     <summary-data :summaryData="summaryData"></summary-data>
     <div class="row justify-content-center">
@@ -21,155 +21,46 @@
             </div>
           </div>
           <div class="card-body">
-            <tabs :theme="theme">
-              <tab title="Widgets" hash="widgets" @click.prevent="getWidgetData()">
+            <ul class="nav nav-pills mb-3" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link" :class="{ 'active': show === 0 }" id="widgets-tab" data-toggle="pill" href="#widgets" role="tab" aria-controls="widgets" aria-selected="true" @click.prevent="getWidgetData()">Widgets</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" :class="{ 'active': show === 1 }" id="contents-tab" data-toggle="pill" href="#contents" role="tab" aria-controls="contents" aria-selected="false" @click.prevent="getContentData()">Contents</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" :class="{ 'active': show === 2 }" id="ad-groups-tab" data-toggle="pill" href="#ad-groups" role="tab" aria-controls="ad-groups" aria-selected="false" @click.prevent="getAdGroupData()">Ad Groups</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" :class="{ 'active': show === 3 }" id="domains-tab" data-toggle="pill" href="#domains" role="tab" aria-controls="domains" aria-selected="false" @click.prevent="getDomainData()">Domains</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" :class="{ 'active': show === 4 }" id="rules-tab" data-toggle="pill" href="#rules" role="tab" aria-controls="rules" aria-selected="false">Rules</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" :class="{ 'active': show === 5 }" id="performance-tab" data-toggle="pill" href="#performance" role="tab" aria-controls="performance" aria-selected="false">Performance</a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane fade" :class="{ 'show active': show === 0 }" id="widgets" role="tabpanel" aria-labelledby="widgets-tab">
                 <data-table :data="widgets" :columns="widgetColumns" @on-table-props-changed="reloadWidgetData"></data-table>
-                <div class="table-responsive mt-3 d-none">
-                  <table id="widgetsTable" class="table table-bordered table-hover">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Widget ID</th>
-                        <th>Bid Modifier</th>
-                        <th>Calc. CPC</th>
-                        <th>Avg. CPC</th>
-                        <th>Cost</th>
-                        <th>TR Conv.</th>
-                        <th>TR Rev.</th>
-                        <th>TR NET</th>
-                        <th>TR ROI</th>
-                        <th>TR EPC</th>
-                        <th>EPC</th>
-                        <th>TR CPA</th>
-                        <th>Imp.</th>
-                        <th>TS Clicks</th>
-                        <th>TRK Clicks</th>
-                        <th>LP Clicks</th>
-                        <th>LP CTR</th>
-                        <th>CTR</th>
-                        <th>TR CVR</th>
-                        <th>eCPM</th>
-                        <th>LP CR</th>
-                        <th>LP CPC</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                  </table>
-                </div>
-              </tab>
-              <tab title="Contents" hash="contents" @click.prevent="getContentData()">
+              </div>
+              <div class="tab-pane fade" :class="{ 'show active': show === 1 }" id="contents" role="tabpanel" aria-labelledby="contents-tab">
                 <data-table :data="contents" :columns="contentColumns" @on-table-props-changed="reloadContentData"></data-table>
-              </tab>
-              <tab title="AdGroups" hash="ad-groups" @click.prevent="getAdGroupData()">
+              </div>
+              <div class="tab-pane fade" :class="{ 'show active': show === 2 }" id="ad-groups" role="tabpanel" aria-labelledby="ad-groups-tab">
                 <data-table :data="adGroups" :columns="adGroupColumns" @on-table-props-changed="reloadAdGroupData"></data-table>
-              </tab>
-              <tab title="Domains" hash="domains" @click.prevent="getDomainData()">
-                <div class="table-responsive mt-3">
-                  <table id="domainsTable" class="table table-bordered table-hover">
-                    <thead>
-                      <tr v-if="selectedTracker">
-                        <th>ID</th>
-                        <th>Actions</th>
-                        <th>Domain ID</th>
-                        <th>Clicks</th>
-                        <th>LP Views</th>
-                        <th>LP Clicks</th>
-                        <th>Pre LP Clicks</th>
-                        <th>LP CTR</th>
-                        <th>Conversion</th>
-                        <th>CR</th>
-                        <th>Total Actions</th>
-                        <th>TR</th>
-                        <th>Conversion Revenue</th>
-                        <th>Total Revenue</th>
-                        <th>Cost</th>
-                        <th>Profit</th>
-                        <th>ROI</th>
-                        <th>CPC</th>
-                        <th>CPA</th>
-                        <th>EPC</th>
-                      </tr>
-                      <tr v-else>
-                        <th>ID</th>
-                        <th>Actions</th>
-                        <th>Domain ID</th>
-                        <th>Avg. CPC</th>
-                        <th>Cost</th>
-                        <th>TR Conv.</th>
-                        <th>TR Rev.</th>
-                        <th>TR NET</th>
-                        <th>TR ROI</th>
-                        <th>TR EPC</th>
-                        <th>EPC</th>
-                        <th>TR CPA</th>
-                        <th>Imp.</th>
-                        <th>TS Clicks</th>
-                        <th>TRK Clicks</th>
-                        <th>LP Clicks</th>
-                        <th>LP CTR</th>
-                        <th>CTR</th>
-                        <th>TR CVR</th>
-                        <th>eCPM</th>
-                        <th>LP CR</th>
-                        <th>LP CPC</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(domain, index) in domains" class="text-center" :key="domain.id">
-                        <td>{{ domain.id || index }}</td>
-                        <td class="px-1">-</td>
-                        <td>
-                          {{ domain.sub1 || domain.top_domain || domain.package_name }}
-                        </td>
-                        <td v-if="selectedTracker">{{ domain.clicks || 0 }}</td>
-                        <td v-else>{{ round(domain.spend / domain.clicks) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ count(domain.lp_views) || 0 }}</td>
-                        <td v-else>{{ round(domain.spend) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.lp_clicks || 0 }}</td>
-                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.prelp_clicks || 0 }}</td>
-                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.lp_ctr || 0 }}%</td>
-                        <td v-else>{{ round(0 - domain.spend) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.conversions || 0 }}</td>
-                        <td v-else>{{ round(((0 - domain.spend)/domain.spend) * 100) || 0 }}%</td>
-                        <td v-if="selectedTracker">{{ domain.cr || 0 }}%</td>
-                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.total_actions || 0 }}</td>
-                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.tr || 0 }}</td>
-                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.conversion_revenue || 0 }}</td>
-                        <td v-else>{{ round(domain.impressions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.total_revenue || 0 }}</td>
-                        <td v-else>{{ round(domain.clicks) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.cost || 0 }}</td>
-                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.profit || 0 }}</td>
-                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.roi || 0 }}%</td>
-                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.cpc || 0 }}</td>
-                        <td v-else>{{ round(domain.clicks/domain.impressions * 100) || 0 }}%</td>
-                        <td v-if="selectedTracker">{{ domain.cpa || 0 }}</td>
-                        <td v-else>{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="selectedTracker">{{ domain.epc || 0 }}</td>
-                        <td v-else>{{ round(domain.spend/domain.impressions * 1000) || 0 }}</td>
-                        <td v-if="!selectedTracker">{{ round(domain.conversions) || 0 }}</td>
-                        <td v-if="!selectedTracker">{{ round(domain.conversions) || 0 }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </tab>
-              <tab title="Rules" hash="rules">
+              </div>
+              <div class="tab-pane fade" :class="{ 'show active': show === 3 }" id="domains" role="tabpanel" aria-labelledby="domains-tab">
+                <data-table :data="domains" :columns="domainColumns" @on-table-props-changed="reloadDomainData"></data-table>
+              </div>
+              <div class="tab-pane fade" :class="{ 'show active': show === 4 }" id="rules" role="tabpanel" aria-labelledby="rules-tab">
                 Rules
-              </tab>
-              <tab title="Performance" hash="performance">
+              </div>
+              <div class="tab-pane fade" :class="{ 'show active': show === 5 }" id="performance" role="tabpanel" aria-labelledby="performance-tab">
                 Performance
-              </tab>
-            </tabs>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -179,9 +70,9 @@
 
 <script>
 import _ from 'lodash';
-import { Tabs, Tab } from '@hiendv/vue-tabs';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import Loading from 'vue-loading-overlay';
+import ActionsComponent from './includes/ActionsComponent.vue';
 
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
 import 'vue-loading-overlay/dist/vue-loading.css';
@@ -198,8 +89,6 @@ export default {
     }
   },
   components: {
-    Tabs,
-    Tab,
     VueCtkDateTimePicker,
     Loading
   },
@@ -242,11 +131,23 @@ export default {
       contentColumns: [
         { label: 'ID', name: 'id', orderable: true },
         { label: 'Ad. ID', name: 'ad_id', orderable: true },
-        { label: 'Name', name: 'name', orderable: true },
+        { label: 'Name', name: 'name', orderable: true }, {
+          label: 'Actions',
+          name: 'actions',
+          orderable: false,
+          classes: {
+            'btn': true,
+            'btn-primary': false,
+            'btn-sm': true,
+          },
+          event: "click",
+          handler: this.updateAdStatus,
+          component: ActionsComponent
+        },
         { label: 'Status', name: 'status', orderable: true },
         { label: 'Payout', name: 'payout', orderable: true },
         { label: 'Clicks', name: 'clicks', orderable: true },
-        { label: 'LP View', name: 'lp_views', orderable: true },
+        { label: 'LP Views', name: 'lp_views', orderable: true },
         { label: 'LP Clicks', name: 'lp_clicks', orderable: true },
         { label: 'Conversion', name: 'conversions', orderable: true },
         { label: 'Total Actions', name: 'total_actions', orderable: true },
@@ -268,8 +169,41 @@ export default {
         { label: 'ID', name: 'id', orderable: true },
         { label: 'Camp. ID', name: 'campaign_id', orderable: true },
         { label: 'Ad Group ID', name: 'ad_group_id', orderable: true },
-        { label: 'Name', name: 'name', orderable: true },
+        { label: 'Name', name: 'name', orderable: true }, {
+          label: 'Actions',
+          name: 'actions',
+          orderable: false,
+          classes: {
+            'btn': true,
+            'btn-primary': false,
+            'btn-sm': true,
+          },
+          event: "click",
+          handler: this.updateAdGroupStatus,
+          component: ActionsComponent
+        },
         { label: 'Status', name: 'status', orderable: true }
+      ],
+      domainColumns: [
+        { label: 'ID', name: 'id', orderable: true },
+        { label: 'Domain ID', name: 'sub1', orderable: true },
+        { label: 'Clicks', name: 'clicks', orderable: true },
+        { label: 'LP Views', name: 'lp_views', orderable: true },
+        { label: 'LP Clicks', name: 'lp_clicks', orderable: true },
+        { label: 'Pre LP Clicks', name: 'prelp_clicks', orderable: true },
+        { label: 'LP CTR', name: 'lp_ctr', orderable: true },
+        { label: 'Conversion', name: 'conversions', orderable: true },
+        { label: 'CR', name: 'cr', orderable: true },
+        { label: 'Total Actions', name: 'total_actions', orderable: true },
+        { label: 'TR', name: 'tr', orderable: true },
+        { label: 'Conversion Revenue', name: 'conversion_revenue', orderable: true },
+        { label: 'Total Revenue', name: 'total_revenue', orderable: true },
+        { label: 'Cost', name: 'cost', orderable: true },
+        { label: 'Profit', name: 'profit', orderable: true },
+        { label: 'ROI', name: 'roi', orderable: true },
+        { label: 'CPC', name: 'cpc', orderable: true },
+        { label: 'CPA', name: 'cpa', orderable: true },
+        { label: 'EPC', name: 'epc', orderable: true }
       ],
       summaryData: {
         total_cost: 0,
@@ -277,49 +211,23 @@ export default {
         total_net: 0,
         avg_roi: 0
       },
-      adData: [],
       selectedTracker: 'redtrack',
       targetDate: {
         start: this.$moment().subtract(30, 'days').format('YYYY-MM-DD'),
         end: this.$moment().format('YYYY-MM-DD')
       },
+      show: 0,
       isLoading: false,
-      fullPage: true,
       tableProps: {
         page: params.get('page') || 1,
         search: params.get('search') || '',
         length: params.get('length') || 10,
         column: params.get('column') || 'id',
         dir: params.get('dir') || 'asc',
-      },
-      theme: {
-        tabs: 'custom-tabs',
-        items: 'custom-items',
-        item: 'custom-item',
-        'item--active': 'custom-item-active',
-        'item--end': 'custom-item-end',
-        panel: 'custom-panel'
       }
     }
   },
   methods: {
-    count(array, key) {
-      if (array !== undefined) {
-        return _.round(_.sumBy(array, (value) => value[key]), 2)
-      }
-      return 0
-    },
-    round(value) {
-      if (value !== undefined) {
-        return _.round(value, 2)
-      }
-      return 0
-    },
-    adsIn(adGroup) {
-      return this.adData.filter((ad) => {
-        return ad.adGroupId === adGroup.id
-      })
-    },
     getData() {
       switch (location.hash) {
         case '#contents':
@@ -349,6 +257,9 @@ export default {
     reloadAdGroupData(tableProps) {
       this.getAdGroupData(tableProps);
     },
+    reloadDomainData(tableProps) {
+      this.getDomainData(tableProps);
+    },
     getWidgetData(options = this.tableProps) {
       this.isLoading = true;
       axios.get(`/campaigns/${this.campaign.id}/widgets`, {
@@ -361,34 +272,8 @@ export default {
           alert(err);
         }).finally(() => {
           this.isLoading = false;
-        });
-    },
-    getDomainData(options = this.tableProps) {
-      this.isLoading = true;
-      axios.get(`/campaigns/${this.campaign.id}/domains`, {
-          params: {...this.targetDate, ... { tracker: this.selectedTracker }, ...options }
-        })
-        .then((response) => {
-          this.domains = response.data.domains;
-        })
-        .catch((err) => {
-          alert(err);
-        }).finally(() => {
-          this.isLoading = false;
-        });
-    },
-    getAdGroupData(options = this.tableProps) {
-      this.isLoading = true;
-      axios.get('/campaigns/' + this.campaign.id + '/ad-groups', {
-          params: {...this.targetDate, ... { tracker: this.selectedTracker }, ...options }
-        })
-        .then((response) => {
-          this.adGroups = response.data
-        })
-        .catch((err) => {
-          alert(err);
-        }).finally(() => {
-          this.isLoading = false;
+          history.replaceState(undefined, undefined, "#widgets");
+          this.show = 0;
         });
     },
     getContentData(options = this.tableProps) {
@@ -403,12 +288,46 @@ export default {
           alert(err);
         }).finally(() => {
           this.isLoading = false;
+          history.replaceState(undefined, undefined, "#contents");
+          this.show = 1;
         });
     },
-    updateAdGroupStatus(e) {
+    getAdGroupData(options = this.tableProps) {
       this.isLoading = true;
-      axios.post(e.target.getAttribute('href'), {
-        status: e.target.dataset.status
+      axios.get('/campaigns/' + this.campaign.id + '/ad-groups', {
+          params: {...this.targetDate, ... { tracker: this.selectedTracker }, ...options }
+        })
+        .then((response) => {
+          this.adGroups = response.data
+        })
+        .catch((err) => {
+          alert(err);
+        }).finally(() => {
+          this.isLoading = false;
+          history.replaceState(undefined, undefined, "#ad-groups");
+          this.show = 2;
+        });
+    },
+    getDomainData(options = this.tableProps) {
+      this.isLoading = true;
+      axios.get(`/campaigns/${this.campaign.id}/domains`, {
+          params: {...this.targetDate, ... { tracker: this.selectedTracker }, ...options }
+        })
+        .then((response) => {
+          this.domains = response.data;
+        })
+        .catch((err) => {
+          alert(err);
+        }).finally(() => {
+          this.isLoading = false;
+          history.replaceState(undefined, undefined, "#domains");
+          this.show = 3;
+        });
+    },
+    updateAdGroupStatus(data) {
+      this.isLoading = true;
+      axios.post(`/campaigns/${data.campaign_id}/ad-groups/${data.ad_group_id}/status`, {
+        status: data.status
       }).then((response) => {
         if (response.data.errors) {
           alert(response.data.errors[0])
@@ -421,10 +340,10 @@ export default {
         this.isLoading = false;
       });
     },
-    updateAdStatus(e) {
+    updateAdStatus(data) {
       this.isLoading = true;
-      axios.post(e.target.getAttribute('href'), {
-        status: e.target.dataset.status
+      axios.post(`/campaigns/${data.campaign_id}/ad-groups/${data.ad_group_id}/ads/status/${data.ad_id}`, {
+        status: data.status
       }).then((response) => {
         if (response.data.errors) {
           alert(response.data.errors[0])
@@ -446,27 +365,6 @@ export default {
 .table th {
   white-space: nowrap;
   width: 1%;
-}
-
-.custom-tabs {}
-
-.custom-items {}
-
-.custom-item {
-  display: inline-block;
-  padding: .5rem;
-  text-decoration: none;
-  color: #07a;
-}
-
-.custom-item-active {
-  color: #905;
-}
-
-.custom-item-end {}
-
-.custom-panel {
-  padding: 1rem;
-  border: 1px dashed #cdcdcd;
+  border: 1px dashed #dee2e6;
 }
 </style>

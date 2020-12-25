@@ -17,6 +17,8 @@ class CreateRedtrackContentStatsTable extends Migration
             $table->id();
             $table->integer('user_id');
             $table->integer('campaign_id');
+            $table->string('open_id');
+            $table->integer('provider_id');
             $table->double('approved')->nullable();
             $table->double('attribution')->nullable();
             $table->double('baddevice')->nullable();

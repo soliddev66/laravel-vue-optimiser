@@ -162,6 +162,8 @@ class CampaignController extends Controller
     {
         $contents_query = Ad::select([
             DB::raw('MAX(ads.id) as id'),
+            DB::raw('MAX(ads.campaign_id) as campaign_id'),
+            DB::raw('MAX(ads.ad_group_id) as ad_group_id'),
             DB::raw('MAX(ads.ad_id) as ad_id'),
             DB::raw('MAX(ads.name) as name'),
             DB::raw('MAX(ads.status) as status'),
@@ -201,7 +203,8 @@ class CampaignController extends Controller
     {
         if (request('tracker')) {
             $domains_query = RedtrackDomainStat::select(
-                'sub1',
+                DB::raw('MAX(id) as id'),
+                DB::raw('MAX(sub1) as sub1'),
                 DB::raw('SUM(clicks) as clicks'),
                 DB::raw('SUM(lp_views) as lp_views'),
                 DB::raw('SUM(lp_clicks) as lp_clicks'),
@@ -388,15 +391,23 @@ class CampaignController extends Controller
         return (new $adVendorClass())->status($campaign);
     }
 
-    public function adGroupStatus(Campaign $campaign, $ad_group_id)
+    public function adGroupStatus($campaign_id, $ad_group_id)
     {
+        $campaign = Campaign::find($campaign_id);
+        if (!$campaign) {
+            $campaign = Campaign::where('campaign_id', $campaign_id)->first();
+        }
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
         return (new $adVendorClass())->adGroupStatus($campaign, $ad_group_id);
     }
 
-    public function adStatus(Campaign $campaign, $ad_group_id, $ad_id)
+    public function adStatus($campaign_id, $ad_group_id, $ad_id)
     {
+        $campaign = Campaign::find($campaign_id);
+        if (!$campaign) {
+            $campaign = Campaign::where('campaign_id', $campaign_id)->first();
+        }
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
         return (new $adVendorClass())->adStatus($campaign, $ad_group_id, $ad_id);
