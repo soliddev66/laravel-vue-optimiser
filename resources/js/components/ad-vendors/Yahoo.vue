@@ -261,7 +261,7 @@
                     </div>
                   </div>
                 </fieldset>
-                <button class="btn btn-primary btn-sm" @click.prevent="addContent()">Add New</button>
+                <button class="btn btn-primary btn-sm d-none" @click.prevent="addContent()">Add New</button>
               </div>
             </form>
           </div>

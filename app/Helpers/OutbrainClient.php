@@ -25,7 +25,7 @@ class OutbrainClient
      */
     public function call($method, $endpoint, $body = null) {
         $client = new Client();
-        $url = 'https://private-6ce1a-amplifyv01.apiary-mock.com/' . $endpoint;
+        // $url = 'https://private-6ce1a-amplifyv01.apiary-mock.com/' . $endpoint;
         $url = config('services.outbrain.api_endpoint') . '/amplify/v0.1/' . $endpoint;
         $request_body = ['headers' => ['OB-TOKEN-V1' => $this->user_provider->token, 'Content-Type' => 'application/json']];
 
