@@ -428,7 +428,7 @@ export default {
       }
       if (this.openingFileSelector === 'imageUrl') {
         this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
-        this.validImageSize(this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrl, 1200, 627).then(result => {
+        this.validImageSize(this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrl, 627, 627).then(result => {
           this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrlState = result
         });
         this.loadPreview(this.fileSelectorIndex)
