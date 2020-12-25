@@ -275,14 +275,13 @@
                       </section>
                     </div>
                   </div>
-
                   <div class="row" v-if="index > 0">
                     <div class="col text-right">
                       <button class="btn btn-warning btn-sm" @click.prevent="removeAd(index)">Remove</button>
                     </div>
                   </div>
                 </fieldset>
-                <button class="btn btn-primary btn-sm" @click.prevent="addAd()">Add New</button>
+                <button class="btn btn-primary btn-sm d-none" @click.prevent="addAd()">Add New</button>
               </div>
             </form>
           </div>
@@ -327,7 +326,7 @@
                 <button class="btn btn-warning btn-sm" @click="removeAttibute(index)" v-if="index > 0">Remove</button>
               </div>
             </div>
-            <button class="btn btn-primary btn-sm d-none" @click="addNewAttibute()">Add New</button>
+            <button class="btn btn-primary btn-sm" @click="addNewAttibute()">Add New</button>
           </div>
           <div class="card-body" v-if="currentStep == 4">
             <fieldset class="mb-3 p-3 rounded border" v-for="(content, index) in ads" :key="index">
@@ -494,18 +493,19 @@ export default {
     //
   },
   data() {
-    let dataAttributes = [], ads = [{
-      adId: '',
-      titles: [{
-        title: '',
-        existing: false
-      }],
-      targetUrl: '',
-      cpc: '',
-      brandname: '',
-      imageUrl: '',
-      images: []
-    }]
+    let dataAttributes = [],
+      ads = [{
+        adId: '',
+        titles: [{
+          title: '',
+          existing: false
+        }],
+        targetUrl: '',
+        cpc: '',
+        brandname: '',
+        imageUrl: '',
+        images: []
+      }]
 
     if (this.instance) {
       ads = []
