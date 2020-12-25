@@ -212,10 +212,10 @@
                         <div class="col-sm-8">
                           <div class="row mb-2" v-for="(title, indexTitle) in content.titles" :key="indexTitle">
                             <div class="col-sm-8">
-                              <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" v-on:blur="loadPreviewEvent($event, index)" />
+                              <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" />
                             </div>
                             <div class="col-sm-4">
-                              <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle); loadPreviewEvent($event, index)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
+                              <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
                               <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length"><i class="fa fa-plus"></i></button>
                             </div>
                           </div>
@@ -224,51 +224,55 @@
                       <div class="form-group row">
                         <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
                         <div class="col-sm-8">
-                          <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="brandname" />
+                          <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" />
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="cpc" class="col-sm-4 control-label mt-2">CPC</label>
                         <div class="col-sm-8">
-                          <input type="number" name="cpc" placeholder="Enter cpc" class="form-control" v-model="cpc" :disabled="instance" />
+                          <input type="number" name="cpc" placeholder="Enter cpc" class="form-control" v-model="content.cpc" :disabled="instance" />
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
-                        <div class="col-sm-8 text-center">
-                          <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="targetUrl" :disabled="instance" />
-                          <small class="text-danger" v-if="targetUrl && !targetUrlState">URL is invalid. You might need http/https at the beginning.</small>
+                        <div class="col-sm-8">
+                          <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" :disabled="instance" />
+                          <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="image_url" class="col-sm-4 control-label mt-2">Image URL</label>
                         <div class="col-sm-8">
-                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="imageUrl" />
+                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrl" />
                         </div>
                         <div class="col-sm-8 offset-sm-4">
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal')">Choose File</button>
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose File</button>
                         </div>
-                        <div class="col-sm-8 offset-sm-4 text-center">
-                          <small class="text-danger" v-if="imageUrl && !imageUrlState">URL is invalid. You might need http/https at the beginning.</small>
-                          <small class="text-danger" v-if="image.size && !imageState">Image is invalid. You might need an 627x627 image.</small>
+                        <div class="col-sm-8 offset-sm-4">
+                          <small class="text-danger" v-for="(image, indexImage) in content.images" :key="indexImage">
+                            <span class="d-inline-block" v-if="image.url && !validURL(image.url)">URL {{ image.url }} is invalid. You might need http/https at the beginning.</span>
+                            <span class="d-inline-block" v-if="image.url && !image.state">Image {{ image.url }} is invalid. You might need an 1200 x 800 image.</span>
+                          </small>
                         </div>
                       </div>
                     </div>
                     <div class="col-sm-5">
                       <h1>Preview</h1>
-                      <div class="card" v-if="imageUrlState">
-                        <div class="row no-gutters">
-                          <div class="col-sm-5">
-                            <img :src="imageUrl" class="card-img-top h-100">
-                          </div>
-                          <div class="col-sm-7">
-                            <div class="card-body">
-                              <h3 class="card-title">{{ title }}</h3>
-                              <h6 class="card-text mt-5"><i>{{ brandname }}</i></h6>
+                      <section v-for="(title, indexTitle) in content.titles" :key="indexTitle">
+                        <section v-for="(image, indexImage) in content.images" :key="indexImage">
+                          <div class="row no-gutters" v-if="image.url">
+                            <div class="col-sm-5">
+                              <img :src="image.url" class="card-img-top h-100">
+                            </div>
+                            <div class="col-sm-7">
+                              <div class="card-body">
+                                <h3 class="card-title">{{ title.title }}</h3>
+                                <h6 class="card-text mt-5"><i>{{ content.brandname }}</i></h6>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
+                        </section>
+                      </section>
                     </div>
                   </div>
 
@@ -327,7 +331,7 @@
           </div>
           <div class="card-body" v-if="currentStep == 4">
             <div class="col-sm-12">
-              <div class="card" v-if="imageUrlState">
+              <div class="card" v-if="false">
                 <div class="row no-gutters">
                   <div class="col-sm-5">
                     <img :src="imageUrl" class="card-img-top h-100">
@@ -351,7 +355,7 @@
             <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!campaignNameState || !selectedAdvertiserState || !campaignBudgetState || !campaignCostPerClickState || !campaignStartDateState">Next</button>
           </div>
           <div class="d-flex justify-content-end" v-if="currentStep === 2">
-            <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!titleState || !brandnameState || !targetUrlState || !imageUrlState">Next</button>
+            <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!submitStep2State">Next</button>
           </div>
           <div class="d-flex justify-content-end" v-if="currentStep === 3">
             <button type="button" class="btn btn-primary" @click.prevent="submitStep3">Next</button>
@@ -430,32 +434,49 @@ export default {
     campaignObjectiveState() {
       return this.campaignObjective !== ''
     },
-    titleState() {
-      return this.title !== ''
-    },
-    brandnameState() {
-      return this.brandname !== ''
-    },
-    cpcState() {
-      return this.cpc > 0
-    },
-    targetUrlState() {
-      return this.targetUrl !== '' && this.validURL(this.targetUrl)
-    },
-    imageUrlState() {
-      return (this.imageUrl !== '' && this.validURL(this.imageUrl))
+    submitStep2State() {
+      for (let i = 0; i < this.ads.length; i++) {
+        if (!this.ads[i].brandname || !this.ads[i].cpc || this.ads[i].cpc <= 0 || !this.ads[i].targetUrl || !this.validURL(this.ads[i].targetUrl)) {
+          return false
+        }
+
+        for (let j = 0; j < this.ads[i].titles.length; j++) {
+          if (!this.ads[i].titles[j]) {
+            return false
+          }
+        }
+
+        if (this.ads[i].images.length == 0) {
+          return false
+        }
+
+        for (let j = 0; j < this.ads[i].images.length; j++) {
+          if (!this.ads[i].images[j].url || !this.validURL(this.ads[i].images[j].url) || !this.ads[i].images[j].state) {
+            return false
+          }
+        }
+      }
+
+      return true
     }
   },
   mounted() {
     console.log('Component mounted.')
     let vm = this
     this.$root.$on('fm-selected-items', (values) => {
-      this.ads[fileSelectorIndex].images = []
-      for (var i = 0; i < values.length; i++) {
-        _this.cards[_this.fileSelectorIndex].media.push(values[i].path);
-      }
       if (this.openingFileSelector === 'imageModal') {
-        this.imageUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+        this.ads[this.fileSelectorIndex].images = []
+        this.ads[this.fileSelectorIndex].imageUrl = ''
+        let paths = []
+        for (var i = 0; i < values.length; i++) {
+          this.ads[this.fileSelectorIndex].images[i] = {
+            url: process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
+            state: this.validDimensions(values[i].dimensions, 1200, 800),
+            existing: false
+          };
+          paths.push(values[i].path)
+        }
+        this.ads[this.fileSelectorIndex].imageUrl += paths.join(';')
       }
       vm.$modal.hide(this.openingFileSelector)
     });
@@ -502,7 +523,6 @@ export default {
           }]
         })
       }
-
     }
 
     return {
@@ -562,11 +582,25 @@ export default {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
     },
-    validSize(image) {
-      if (image.width === 1200 && image.height === 800) {
-        return true
+    validImageSize(imageUrl, width, height) {
+      return new Promise((resolve) => {
+        var image = new Image();
+        image.onload = function() {
+          resolve(this.width == width && this.height == height);
+        };
+        image.src = imageUrl;
+      });
+    },
+    validDimensions(dimensions, width, height) {
+      var dimensions = dimensions.split('x')
+
+      if (dimensions.length == 2) {
+        if (dimensions[0].trim() == width && dimensions[1].trim() == height) {
+          return true
+        }
       }
-      return false;
+
+      return false
     },
     getLanguages() {
       this.isLoading = true
@@ -603,6 +637,23 @@ export default {
       }).finally(() => {
         this.isLoading = false
       })
+    },
+    addAd() {
+      this.ads.push({
+        adId: '',
+        titles: [{
+          title: '',
+          existing: false
+        }],
+        targetUrl: '',
+        cpc: '',
+        brandname: '',
+        imageUrl: '',
+        images: []
+      })
+    },
+    removeAd(index) {
+      this.ads.splice(index, 1)
     },
     addTitle(index) {
       this.ads[index].titles.push({
