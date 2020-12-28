@@ -52,14 +52,14 @@ class Kernel extends ConsoleKernel
         // Redtrack
         $schedule->call(function () {
             RedTrack::crawl();
-        })->everyTenMinutes();
+        })->everyThirtyMinutes();
 
         // Campaign
         $schedule->call(function () {
             foreach (User::all() as $key => $user) {
                 PullCampaign::dispatch($user);
             }
-        })->everyMinute();
+        })->everyTenMinutes();
 
         // Ad group and ad
         $schedule->call(function () {

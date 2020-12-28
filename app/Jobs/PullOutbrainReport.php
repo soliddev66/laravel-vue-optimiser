@@ -17,16 +17,17 @@ class PullOutbrainReport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $campaign;
-
+    protected $campaigns;
+    protected $campaign_account;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Campaign $campaign)
+    public function __construct($campaigns, $campaign_account)
     {
-        $this->campaign = $campaign;
+        $this->campaigns = $campaigns;
+        $this->campaign_account = $campaign_account;
     }
 
     /**
@@ -36,18 +37,6 @@ class PullOutbrainReport implements ShouldQueue
      */
     public function handle()
     {
-        $api = new OutbrainAPI(UserProvider::where('provider_id', $this->campaign->provider_id)->where('open_id', $this->campaign->open_id)->first());
-        $promoted_links = $api->getPromotedLinks($this->campaign->campaign_id);
-        if ($promoted_links && isset($promoted_links['promotedLinks'])) {
-            foreach ($promoted_links['promotedLinks'] as $key => $promoted_link) {
-                $date = Carbon::now()->format('Y-m-d');
-                $report = OutbrainReport::firstOrNew([
-                    'campaign_id' => $this->campaign->id,
-                    'date' => $date
-                ]);
-                $report->data = json_encode($api->getPerformanceReport($this->campaign, $promoted_link, $date));
-                $report->save();
-            }
-        }
+        // Need to be updated
     }
 }
