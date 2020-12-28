@@ -496,27 +496,25 @@ class Yahoo extends Root
             }
 
             // Content stats
-            foreach ($campaign->ads as $key => $ad) {
-                $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub5&sub6=' . $campaign->campaign_id . '&sub5=' . $ad->ad_id . '&tracks_view=true';
-                $response = $client->get($url);
+            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub5&sub6=' . $campaign->campaign_id . '&tracks_view=true';
+            $response = $client->get($url);
 
-                $data = json_decode($response->getBody(), true);
+            $data = json_decode($response->getBody(), true);
 
-                foreach ($data as $i => $value) {
-                    $value['date'] = $date;
-                    $value['user_id'] = $campaign->user_id;
-                    $value['campaign_id'] = $campaign->id;
-                    $value['provider_id'] = $campaign->provider_id;
-                    $value['open_id'] = $campaign->open_id;
-                    $redtrack_report = RedtrackContentStat::firstOrNew([
-                        'date' => $date,
-                        'sub5' => $value['sub5']
-                    ]);
-                    foreach (array_keys($value) as $array_key) {
-                        $redtrack_report->{$array_key} = $value[$array_key];
-                    }
-                    $redtrack_report->save();
+            foreach ($data as $i => $value) {
+                $value['date'] = $date;
+                $value['user_id'] = $campaign->user_id;
+                $value['campaign_id'] = $campaign->id;
+                $value['provider_id'] = $campaign->provider_id;
+                $value['open_id'] = $campaign->open_id;
+                $redtrack_report = RedtrackContentStat::firstOrNew([
+                    'date' => $date,
+                    'sub5' => $value['sub5']
+                ]);
+                foreach (array_keys($value) as $array_key) {
+                    $redtrack_report->{$array_key} = $value[$array_key];
                 }
+                $redtrack_report->save();
             }
         }
     }
