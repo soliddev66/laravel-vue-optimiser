@@ -39,9 +39,9 @@ class PullGeminiReport implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($job)
+    public function __construct(GeminiJob $job)
     {
-        $this->db_job = GeminiJob::find($job->id);
+        $this->db_job = $job;
     }
 
     /**
@@ -60,12 +60,8 @@ class PullGeminiReport implements ShouldQueue
             $job_status = self::getJobStatus($user_info, $job_id, $campaign->advertiser_id);
         });
 
-        $this->db_job->status = $job_status['response']['status'];
-        $this->db_job->job_response = $job_status['response']['jobResponse'];
-        $this->db_job->save();
-
-        if ($this->db_job->status === 'completed') {
-            $report_file = file_get_contents($this->db_job->job_response);
+        if ($job_status['response']['status'] === 'completed') {
+            $report_file = file_get_contents($job_status['response']['jobResponse']);
             $file_name = $this->db_job->user_id . '_' . $this->db_job->campaign_id . '_' . $this->db_job->advertiser_id . '_' . $this->db_job->name . '_' . $this->db_job->job_id . '.csv';
             file_put_contents(public_path('reports/' . $file_name), $report_file);
             switch ($this->db_job->name) {

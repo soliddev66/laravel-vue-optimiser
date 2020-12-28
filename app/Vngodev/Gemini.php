@@ -98,9 +98,11 @@ class Gemini
 
     public static function checkJobs()
     {
-        foreach (GeminiJob::where('status', 'submitted')->orWhere('status', 'running')->get() as $key => $job) {
-            PullGeminiReport::dispatch($job);
-        }
+        GeminiJob::where('status', 'submitted')->orWhere('status', 'running')->chunk(10, function($jobs) {
+            foreach ($jobs as $key => $job) {
+                PullGeminiReport::dispatch($job);
+            }
+        });
     }
 
     private static function getPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
