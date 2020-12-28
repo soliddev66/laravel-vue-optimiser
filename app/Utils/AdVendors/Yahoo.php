@@ -453,7 +453,6 @@ class Yahoo extends Root
             $client = new Client();
             $date = Carbon::now()->format('Y-m-d');
             $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=hour_of_day&sub6=' . $campaign->campaign_id . '&tracks_view=true';
-            Log::info($url);
             $response = $client->get($url);
 
             $data = json_decode($response->getBody(), true);

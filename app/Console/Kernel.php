@@ -52,7 +52,7 @@ class Kernel extends ConsoleKernel
         // Redtrack
         $schedule->call(function () {
             RedTrack::crawl();
-        })->everyMinute();
+        })->everyTenMinutes();
 
         // Campaign
         $schedule->call(function () {
@@ -67,7 +67,7 @@ class Kernel extends ConsoleKernel
                 PullAdGroup::dispatch($user);
                 PullAd::dispatch($user);
             }
-        })->everyMinute();
+        })->everyTenMinutes();
 
         // Rules
         foreach (Rule::all() as $rule) {
