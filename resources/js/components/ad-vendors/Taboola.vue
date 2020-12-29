@@ -9,11 +9,9 @@
           <div class="card-header d-flex justify-content-between align-items-center">
             <label class="p-2" :class="{ 'bg-primary': currentStep === 1 }">Campaign {{ actionName }}</label>
             <i class="fas fa-arrow-right"></i>
-            <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">Add Contents</label>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">Add Campaign Items</label>
             <i class="fas fa-arrow-right"></i>
-            <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Generate Variations</label>
-            <i class="fas fa-arrow-right"></i>
-            <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Preview</label>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Waiting for approval</label>
           </div>
           <div class="card-body">
             <form class="form-horizontal" v-if="selectedProvider && selectedAccount">
@@ -120,11 +118,30 @@
                   </div>
                 </div>
               </div>
+
+              <div v-if="currentStep == 2">
+                <fieldset class="mb-3 p-3 rounded border" v-for="(campaignsItem, index) in campaignItems" :key="index">
+                  <div class="form-group row">
+                    <label for="url" class="col-sm-2 control-label mt-2">Url</label>
+                    <div class="col-sm-8">
+                      <input type="text" name="url" placeholder="Enter a url" class="form-control" v-model="campaignsItem.url" />
+                      <small class="text-danger" v-if="campaignsItem.url && !validURL(campaignsItem.url)">URL is invalid. You might need http/https at the beginning.</small>
+                    </div>
+                  </div>
+
+                  <div class="row" v-if="index > 0">
+                      <div class="col text-right">
+                        <button class="btn btn-warning btn-sm" @click.prevent="removeCampaignItem(index)">Remove</button>
+                      </div>
+                    </div>
+                </fieldset>
+                <button class="btn btn-primary btn-sm" @click.prevent="addCampaignItem()">Add New</button>
+              </div>
             </form>
           </div>
         </div>
         <div class="card-footer d-flex justify-content-end">
-          <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
+          <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 4 && currentStep > 1">
             <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
           </div>
           <div class="d-flex justify-content-end" v-if="currentStep === 1">
@@ -134,10 +151,7 @@
             <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!submitStep2State">Next</button>
           </div>
           <div class="d-flex justify-content-end" v-if="currentStep === 3">
-            <button type="button" class="btn btn-primary" @click.prevent="submitStep3">Next</button>
-          </div>
-          <div class="d-flex justify-content-end" v-if="currentStep === 4">
-            <button type="button" class="btn btn-primary" @click.prevent="submitStep4">Finish</button>
+            <button type="button" class="btn btn-primary" @click.prevent="submitStep3">Finish</button>
           </div>
         </div>
       </div>
@@ -186,10 +200,10 @@ export default {
   },
   computed: {
     submitStep1State() {
-
+      return true
     },
     submitStep2State() {
-
+      return true
     }
   },
   mounted() {
@@ -242,6 +256,9 @@ export default {
         text: 'DESKTOP',
       }],
       campaignIsActive: false,
+      campaignItems: [{
+        url: ''
+      }]
     }
   },
   methods: {
@@ -250,7 +267,6 @@ export default {
       this.isLoading = true
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
         this.advertisers = response.data
-        console.log(this.advertisers)
       }).catch(err => {}).finally(() => {
         this.isLoading = false
       })
@@ -259,7 +275,6 @@ export default {
       this.isLoading = true
       this.countries = []
       axios.get(`/general/countries?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-        console.log(response.data)
         if (response.data) {
           this.countries = response.data.map(country => {
             return {
@@ -276,29 +291,36 @@ export default {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
     },
+    addCampaignItem(index) {
+      this.campaignItems.push({ url: '' })
+    },
+    removeCampaignItem(index) {
+      this.campaignItems[index].splice(index, 1)
+    },
     submitStep1() {
       const step1Data = {
-
+        advertiser: this.selectedAdvertiser,
+        campaignName: this.campaignName,
+        campaignBrandText: this.campaignBrandText,
+        campaignIsActive: this.campaignIsActive,
+        campaignCPC: this.campaignCPC,
+        campaignSpendingLimit: this.campaignSpendingLimit,
+        campaignMarketingObjective: this.campaignMarketingObjective,
+        campaignCountryTargeting: this.campaignCountryTargeting,
+        campaignPlatformTargeting: this.campaignPlatformTargeting,
+        campaignStartDate: this.campaignStartDate,
+        campaignEndDate: this.campaignEndDate
       }
       this.postData = {...this.postData, ...step1Data }
       this.currentStep = 2
     },
     submitStep2() {
       const step2Data = {
-
+        campaignItems: this.campaignItems
       }
       this.postData = {...this.postData, ...step2Data }
-      this.currentStep = 3
-    },
-    submitStep3() {
-      const step3Data = {
 
-      }
-      this.postData = {...this.postData, ...step3Data }
-      this.currentStep = 4
-    },
-    submitStep4() {
-
+      console.log(this.postData)
     }
   }
 }
