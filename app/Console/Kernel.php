@@ -41,7 +41,7 @@ class Kernel extends ConsoleKernel
         })->everyThirtyMinutes();
         $schedule->call(function () {
             Gemini::checkJobs();
-        })->everyThirtyMinutes();
+        })->everyTenMinutes();
         $schedule->call(function () {
             Outbrain::getReport();
         })->everyThirtyMinutes();

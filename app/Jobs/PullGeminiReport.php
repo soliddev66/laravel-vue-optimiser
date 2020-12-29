@@ -16,11 +16,11 @@ use App\Imports\GeminiSearchImport;
 use App\Imports\GeminiSitePerformanceImport;
 use App\Imports\GeminiSlotPerformanceImport;
 use App\Imports\GeminiStructuredSnippetExtensionPerformanceImport;
+use App\Jobs\DeleteCompletedImportFile;
 use App\Models\Campaign;
 use App\Models\GeminiJob;
-use App\Models\User;
+use App\Models\UserProvider;
 use App\Vngodev\Token;
-use Excel;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -32,16 +32,16 @@ class PullGeminiReport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $db_job;
+    protected $gemini_job;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(GeminiJob $job)
+    public function __construct(GeminiJob $gemini_job)
     {
-        $this->db_job = $job;
+        $this->gemini_job = $gemini_job;
     }
 
     /**
@@ -51,77 +51,107 @@ class PullGeminiReport implements ShouldQueue
      */
     public function handle()
     {
-        $campaign = Campaign::where('campaign_id', $this->db_job->campaign_id)->first();
-        $user = User::find($this->db_job->user_id);
-        $user_info = $user->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first();
-        $job_status = [];
-        $job_id = $this->db_job->job_id;
-        Token::refresh($user_info, function () use ($campaign, $user_info, $job_id, &$job_status) {
-            $job_status = self::getJobStatus($user_info, $job_id, $campaign->advertiser_id);
+        $campaign = Campaign::where('campaign_id', $this->gemini_job->campaign_id)->where('advertiser_id', $this->gemini_job->advertiser_id)->first();
+        $user_info = UserProvider::where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first();
+        $gemini_job_status = [];
+        $gemini_job_id = $this->gemini_job->job_id;
+        Token::refresh($user_info, function () use ($campaign, $user_info, $gemini_job_id, &$gemini_job_status) {
+            $gemini_job_status = self::getJobStatus($user_info, $gemini_job_id, $campaign->advertiser_id);
         });
+        $this->gemini_job->status = $gemini_job_status['response']['status'];
+        $this->gemini_job->job_id = $gemini_job_status['response']['jobId'];
+        $this->gemini_job->job_response = $gemini_job_status['response']['jobResponse'];
+        $this->gemini_job->save();
 
-        if ($job_status['response']['status'] === 'completed') {
-            $report_file = file_get_contents($job_status['response']['jobResponse']);
-            $file_name = $this->db_job->user_id . '_' . $this->db_job->campaign_id . '_' . $this->db_job->advertiser_id . '_' . $this->db_job->name . '_' . $this->db_job->job_id . '.csv';
+        if ($gemini_job_status['response']['status'] === 'completed') {
+            $report_file = file_get_contents($gemini_job_status['response']['jobResponse']);
+            $file_name = $this->gemini_job->user_id . '_' . $this->gemini_job->campaign_id . '_' . $this->gemini_job->advertiser_id . '_' . $this->gemini_job->name . '_' . $this->gemini_job->job_id . '.csv';
             file_put_contents(public_path('reports/' . $file_name), $report_file);
-            switch ($this->db_job->name) {
+            switch ($this->gemini_job->name) {
                 case 'performance_stats':
-                    Excel::queueImport(new GeminiPerformanceImport(), public_path('reports/' . $file_name));
+                    (new GeminiPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
+                        new DeleteCompletedImportFile($file_name)
+                    ]);
                     break;
                 case 'slot_performance_stats':
-                    Excel::queueImport(new GeminiSlotPerformanceImport(), public_path('reports/' . $file_name));
+                    (new GeminiSlotPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
+                        new DeleteCompletedImportFile($file_name)
+                    ]);
                     break;
                 case 'site_performance_stats':
-                    Excel::queueImport(new GeminiSitePerformanceImport(), public_path('reports/' . $file_name));
+                    (new GeminiSitePerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
+                        new DeleteCompletedImportFile($file_name)
+                    ]);
                     break;
                 case 'campaign_bid_performance_stats':
-                    Excel::queueImport(new GeminiCampaignBidPerformanceImport(), public_path('reports/' . $file_name));
+                    (new GeminiCampaignBidPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
+                        new DeleteCompletedImportFile($file_name)
+                    ]);
                     break;
                 case 'structured_snippet_extension':
-                    Excel::queueImport(new GeminiStructuredSnippetExtensionPerformanceImport(), public_path('reports/' . $file_name));
+                    (new GeminiStructuredSnippetExtensionPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
+                        new DeleteCompletedImportFile($file_name)
+                    ]);
                     break;
                 case 'product_ad_performance_stats':
-                    Excel::queueImport(new GeminiProductAdPerformanceImport(), public_path('reports/' . $file_name));
+                    (new GeminiProductAdPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
+                        new DeleteCompletedImportFile($file_name)
+                    ]);
                     break;
                 case 'adjustment_stats':
-                    Excel::queueImport(new GeminiAdjustmentImport(), public_path('reports/' . $file_name));
+                    (new GeminiAdjustmentImport)->queue(public_path('reports/' . $file_name))->chain([
+                        new DeleteCompletedImportFile($file_name)
+                    ]);
                     break;
                 case 'keyword_stats':
-                    Excel::queueImport(new GeminiKeywordImport(), public_path('reports/' . $file_name));
+                    (new GeminiKeywordImport)->queue(public_path('reports/' . $file_name))->chain([
+                        new DeleteCompletedImportFile($file_name)
+                    ]);
                     break;
                 case 'search_stats':
-                    Excel::queueImport(new GeminiSearchImport(), public_path('reports/' . $file_name));
+                    (new GeminiSearchImport)->queue(public_path('reports/' . $file_name))->chain([
+                        new DeleteCompletedImportFile($file_name)
+                    ]);
                     break;
                 case 'ad_extension_details':
-                    Excel::queueImport(new GeminiAdExtensionImport(), public_path('reports/' . $file_name));
+                    (new GeminiAdExtensionImport)->queue(public_path('reports/' . $file_name))->chain([
+                        new DeleteCompletedImportFile($file_name)
+                    ]);
                     break;
                 case 'call_extension_stats':
-                    Excel::queueImport(new GeminiCallExtensionImport(), public_path('reports/' . $file_name));
+                    (new GeminiCallExtensionImport)->queue(public_path('reports/' . $file_name))->chain([
+                        new DeleteCompletedImportFile($file_name)
+                    ]);
                     break;
                 case 'user_stats':
                     // WON'T DO IT!!!!
-                    // Excel::queueImport(new GeminiUserImport, public_path('reports/' . $file_name));
+                    // Excel::queueImport(new GeminiUserImpor$file_namet, public_path('reports/' . $file_name));
                     break;
                 case 'product_ads':
-                    Excel::queueImport(new GeminiProductAdsImport(), public_path('reports/' . $file_name));
+                    (new GeminiProductAdsImport)->queue(public_path('reports/' . $file_name))->chain([
+                        new DeleteCompletedImportFile($file_name)
+                    ]);
                     break;
                 case 'conversion_rules_stats':
-                    Excel::queueImport(new GeminiConversionRulesImport(), public_path('reports/' . $file_name));
+                    (new GeminiConversionRulesImport)->queue(public_path('reports/' . $file_name))->chain([
+                        new DeleteCompletedImportFile($file_name)
+                    ]);
                     break;
                 case 'domain_performance_stats':
-                    Excel::queueImport(new GeminiDomainPerformanceImport(), public_path('reports/' . $file_name));
+                    (new GeminiDomainPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
+                        new DeleteCompletedImportFile($file_name)
+                    ]);
                     break;
                 default:
                     break;
             }
-            $this->db_job->delete();
         }
     }
 
-    private static function getJobStatus($user_info, $job_id, $advertiser_id)
+    private static function getJobStatus($user_info, $gemini_job_id, $advertiser_id)
     {
         $client = new Client();
-        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/reports/custom/' . $job_id . '?advertiserId=' . $advertiser_id, [
+        $response = $client->request('GET', env('BASE_URL') . '/v3/rest/reports/custom/' . $gemini_job_id . '?advertiserId=' . $advertiser_id, [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_info->token,
                 'Content-Type' => 'application/json'
@@ -129,5 +159,10 @@ class PullGeminiReport implements ShouldQueue
         ]);
 
         return json_decode($response->getBody(), true);
+    }
+
+    public function getGeminiJob()
+    {
+        return $this->gemini_job;
     }
 }
