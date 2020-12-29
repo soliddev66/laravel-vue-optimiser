@@ -40,7 +40,8 @@ import 'vue-loading-overlay/dist/vue-loading.css'
 import {
   yahoo,
   outbrain,
-  twitter
+  twitter,
+  taboola
 } from './ad-vendors'
 
 export default {
@@ -66,7 +67,8 @@ export default {
     Loading,
     yahoo,
     outbrain,
-    twitter
+    twitter,
+    taboola
   },
   computed: {},
   mounted() {
@@ -80,7 +82,7 @@ export default {
     return {
       isLoading: false,
       fullPage: true,
-      selectedProvider: this.instance ? this.instance.provider : 'yahoo',
+      selectedProvider: this.instance ? this.instance.provider : 'taboola',
       accounts: [],
       selectedAccount: this.instance ? this.instance.open_id : '',
     }

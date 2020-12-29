@@ -433,7 +433,6 @@ export default {
       countries: [],
       advertisers: [],
       fundingInstruments: [],
-      accounts: [],
       placements: [
         { id: 'ALL_ON_TWITTER', text: 'ALL_ON_TWITTER' },
         { id: 'PUBLISHER_NETWORK', text: 'PUBLISHER_NETWORK' },
