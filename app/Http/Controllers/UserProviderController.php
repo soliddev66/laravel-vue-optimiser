@@ -46,24 +46,21 @@ class UserProviderController extends Controller
         }
 
         if (request('provider') === 'taboola') {
-            $form_params = [
-                'client_id' => config('services.taboola.client_id'),
-                'client_secret' => config('services.taboola.client_secret'),
-                'username' => $request->name,
-                'password' => $request->password,
-                'grant_type' => 'password'
-            ];
-            $response = $client->request('POST', 'https://backstage.taboola.com/backstage/oauth/token',
-                ['form_params' => $form_params]
-            );
+            $response = $client->request('POST', config('services.taboola.api_endpoint') . '/backstage/oauth/token', [
+                'form_params' => [
+                    'client_id' => config('services.taboola.client_id'),
+                    'client_secret' => config('services.taboola.client_secret'),
+                    'username' => $request->name,
+                    'password' => $request->password,
+                    'grant_type' => 'password'
+                ]
+            ]);
             $response_data = json_decode($response->getBody()->getContents(), true);
 
-            $taboola_provider_id = Provider::where('slug', 'taboola')->first()->id;
-            $open_id = $request->name;
             $user_provider = UserProvider::firstOrNew([
                 'user_id' => auth()->id(),
-                'provider_id' => $taboola_provider_id,
-                'open_id' => $open_id
+                'provider_id' => Provider::where('slug', 'taboola')->first()->id,
+                'open_id' => $request->name
             ]);
             $user_provider->token = $response_data['access_token'];
             $user_provider->refresh_token = $response_data['refresh_token'];

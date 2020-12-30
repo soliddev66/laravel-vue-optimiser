@@ -18,7 +18,7 @@ class TaboolaClient
     public function call($method, $endpoint, $body = null) {
         $client = new Client();
 
-        $url = config('services.outbrain.api_endpoint') . '/backstage/api/1.0/' . $endpoint;
+        $url = config('services.taboola.api_endpoint') . '/backstage/api/1.0/' . $endpoint;
 
         $api_request = ['headers' => [
             'Authorization' => 'Bearer ' . $this->user_info->token,
@@ -33,7 +33,7 @@ class TaboolaClient
             $response = $client->request($method, $url, $api_request);
         } catch (Exception $e) {
             if ($e->getCode() == 401) {
-                Token::refresh($this->user_info, function () use ($client, $method, $url, $api_request, &$response) {
+                Token::refreshTaboola($this->user_info, function () use ($client, $method, $url, $api_request, &$response) {
                     $api_request['headers']['Authorization'] = 'Bearer ' . $this->user_info->token;
                     $response = $client->request($method, $url, $api_request);
                 });
@@ -42,6 +42,6 @@ class TaboolaClient
             }
         }
 
-        return json_decode($response->getBody(), true)['response'];
+        return json_decode($response->getBody()->getContents(), true);
     }
 }

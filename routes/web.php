@@ -48,6 +48,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/jobs', [App\Http\Controllers\CampaignController::class, 'jobs'])->name('campaigns.jobs');
     Route::get('/failed-jobs', [App\Http\Controllers\CampaignController::class, 'failedJobs'])->name('campaigns.failed_jobs');
     Route::get('/{campaign}', [App\Http\Controllers\CampaignController::class, 'show'])->name('campaigns.show');
+    Route::post('item-status', [App\Http\Controllers\CampaignController::class, 'itemStatus'])->name('campaigns.itemStatus');
     Route::get('/{campaign}/summary', [App\Http\Controllers\CampaignController::class, 'summary'])->name('campaigns.summary');
     Route::get('/{campaign}/widgets', [App\Http\Controllers\CampaignController::class, 'widgets'])->name('campaigns.widgets');
     Route::get('/{campaign}/contents', [App\Http\Controllers\CampaignController::class, 'contents'])->name('campaigns.contents');

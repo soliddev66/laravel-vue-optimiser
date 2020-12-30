@@ -582,7 +582,6 @@ export default {
         text: 'DESKTOP',
       }],
       advertisers: [],
-      accounts: [],
       actionName: this.action,
       selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
       campaignName: this.instance ? this.instance.campaignName : '',
