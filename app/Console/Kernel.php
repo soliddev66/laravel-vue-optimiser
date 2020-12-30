@@ -36,23 +36,23 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         // Report data
-        // $schedule->call(function () {
-        //     Gemini::crawl();
-        // })->everyTenMinutes();
-        // $schedule->call(function () {
-        //     Gemini::checkJobs();
-        // })->everyTenMinutes();
-        // $schedule->call(function () {
-        //     Outbrain::getReport();
-        // })->everyThirtyMinutes();
-        // $schedule->call(function () {
-        //     Twitter::getReport();
-        // })->everyThirtyMinutes();
+        $schedule->call(function () {
+            Gemini::crawl();
+        })->everyThirtyMinutes();
+        $schedule->call(function () {
+            Gemini::checkJobs();
+        })->everyTenMinutes();
+        $schedule->call(function () {
+            Outbrain::getReport();
+        })->everyThirtyMinutes();
+        $schedule->call(function () {
+            Twitter::getReport();
+        })->everyThirtyMinutes();
 
         // Redtrack
         $schedule->call(function () {
             RedTrack::crawl();
-        })->everyMinute();
+        })->everyTenMinutes();
 
         // Campaign
         $schedule->call(function () {
