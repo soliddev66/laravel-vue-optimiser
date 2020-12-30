@@ -5,7 +5,10 @@ namespace App\Utils\AdVendors;
 use Exception;
 
 use App\Models\Provider;
+use App\Models\Campaign;
 use App\Endpoints\TaboolaAPI;
+
+use App\Jobs\PullCampaign;
 
 class Taboola extends Root
 {
@@ -69,6 +72,8 @@ class Taboola extends Root
                 $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
             }
 
+            PullCampaign::dispatch(auth()->user());
+
             return $campaign_data;
         } catch (Exception $e) {
             return [
@@ -90,13 +95,49 @@ class Taboola extends Root
                 }
             }
 
+            $campaign = Campaign::where('campaign_id', request('campaignId'))->first();
+
             return [
-                'status' => true
+                'status' => true,
+                'campaign_id' => $campaign->id
             ];
         } catch (Exception $e) {
             return [
                 'errors' => [$e->getMessage()]
             ];
         }
+    }
+
+    public function pullCampaign($user_provider)
+    {
+        $api = $this->api();
+        $advertisers = $api->getAdvertisers()['results'];
+
+        $campaign_ids = [];
+
+        foreach ($advertisers as $advertiser) {
+            $campaigns = $api->getCampaigns($advertiser['account_id'])['results'];
+
+            foreach ($campaigns as $campaign) {
+                $db_campaign = Campaign::firstOrNew([
+                    'campaign_id' => $campaign['id'],
+                    'provider_id' => $user_provider->provider_id,
+                    'user_id' => $user_provider->user_id,
+                    'open_id' => $user_provider->open_id
+                ]);
+                $db_campaign->name = $campaign['name'];
+                $db_campaign->status = $campaign['status'];
+                $db_campaign->advertiser_id = $advertiser['account_id'];
+
+                $db_campaign->save();
+                $campaign_ids[] = $db_campaign->id;
+            }
+        }
+
+        Campaign::where([
+            'user_id' => $user_provider->user_id,
+            'provider_id' => $user_provider->provider_id,
+            'open_id' => $user_provider->open_id
+        ])->whereNotIn('id', $campaign_ids)->delete();
     }
 }

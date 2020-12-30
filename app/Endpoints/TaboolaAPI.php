@@ -23,9 +23,9 @@ class TaboolaAPI
         return $this->client->call('GET', $this->account_id . '/advertisers');
     }
 
-    public function getCampaigns()
+    public function getCampaigns($advertiser_id)
     {
-        return $this->client->call('GET', 'valiantmedia-sc/campaigns/?fetch_level=R');
+        return $this->client->call('GET', $advertiser_id . '/campaigns/?fetch_level=R');
     }
 
     public function getCountries()

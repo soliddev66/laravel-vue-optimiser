@@ -353,10 +353,10 @@ export default {
                 me.isLoading = false
               } else if (response.data.status) {
                 clearInterval(interval)
-
+                window.location = '/campaigns/edit/' + response.data.campaign_id;
               }
             })
-          }, 20000)
+          }, 10000)
         }
       }).catch(error => {})
     }
