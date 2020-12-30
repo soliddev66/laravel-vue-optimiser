@@ -173,11 +173,11 @@ export default {
           label: 'Actions',
           name: 'actions',
           orderable: false,
-          newAdBtn: true,
           classes: {
             'btn': true,
             'btn-primary': false,
             'btn-sm': true,
+            'btn-add-new-ad': true,
           },
           event: "click",
           handler: this.updateAdGroupStatus,
