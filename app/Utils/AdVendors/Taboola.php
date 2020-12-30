@@ -110,7 +110,7 @@ class Taboola extends Root
 
     public function pullCampaign($user_provider)
     {
-        $api = $this->api();
+        $api = new TaboolaAPI($user_provider);
         $advertisers = $api->getAdvertisers()['results'];
 
         $campaign_ids = [];
