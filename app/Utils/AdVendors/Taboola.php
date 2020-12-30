@@ -72,8 +72,6 @@ class Taboola extends Root
                 $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
             }
 
-            PullCampaign::dispatch(auth()->user());
-
             return $campaign_data;
         } catch (Exception $e) {
             return [
@@ -110,7 +108,7 @@ class Taboola extends Root
 
     public function pullCampaign($user_provider)
     {
-        $api = $this->api();
+        $api = new TaboolaAPI($user_provider);
         $advertisers = $api->getAdvertisers()['results'];
 
         $campaign_ids = [];

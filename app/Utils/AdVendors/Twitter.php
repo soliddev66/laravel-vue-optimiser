@@ -142,8 +142,6 @@ class Twitter extends Root
                     }
                 }
             }
-
-            PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
             $this->rollback($campaign_data ?? null, $line_item_data ?? null, $card_data ?? null);
             if ($e instanceof TwitterAdsException && is_array($e->getErrors())) {
@@ -206,8 +204,6 @@ class Twitter extends Root
                     }
                 }
             }
-
-            PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
             return [
                 'errors' => [$e->getMessage()]

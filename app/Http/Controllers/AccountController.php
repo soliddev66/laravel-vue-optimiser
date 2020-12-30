@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Endpoints\OutbrainAPI;
-use App\Jobs\PullAd;
-use App\Jobs\PullAdGroup;
 use App\Jobs\PullCampaign;
 use App\Models\Provider;
 use App\Models\Tracker;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
+use App\Vngodev\Helper;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
@@ -31,12 +29,13 @@ class AccountController extends Controller
     {
         $providers = Provider::all();
         $trackers = Tracker::all();
+
         return view('accounts.wizard', compact('providers', 'trackers'));
     }
 
     public function accounts()
     {
-        return UserProvider::whereHas('provider', function($q) {
+        return UserProvider::whereHas('provider', function ($q) {
             return $q->where('slug', request('provider'));
         })->get();
     }
@@ -45,28 +44,28 @@ class AccountController extends Controller
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass)->advertisers();
+        return (new $adVendorClass())->advertisers();
     }
 
     public function fundingInstruments()
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass)->fundingInstruments();
+        return (new $adVendorClass())->fundingInstruments();
     }
 
     public function adGroupCategories()
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass)->adGroupCategories();
+        return (new $adVendorClass())->adGroupCategories();
     }
 
     public function signUp()
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass)->signUp();
+        return (new $adVendorClass())->signUp();
     }
 
     public function trafficSources()
@@ -98,6 +97,7 @@ class AccountController extends Controller
                 if ($db_provider->scopes) {
                     return Socialite::driver($db_provider->slug)->scopes(json_decode($db_provider->scopes))->redirect();
                 }
+
                 return Socialite::driver($db_provider->slug)->redirect();
             }
 
@@ -106,10 +106,11 @@ class AccountController extends Controller
                 session()->put('provider_id', $db_provider->id);
 
                 // Redirect to Tracker setup
+
                 return redirect('account-wizard?step=2&provider=' . $param);
             }
 
-            $this->pullCampaign();
+            Helper::pullCampaign();
 
             return redirect('account-wizard?step=3');
         }
@@ -131,7 +132,7 @@ class AccountController extends Controller
                 'name' => $tracker_user['firstname'] . ' ' . $tracker_user['lastname']
             ]);
 
-            $this->pullCampaign();
+            Helper::pullCampaign();
 
             return redirect('account-wizard?step=3');
         }
@@ -179,17 +180,12 @@ class AccountController extends Controller
         if (session('use_tracker')) {
             session()->put('provider_id', $db_provider->id);
             session()->put('provider_open_id', $open_id);
+
             return redirect('account-wizard?step=2');
         } else {
-            $this->pullCampaign();
+            Helper::pullCampaign();
+
             return redirect('account-wizard?step=3');
         }
-    }
-
-    private function pullCampaign()
-    {
-        return PullCampaign::dispatch(auth()->user());
-        return PullAdGroup::dispatch(auth()->user());
-        return PullAd::dispatch(auth()->user());
     }
 }

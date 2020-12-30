@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserProvider\StoreUserProviderRequest;
 use App\Models\Provider;
 use App\Models\UserProvider;
+use App\Vngodev\Helper;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
@@ -55,18 +56,26 @@ class UserProviderController extends Controller
                     'grant_type' => 'password'
                 ]
             ]);
-            $response_data = json_decode($response->getBody()->getContents(), true);
+            $oauth_data = json_decode($response->getBody()->getContents(), true);
+            // Get account details
+            $response = $client->request('GET', config('services.taboola.api_endpoint') . '/backstage/api/1.0/users/current/account', ['headers' => [
+                'Authorization' => 'Bearer ' . $oauth_data['access_token'],
+                'Content-Type' => 'application/json'
+            ]]);
+            $account_data = json_decode($response->getBody()->getContents(), true);
 
             $user_provider = UserProvider::firstOrNew([
                 'user_id' => auth()->id(),
                 'provider_id' => Provider::where('slug', 'taboola')->first()->id,
-                'open_id' => $request->name
+                'open_id' => $account_data['account_id']
             ]);
-            $user_provider->token = $response_data['access_token'];
-            $user_provider->refresh_token = $response_data['refresh_token'];
-            $user_provider->expires_in = Carbon::now()->addSeconds($response_data['expires_in']);
+            $user_provider->token = $oauth_data['access_token'];
+            $user_provider->refresh_token = $oauth_data['refresh_token'];
+            $user_provider->expires_in = Carbon::now()->addSeconds($oauth_data['expires_in']);
             $user_provider->save();
         }
+
+        Helper::pullCampaign();
 
         return response()->json(['user_provider' => $user_provider]);
     }

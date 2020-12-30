@@ -55,7 +55,10 @@
                       </div>
                     </div>
                   </td>
-                  <td v-if="campaign.status === 'ACTIVE'" class="text-success">
+                  <td v-if="['ACTIVE', 'RUNNING'].includes(campaign.status)" class="text-success">
+                    {{ campaign.status }}
+                  </td>
+                  <td v-else-if="['PENDING_APPROVAL'].includes(campaign.status)" class="text-default">
                     {{ campaign.status }}
                   </td>
                   <td v-else class="text-danger">
