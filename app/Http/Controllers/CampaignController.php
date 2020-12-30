@@ -413,6 +413,13 @@ class CampaignController extends Controller
         return (new $adVendorClass())->adStatus($campaign, $ad_group_id, $ad_id);
     }
 
+    public function itemStatus()
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+
+        return (new $adVendorClass())->itemStatus();
+    }
+
     public function adGroupData(Campaign $campaign)
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);

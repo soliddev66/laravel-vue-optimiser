@@ -32,4 +32,21 @@ class TaboolaAPI
     {
         return $this->client->call('GET', 'resources/countries');
     }
+
+    public function createCampaign($advertiser_id, $data)
+    {
+        return $this->client->call('POST', $advertiser_id . '/campaigns', $data);
+    }
+
+    public function createCampaignItem($advertiser_id, $campaign_id, $url)
+    {
+        return $this->client->call('POST', $advertiser_id . '/campaigns/' . $campaign_id . '/items', [
+            'url' => $url
+        ]);
+    }
+
+    public function getCampaignItems($advertiser_id, $campaign_id)
+    {
+        return $this->client->call('GET', $advertiser_id . '/campaigns/' . $campaign_id . '/items');
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Utils\AdVendors;
 
+use Exception;
+
 use App\Models\Provider;
 use App\Endpoints\TaboolaAPI;
 
@@ -22,5 +24,79 @@ class Taboola extends Root
     public function countries()
     {
         return $this->api()->getCountries()['results'];
+    }
+
+    public function store()
+    {
+        $api = $this->api();
+
+        try {
+            $data = [
+                'name' => request('campaignName'),
+                'branding_text' => request('campaignBrandText'),
+                'cpc' => request('campaignCPC'),
+                'spending_limit' => request('campaignSpendingLimit'),
+                'spending_limit_model' => request('campaignSpendingLimitModel'),
+                'marketing_objective' => request('campaignMarketingObjective'),
+                'is_active' => request('campaignIsActive'),
+                'start_date' => request('campaignStartDate'),
+                'end_date' => request('campaignEndDate'),
+                'end_date' => request('campaignEndDate'),
+                'end_date' => request('campaignEndDate'),
+                'end_date' => request('campaignEndDate'),
+            ];
+
+            $country_targeting = request('campaignCountryTargeting');
+            $platform_targeting = request('campaignPlatformTargeting');
+
+            if (count($country_targeting) > 0) {
+                $data['country_targeting'] = [
+                    'type' => 'INCLUDE',
+                    'value' => $country_targeting
+                ];
+            }
+
+            if (count($platform_targeting) > 0) {
+                $data['platform_targeting'] = [
+                    'type' => 'INCLUDE',
+                    'value' => $platform_targeting
+                ];
+            }
+
+            $campaign_data = $api->createCampaign(request('advertiser'), $data);
+
+            foreach (request('campaignItems') as $campaign_item) {
+                $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
+            }
+
+            return $campaign_data;
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+    }
+
+    public function itemStatus()
+    {
+        try {
+            $campaign_items = $this->api()->getCampaignItems(request('advertiser'), request('campaignId'));
+
+            foreach ($campaign_items['results'] as $campaign_item) {
+                if ($campaign_item['status'] == 'CRAWLING') {
+                    return [
+                        'status' => false
+                    ];
+                }
+            }
+
+            return [
+                'status' => true
+            ];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 }

@@ -76,11 +76,11 @@
                   </div>
                   <div class="col-sm-4">
                     <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: campaignSpendingLimitType === 'MONTHLY' }">
-                        <input type="radio" name="type" id="spending_limit_model_2" autocomplete="off" value="MONTHLY" v-model="campaignSpendingLimitType"> Per Month
+                      <label class="btn bg-olive" :class="{ active: campaignSpendingLimitModel === 'MONTHLY' }">
+                        <input type="radio" name="type" id="spending_limit_model_2" autocomplete="off" value="MONTHLY" v-model="campaignSpendingLimitModel"> Per Month
                       </label>
-                      <label class="btn bg-olive" :class="{ active: campaignSpendingLimitType === 'ENTIRE' }">
-                        <input type="radio" name="type" id="spending_limit_model_3" autocomplete="off" value="ENTIRE" v-model="campaignSpendingLimitType"> In Total
+                      <label class="btn bg-olive" :class="{ active: campaignSpendingLimitModel === 'ENTIRE' }">
+                        <input type="radio" name="type" id="spending_limit_model_3" autocomplete="off" value="ENTIRE" v-model="campaignSpendingLimitModel"> In Total
                       </label>
                     </div>
                   </div>
@@ -229,7 +229,7 @@ export default {
       campaignBrandText: '',
       campaignCPC: '',
       campaignSpendingLimit: '',
-      campaignSpendingLimitType: 'MONTHLY',
+      campaignSpendingLimitModel: 'MONTHLY',
       campaignMarketingObjective: 'DRIVE_WEBSITE_TRAFFIC',
       campaignMarketingObjectives: [
         'BRAND_AWARENESS',
@@ -266,7 +266,12 @@ export default {
       this.advertisers = []
       this.isLoading = true
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-        this.advertisers = response.data
+        this.advertisers = response.data.map(item => {
+            return {
+              id: item.account_id,
+              name: item.name
+            }
+          })
       }).catch(err => {}).finally(() => {
         this.isLoading = false
       })
@@ -288,8 +293,8 @@ export default {
       })
     },
     validURL(str) {
-      var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
-      return !!pattern.test(str);
+      var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g
+      return !!pattern.test(str)
     },
     addCampaignItem(index) {
       this.campaignItems.push({ url: '' })
@@ -299,12 +304,15 @@ export default {
     },
     submitStep1() {
       const step1Data = {
+        provider: this.selectedProvider,
+        account: this.selectedAccount,
         advertiser: this.selectedAdvertiser,
         campaignName: this.campaignName,
         campaignBrandText: this.campaignBrandText,
         campaignIsActive: this.campaignIsActive,
         campaignCPC: this.campaignCPC,
         campaignSpendingLimit: this.campaignSpendingLimit,
+        campaignSpendingLimitModel: this.campaignSpendingLimitModel,
         campaignMarketingObjective: this.campaignMarketingObjective,
         campaignCountryTargeting: this.campaignCountryTargeting,
         campaignPlatformTargeting: this.campaignPlatformTargeting,
@@ -315,12 +323,42 @@ export default {
       this.currentStep = 2
     },
     submitStep2() {
+      this.isLoading = true
       const step2Data = {
         campaignItems: this.campaignItems
       }
       this.postData = {...this.postData, ...step2Data }
 
-      console.log(this.postData)
+      let url = '/campaigns'
+
+      if (this.action == 'edit') {
+        url += '/update/' + this.instance.instance_id
+      }
+
+      axios.post(url, this.postData).then(response => {
+        if (response.data.errors) {
+          alert(response.data.errors[0])
+          this.isLoading = false
+        } else {
+          let me = this
+          let interval = setInterval(function () {
+            axios.post('/campaigns/item-status', {
+              provider: me.selectedProvider,
+              account: me.selectedAccount,
+              advertiser: me.selectedAdvertiser,
+              campaignId: response.data.id
+            }).then(response => {
+              if (response.data.errors) {
+                alert(response.data.errors[0])
+                me.isLoading = false
+              } else if (response.data.status) {
+                clearInterval(interval)
+
+              }
+            })
+          }, 20000)
+        }
+      }).catch(error => {})
     }
   }
 }
