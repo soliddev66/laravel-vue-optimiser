@@ -140,4 +140,39 @@ class Taboola extends Root
             'open_id' => $user_provider->open_id
         ])->whereNotIn('id', $campaign_ids)->delete();
     }
+
+    public function update(Campaign $campaign)
+    {
+        //
+    }
+
+    public function getCampaignInstance(Campaign $campaign)
+    {
+        //
+    }
+
+    public function cloneCampaignName(&$instance)
+    {
+        //
+    }
+
+    public function status(Campaign $campaign)
+    {
+        //
+    }
+
+    public function pullAdGroup($user_provider)
+    {
+        //
+    }
+
+    public function pullAd($user_provider)
+    {
+        //
+    }
+
+    public function pullRedTrack($campaign)
+    {
+        //
+    }
 }

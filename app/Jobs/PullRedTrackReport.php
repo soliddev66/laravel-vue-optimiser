@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Models\Campaign;
-use Dorantor\FileLock;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -33,14 +32,8 @@ class PullRedTrackReport implements ShouldQueue
      */
     public function handle()
     {
-        $lock = new FileLock(storage_path('logs/pull_redtrack_report.lock'));
-        if ($lock->acquire()) {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($this->campaign->provider->slug);
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($this->campaign->provider->slug);
 
-            (new $adVendorClass())->pullRedTrack($this->campaign);
-            $lock->release();
-        } else {
-            echo ('Nope, 1 process is running!' . PHP_EOL);
-        }
+        (new $adVendorClass())->pullRedTrack($this->campaign);
     }
 }

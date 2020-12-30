@@ -186,7 +186,7 @@ export default {
         orderable: true,
       }, {
         label: 'Conversion',
-        name: 'conversions',
+        name: 'total_conversions',
         orderable: true,
       }, {
         label: 'Total Actions',

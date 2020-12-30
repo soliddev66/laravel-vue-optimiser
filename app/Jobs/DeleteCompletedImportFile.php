@@ -2,27 +2,27 @@
 
 namespace App\Jobs;
 
-use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class PullAdGroup implements ShouldQueue
+class DeleteCompletedImportFile implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $user;
+    protected $file_name;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct($file_name)
     {
-        $this->user = $user;
+        $this->file_name = $file_name;
     }
 
     /**
@@ -32,10 +32,6 @@ class PullAdGroup implements ShouldQueue
      */
     public function handle()
     {
-        foreach ($this->user->providers as $user_provider) {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($user_provider->provider->slug);
-
-            (new $adVendorClass())->pullAdGroup($user_provider);
-        }
+        unlink(public_path('reports/' . $this->file_name));
     }
 }

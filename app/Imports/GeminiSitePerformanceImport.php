@@ -2,15 +2,20 @@
 
 namespace App\Imports;
 
+use App\Models\GeminiSitePerformanceStat;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\OnEachRow;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Row;
-use App\Models\GeminiSitePerformanceStat;
 
-class GeminiSitePerformanceImport implements OnEachRow, WithChunkReading, ShouldQueue, WithHeadingRow
+class GeminiSitePerformanceImport implements OnEachRow, WithChunkReading, ShouldQueue, WithHeadingRow, WithEvents
 {
+    use Importable;
+
     /**
      * @param Row $row
      */
@@ -45,5 +50,21 @@ class GeminiSitePerformanceImport implements OnEachRow, WithChunkReading, Should
     public function chunkSize(): int
     {
         return 1000;
+    }
+
+    /**
+     * @return array
+     */
+    public function registerEvents(): array
+    {
+        return [
+            // Array callable, refering to a static method.
+            AfterImport::class => [self::class, 'afterSheet'],
+        ];
+    }
+
+    public static function afterSheet(AfterImport $event)
+    {
+        //
     }
 }

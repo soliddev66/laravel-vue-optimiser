@@ -21,7 +21,7 @@ class RedTrack
 
     public static function crawl()
     {
-        Campaign::chunk(10, function($campaigns) {
+        Campaign::where('provider_id', 1)->chunk(10, function($campaigns) {
             foreach ($campaigns as $key => $campaign) {
                 PullRedTrackReport::dispatch($campaign);
             }
