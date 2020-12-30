@@ -554,7 +554,7 @@ export default {
       campaignBudget: this.instance ? this.instance.budget.amount : 20,
       campaignCostPerClick: this.instance ? this.instance.cpc : '',
       campaignPacing: this.instance ? this.instance.budget.pacing : 'SPEND_ASAP',
-      campaignStartDate: this.instance ? this.instance.budget.startDate : '',
+      campaignStartDate: this.instance ? this.instance.budget.startDate : this.formatDate(new Date()),
       campaignStartTime: this.instance ? this.instance.startHour : '',
       campaignEndDate: this.instance && !this.instance.budget.runForever ? this.instance.budget.endDate : '',
       platforms: ['DESKTOP', 'MOBILE', 'TABLET'],
@@ -585,6 +585,19 @@ export default {
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
+    },
+    formatDate(date) {
+      var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+      if (month.length < 2)
+          month = '0' + month;
+      if (day.length < 2)
+          day = '0' + day;
+
+      return [year, month, day].join('-');
     },
     validImageSize(imageUrl, width, height) {
       return new Promise((resolve) => {

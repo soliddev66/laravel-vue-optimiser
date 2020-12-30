@@ -455,7 +455,7 @@ export default {
       campaignAge = [],
       campaignDevice = [],
       adGroupName = '',
-      bidAmount = '0.05',
+      bidAmount = '1',
       campaignLocation = [],
       adGroupID = '',
       dataAttributes = [],
@@ -585,17 +585,17 @@ export default {
       actionName: this.action,
       selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
       campaignName: this.instance ? this.instance.campaignName : '',
-      campaignType: this.instance ? this.instance.channel : 'SEARCH_AND_NATIVE',
+      campaignType: this.instance ? this.instance.channel : 'NATIVE',
       campaignLanguage: this.instance ? this.instance.language : 'en',
       campaignLocation: campaignLocation,
       campaignGender: campaignGender,
       campaignAge: campaignAge,
       campaignDevice: campaignDevice,
       campaignBudget: this.instance ? this.instance.budget : '',
-      campaignStartDate: '',
-      campaignEndDate: '',
+      campaignStartDate: this.instance ? this.instance.start_date : this.formatDate(new Date()),
+      campaignEndDate: this.instance ? this.instance.end_date : '',
       campaignBudgetType: this.instance ? this.instance.budgetType : 'DAILY',
-      campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_ENHANCED_CPC',
+      campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_CLICK',
       campaignConversionCounting: this.instance ? this.instance.conversionRuleConfig.conversionCounting : 'ALL_PER_INTERACTION',
       adGroupID: adGroupID,
       adGroupName: adGroupName,
@@ -632,6 +632,19 @@ export default {
         };
         image.src = imageUrl;
       });
+    },
+    formatDate(date) {
+      var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+      if (month.length < 2)
+          month = '0' + month;
+      if (day.length < 2)
+          day = '0' + day;
+
+      return [year, month, day].join('-');
     },
     addContent() {
       this.contents.push({
