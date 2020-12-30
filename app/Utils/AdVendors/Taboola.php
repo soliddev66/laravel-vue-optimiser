@@ -6,6 +6,7 @@ use App\Endpoints\TaboolaAPI;
 use App\Jobs\PullCampaign;
 use App\Models\Campaign;
 use App\Models\Provider;
+use App\Models\RedtrackContentStat;
 use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\UserTracker;
@@ -215,6 +216,28 @@ class Taboola extends Root
                         'date' => $date,
                         'campaign_id' => $campaign->id,
                         'sub1' => $value['sub1']
+                    ]);
+                    foreach (array_keys($value) as $array_key) {
+                        $redtrack_report->{$array_key} = $value[$array_key];
+                    }
+                    $redtrack_report->save();
+                }
+
+                // Content stats
+                $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub7&sub6=' . $campaign->campaign_id . '&tracks_view=true';
+                $response = $client->get($url);
+
+                $data = json_decode($response->getBody(), true);
+
+                foreach ($data as $i => $value) {
+                    $value['date'] = $date;
+                    $value['user_id'] = $campaign->user_id;
+                    $value['campaign_id'] = $campaign->id;
+                    $value['provider_id'] = $campaign->provider_id;
+                    $value['open_id'] = $campaign->open_id;
+                    $redtrack_report = RedtrackContentStat::firstOrNew([
+                        'date' => $date,
+                        'sub7' => $value['sub7']
                     ]);
                     foreach (array_keys($value) as $array_key) {
                         $redtrack_report->{$array_key} = $value[$array_key];
