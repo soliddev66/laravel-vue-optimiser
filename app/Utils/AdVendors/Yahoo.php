@@ -146,6 +146,43 @@ class Yahoo extends Root
         return [];
     }
 
+    public function storeAd(Campaign $campaign, $ad_group_id)
+    {
+        $api = $this->api();
+
+        try {
+            foreach (request('contents') as $content) {
+                foreach ($content['titles'] as $title) {
+                    foreach ($content['images'] as $image) {
+                        $ads[] = [
+                            'adGroupId' => $ad_group_id,
+                            'advertiserId' => request('selectedAdvertiser'),
+                            'campaignId' => $campaign->campaign_id,
+                            'description' => $content['description'],
+                            'displayUrl' => $content['displayUrl'],
+                            'landingUrl' => $content['targetUrl'],
+                            'sponsoredBy' => $content['brandname'],
+                            'imageUrlHQ' => Helper::encodeUrl($image['imageUrlHQ']),
+                            'imageUrl' => Helper::encodeUrl($image['imageUrl']),
+                            'title' => $title['title'],
+                            'status' => 'ACTIVE'
+                        ];
+                    }
+                }
+            }
+
+            $ad_data = $api->createAd($ads);
+
+            return $ad_data;
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+
+        return [];
+    }
+
     public function update(Campaign $campaign)
     {
         try {

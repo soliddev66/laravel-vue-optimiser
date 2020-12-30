@@ -355,11 +355,17 @@ class CampaignController extends Controller
             $campaign = Campaign::where('campaign_id', $campaign_id)->first();
         }
 
+        $campaign['provider_slug'] = $campaign->provider->slug;
+
         return view('campaigns.adForm', compact('campaign', 'ad_group_id'));
     }
 
-    public function storeAd(Campaign $campaign, $ad_group_id)
+    public function storeAd(Campaign $campaign, $ad_group_id = null)
     {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+
+        return (new $adVendorClass)->storeAd($campaign, $ad_group_id);
+
         $data = [];
 
         $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign['provider_id'])->where('open_id', $campaign['open_id'])->first());
