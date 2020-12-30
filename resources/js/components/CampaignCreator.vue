@@ -82,7 +82,7 @@ export default {
     return {
       isLoading: false,
       fullPage: true,
-      selectedProvider: this.instance ? this.instance.provider : 'taboola',
+      selectedProvider: this.instance ? this.instance.provider : 'yahoo',
       accounts: [],
       selectedAccount: this.instance ? this.instance.open_id : '',
     }
