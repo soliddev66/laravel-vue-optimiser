@@ -133,6 +133,7 @@ class CampaignController extends Controller
                 DB::raw('SUM(profit) as total_net'),
                 DB::raw('(SUM(profit)/SUM(cost)) * 100 as avg_roi'),
             )
+            ->where('campaign_id', $campaign->id)
             ->where('provider_id', $campaign->provider_id)
             ->where('open_id', $campaign->open_id)
             ->whereBetween('date', [request('start'), request('end')]);
