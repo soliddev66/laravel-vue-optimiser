@@ -1,9 +1,14 @@
 <template>
-  <button class="border" :class="classes" @click="click(data)" title="Update">
-    <span>
+  <div>
+    <button class="border" :class="classes" @click="click(data)" title="Update">
+      <span>
         <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': data.status == 'ACTIVE' }"></i>
     </span>
-  </button>
+    </button>
+    <a v-if="newAdBtn" class="btn btn-sm btn-default border" :data-status="data.status" :href="`/campaigns/${data.campaign_id}/ad-groups/${data.ad_group_id}/ads/create`">
+      <i aria-hidden="true" title="Create new ad" class="fas fa-plus"></i>
+    </a>
+  </div>
 </template>
 
 <script>
@@ -14,6 +19,10 @@ export default {
     click: {
       type: Function,
       default: () => {}
+    },
+    newAdBtn: {
+      type: Boolean,
+      default: false
     },
     classes: {
       type: Object,

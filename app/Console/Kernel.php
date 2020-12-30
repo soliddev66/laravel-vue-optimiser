@@ -38,7 +38,7 @@ class Kernel extends ConsoleKernel
         // Report data
         $schedule->call(function () {
             Gemini::crawl();
-        })->everyThirtyMinutes();
+        })->everyTenMinutes();
         $schedule->call(function () {
             Gemini::checkJobs();
         })->everyTenMinutes();

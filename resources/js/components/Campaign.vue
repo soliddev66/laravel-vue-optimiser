@@ -173,6 +173,7 @@ export default {
           label: 'Actions',
           name: 'actions',
           orderable: false,
+          newAdBtn: true,
           classes: {
             'btn': true,
             'btn-primary': false,

@@ -338,8 +338,13 @@ class CampaignController extends Controller
         return view('campaigns.form', compact('instance'));
     }
 
-    public function createCampaignAd(Campaign $campaign, $ad_group_id)
+    public function createCampaignAd($campaign_id, $ad_group_id)
     {
+        $campaign = Campaign::find($campaign_id);
+        if (!$campaign) {
+            $campaign = Campaign::where('campaign_id', $campaign_id)->first();
+        }
+
         return view('campaigns.adForm', compact('campaign', 'ad_group_id'));
     }
 
