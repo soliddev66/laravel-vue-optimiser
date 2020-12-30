@@ -94,6 +94,7 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
+    this.getSummaryData();
     this.getData();
   },
   data() {
@@ -260,6 +261,21 @@ export default {
     },
     reloadDomainData(tableProps) {
       this.getDomainData(tableProps);
+    },
+    getSummaryData() {
+      console.log('asda');
+      this.isLoading = true;
+      axios.get(`/campaigns/${this.campaign.id}/summary`, {
+          params: {...this.targetDate, ... { tracker: this.selectedTracker } }
+        })
+        .then((response) => {
+          this.summaryData = response.data.summary_data;
+        })
+        .catch((err) => {
+          alert(err);
+        }).finally(() => {
+          this.isLoading = false;
+        });
     },
     getWidgetData(options = this.tableProps) {
       this.isLoading = true;

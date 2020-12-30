@@ -483,11 +483,11 @@ class Yahoo extends Root
                 foreach ($data as $i => $value) {
                     $value['date'] = $date;
                     $value['user_id'] = $campaign->user_id;
-                    $value['campaign_id'] = $campaign->id;
                     $value['provider_id'] = $campaign->provider_id;
                     $value['open_id'] = $campaign->open_id;
                     $redtrack_report = RedtrackDomainStat::firstOrNew([
                         'date' => $date,
+                        'campaign_id' => $campaign->id,
                         'sub1' => $value['sub1']
                     ]);
                     foreach (array_keys($value) as $array_key) {
