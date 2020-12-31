@@ -4,21 +4,6 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-body table-responsive">
-            <h1>Pending Jobs</h1>
-            <table id="jobsTable" class="table table-bordered table-hover">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Queue</th>
-                  <th>Status</th>
-                  <th>Payload</th>
-                </tr>
-              </thead>
-              <tbody>
-              </tbody>
-            </table>
-          </div>
-          <div class="card-body table-responsive">
             <h1>Failed Jobs</h1>
             <table id="failedJobsTable" class="table table-bordered table-hover">
               <thead>
