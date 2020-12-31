@@ -360,6 +360,7 @@ class Twitter extends Root
 
     public function pullAdGroup($user_provider)
     {
+        return false;
         $ad_group_ids = [];
 
         Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 1)->chunk(10, function ($campaigns) use ($user_provider, &$ad_group_ids) {

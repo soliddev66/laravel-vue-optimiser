@@ -61,11 +61,11 @@
                 <div class="form-group row">
                   <label for="start_time" class="col-sm-2 control-label mt-2">Start Time</label>
                   <div class="col-lg-4 col-xl-3">
-                    <input type="date" name="start_time" class="form-control" v-model="campaignStartTime" />
+                    <VueCtkDateTimePicker id="start_time" v-model="campaignStartTime" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                   <label for="end_time" class="col-sm-2 control-label mt-2">End Time</label>
                   <div class="col-lg-4 col-xl-3">
-                    <input type="date" name="end_time" class="form-control" v-model="campaignEndTime" />
+                    <VueCtkDateTimePicker id="end_time" v-model="campaignEndTime" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                 </div>
                 <div class="form-group row">

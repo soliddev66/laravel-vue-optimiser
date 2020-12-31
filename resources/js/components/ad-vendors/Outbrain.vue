@@ -84,8 +84,8 @@
                 <div class="form-group row">
                   <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
                   <div class="col-sm-4">
-                    <input type="date" name="start_date" class="form-control" v-model="campaignStartDate" />
-                    <input type="text" name="start_time" class="form-control" v-model="campaignStartTime" placeholder="Example: 12:00 AM" />
+                    <VueCtkDateTimePicker id="start_date" v-model="campaignStartDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
+                    <VueCtkDateTimePicker id="start_time" v-model="campaignStartTime" format="hh:mm a" formatted="hh:mm a" :onlyTime="true" label="Select Time"></VueCtkDateTimePicker>
                   </div>
                   <div class="col-sm-6">
                     Eastern Standard Time (UTC-05:00), NYC
@@ -94,7 +94,7 @@
                 <div class="form-group row" v-if="scheduleType === 'CUSTOM'">
                   <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
                   <div class="col-sm-4">
-                    <input type="date" name="end_date" class="form-control" v-model="campaignEndDate" />
+                    <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                   <div class="col-sm-6"></div>
                 </div>
