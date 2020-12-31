@@ -15,6 +15,7 @@ use App\Models\Job;
 use App\Models\Provider;
 use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
+use App\Vngodev\Helper;
 use Carbon\Carbon;
 use DB;
 use DataTables;
@@ -394,6 +395,7 @@ class CampaignController extends Controller
     public function update(Campaign $campaign)
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        Helper::pullCampaign();
 
         return (new $adVendorClass())->update($campaign);
     }
@@ -444,6 +446,7 @@ class CampaignController extends Controller
     public function delete(Campaign $campaign)
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        Helper::pullCampaign();
 
         return (new $adVendorClass())->delete($campaign);
     }
@@ -458,6 +461,7 @@ class CampaignController extends Controller
     public function store()
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        Helper::pullCampaign();
 
         return (new $adVendorClass())->store();
     }

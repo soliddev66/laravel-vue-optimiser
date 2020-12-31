@@ -85,8 +85,6 @@ class Outbrain extends Root
                 $api->deleteBudget($budget_data);
                 throw $e;
             }
-
-            PullCampaign::dispatch(auth()->user());
         } catch (RequestException $e) {
             $data = [
                 'errors' => [$e->getMessage()]
@@ -142,8 +140,6 @@ class Outbrain extends Root
             if (count($ads) > 0) {
                 $ad_data = $api->createAds($campaign_data, $ads);
             }
-
-            PullCampaign::dispatch(auth()->user());
         } catch (RequestException $e) {
             $data = [
                 'errors' => [$e->getMessage()]

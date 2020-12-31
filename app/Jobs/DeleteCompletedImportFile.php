@@ -32,6 +32,8 @@ class DeleteCompletedImportFile implements ShouldQueue
      */
     public function handle()
     {
-        unlink(public_path('reports/' . $this->file_name));
+        if (file_exists(public_path('reports/' . $this->file_name))) {
+            unlink(public_path('reports/' . $this->file_name));
+        }
     }
 }

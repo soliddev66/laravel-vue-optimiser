@@ -137,8 +137,6 @@ class Yahoo extends Root
                 $api->deleteAds($ad_ids);
                 throw $e;
             }
-
-            PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
             return [
                 'errors' => [$e->getMessage()]
@@ -193,8 +191,6 @@ class Yahoo extends Root
 
             $api->deleteAttributes();
             $api->createAttributes($campaign_data);
-
-            PullCampaign::dispatch(auth()->user());
         } catch (Exception $e) {
             return [
                 'errors' => [$e->getMessage()]
