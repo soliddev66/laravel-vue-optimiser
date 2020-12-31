@@ -85,7 +85,7 @@
                   <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
                   <div class="col-sm-4">
                     <VueCtkDateTimePicker id="start_date" v-model="campaignStartDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
-                    <VueCtkDateTimePicker id="start_time" v-model="campaignStartTime" format="hh:mm a" formatted="hh:mm a" :onlyTime="true" label="Select Time"></VueCtkDateTimePicker>
+                    <VueCtkDateTimePicker id="start_time" v-model="campaignStartTime" format="hh:mm a" formatted="hh:mm a" :onlyTime="true" locale="en" label="Select Time"></VueCtkDateTimePicker>
                   </div>
                   <div class="col-sm-6">
                     Eastern Standard Time (UTC-05:00), NYC
