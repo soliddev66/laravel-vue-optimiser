@@ -10,7 +10,6 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Str;
 
 use App\Models\User;
-use App\Models\AdGroup;
 use App\Models\Campaign;
 use App\Models\Provider;
 use App\Models\UserTracker;
