@@ -270,6 +270,30 @@ class GeminiAPI
             }
         }
 
+        if (!empty(request('campaignSupplyGroup1A'))) {
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_1_A', 'bidModifier' => request('campaignSupplyGroup1A')];
+        }
+
+        if (!empty(request('campaignSupplyGroup1B'))) {
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_1_B', 'bidModifier' => request('campaignSupplyGroup1B')];
+        }
+
+        if (!empty(request('campaignSupplyGroup2A'))) {
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_A', 'bidModifier' => request('campaignSupplyGroup2A')];
+        }
+
+        if (!empty(request('campaignSupplyGroup2B'))) {
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_B', 'bidModifier' => request('campaignSupplyGroup2B')];
+        }
+
+        if (!empty(request('campaignSupplyGroup3A'))) {
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_A', 'bidModifier' => request('campaignSupplyGroup3A')];
+        }
+
+        if (!empty(request('campaignSupplyGroup3B'))) {
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_B', 'bidModifier' => request('campaignSupplyGroup3B')];
+        }
+
         return $this->client->call('POST', 'targetingattribute', $request_body);
     }
 }
