@@ -110,11 +110,11 @@
                 <div class="form-group row">
                   <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
                   <div class="col-sm-3">
-                    <input type="date" name="start_date" class="form-control" v-model="campaignStartDate" />
+                    <VueCtkDateTimePicker id="start_date" v-model="campaignStartDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                   <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
                   <div class="col-sm-3">
-                    <input type="date" name="end_date" class="form-control" v-model="campaignEndDate" />
+                    <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                 </div>
               </div>
@@ -193,10 +193,12 @@
 
 <script>
 import _ from 'lodash'
+import VueCtkDateTimePicker from 'vue-ctk-date-time-picker'
 import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
+import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css'
 import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
@@ -228,6 +230,7 @@ export default {
   },
   components: {
     Loading,
+    VueCtkDateTimePicker,
     Select2
   },
   computed: {
@@ -291,9 +294,11 @@ export default {
       ],
       campaignCountryTargeting: this.instance && this.instance.country_targeting.type == 'INCLUDE' ? this.instance.country_targeting.value : [],
       countries: [],
-      campaignStartDate: this.instance ? this.instance.start_date : this.formatDate(new Date()),
+      campaignStartDate: this.instance ? this.instance.start_date : this.$moment().format('YYYY-MM-DD'),
       campaignEndDate: this.instance && this.instance.end_date != '9999-12-31' ? this.instance.end_date : '',
       campaignPlatformTargeting: this.instance && this.instance.platform_targeting.type == 'INCLUDE' ? this.instance.platform_targeting.value : [],
+      campaignEndDate: '',
+      campaignPlatformTargeting: [],
       devices: [{
         id: '',
         text: 'All',
@@ -355,19 +360,6 @@ export default {
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g
       return !!pattern.test(str)
-    },
-    formatDate(date) {
-      var d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-      if (month.length < 2)
-          month = '0' + month;
-      if (day.length < 2)
-          day = '0' + day;
-
-      return [year, month, day].join('-');
     },
     addCampaignItem(index) {
       this.campaignItems.push({ url: '' })
