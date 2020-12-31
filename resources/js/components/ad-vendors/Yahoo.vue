@@ -169,11 +169,11 @@
                 <div class="form-group row" v-if="scheduleType === 'CUSTOM'">
                   <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
                   <div class="col-sm-4">
-                    <input type="date" name="start_date" class="form-control" v-model="campaignStartDate" />
+                    <VueCtkDateTimePicker id="start_date" v-model="campaignStartDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                   <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
                   <div class="col-sm-4">
-                    <input type="date" name="end_date" class="form-control" v-model="campaignEndDate" />
+                    <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                 </div>
               </div>
@@ -337,10 +337,12 @@
 
 <script>
 import _ from 'lodash'
+import VueCtkDateTimePicker from 'vue-ctk-date-time-picker'
 import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
+import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css'
 import 'vue-loading-overlay/dist/vue-loading.css'
 
 let adPreviewCancels = []
@@ -374,6 +376,7 @@ export default {
   },
   components: {
     Loading,
+    VueCtkDateTimePicker,
     Select2
   },
   computed: {

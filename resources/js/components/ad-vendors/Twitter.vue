@@ -328,10 +328,12 @@
 
 <script>
 import _ from 'lodash'
+import VueCtkDateTimePicker from 'vue-ctk-date-time-picker'
 import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
+import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css'
 import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
@@ -363,6 +365,7 @@ export default {
   },
   components: {
     Loading,
+    VueCtkDateTimePicker,
     Select2
   },
   computed: {
