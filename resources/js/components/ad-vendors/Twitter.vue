@@ -449,7 +449,7 @@ export default {
       selectedAdvertiser: this.instance ? this.instance.advertiser_id : '',
       selectedFundingInstrument: this.instance ? this.instance.funding_instrument_id : '',
       campaignName: this.instance ? this.instance.name : '',
-      campaignStartTime: this.instance && this.instance.start_time ? this.instance.start_time.date.split(' ')[0] : this.formatDate(new Date()),
+      campaignStartTime: this.instance && this.instance.start_time ? this.instance.start_time.date.split(' ')[0] : this.$moment().format('YYYY-MM-DD'),
       campaignEndTime: this.instance && this.instance.end_time ? this.instance.end_time.date.split(' ')[0] : '',
       campaignDailyBudgetAmountLocalMicro: this.instance ? this.instance.daily_budget_amount_local_micro / 1e6 : '',
       campaignTotalBudgetAmountLocalMicro: this.instance && this.instance.total_budget_amount_local_micro ? this.instance.total_budget_amount_local_micro / 1e6 : '',
@@ -493,19 +493,6 @@ export default {
     }
   },
   methods: {
-    formatDate(date) {
-      var d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-      if (month.length < 2)
-          month = '0' + month;
-      if (day.length < 2)
-          day = '0' + day;
-
-      return [year, month, day].join('-');
-    },
     selectedAdvertiserChange() {
       this.loadFundingInstruments();
       this.loadAdGroupCategories();

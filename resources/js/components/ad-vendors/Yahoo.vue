@@ -150,7 +150,7 @@
                 <div class="form-group row">
                   <label for="bid_cpc" class="col-sm-2 control-label mt-2">Bid (CPC)</label>
                   <div class="col-sm-8">
-                    <input type="number" name="bid_cpc" min="0.05" class="form-control" v-model="bidAmount" />
+                    <input type="number" name="bid_cpc" min="1" class="form-control" v-model="bidAmount" />
                   </div>
                 </div>
                 <div class="form-group row">
@@ -455,7 +455,7 @@ export default {
       campaignAge = [],
       campaignDevice = [],
       adGroupName = '',
-      bidAmount = '1',
+      bidAmount = 1,
       campaignLocation = [],
       adGroupID = '',
       dataAttributes = [],
@@ -592,7 +592,7 @@ export default {
       campaignAge: campaignAge,
       campaignDevice: campaignDevice,
       campaignBudget: this.instance ? this.instance.budget : '',
-      campaignStartDate: this.instance ? this.instance.start_date : this.formatDate(new Date()),
+      campaignStartDate: this.instance ? this.instance.start_date : this.$moment().format('YYYY-MM-DD'),
       campaignEndDate: this.instance ? this.instance.end_date : '',
       campaignBudgetType: this.instance ? this.instance.budgetType : 'DAILY',
       campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_CLICK',
@@ -632,19 +632,6 @@ export default {
         };
         image.src = imageUrl;
       });
-    },
-    formatDate(date) {
-      var d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-      if (month.length < 2)
-          month = '0' + month;
-      if (day.length < 2)
-          day = '0' + day;
-
-      return [year, month, day].join('-');
     },
     addContent() {
       this.contents.push({

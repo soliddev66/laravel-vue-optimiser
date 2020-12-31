@@ -239,7 +239,7 @@ export default {
       ],
       campaignCountryTargeting: [],
       countries: [],
-      campaignStartDate: this.formatDate(new Date()),
+      campaignStartDate: this.$moment().format('YYYY-MM-DD'),
       campaignEndDate: '',
       campaignPlatformTargeting: [],
       devices: [{
@@ -295,19 +295,6 @@ export default {
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g
       return !!pattern.test(str)
-    },
-    formatDate(date) {
-      var d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-      if (month.length < 2)
-          month = '0' + month;
-      if (day.length < 2)
-          day = '0' + day;
-
-      return [year, month, day].join('-');
     },
     addCampaignItem(index) {
       this.campaignItems.push({ url: '' })
