@@ -150,7 +150,21 @@ class Taboola extends Root
 
     public function getCampaignInstance(Campaign $campaign)
     {
-        //
+        try {
+            $api = new TaboolaAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+
+            $instance = $api->getCampaign($campaign->advertiser_id, $campaign->campaign_id);
+
+            $instance['provider'] = $campaign->provider->slug;
+            $instance['provider_id'] = $campaign['provider_id'];
+            $instance['open_id'] = $campaign['open_id'];
+            $instance['instance_id'] = $campaign['id'];
+            $instance['items'] = $api->getCampaignItems($campaign->advertiser_id, $campaign->campaign_id)['results'];
+
+            return $instance;
+        } catch (Exception $e) {
+            return [];
+        }
     }
 
     public function cloneCampaignName(&$instance)
