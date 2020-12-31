@@ -84,8 +84,8 @@
                 <div class="form-group row">
                   <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
                   <div class="col-sm-4">
-                    <input type="date" name="start_date" class="form-control" v-model="campaignStartDate" />
-                    <input type="text" name="start_time" class="form-control" v-model="campaignStartTime" placeholder="Example: 12:00 AM" />
+                    <VueCtkDateTimePicker id="start_date" v-model="campaignStartDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
+                    <VueCtkDateTimePicker id="start_time" v-model="campaignStartTime" format="hh:mm a" formatted="hh:mm a" :onlyTime="true" locale="en" label="Select Time"></VueCtkDateTimePicker>
                   </div>
                   <div class="col-sm-6">
                     Eastern Standard Time (UTC-05:00), NYC
@@ -94,7 +94,7 @@
                 <div class="form-group row" v-if="scheduleType === 'CUSTOM'">
                   <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
                   <div class="col-sm-4">
-                    <input type="date" name="end_date" class="form-control" v-model="campaignEndDate" />
+                    <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                   <div class="col-sm-6"></div>
                 </div>
@@ -381,10 +381,12 @@
 
 <script>
 import _ from 'lodash'
+import VueCtkDateTimePicker from 'vue-ctk-date-time-picker'
 import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
+import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css'
 import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
@@ -416,6 +418,7 @@ export default {
   },
   components: {
     Loading,
+    VueCtkDateTimePicker,
     Select2
   },
   computed: {
@@ -554,7 +557,7 @@ export default {
       campaignBudget: this.instance ? this.instance.budget.amount : 20,
       campaignCostPerClick: this.instance ? this.instance.cpc : '',
       campaignPacing: this.instance ? this.instance.budget.pacing : 'SPEND_ASAP',
-      campaignStartDate: this.instance ? this.instance.budget.startDate : '',
+      campaignStartDate: this.instance ? this.instance.budget.startDate : this.$moment().format('YYYY-MM-DD'),
       campaignStartTime: this.instance ? this.instance.startHour : '',
       campaignEndDate: this.instance && !this.instance.budget.runForever ? this.instance.budget.endDate : '',
       platforms: ['DESKTOP', 'MOBILE', 'TABLET'],

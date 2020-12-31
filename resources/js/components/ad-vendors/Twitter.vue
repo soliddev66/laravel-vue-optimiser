@@ -61,11 +61,11 @@
                 <div class="form-group row">
                   <label for="start_time" class="col-sm-2 control-label mt-2">Start Time</label>
                   <div class="col-lg-4 col-xl-3">
-                    <input type="date" name="start_time" class="form-control" v-model="campaignStartTime" />
+                    <VueCtkDateTimePicker id="start_time" v-model="campaignStartTime" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                   <label for="end_time" class="col-sm-2 control-label mt-2">End Time</label>
                   <div class="col-lg-4 col-xl-3">
-                    <input type="date" name="end_time" class="form-control" v-model="campaignEndTime" />
+                    <VueCtkDateTimePicker id="end_time" v-model="campaignEndTime" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -104,11 +104,11 @@
                 <div class="form-group row">
                   <label for="ad_group_start_time" class="col-sm-2 control-label mt-2">Start Time</label>
                   <div class="col-lg-4 col-xl-3">
-                    <input type="date" name="start_time" class="form-control" v-model="adGroupStartTime" />
+                    <VueCtkDateTimePicker id="ad_group_start_time" v-model="adGroupStartTime" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                   <label for="ad_group_end_time" class="col-sm-2 control-label mt-2">End Time</label>
                   <div class="col-lg-4 col-xl-3">
-                    <input type="date" name="end_time" class="form-control" v-model="adGroupEndTime" />
+                    <VueCtkDateTimePicker id="ad_group_end_time" v-model="adGroupEndTime" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -328,10 +328,12 @@
 
 <script>
 import _ from 'lodash'
+import VueCtkDateTimePicker from 'vue-ctk-date-time-picker'
 import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
+import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css'
 import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
@@ -363,6 +365,7 @@ export default {
   },
   components: {
     Loading,
+    VueCtkDateTimePicker,
     Select2
   },
   computed: {
@@ -449,7 +452,7 @@ export default {
       selectedAdvertiser: this.instance ? this.instance.advertiser_id : '',
       selectedFundingInstrument: this.instance ? this.instance.funding_instrument_id : '',
       campaignName: this.instance ? this.instance.name : '',
-      campaignStartTime: this.instance && this.instance.start_time ? this.instance.start_time.date.split(' ')[0] : '',
+      campaignStartTime: this.instance && this.instance.start_time ? this.instance.start_time.date.split(' ')[0] : this.$moment().format('YYYY-MM-DD'),
       campaignEndTime: this.instance && this.instance.end_time ? this.instance.end_time.date.split(' ')[0] : '',
       campaignDailyBudgetAmountLocalMicro: this.instance ? this.instance.daily_budget_amount_local_micro / 1e6 : '',
       campaignTotalBudgetAmountLocalMicro: this.instance && this.instance.total_budget_amount_local_micro ? this.instance.total_budget_amount_local_micro / 1e6 : '',

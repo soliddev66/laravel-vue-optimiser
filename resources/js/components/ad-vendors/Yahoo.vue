@@ -150,7 +150,7 @@
                 <div class="form-group row">
                   <label for="bid_cpc" class="col-sm-2 control-label mt-2">Bid (CPC)</label>
                   <div class="col-sm-8">
-                    <input type="number" name="bid_cpc" min="0.05" class="form-control" v-model="bidAmount" />
+                    <input type="number" name="bid_cpc" min="1" class="form-control" v-model="bidAmount" />
                   </div>
                 </div>
                 <div class="form-group row">
@@ -169,11 +169,11 @@
                 <div class="form-group row" v-if="scheduleType === 'CUSTOM'">
                   <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
                   <div class="col-sm-4">
-                    <input type="date" name="start_date" class="form-control" v-model="campaignStartDate" />
+                    <VueCtkDateTimePicker id="start_date" v-model="campaignStartDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                   <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
                   <div class="col-sm-4">
-                    <input type="date" name="end_date" class="form-control" v-model="campaignEndDate" />
+                    <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                 </div>
               </div>
@@ -337,10 +337,12 @@
 
 <script>
 import _ from 'lodash'
+import VueCtkDateTimePicker from 'vue-ctk-date-time-picker'
 import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
+import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css'
 import 'vue-loading-overlay/dist/vue-loading.css'
 
 let adPreviewCancels = []
@@ -374,6 +376,7 @@ export default {
   },
   components: {
     Loading,
+    VueCtkDateTimePicker,
     Select2
   },
   computed: {
@@ -455,7 +458,7 @@ export default {
       campaignAge = [],
       campaignDevice = [],
       adGroupName = '',
-      bidAmount = '0.05',
+      bidAmount = 1,
       campaignLocation = [],
       adGroupID = '',
       dataAttributes = [],
@@ -585,17 +588,17 @@ export default {
       actionName: this.action,
       selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
       campaignName: this.instance ? this.instance.campaignName : '',
-      campaignType: this.instance ? this.instance.channel : 'SEARCH_AND_NATIVE',
+      campaignType: this.instance ? this.instance.channel : 'NATIVE',
       campaignLanguage: this.instance ? this.instance.language : 'en',
       campaignLocation: campaignLocation,
       campaignGender: campaignGender,
       campaignAge: campaignAge,
       campaignDevice: campaignDevice,
       campaignBudget: this.instance ? this.instance.budget : '',
-      campaignStartDate: '',
-      campaignEndDate: '',
+      campaignStartDate: this.instance ? this.instance.start_date : this.$moment().format('YYYY-MM-DD'),
+      campaignEndDate: this.instance ? this.instance.end_date : '',
       campaignBudgetType: this.instance ? this.instance.budgetType : 'DAILY',
-      campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_ENHANCED_CPC',
+      campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_CLICK',
       campaignConversionCounting: this.instance ? this.instance.conversionRuleConfig.conversionCounting : 'ALL_PER_INTERACTION',
       adGroupID: adGroupID,
       adGroupName: adGroupName,

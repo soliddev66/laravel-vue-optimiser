@@ -1,0 +1,1 @@
+export { default as yahoo } from './Yahoo.vue'
