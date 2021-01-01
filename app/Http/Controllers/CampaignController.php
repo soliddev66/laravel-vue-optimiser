@@ -9,7 +9,6 @@ use App\Models\AdGroup;
 use App\Models\Campaign;
 use App\Models\FailedJob;
 use App\Models\GeminiDomainPerformanceStat;
-use App\Models\GeminiPerformanceStat;
 use App\Models\GeminiSitePerformanceStat;
 use App\Models\Provider;
 use App\Models\RedtrackDomainStat;
@@ -18,7 +17,6 @@ use App\Vngodev\Helper;
 use Carbon\Carbon;
 use DataTables;
 use DB;
-use Exception;
 use Illuminate\Support\Facades\Queue;
 use JamesDordoy\LaravelVueDatatable\Http\Resources\DataTableCollectionResource;
 use Maatwebsite\Excel\Facades\Excel;
@@ -56,11 +54,11 @@ class CampaignController extends Controller
                     DB::raw('ROUND((SUM(total_conversions)/SUM(lp_views)) * 100, 2) as lp_views_cr'),
                     DB::raw('ROUND((SUM(total_conversions)/SUM(lp_clicks)) * 100, 2) as lp_clicks_cr'),
                     DB::raw('ROUND(SUM(cost)/SUM(lp_clicks), 2) as lp_cpc')
-                )
-                    ->leftJoin('redtrack_reports', function ($join) {
-                        $join->on('redtrack_reports.campaign_id', '=', 'campaigns.id')->whereBetween('redtrack_reports.date', [request('start'), request('end')]);
-                    })
-                    ->leftJoin('providers', 'providers.id', '=', 'campaigns.provider_id');
+                );
+                $campaigns_query->leftJoin('redtrack_reports', function ($join) {
+                    $join->on('redtrack_reports.campaign_id', '=', 'campaigns.id')->whereBetween('redtrack_reports.date', [request('start'), request('end')]);
+                });
+                $campaigns_query->leftJoin('providers', 'providers.id', '=', 'campaigns.provider_id');
                 if (request('provider')) {
                     $campaigns_query->where('campaigns.provider_id', request('provider'));
                 }
@@ -284,20 +282,10 @@ class CampaignController extends Controller
                 $summary_data_query->where('open_id', request('account'));
             }
         } else {
-            // TO-DO: Update this
-            $summary_data_query = GeminiPerformanceStat::with('campaign')->select(
-                DB::raw('SUM(spend) as total_cost'),
-                DB::raw('0 as total_revenue'),
-                DB::raw('0 - SUM(spend) as total_net'),
-                DB::raw('-100 as avg_roi')
-            );
-            $summary_data_query->whereBetween('day', [request('start'), request('end')]);
-            if (request('provider')) {
-                $summary_data_query->where('provider_id', request('provider'));
-            }
-            if (request('account')) {
-                $summary_data_query->where('open_id', request('account'));
-            }
+            $provider = Provider::where('id', request('provider'))->first();
+            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
+
+            $summary_data_query = (new $adVendorClass())->getSummaryDataQuery(request()->all());
         }
 
         $accounts = [];
@@ -361,7 +349,7 @@ class CampaignController extends Controller
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass)->storeAd($campaign, $ad_group_id);
+        return (new $adVendorClass())->storeAd($campaign, $ad_group_id);
     }
 
     public function edit(Campaign $campaign)

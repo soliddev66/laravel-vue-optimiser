@@ -5,10 +5,12 @@ namespace App\Utils\AdVendors;
 use App\Endpoints\OutbrainAPI;
 use App\Jobs\PullCampaign;
 use App\Models\Campaign;
+use App\Models\OutbrainReport;
 use App\Models\Provider;
 use App\Models\RedtrackReport;
 use App\Models\UserTracker;
 use Carbon\Carbon;
+use DB;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -283,5 +285,27 @@ class Outbrain extends Root
                 $redtrack_report->save();
             }
         }
+    }
+
+    public function getSummaryDataQuery($data)
+    {
+        $summary_data_query = OutbrainReport::select(
+            DB::raw('SUM(JSON_EXTRACT(data, "$.summary.spend")) as total_cost'),
+            DB::raw('"N/A" as total_revenue'),
+            DB::raw('"N/A" as total_net'),
+            DB::raw('"N/A" as avg_roi')
+        );
+        $summary_data_query->leftJoin('campaigns', function ($join) use ($data) {
+            $join->on('campaigns.id', '=', 'outbrain_reports.campaign_id');
+            if ($data['provider']) {
+                $join->where('campaigns.provider_id', $data['provider']);
+            }
+            if ($data['account']) {
+                $join->where('campaigns.open_id', $data['account']);
+            }
+        });
+        $summary_data_query->whereBetween('date', [request('start'), request('end')]);
+
+        return $summary_data_query;
     }
 }

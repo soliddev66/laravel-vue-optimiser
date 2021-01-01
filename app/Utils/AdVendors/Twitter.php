@@ -4,6 +4,7 @@ namespace App\Utils\AdVendors;
 
 use Exception;
 use Log;
+use DB;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -16,11 +17,11 @@ use App\Models\Provider;
 use App\Models\UserTracker;
 use App\Models\RedtrackReport;
 use App\Endpoints\TwitterAPI;
-
-use App\Jobs\PullCampaign;
-use App\Jobs\DeleteCampaign;
 use App\Jobs\DeleteAdGroup;
+use App\Jobs\DeleteCampaign;
 use App\Jobs\DeleteCard;
+use App\Jobs\PullCampaign;
+use App\Models\TwitterReport;
 
 use Hborras\TwitterAdsSDK\TwitterAdsException;
 
@@ -29,6 +30,7 @@ class Twitter extends Root
     private function api()
     {
         $provider = Provider::where('slug', request('provider'))->first();
+
         return new TwitterAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first(), request('advertiser') ?? null);
     }
 
@@ -44,6 +46,7 @@ class Twitter extends Root
                 'name' => $advertiser->getName()
             ];
         }
+
         return $result;
     }
 
@@ -113,6 +116,7 @@ class Twitter extends Root
                 'name' => $funding_instrument->getName()
             ];
         }
+
         return $result;
     }
 
@@ -159,7 +163,7 @@ class Twitter extends Root
         return [];
     }
 
-    private function rollback($campaign_data = null,  $line_item_data = null, $card_data = null)
+    private function rollback($campaign_data = null, $line_item_data = null, $card_data = null)
     {
         if ($campaign_data) {
             DeleteCampaign::dispatch(auth()->user(), $campaign_data->getId(), request('provider'), request('account'), request('advertiser'));
@@ -297,7 +301,7 @@ class Twitter extends Root
         return response()->json([
             'ad_groups' => $ad_groups,
             'ads' => $ads,
-            'summary_data' => new \stdClass
+            'summary_data' => new \stdClass()
         ]);
     }
 
@@ -444,5 +448,27 @@ class Twitter extends Root
                 $redtrack_report->save();
             }
         }
+    }
+
+    public function getSummaryDataQuery($data)
+    {
+        $summary_data_query = TwitterReport::select(
+            DB::raw('ROUND(SUM(JSON_EXTRACT(data, "$[0].metrics.billed_charge_local_micro[0]") / 1000000), 2) as total_cost'),
+            DB::raw('"N/A" as total_revenue'),
+            DB::raw('"N/A" as total_net'),
+            DB::raw('"N/A" as avg_roi')
+        );
+        $summary_data_query->leftJoin('campaigns', function ($join) use ($data) {
+            $join->on('campaigns.id', '=', 'twitter_reports.campaign_id');
+            if ($data['provider']) {
+                $join->where('campaigns.provider_id', $data['provider']);
+            }
+            if ($data['account']) {
+                $join->where('campaigns.open_id', $data['account']);
+            }
+        });
+        $summary_data_query->whereBetween('end_time', [request('start'), request('end')]);
+
+        return $summary_data_query;
     }
 }
