@@ -17,7 +17,7 @@ class CreateAdGroupsTable extends Migration
             $table->id();
             $table->integer('user_id');
             $table->integer('provider_id');
-            $table->integer('campaign_id');
+            $table->string('campaign_id');
             $table->string('advertiser_id');
             $table->string('open_id');
             $table->string('ad_group_id');

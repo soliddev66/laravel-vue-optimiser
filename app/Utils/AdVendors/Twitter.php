@@ -362,10 +362,9 @@ class Twitter extends Root
     {
         $ad_group_ids = [];
 
-        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 1)->chunk(10, function ($campaigns) use ($user_provider, &$ad_group_ids) {
+        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($campaigns) use ($user_provider, &$ad_group_ids) {
             foreach ($campaigns as $campaign) {
-                $ad_groups = (new TwitterAPI($user_provider, $campaign->campaign_id))->getAdGroups($campaign->campaign_id);
-
+                $ad_groups = (new TwitterAPI($user_provider, $campaign->advertiser_id))->getAdGroups($campaign->campaign_id);
                 foreach ($ad_groups as $ad_group) {
                     $db_ad_group = AdGroup::firstOrNew([
                         'ad_group_id' => $ad_group->getId(),
