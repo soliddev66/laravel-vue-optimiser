@@ -78,6 +78,9 @@ class Kernel extends ConsoleKernel
 
         // Jobs retry
         $schedule->command('queue:retry all')->everyFifteenMinutes();
+
+        // Failed jobs clear
+        $schedule->command('queue:flush')->hourly();
     }
 
     /**
