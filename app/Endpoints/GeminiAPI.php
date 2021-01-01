@@ -299,7 +299,7 @@ class GeminiAPI
 
             if (count($campaign_site_blocks) > 0) {
                 foreach ($campaign_site_blocks as $item) {
-                    $request_body[] = $body + ['type' => 'SITE_BLOCK', 'value' => trim($item)];
+                    $request_body[] = $body + ['type' => 'SITE_BLOCK', 'exclude' => 'TRUE', 'value' => trim($item)];
                 }
             }
         }
