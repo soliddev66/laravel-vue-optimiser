@@ -2,21 +2,27 @@
 
 namespace App\Utils\AdVendors;
 
+use Exception;
+use Log;
+use DB;
+
+use Carbon\Carbon;
+use GuzzleHttp\Client;
+use Illuminate\Support\Str;
+
+use App\Models\User;
+use App\Models\AdGroup;
+use App\Models\Campaign;
+use App\Models\Provider;
+use App\Models\UserTracker;
+use App\Models\RedtrackReport;
 use App\Endpoints\TwitterAPI;
 use App\Jobs\DeleteAdGroup;
 use App\Jobs\DeleteCampaign;
 use App\Jobs\DeleteCard;
 use App\Jobs\PullCampaign;
-use App\Models\Campaign;
-use App\Models\Provider;
-use App\Models\RedtrackReport;
 use App\Models\TwitterReport;
-use App\Models\User;
-use App\Models\UserTracker;
-use Carbon\Carbon;
-use DB;
-use Exception;
-use GuzzleHttp\Client;
+
 use Hborras\TwitterAdsSDK\TwitterAdsException;
 
 class Twitter extends Root
@@ -358,7 +364,34 @@ class Twitter extends Root
 
     public function pullAdGroup($user_provider)
     {
-        //
+        $ad_group_ids = [];
+
+        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($campaigns) use ($user_provider, &$ad_group_ids) {
+            foreach ($campaigns as $campaign) {
+                $ad_groups = (new TwitterAPI($user_provider, $campaign->advertiser_id))->getAdGroups($campaign->campaign_id);
+                foreach ($ad_groups as $ad_group) {
+                    $db_ad_group = AdGroup::firstOrNew([
+                        'ad_group_id' => $ad_group->getId(),
+                        'user_id' => $user_provider->user_id,
+                        'provider_id' => $user_provider->provider_id,
+                        'campaign_id' => $campaign->campaign_id,
+                        'advertiser_id' => $campaign->advertiser_id,
+                        'open_id' => $user_provider->open_id
+                    ]);
+
+                    $db_ad_group->name = $ad_group->getName();
+                    $db_ad_group->status = $ad_group->getEntityStatus();
+                    $db_ad_group->save();
+                    $ad_group_ids[] = $db_ad_group->id;
+                }
+            }
+        });
+
+        AdGroup::where([
+            'user_id' => $user_provider->user_id,
+            'provider_id' => $user_provider->provider_id,
+            'open_id' => $user_provider->open_id
+        ])->whereNotIn('id', $ad_group_ids)->delete();
     }
 
     public function pullAd($user_provider)
