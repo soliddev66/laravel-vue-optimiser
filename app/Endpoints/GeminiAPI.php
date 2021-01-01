@@ -294,6 +294,16 @@ class GeminiAPI
             $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_B', 'bidModifier' => request('campaignSupplyGroup3B')];
         }
 
+        if (!empty(request('campaignSiteBlock'))) {
+            $campaign_site_blocks = explode(',', request('campaignSiteBlock'));
+
+            if (count($campaign_site_blocks) > 0) {
+                foreach ($campaign_site_blocks as $item) {
+                    $request_body[] = $body + ['type' => 'SITE_BLOCK', 'value' => trim($item)];
+                }
+            }
+        }
+
         return $this->client->call('POST', 'targetingattribute', $request_body);
     }
 }
