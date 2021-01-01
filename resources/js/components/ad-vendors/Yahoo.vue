@@ -78,19 +78,19 @@
                 <div class="form-group row">
                   <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
                   <div class="col-sm-8">
-                    <select2 id="gender" name="gender" v-model="campaignGender" :options="genders" :settings="{ multiple: true }" />
+                    <select2 id="gender" name="gender" v-model="campaignGender" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
                 <div class="form-group row">
                   <label for="age" class="col-sm-2 control-label mt-2">Age</label>
                   <div class="col-sm-8">
-                    <select2 id="age" name="age" v-model="campaignAge" :options="ages" :settings="{ multiple: true }" />
+                    <select2 id="age" name="age" v-model="campaignAge" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device</label>
                   <div class="col-sm-8">
-                    <select2 name="device" v-model="campaignDevice" :options="devices" :settings="{ multiple: true }" />
+                    <select2 name="device" v-model="campaignDevice" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
                 <h2>Campaign settings</h2>
@@ -125,6 +125,61 @@
                     </select>
                   </div>
                 </div>
+
+                <div class="form-group row">
+                  <label for="bid_adjustment" class="col-sm-2 control-label mt-2">Native Network Partners</label>
+                  <div class="col-sm-8">
+                    <div class="row">
+                      <label class="col-sm-4 control-label mt-2">Publisher group</label>
+                      <label class="col-sm-8 control-label mt-2">Bid Adjustment</label>
+                    </div>
+                    <div class="row">
+                      <label for="bid_adjustment_group_1a" class="col-sm-4 control-label mt-2">Group 1A</label>
+                      <div class="col-sm-8">
+                        <input type="number" name="bid_adjustment_group_1a" class="form-control" v-model="campaignSupplyGroup1A" />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <label for="bid_adjustment_group_1b" class="col-sm-4 control-label mt-2">Group 1B</label>
+                      <div class="col-sm-8">
+                        <input type="number" name="bid_adjustment_group_1b" class="form-control" v-model="campaignSupplyGroup1B" />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <label for="bid_adjustment_group_2a" class="col-sm-4 control-label mt-2">Group 2A</label>
+                      <div class="col-sm-8">
+                        <input type="number" name="bid_adjustment_group_2a" class="form-control" v-model="campaignSupplyGroup2A" />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <label for="bid_adjustment_group_2b" class="col-sm-4 control-label mt-2">Group 2B</label>
+                      <div class="col-sm-8">
+                        <input type="number" name="bid_adjustment_group_2b" class="form-control" v-model="campaignSupplyGroup2B" />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <label for="bid_adjustment_group_3a" class="col-sm-4 control-label mt-2">Group 3A</label>
+                      <div class="col-sm-8">
+                        <input type="number" name="bid_adjustment_group_3a" class="form-control" v-model="campaignSupplyGroup3A" />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <label for="bid_adjustment_group_3b" class="col-sm-4 control-label mt-2">Group 3B</label>
+                      <div class="col-sm-8">
+                        <input type="number" name="bid_adjustment_group_3b" class="form-control" v-model="campaignSupplyGroup3B" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="site_block" class="col-sm-2 control-label mt-2">Site blocks</label>
+                  <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" placeholder="Enter site block" v-model="campaignSiteBlock" :disabled="actionName == 'edit'"></textarea>
+                    <small>Separate sites by comma</small>
+                  </div>
+                </div>
+
                 <div class="form-group row">
                   <label for="conversion_counting" class="col-sm-2 control-label mt-2">Conversion counting</label>
                   <div class="col-sm-8">
@@ -274,7 +329,7 @@
                 <div class="form-group row">
                   <label for="variantGender" class="col-sm-4 control-label mt-2">Gender</label>
                   <div class="col-sm-8">
-                    <select2 id="variantGender" name="variantGender" v-model="campaignGender" :options="genders" :settings="{ multiple: true }" />
+                    <select2 id="variantGender" name="variantGender" v-model="campaignGender" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
               </div>
@@ -282,7 +337,7 @@
                 <div class="form-group row">
                   <label for="variantAge" class="col-sm-4 control-label mt-2">Age</label>
                   <div class="col-sm-8">
-                    <select2 id="variantAge" name="variantAge" v-model="campaignAge" :options="ages" :settings="{ multiple: true }" />
+                    <select2 id="variantAge" name="variantAge" v-model="campaignAge" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
               </div>
@@ -290,7 +345,7 @@
                 <div class="form-group row">
                   <label for="variantDevice" class="col-sm-4 control-label mt-2">Device</label>
                   <div class="col-sm-8">
-                    <select2 id="variantDevice" name="variantDevice" v-model="campaignDevice" :options="devices" :settings="{ multiple: true }" />
+                    <select2 id="variantDevice" name="variantDevice" v-model="campaignDevice" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
               </div>
@@ -462,6 +517,13 @@ export default {
       campaignLocation = [],
       adGroupID = '',
       dataAttributes = [],
+      campaignSupplyGroup1A = '',
+      campaignSupplyGroup1B = '',
+      campaignSupplyGroup2A = '',
+      campaignSupplyGroup2B = '',
+      campaignSupplyGroup3A = '',
+      campaignSupplyGroup3B = '',
+      campaignSiteBlock = '',
       contents = [{
         id: '',
         titles: [{
@@ -482,7 +544,10 @@ export default {
         adPreviews: []
       }];
     if (this.instance) {
+      let siteBlock = [];
+
       this.instance.attributes.forEach(attribute => {
+        console.log(attribute)
         if (attribute.type === 'GENDER') {
           campaignGender.push(attribute.value);
         } else if (attribute.type === 'AGE') {
@@ -491,9 +556,31 @@ export default {
           campaignDevice.push(attribute.value);
         } else if (attribute.type === 'WOEID') {
           campaignLocation.push(attribute.value);
+        } else if (attribute.type === 'SUPPLY_GROUP') {
+          if (attribute.value === 'GROUP_1_A') {
+            campaignSupplyGroup1A = attribute.bidModifier;
+          } else if (attribute.value === 'GROUP_1_B') {
+            campaignSupplyGroup1B = attribute.bidModifier;
+          } else if (attribute.value === 'GROUP_2_A') {
+            campaignSupplyGroup2A = attribute.bidModifier;
+          } else if (attribute.value === 'GROUP_2_B') {
+            campaignSupplyGroup2B = attribute.bidModifier;
+          } else if (attribute.value === 'GROUP_3_A') {
+            campaignSupplyGroup3A = attribute.bidModifier;
+          } else if (attribute.value === 'GROUP_3_B') {
+            campaignSupplyGroup3B = attribute.bidModifier;
+          }
+        } else if (attribute.type === 'SITE_BLOCK') {
+          console.log(attribute.value);
+          siteBlock.push(attribute.value);
         }
+
         dataAttributes.push(attribute.id);
       });
+
+      if (siteBlock.length > 0) {
+        campaignSiteBlock = siteBlock.join(',');
+      }
 
       if (this.instance.adGroups.length > 0) {
         adGroupID = this.instance.adGroups[0]['id'];
@@ -600,6 +687,13 @@ export default {
       campaignBudgetType: this.instance ? this.instance.budgetType : 'DAILY',
       campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_CLICK',
       campaignConversionCounting: this.instance ? this.instance.conversionRuleConfig.conversionCounting : 'ALL_PER_INTERACTION',
+      campaignSupplyGroup1A: campaignSupplyGroup1A,
+      campaignSupplyGroup1B: campaignSupplyGroup1B,
+      campaignSupplyGroup2A: campaignSupplyGroup2A,
+      campaignSupplyGroup2B: campaignSupplyGroup2B,
+      campaignSupplyGroup3A: campaignSupplyGroup3A,
+      campaignSupplyGroup3B: campaignSupplyGroup3B,
+      campaignSiteBlock: campaignSiteBlock,
       adGroupID: adGroupID,
       adGroupName: adGroupName,
       bidAmount: bidAmount,
@@ -812,7 +906,14 @@ export default {
         campaignConversionCounting: this.campaignConversionCounting,
         scheduleType: this.scheduleType,
         campaignStartDate: this.campaignStartDate,
-        campaignEndDate: this.campaignEndDate
+        campaignEndDate: this.campaignEndDate,
+        campaignSupplyGroup1A: this.campaignSupplyGroup1A,
+        campaignSupplyGroup1B: this.campaignSupplyGroup1B,
+        campaignSupplyGroup2A: this.campaignSupplyGroup2A,
+        campaignSupplyGroup2B: this.campaignSupplyGroup2B,
+        campaignSupplyGroup3A: this.campaignSupplyGroup3A,
+        campaignSupplyGroup3B: this.campaignSupplyGroup3B,
+        campaignSiteBlock: this.campaignSiteBlock
       }
       this.postData = {...this.postData, ...step1Data }
       this.currentStep = 2
