@@ -58,7 +58,9 @@ export default {
   },
   methods: {
     round(value) {
-      if (value !== undefined) {
+      if (value === 'N/A') {
+        return 'N/A'
+      } else if (value !== undefined) {
         return _.round(value, 2)
       }
       return 0

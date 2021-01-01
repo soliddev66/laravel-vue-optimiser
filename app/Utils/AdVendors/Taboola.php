@@ -262,4 +262,9 @@ class Taboola extends Root
             }
         }
     }
+
+    public function getSummaryDataQuery($data)
+    {
+        //
+    }
 }

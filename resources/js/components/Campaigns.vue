@@ -37,7 +37,7 @@
               <tbody slot="body" slot-scope="{ data }">
                 <tr v-for="campaign in data" :key="campaign.id">
                   <td>{{ campaign.id }}</td>
-                  <td class="text-capitalize">{{ campaign.provider_name }}</td>
+                  <td class="text-capitalize">{{ campaign.provider_name || providers[selectedProvider - 1].label }}</td>
                   <td class="fit">{{ campaign.campaign_id }}</td>
                   <td class="fit">
                     <a :href="'/campaigns/' + campaign.id">{{ campaign.name }}</a>
@@ -256,7 +256,7 @@ export default {
       },
       selectedProvider: params.get('provider') || '',
       selectedAccount: params.get('account') || '',
-      selectedTracker: params.get('tracker') || 'redtrack',
+      selectedTracker: params.get('provider') ? params.get('tracker') : 'redtrack',
       targetDate: {
         start: params.get('start') || this.$moment().subtract(30, 'days').format('YYYY-MM-DD'),
         end: params.get('end') || this.$moment().format('YYYY-MM-DD')
@@ -292,37 +292,41 @@ export default {
       }
       return 0
     },
-    providerName(campaign) {
-      return this.providers.find(provider => provider.id === campaign.provider_id) ? this.providers.find(provider => provider.id === campaign.provider_id).label : 'N/A'
-    },
     getData(options = this.tableProps, state = false) {
+      if (!this.selectedTracker && !this.selectedProvider) {
+        alert('You need to filter provider along with the tracker or use Redtrack by default!');
+        return;
+      }
       const filters = { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount };
-      const data = {
-        ...filters,
-        ...options
-      };
-      const params = {...this.targetDate, ...data };
+      const params = {...this.targetDate, ...filters, ...options };
       axios.post('/campaigns/search', params)
         .then((response) => {
           this.accounts = response.data.accounts;
           this.summaryData = response.data.summary_data;
-          if (!state) {
-            window.history.pushState({}, null, '/campaigns?' + Object.keys(params).map(function(k) {
-              return encodeURIComponent(k) + '=' + encodeURIComponent(params[k])
-            }).join('&'))
+        })
+        .catch((err) => {
+          alert(err);
+        }).finally(() => {
+          if (_.find(this.accounts, (account) => account.open_id === this.selectedAccount) === undefined) {
+            this.selectedAccount = '';
           }
+          const filters = { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount };
+          const params = {...this.targetDate, ...filters, ...options };
+          axios.get('/campaigns', {
+              params: params
+            }).then((response) => {
+              this.campaigns = response.data;
+            })
+            .catch((err) => {
+              alert(err);
+            }).finally(() => {
+              if (!state) {
+                window.history.pushState({}, null, '/campaigns?' + Object.keys(params).map(function(k) {
+                  return encodeURIComponent(k) + '=' + encodeURIComponent(params[k])
+                }).join('&'))
+              }
+            })
         })
-        .catch((err) => {
-          alert(err);
-        });
-      axios.get('/campaigns', {
-          params: params
-        }).then((response) => {
-          this.campaigns = response.data;
-        })
-        .catch((err) => {
-          alert(err);
-        });
     },
     reloadData(tableProps) {
       this.getData(tableProps);

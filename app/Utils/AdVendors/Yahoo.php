@@ -7,6 +7,7 @@ use App\Jobs\PullCampaign;
 use App\Models\Ad;
 use App\Models\AdGroup;
 use App\Models\Campaign;
+use App\Models\GeminiPerformanceStat;
 use App\Models\Provider;
 use App\Models\RedtrackContentStat;
 use App\Models\RedtrackDomainStat;
@@ -552,5 +553,27 @@ class Yahoo extends Root
                 }
             }
         }
+    }
+
+    public function getSummaryDataQuery($data)
+    {
+        $summary_data_query = GeminiPerformanceStat::select(
+            DB::raw('SUM(spend) as total_cost'),
+            DB::raw('"N/A" as total_revenue'),
+            DB::raw('"N/A" as total_net'),
+            DB::raw('"N/A" as avg_roi')
+        );
+        $summary_data_query->leftJoin('campaigns', function ($join) use ($data) {
+            $join->on('campaigns.campaign_id', '=', 'gemini_performance_stats.campaign_id');
+            if ($data['provider']) {
+                $join->where('campaigns.provider_id', $data['provider']);
+            }
+            if ($data['account']) {
+                $join->where('campaigns.open_id', $data['account']);
+            }
+        });
+        $summary_data_query->whereBetween('day', [request('start'), request('end')]);
+
+        return $summary_data_query;
     }
 }
