@@ -142,75 +142,30 @@ class CampaignController extends Controller
 
     public function widgets(Campaign $campaign)
     {
-        $widgets_query = GeminiSitePerformanceStat::select([
-            '*',
-            DB::raw('CONCAT(external_site_name, "|", device_type) as widget_id'),
-            DB::raw('ROUND(spend / clicks, 2) as calc_cpc'),
-            DB::raw('conversions as tr_conv'),
-            DB::raw('conversions as tr_rev'),
-            DB::raw('ROUND(0 - spend, 2) as tr_net'),
-            DB::raw('CONCAT(ROUND(((0 - spend) / spend) * 100, 2), "%") as tr_roi'),
-            DB::raw('conversions as tr_epc'),
-            DB::raw('conversions as epc'),
-            DB::raw('conversions as tr_cpa'),
-            DB::raw('clicks as ts_clicks'),
-            DB::raw('conversions as trk_clicks'),
-            DB::raw('conversions as lp_clicks'),
-            DB::raw('conversions as lp_ctr'),
-            DB::raw('CONCAT(ROUND(clicks / impressions * 100, 2), "%") as ctr'),
-            DB::raw('conversions as tr_cvr'),
-            DB::raw('ROUND(spend / impressions * 1000, 2) as ecpm'),
-            DB::raw('conversions as lp_cr'),
-            DB::raw('conversions as lp_cpc')
-        ])
-            ->where('campaign_id', $campaign->campaign_id)
-            ->whereBetween('day', [request('start'), request('end')]);
-        if (request('search')) {
-            $widgets_query->where(DB::raw('CONCAT(external_site_name, "|", device_type)'), 'LIKE', '%' . request('search') . '%');
-        }
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $widgets_query = (new $adVendorClass())->getWidgetQuery($campaign, request()->all());
 
         return new DataTableCollectionResource($widgets_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
 
     public function contents(Campaign $campaign)
     {
-        $contents_query = Ad::select([
-            DB::raw('MAX(ads.id) as id'),
-            DB::raw('MAX(ads.campaign_id) as campaign_id'),
-            DB::raw('MAX(ads.ad_group_id) as ad_group_id'),
-            DB::raw('MAX(ads.ad_id) as ad_id'),
-            DB::raw('MAX(ads.name) as name'),
-            DB::raw('MAX(ads.status) as status'),
-            DB::raw('ROUND(SUM(total_revenue)/SUM(total_conversions), 2) as payout'),
-            DB::raw('SUM(clicks) as clicks'),
-            DB::raw('SUM(lp_views) as lp_views'),
-            DB::raw('SUM(lp_clicks) as lp_clicks'),
-            DB::raw('SUM(total_conversions) as total_conversions'),
-            DB::raw('SUM(total_conversions) as total_actions'),
-            DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as total_actions_cr'),
-            DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as cr'),
-            DB::raw('ROUND(SUM(total_revenue), 2) as total_revenue'),
-            DB::raw('ROUND(SUM(cost), 2) as cost'),
-            DB::raw('ROUND(SUM(profit), 2) as profit'),
-            DB::raw('ROUND((SUM(profit)/SUM(cost)) * 100, 2) as roi'),
-            DB::raw('ROUND(SUM(cost)/SUM(clicks), 2) as cpc'),
-            DB::raw('ROUND(SUM(cost)/SUM(total_conversions), 2) as cpa'),
-            DB::raw('ROUND(SUM(total_revenue)/SUM(clicks), 2) as epc'),
-            DB::raw('ROUND((SUM(lp_clicks)/SUM(lp_views)) * 100, 2) as lp_ctr'),
-            DB::raw('ROUND((SUM(total_conversions)/SUM(lp_views)) * 100, 2) as lp_views_cr'),
-            DB::raw('ROUND((SUM(total_conversions)/SUM(lp_clicks)) * 100, 2) as lp_clicks_cr'),
-            DB::raw('ROUND(SUM(cost)/SUM(lp_clicks), 2) as lp_cpc')
-        ])
-            ->leftJoin('redtrack_content_stats', function ($join) {
-                $join->on('redtrack_content_stats.sub5', '=', 'ads.ad_id')->whereBetween('redtrack_content_stats.date', [request('start'), request('end')]);
-            })
-            ->where('ads.campaign_id', $campaign->campaign_id);
-        if (request('search')) {
-            $contents_query->where('name', 'LIKE', '%' . request('search') . '%');
-        }
-        $contents_query->groupBy('ads.ad_id');
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $contents_query = (new $adVendorClass())->getContentQuery($campaign, request()->all());
 
         return new DataTableCollectionResource($contents_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
+    }
+
+    public function adGroups(Campaign $campaign)
+    {
+        $ad_groups_query = AdGroup::select(
+            '*',
+            DB::raw('0 as clicks')
+        );
+        $ad_groups_query->where('campaign_id', $campaign->campaign_id);
+        $ad_groups_query->where('name', 'LIKE', '%' . request('search') . '%');
+
+        return new DataTableCollectionResource($ad_groups_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
 
     public function domains(Campaign $campaign)
@@ -236,34 +191,19 @@ class CampaignController extends Controller
                 DB::raw('ROUND(SUM(cost) / SUM(clicks), 2) as cpc'),
                 DB::raw('ROUND(SUM(cost) / SUM(total_conversions), 2) as cpa'),
                 DB::raw('ROUND(SUM(total_revenue) / SUM(clicks), 2) as epc')
-            )
-                ->where('campaign_id', $campaign->id)
-                ->whereBetween('date', [request('start'), request('end')]);
+            );
+            $domains_query->where('campaign_id', $campaign->id);
+            $domains_query->whereBetween('date', [request('start'), request('end')]);
             if (request('search')) {
                 $domains_query->where('sub1', 'LIKE', '%' . request('search') . '%');
             }
             $domains_query->groupBy('sub1');
         } else {
-            $domains_query = GeminiDomainPerformanceStat::where('campaign_id', $campaign->campaign_id)->whereBetween('day', [request('start'), request('end')]);
-            if (request('search')) {
-                $domains_query->where('top_domain', 'LIKE', '%' . request('search') . '%');
-            }
+            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            $domains_query = (new $adVendorClass())->getDomainQuery($campaign, request()->all());
         }
 
         return new DataTableCollectionResource($domains_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
-    }
-
-    public function adGroups(Campaign $campaign)
-    {
-        $ad_groups_query = AdGroup::select(
-            '*'
-        )
-            ->where('campaign_id', $campaign->campaign_id);
-        if (request('search')) {
-            $ad_groups_query->where('name', 'LIKE', '%' . request('search') . '%');
-        }
-
-        return new DataTableCollectionResource($ad_groups_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
 
     public function search()

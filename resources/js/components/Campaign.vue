@@ -28,7 +28,7 @@
               <li class="nav-item">
                 <a class="nav-link" :class="{ 'active': show === 1 }" id="contents-tab" data-toggle="pill" href="#contents" role="tab" aria-controls="contents" aria-selected="false" @click.prevent="getContentData()">Contents</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item" v-if="campaign.provider_id !== 2">
                 <a class="nav-link" :class="{ 'active': show === 2 }" id="ad-groups-tab" data-toggle="pill" href="#ad-groups" role="tab" aria-controls="ad-groups" aria-selected="false" @click.prevent="getAdGroupData()">Ad Groups</a>
               </li>
               <li class="nav-item">
@@ -224,13 +224,18 @@ export default {
         page: params.get('page') || 1,
         search: params.get('search') || '',
         length: params.get('length') || 10,
-        column: params.get('column') || 'id',
-        dir: params.get('dir') || 'asc',
+        column: params.get('column') || 'clicks',
+        dir: params.get('dir') || 'desc',
       }
     }
   },
   methods: {
     getData() {
+      if (this.selectedTracker) {
+        this.domainColumns[1].name = 'sub1';
+      } else {
+        this.domainColumns[1].name = 'top_domain';
+      }
       switch (location.hash) {
         case '#contents':
           this.getContentData();

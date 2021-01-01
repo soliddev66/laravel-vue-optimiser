@@ -7,13 +7,16 @@ use App\Jobs\PullCampaign;
 use App\Models\Ad;
 use App\Models\AdGroup;
 use App\Models\Campaign;
+use App\Models\GeminiDomainPerformanceStat;
 use App\Models\GeminiPerformanceStat;
+use App\Models\GeminiSitePerformanceStat;
 use App\Models\Provider;
 use App\Models\RedtrackContentStat;
 use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
+use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use Carbon\Carbon;
 use DB;
@@ -22,7 +25,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class Yahoo extends Root
+class Yahoo extends Root implements AdVendorInterface
 {
     private function api()
     {
@@ -575,5 +578,91 @@ class Yahoo extends Root
         $summary_data_query->whereBetween('day', [request('start'), request('end')]);
 
         return $summary_data_query;
+    }
+
+    public function getWidgetQuery($campaign, $data)
+    {
+        $widgets_query = GeminiSitePerformanceStat::select([
+            '*',
+            DB::raw('CONCAT(external_site_name, "|", device_type) as widget_id'),
+            DB::raw('ROUND(spend / clicks, 2) as calc_cpc'),
+            DB::raw('conversions as tr_conv'),
+            DB::raw('conversions as tr_rev'),
+            DB::raw('ROUND(0 - spend, 2) as tr_net'),
+            DB::raw('CONCAT(ROUND(((0 - spend) / spend) * 100, 2), "%") as tr_roi'),
+            DB::raw('conversions as tr_epc'),
+            DB::raw('conversions as epc'),
+            DB::raw('conversions as tr_cpa'),
+            DB::raw('clicks as ts_clicks'),
+            DB::raw('conversions as trk_clicks'),
+            DB::raw('conversions as lp_clicks'),
+            DB::raw('conversions as lp_ctr'),
+            DB::raw('CONCAT(ROUND(clicks / impressions * 100, 2), "%") as ctr'),
+            DB::raw('conversions as tr_cvr'),
+            DB::raw('ROUND(spend / impressions * 1000, 2) as ecpm'),
+            DB::raw('conversions as lp_cr'),
+            DB::raw('conversions as lp_cpc')
+        ]);
+        $widgets_query->where('campaign_id', $campaign->campaign_id);
+        $widgets_query->whereBetween('day', [$data['start'], $data['end']]);
+        $widgets_query->where(DB::raw('CONCAT(external_site_name, "|", device_type)'), 'LIKE', '%' . $data['search'] . '%');
+
+        return $widgets_query;
+    }
+
+    public function getContentQuery($campaign, $data)
+    {
+        $contents_query = Ad::select([
+            DB::raw('MAX(ads.id) as id'),
+            DB::raw('MAX(ads.campaign_id) as campaign_id'),
+            DB::raw('MAX(ads.ad_group_id) as ad_group_id'),
+            DB::raw('MAX(ads.ad_id) as ad_id'),
+            DB::raw('MAX(ads.name) as name'),
+            DB::raw('MAX(ads.status) as status'),
+            DB::raw('ROUND(SUM(total_revenue)/SUM(total_conversions), 2) as payout'),
+            DB::raw('SUM(clicks) as clicks'),
+            DB::raw('SUM(lp_views) as lp_views'),
+            DB::raw('SUM(lp_clicks) as lp_clicks'),
+            DB::raw('SUM(total_conversions) as total_conversions'),
+            DB::raw('SUM(total_conversions) as total_actions'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as total_actions_cr'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as cr'),
+            DB::raw('ROUND(SUM(total_revenue), 2) as total_revenue'),
+            DB::raw('ROUND(SUM(cost), 2) as cost'),
+            DB::raw('ROUND(SUM(profit), 2) as profit'),
+            DB::raw('ROUND((SUM(profit)/SUM(cost)) * 100, 2) as roi'),
+            DB::raw('ROUND(SUM(cost)/SUM(clicks), 2) as cpc'),
+            DB::raw('ROUND(SUM(cost)/SUM(total_conversions), 2) as cpa'),
+            DB::raw('ROUND(SUM(total_revenue)/SUM(clicks), 2) as epc'),
+            DB::raw('ROUND((SUM(lp_clicks)/SUM(lp_views)) * 100, 2) as lp_ctr'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(lp_views)) * 100, 2) as lp_views_cr'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(lp_clicks)) * 100, 2) as lp_clicks_cr'),
+            DB::raw('ROUND(SUM(cost)/SUM(lp_clicks), 2) as lp_cpc')
+        ]);
+        $contents_query->leftJoin('redtrack_content_stats', function ($join) use ($data) {
+            $join->on('redtrack_content_stats.sub5', '=', 'ads.ad_id')->whereBetween('redtrack_content_stats.date', [$data['start'], $data['end']]);
+        });
+        $contents_query->where('ads.campaign_id', $campaign->campaign_id);
+        $contents_query->where('name', 'LIKE', '%' . $data['search'] . '%');
+        $contents_query->groupBy('ads.ad_id');
+
+        return $contents_query;
+    }
+
+    public function getDomainQuery($campaign, $data)
+    {
+        $domains_query = GeminiDomainPerformanceStat::select(
+            DB::raw('MAX(id) as id'),
+            DB::raw('MAX(coalesce(top_domain, package_name)) as top_domain'),
+            DB::raw('SUM(clicks) as clicks'),
+            DB::raw('SUM(spend) as cost'),
+            DB::raw('SUM(impressions) as total_view')
+        );
+        $domains_query->where('campaign_id', $campaign->campaign_id);
+        $domains_query->whereBetween('day', [$data['start'], $data['end']]);
+        $domains_query->where('top_domain', 'LIKE', '%' . $data['search'] . '%');
+        $domains_query->groupBy('top_domain');
+
+        return $domains_query;
     }
 }
