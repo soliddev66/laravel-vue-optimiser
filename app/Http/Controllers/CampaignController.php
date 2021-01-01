@@ -11,17 +11,18 @@ use App\Models\FailedJob;
 use App\Models\GeminiDomainPerformanceStat;
 use App\Models\GeminiPerformanceStat;
 use App\Models\GeminiSitePerformanceStat;
-use App\Models\Job;
 use App\Models\Provider;
 use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Vngodev\Helper;
 use Carbon\Carbon;
-use DB;
 use DataTables;
+use DB;
 use Exception;
+use Illuminate\Support\Facades\Queue;
 use JamesDordoy\LaravelVueDatatable\Http\Resources\DataTableCollectionResource;
 use Maatwebsite\Excel\Facades\Excel;
+use Redis;
 
 class CampaignController extends Controller
 {
@@ -56,10 +57,10 @@ class CampaignController extends Controller
                     DB::raw('ROUND((SUM(total_conversions)/SUM(lp_clicks)) * 100, 2) as lp_clicks_cr'),
                     DB::raw('ROUND(SUM(cost)/SUM(lp_clicks), 2) as lp_cpc')
                 )
-                ->leftJoin('redtrack_reports', function($join) {
-                    $join->on('redtrack_reports.campaign_id', '=', 'campaigns.id')->whereBetween('redtrack_reports.date', [request('start'), request('end')]);
-                })
-                ->leftJoin('providers', 'providers.id', '=', 'campaigns.provider_id');
+                    ->leftJoin('redtrack_reports', function ($join) {
+                        $join->on('redtrack_reports.campaign_id', '=', 'campaigns.id')->whereBetween('redtrack_reports.date', [request('start'), request('end')]);
+                    })
+                    ->leftJoin('providers', 'providers.id', '=', 'campaigns.provider_id');
                 if (request('provider')) {
                     $campaigns_query->where('campaigns.provider_id', request('provider'));
                 }
@@ -105,13 +106,9 @@ class CampaignController extends Controller
 
     public function jobs()
     {
-        $jobs = Job::select([
-            '*',
-            DB::raw('"Pending" as status')
-        ]);
+        $jobs = Redis::lrange('queues:default', 0, -1);
 
-        return DataTables::eloquent($jobs)
-            ->make();
+        return response()->json($jobs);
     }
 
     public function failedJobs()
@@ -134,10 +131,10 @@ class CampaignController extends Controller
                 DB::raw('SUM(profit) as total_net'),
                 DB::raw('(SUM(profit)/SUM(cost)) * 100 as avg_roi'),
             )
-            ->where('campaign_id', $campaign->id)
-            ->where('provider_id', $campaign->provider_id)
-            ->where('open_id', $campaign->open_id)
-            ->whereBetween('date', [request('start'), request('end')]);
+                ->where('campaign_id', $campaign->id)
+                ->where('provider_id', $campaign->provider_id)
+                ->where('open_id', $campaign->open_id)
+                ->whereBetween('date', [request('start'), request('end')]);
         }
 
         return [
@@ -168,8 +165,8 @@ class CampaignController extends Controller
             DB::raw('conversions as lp_cr'),
             DB::raw('conversions as lp_cpc')
         ])
-        ->where('campaign_id', $campaign->campaign_id)
-        ->whereBetween('day', [request('start'), request('end')]);
+            ->where('campaign_id', $campaign->campaign_id)
+            ->whereBetween('day', [request('start'), request('end')]);
         if (request('search')) {
             $widgets_query->where(DB::raw('CONCAT(external_site_name, "|", device_type)'), 'LIKE', '%' . request('search') . '%');
         }
@@ -206,10 +203,10 @@ class CampaignController extends Controller
             DB::raw('ROUND((SUM(total_conversions)/SUM(lp_clicks)) * 100, 2) as lp_clicks_cr'),
             DB::raw('ROUND(SUM(cost)/SUM(lp_clicks), 2) as lp_cpc')
         ])
-        ->leftJoin('redtrack_content_stats', function($join) {
-            $join->on('redtrack_content_stats.sub5', '=', 'ads.ad_id')->whereBetween('redtrack_content_stats.date', [request('start'), request('end')]);
-        })
-        ->where('ads.campaign_id', $campaign->campaign_id);
+            ->leftJoin('redtrack_content_stats', function ($join) {
+                $join->on('redtrack_content_stats.sub5', '=', 'ads.ad_id')->whereBetween('redtrack_content_stats.date', [request('start'), request('end')]);
+            })
+            ->where('ads.campaign_id', $campaign->campaign_id);
         if (request('search')) {
             $contents_query->where('name', 'LIKE', '%' . request('search') . '%');
         }
@@ -242,8 +239,8 @@ class CampaignController extends Controller
                 DB::raw('ROUND(SUM(cost) / SUM(total_conversions), 2) as cpa'),
                 DB::raw('ROUND(SUM(total_revenue) / SUM(clicks), 2) as epc')
             )
-            ->where('campaign_id', $campaign->id)
-            ->whereBetween('date', [request('start'), request('end')]);
+                ->where('campaign_id', $campaign->id)
+                ->whereBetween('date', [request('start'), request('end')]);
             if (request('search')) {
                 $domains_query->where('sub1', 'LIKE', '%' . request('search') . '%');
             }
@@ -263,7 +260,7 @@ class CampaignController extends Controller
         $ad_groups_query = AdGroup::select(
             '*'
         )
-        ->where('campaign_id', $campaign->campaign_id);
+            ->where('campaign_id', $campaign->campaign_id);
         if (request('search')) {
             $ad_groups_query->where('name', 'LIKE', '%' . request('search') . '%');
         }

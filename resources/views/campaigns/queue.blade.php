@@ -16,20 +16,6 @@
 @section('js')
     <script>
         $(document).ready(function() {
-            $('#jobsTable').DataTable({
-                retrieve: true,
-                processing: true,
-                serverSide: true,
-                responsive: true,
-                pageLength: 50,
-                ajax: `/campaigns/jobs`,
-                columns: [
-                    { data: 'id', name: 'id' },
-                    { data: 'queue', name: 'queue' },
-                    { data: 'status', name: 'status' },
-                    { data: 'payload', name: 'payload' },
-                ]
-            });
             $('#failedJobsTable').DataTable({
                 retrieve: true,
                 processing: true,
