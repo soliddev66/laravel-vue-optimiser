@@ -78,19 +78,19 @@
                 <div class="form-group row">
                   <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
                   <div class="col-sm-8">
-                    <select2 id="gender" name="gender" v-model="campaignGender" :options="genders" :settings="{ multiple: true }" />
+                    <select2 id="gender" name="gender" v-model="campaignGender" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
                 <div class="form-group row">
                   <label for="age" class="col-sm-2 control-label mt-2">Age</label>
                   <div class="col-sm-8">
-                    <select2 id="age" name="age" v-model="campaignAge" :options="ages" :settings="{ multiple: true }" />
+                    <select2 id="age" name="age" v-model="campaignAge" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device</label>
                   <div class="col-sm-8">
-                    <select2 name="device" v-model="campaignDevice" :options="devices" :settings="{ multiple: true }" />
+                    <select2 name="device" v-model="campaignDevice" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
                 <h2>Campaign settings</h2>
@@ -329,7 +329,7 @@
                 <div class="form-group row">
                   <label for="variantGender" class="col-sm-4 control-label mt-2">Gender</label>
                   <div class="col-sm-8">
-                    <select2 id="variantGender" name="variantGender" v-model="campaignGender" :options="genders" :settings="{ multiple: true }" />
+                    <select2 id="variantGender" name="variantGender" v-model="campaignGender" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
               </div>
@@ -337,7 +337,7 @@
                 <div class="form-group row">
                   <label for="variantAge" class="col-sm-4 control-label mt-2">Age</label>
                   <div class="col-sm-8">
-                    <select2 id="variantAge" name="variantAge" v-model="campaignAge" :options="ages" :settings="{ multiple: true }" />
+                    <select2 id="variantAge" name="variantAge" v-model="campaignAge" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
               </div>
@@ -345,7 +345,7 @@
                 <div class="form-group row">
                   <label for="variantDevice" class="col-sm-4 control-label mt-2">Device</label>
                   <div class="col-sm-8">
-                    <select2 id="variantDevice" name="variantDevice" v-model="campaignDevice" :options="devices" :settings="{ multiple: true }" />
+                    <select2 id="variantDevice" name="variantDevice" v-model="campaignDevice" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
               </div>
