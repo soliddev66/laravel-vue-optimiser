@@ -13,6 +13,7 @@ use App\Models\UserTracker;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
+use App\Vngodev\Helper;
 
 class Taboola extends Root
 {
@@ -75,6 +76,8 @@ class Taboola extends Root
             foreach (request('campaignItems') as $campaign_item) {
                 $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
             }
+
+            Helper::pullCampaign();
 
             return $campaign_data;
         } catch (Exception $e) {

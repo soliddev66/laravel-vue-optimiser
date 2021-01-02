@@ -17,6 +17,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
+use App\Vngodev\Helper;
 
 class Outbrain extends Root implements AdVendorInterface
 {
@@ -83,6 +84,8 @@ class Outbrain extends Root implements AdVendorInterface
                 }
 
                 $api->createAds($campaign_data, $ads);
+
+                Helper::pullCampaign();
             } catch (Exception $e) {
                 $api->deleteCampaign($campaign_data['id']);
                 $api->deleteBudget($budget_data);
@@ -258,7 +261,7 @@ class Outbrain extends Root implements AdVendorInterface
                 $promoted_links = (new OutbrainAPI($user_provider))->getPromotedLinks($campaign->campaign_id);
 
                 if ($promoted_links && isset($promoted_links['promotedLinks'])) {
-                    foreach ($promoted_links as $key => $ad) {
+                    foreach ($promoted_links['promotedLinks'] as $key => $ad) {
                         $db_ad = Ad::firstOrNew([
                             'ad_id' => $ad['id'],
                             'user_id' => $user_provider->user_id,

@@ -121,6 +121,8 @@ class Yahoo extends Root implements AdVendorInterface
                 }
 
                 $ad_data = $api->createAd($ads);
+
+                Helper::pullCampaign();
             } catch (Exception $e) {
                 $api->deleteCampaign($campaign_data['id']);
                 $api->deleteAdGroups([$ad_group_data['id']]);

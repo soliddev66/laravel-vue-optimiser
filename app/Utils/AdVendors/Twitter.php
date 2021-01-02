@@ -22,6 +22,7 @@ use App\Jobs\DeleteCampaign;
 use App\Jobs\DeleteCard;
 use App\Jobs\PullCampaign;
 use App\Models\TwitterReport;
+use App\Vngodev\Helper;
 
 use Hborras\TwitterAdsSDK\TwitterAdsException;
 
@@ -147,6 +148,8 @@ class Twitter extends Root
                     }
                 }
             }
+
+            Helper::pullCampaign();
         } catch (Exception $e) {
             $this->rollback($campaign_data ?? null, $line_item_data ?? null, $card_data ?? null);
             if ($e instanceof TwitterAdsException && is_array($e->getErrors())) {

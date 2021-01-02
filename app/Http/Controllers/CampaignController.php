@@ -376,7 +376,6 @@ class CampaignController extends Controller
     public function store()
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
-        Helper::pullCampaign();
 
         return (new $adVendorClass())->store();
     }
