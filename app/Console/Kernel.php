@@ -75,6 +75,12 @@ class Kernel extends ConsoleKernel
                 $rule->id
             ])->cron($this->getFrequency($rule))->appendOutputTo(storage_path('logs/commands.log'));
         }
+
+        // Jobs retry
+        $schedule->command('queue:retry all')->everyFifteenMinutes();
+
+        // Failed jobs clear
+        $schedule->command('queue:flush')->hourly();
     }
 
     /**

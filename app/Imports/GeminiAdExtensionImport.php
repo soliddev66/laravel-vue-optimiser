@@ -10,7 +10,6 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Events\AfterImport;
-use Maatwebsite\Excel\Jobs\AfterImportJob;
 use Maatwebsite\Excel\Row;
 
 class GeminiAdExtensionImport implements OnEachRow, WithChunkReading, ShouldQueue, WithHeadingRow, WithEvents
@@ -62,7 +61,7 @@ class GeminiAdExtensionImport implements OnEachRow, WithChunkReading, ShouldQueu
     {
         return [
             // Array callable, refering to a static method.
-            AfterImport::class => [self::class, 'afterSheet'],
+            AfterImport::class => [self::class, 'afterSheet']
         ];
     }
 

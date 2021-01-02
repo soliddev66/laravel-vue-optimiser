@@ -148,6 +148,21 @@ class Taboola extends Root
         //
     }
 
+    public function delete(Campaign $campaign)
+    {
+        try {
+            $api = new TaboolaAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+            $api->deleteCampaign($campaign->advertiser_id, $campaign->campaign_id);
+            $campaign->delete();
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+    }
+
     public function getCampaignInstance(Campaign $campaign)
     {
         try {
@@ -260,5 +275,10 @@ class Taboola extends Root
                 }
             }
         }
+    }
+
+    public function getSummaryDataQuery($data)
+    {
+        //
     }
 }

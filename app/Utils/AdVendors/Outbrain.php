@@ -4,18 +4,21 @@ namespace App\Utils\AdVendors;
 
 use App\Endpoints\OutbrainAPI;
 use App\Jobs\PullCampaign;
+use App\Models\Ad;
 use App\Models\Campaign;
+use App\Models\OutbrainReport;
 use App\Models\Provider;
 use App\Models\RedtrackReport;
 use App\Models\UserTracker;
+use App\Vngodev\AdVendorInterface;
 use Carbon\Carbon;
+use DB;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
-class Outbrain extends Root
+class Outbrain extends Root implements AdVendorInterface
 {
     private function api()
     {
@@ -249,7 +252,37 @@ class Outbrain extends Root
 
     public function pullAd($user_provider)
     {
-        //
+        $ad_ids = [];
+        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 2)->chunk(10, function ($campaigns) use ($user_provider, &$ad_ids) {
+            foreach ($campaigns as $key => $campaign) {
+                $promoted_links = (new OutbrainAPI($user_provider))->getPromotedLinks($campaign->campaign_id);
+
+                if ($promoted_links && isset($promoted_links['promotedLinks'])) {
+                    foreach ($promoted_links as $key => $ad) {
+                        $db_ad = Ad::firstOrNew([
+                            'ad_id' => $ad['id'],
+                            'user_id' => $user_provider->user_id,
+                            'provider_id' => $user_provider->provider_id,
+                            'campaign_id' => $campaign->campaign_id,
+                            'advertiser_id' => $campaign->advertiser_id,
+                            'ad_group_id' => 'NA',
+                            'open_id' => $user_provider->open_id
+                        ]);
+
+                        $db_ad->name = $ad['text'];
+                        $db_ad->status = $ad['status'];
+                        $db_ad->save();
+                        $ad_ids[] = $db_ad->id;
+                    }
+                }
+            }
+        });
+
+        Ad::where([
+            'user_id' => $user_provider->user_id,
+            'provider_id' => $user_provider->provider_id,
+            'open_id' => $user_provider->open_id
+        ])->whereNotIn('id', $ad_ids)->delete();
     }
 
     public function pullRedTrack($campaign)
@@ -283,5 +316,76 @@ class Outbrain extends Root
                 $redtrack_report->save();
             }
         }
+    }
+
+    public function getSummaryDataQuery($data)
+    {
+        $summary_data_query = OutbrainReport::select(
+            DB::raw('SUM(JSON_EXTRACT(data, "$.summary.spend")) as total_cost'),
+            DB::raw('"N/A" as total_revenue'),
+            DB::raw('"N/A" as total_net'),
+            DB::raw('"N/A" as avg_roi')
+        );
+        $summary_data_query->leftJoin('campaigns', function ($join) use ($data) {
+            $join->on('campaigns.id', '=', 'outbrain_reports.campaign_id');
+            if ($data['provider']) {
+                $join->where('campaigns.provider_id', $data['provider']);
+            }
+            if ($data['account']) {
+                $join->where('campaigns.open_id', $data['account']);
+            }
+        });
+        $summary_data_query->whereBetween('date', [request('start'), request('end')]);
+
+        return $summary_data_query;
+    }
+
+    public function getWidgetQuery($campaign, $data)
+    {
+        //
+    }
+
+    public function getContentQuery($campaign, $data)
+    {
+        $contents_query = Ad::select([
+            DB::raw('MAX(ads.id) as id'),
+            DB::raw('MAX(ads.campaign_id) as campaign_id'),
+            DB::raw('MAX(ads.ad_group_id) as ad_group_id'),
+            DB::raw('MAX(ads.ad_id) as ad_id'),
+            DB::raw('MAX(ads.name) as name'),
+            DB::raw('MAX(ads.status) as status'),
+            DB::raw('ROUND(SUM(total_revenue)/SUM(total_conversions), 2) as payout'),
+            DB::raw('SUM(clicks) as clicks'),
+            DB::raw('SUM(lp_views) as lp_views'),
+            DB::raw('SUM(lp_clicks) as lp_clicks'),
+            DB::raw('SUM(total_conversions) as total_conversions'),
+            DB::raw('SUM(total_conversions) as total_actions'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as total_actions_cr'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as cr'),
+            DB::raw('ROUND(SUM(total_revenue), 2) as total_revenue'),
+            DB::raw('ROUND(SUM(cost), 2) as cost'),
+            DB::raw('ROUND(SUM(profit), 2) as profit'),
+            DB::raw('ROUND((SUM(profit)/SUM(cost)) * 100, 2) as roi'),
+            DB::raw('ROUND(SUM(cost)/SUM(clicks), 2) as cpc'),
+            DB::raw('ROUND(SUM(cost)/SUM(total_conversions), 2) as cpa'),
+            DB::raw('ROUND(SUM(total_revenue)/SUM(clicks), 2) as epc'),
+            DB::raw('ROUND((SUM(lp_clicks)/SUM(lp_views)) * 100, 2) as lp_ctr'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(lp_views)) * 100, 2) as lp_views_cr'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(lp_clicks)) * 100, 2) as lp_clicks_cr'),
+            DB::raw('ROUND(SUM(cost)/SUM(lp_clicks), 2) as lp_cpc')
+        ]);
+        $contents_query->leftJoin('redtrack_content_stats', function ($join) use ($data) {
+            $join->on('redtrack_content_stats.sub5', '=', 'ads.ad_id')->whereBetween('redtrack_content_stats.date', [$data['start'], $data['end']]);
+        });
+        $contents_query->where('ads.campaign_id', $campaign->campaign_id);
+        $contents_query->where('name', 'LIKE', '%' . $data['search'] . '%');
+        $contents_query->groupBy('ads.ad_id');
+
+        return $contents_query;
+    }
+
+    public function getDomainQuery($campaign, $data)
+    {
+        //
     }
 }
