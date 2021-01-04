@@ -96,14 +96,14 @@
                 <div class="form-group row">
                   <label for="country_targeting" class="col-sm-2 control-label mt-2">Location</label>
                   <div class="col-sm-8">
-                    <select2 id="country_targeting" name="country_targeting" v-model="campaignCountryTargeting" :options="countries" :settings="{ multiple: true }" />
+                    <select2 id="country_targeting" name="country_targeting" v-model="campaignCountryTargeting" :options="countries" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
 
                 <div class="form-group row">
                   <label for="platform_targeting" class="col-sm-2 control-label mt-2">Device</label>
                   <div class="col-sm-8">
-                    <select2 name="platform_targeting" v-model="campaignPlatformTargeting" :options="devices" :settings="{ multiple: true }" />
+                    <select2 name="platform_targeting" v-model="campaignPlatformTargeting" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
 
@@ -154,13 +154,13 @@
                     </div>
                   </div>
 
-                  <div class="row" v-if="index > 0">
+                  <div class="row" v-if="index > 0 && action == 'create'">
                       <div class="col text-right">
                         <button class="btn btn-warning btn-sm" @click.prevent="removeCampaignItem(index)">Remove</button>
                       </div>
                     </div>
                 </fieldset>
-                <button class="btn btn-primary btn-sm" @click.prevent="addCampaignItem()">Add New</button>
+                <button class="btn btn-primary btn-sm" @click.prevent="addCampaignItem()" v-if="action == 'create'">Add New</button>
               </div>
             </form>
           </div>
@@ -263,7 +263,6 @@ export default {
 
   },
   data() {
-    console.log(this.instance)
     let campaignItems = [{
       url: ''
     }]
@@ -297,8 +296,6 @@ export default {
       campaignStartDate: this.instance ? this.instance.start_date : this.$moment().format('YYYY-MM-DD'),
       campaignEndDate: this.instance && this.instance.end_date != '9999-12-31' ? this.instance.end_date : '',
       campaignPlatformTargeting: this.instance && this.instance.platform_targeting.type == 'INCLUDE' ? this.instance.platform_targeting.value : [],
-      campaignEndDate: '',
-      campaignPlatformTargeting: [],
       devices: [{
         id: '',
         text: 'All',

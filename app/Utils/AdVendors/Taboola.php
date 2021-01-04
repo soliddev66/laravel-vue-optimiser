@@ -101,6 +101,56 @@ class Taboola extends Root
         }
     }
 
+    public function update(Campaign $campaign)
+    {
+        $api = new TaboolaAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+
+        try {
+            $data = [
+                'name' => request('campaignName'),
+                'branding_text' => request('campaignBrandText'),
+                'cpc' => request('campaignCPC'),
+                'spending_limit' => request('campaignSpendingLimit'),
+                'spending_limit_model' => request('campaignSpendingLimitModel'),
+                'marketing_objective' => request('campaignMarketingObjective'),
+                'start_date' => request('campaignStartDate'),
+                'end_date' => request('campaignEndDate'),
+                'end_date' => request('campaignEndDate'),
+                'end_date' => request('campaignEndDate'),
+                'end_date' => request('campaignEndDate'),
+            ];
+
+            $country_targeting = request('campaignCountryTargeting');
+            $platform_targeting = request('campaignPlatformTargeting');
+
+            if (count($country_targeting) > 0) {
+                $data['country_targeting'] = [
+                    'type' => 'INCLUDE',
+                    'value' => $country_targeting
+                ];
+            }
+
+            if (count($platform_targeting) > 0) {
+                $data['platform_targeting'] = [
+                    'type' => 'INCLUDE',
+                    'value' => $platform_targeting
+                ];
+            }
+
+            $campaign_data = $api->updateCampaign($campaign->advertiser_id, $campaign->campaign_id, $data);
+
+            foreach (request('campaignItems') as $campaign_item) {
+                $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item);
+            }
+
+            return $campaign_data;
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+    }
+
     public function itemStatus()
     {
         try {
@@ -158,11 +208,6 @@ class Taboola extends Root
             'provider_id' => $user_provider->provider_id,
             'open_id' => $user_provider->open_id
         ])->whereNotIn('id', $campaign_ids)->delete();
-    }
-
-    public function update(Campaign $campaign)
-    {
-        //
     }
 
     public function delete(Campaign $campaign)
