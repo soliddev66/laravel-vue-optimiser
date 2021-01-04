@@ -243,7 +243,7 @@
                       <div class="form-group row">
                         <label for="image_url" class="col-sm-4 control-label mt-2">Image URL</label>
                         <div class="col-sm-8">
-                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrl" />
+                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrl" disabled="true" />
                         </div>
                         <div class="col-sm-8 offset-sm-4">
                           <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose File</button>
@@ -588,15 +588,6 @@ export default {
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
-    },
-    validImageSize(imageUrl, width, height) {
-      return new Promise((resolve) => {
-        var image = new Image();
-        image.onload = function() {
-          resolve(this.width == width && this.height == height);
-        };
-        image.src = imageUrl;
-      });
     },
     validDimensions(dimensions, width, height) {
       var dimensions = dimensions.split('x')
