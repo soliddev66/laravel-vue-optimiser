@@ -271,6 +271,8 @@ export default {
       campaignItems = this.instance.items;
     }
 
+    console.log(this.instance)
+
     return {
       isLoading: false,
       fullPage: true,
@@ -309,7 +311,7 @@ export default {
         id: 'DESK',
         text: 'DESKTOP',
       }],
-      campaignIsActive: this.instance && this.action == 'edit' ? this.instance.status : false,
+      campaignIsActive: this.instance ? this.instance.is_active : false,
       campaignItems: campaignItems,
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios

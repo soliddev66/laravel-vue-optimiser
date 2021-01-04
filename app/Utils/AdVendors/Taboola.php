@@ -113,6 +113,7 @@ class Taboola extends Root
                 'spending_limit' => request('campaignSpendingLimit'),
                 'spending_limit_model' => request('campaignSpendingLimitModel'),
                 'marketing_objective' => request('campaignMarketingObjective'),
+                'is_active' => request('campaignIsActive'),
                 'start_date' => request('campaignStartDate'),
                 'end_date' => request('campaignEndDate'),
                 'end_date' => request('campaignEndDate'),
