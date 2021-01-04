@@ -22,16 +22,19 @@
           </div>
           <div class="card-body">
             <ul class="nav nav-pills mb-3" role="tablist">
-              <li class="nav-item">
+              <li class="nav-item" v-if="[1,3,4].includes(campaign.provider_id)">
                 <a class="nav-link" :class="{ 'active': show === 0 }" id="widgets-tab" data-toggle="pill" href="#widgets" role="tab" aria-controls="widgets" aria-selected="true" @click.prevent="getWidgetData()">Widgets</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" :class="{ 'active': show === 1 }" id="contents-tab" data-toggle="pill" href="#contents" role="tab" aria-controls="contents" aria-selected="false" @click.prevent="getContentData()">Contents</a>
               </li>
-              <li class="nav-item" v-if="campaign.provider_id !== 2">
+              <li class="nav-item" v-if="[1,3,4].includes(campaign.provider_id)">
                 <a class="nav-link" :class="{ 'active': show === 2 }" id="ad-groups-tab" data-toggle="pill" href="#ad-groups" role="tab" aria-controls="ad-groups" aria-selected="false" @click.prevent="getAdGroupData()">Ad Groups</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item" v-if="[2].includes(campaign.provider_id)">
+                <a class="nav-link" :class="{ 'active': show === 2 }" id="publishers-tab" data-toggle="pill" href="#publishers" role="tab" aria-controls="publishers" aria-selected="false" @click.prevent="getPublisherData()">Publishers</a>
+              </li>
+              <li class="nav-item" v-if="[1,3,4].includes(campaign.provider_id)">
                 <a class="nav-link" :class="{ 'active': show === 3 }" id="domains-tab" data-toggle="pill" href="#domains" role="tab" aria-controls="domains" aria-selected="false" @click.prevent="getDomainData()">Domains</a>
               </li>
               <li class="nav-item">
@@ -48,8 +51,11 @@
               <div class="tab-pane fade" :class="{ 'show active': show === 1 }" id="contents" role="tabpanel" aria-labelledby="contents-tab">
                 <data-table :data="contents" :columns="contentColumns" @on-table-props-changed="reloadContentData"></data-table>
               </div>
-              <div class="tab-pane fade" :class="{ 'show active': show === 2 }" id="ad-groups" role="tabpanel" aria-labelledby="ad-groups-tab">
+              <div class="tab-pane fade" v-if="[1,3,4].includes(campaign.provider_id)" :class="{ 'show active': show === 2 }" id="ad-groups" role="tabpanel" aria-labelledby="ad-groups-tab">
                 <data-table :data="adGroups" :columns="adGroupColumns" @on-table-props-changed="reloadAdGroupData"></data-table>
+              </div>
+              <div class="tab-pane fade" v-if="[2].includes(campaign.provider_id)" :class="{ 'show active': show === 2 }" id="publishers" role="tabpanel" aria-labelledby="publishers-tab">
+                <data-table :data="publishers" :columns="publisherColumns" @on-table-props-changed="reloadPublisherData"></data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 3 }" id="domains" role="tabpanel" aria-labelledby="domains-tab">
                 <data-table :data="domains" :columns="domainColumns" @on-table-props-changed="reloadDomainData"></data-table>
@@ -103,6 +109,7 @@ export default {
       widgets: {},
       contents: {},
       adGroups: {},
+      publishers: {},
       domains: {},
       widgetColumns: [
         { label: 'ID', name: 'id', orderable: true },
@@ -186,6 +193,26 @@ export default {
         },
         { label: 'Status', name: 'status', orderable: true }
       ],
+      publisherColumns: [
+        { label: 'ID', name: 'id', orderable: true },
+        { label: 'Camp. ID', name: 'campaign_id', orderable: true },
+        { label: 'Ad Group ID', name: 'ad_group_id', orderable: true },
+        { label: 'Name', name: 'name', orderable: true }, {
+          label: 'Actions',
+          name: 'actions',
+          orderable: false,
+          classes: {
+            'btn': true,
+            'btn-primary': false,
+            'btn-sm': true,
+            'btn-add-new-ad': true,
+          },
+          event: "click",
+          handler: this.updateAdGroupStatus,
+          component: ActionsComponent
+        },
+        { label: 'Status', name: 'status', orderable: true }
+      ],
       domainColumns: [
         { label: 'ID', name: 'id', orderable: true },
         { label: 'Domain ID', name: 'sub1', orderable: true },
@@ -243,6 +270,9 @@ export default {
         case '#ad-groups':
           this.getAdGroupData();
           break;
+        case '#publishers':
+          this.getPublisherData();
+          break;
         case '#domains':
           this.getDomainData();
           break;
@@ -251,7 +281,11 @@ export default {
         case '#performance':
           break;
         default:
-          this.getWidgetData();
+          if (this.campaign.provider_id === 2) {
+            this.getContentData();
+          } else {
+            this.getWidgetData();
+          }
           break;
       }
     },
@@ -264,11 +298,13 @@ export default {
     reloadAdGroupData(tableProps) {
       this.getAdGroupData(tableProps);
     },
+    reloadPublisherData(tableProps) {
+      this.getPublisherData(tableProps);
+    },
     reloadDomainData(tableProps) {
       this.getDomainData(tableProps);
     },
     getSummaryData() {
-      console.log('asda');
       this.isLoading = true;
       axios.get(`/campaigns/${this.campaign.id}/summary`, {
           params: {...this.targetDate, ... { tracker: this.selectedTracker } }
@@ -327,6 +363,22 @@ export default {
         }).finally(() => {
           this.isLoading = false;
           history.replaceState(undefined, undefined, "#ad-groups");
+          this.show = 2;
+        });
+    },
+    getPublisherData(options = this.tableProps) {
+      this.isLoading = true;
+      axios.get('/campaigns/' + this.campaign.id + '/publishers', {
+          params: {...this.targetDate, ... { tracker: this.selectedTracker }, ...options }
+        })
+        .then((response) => {
+          this.publishers = response.data
+        })
+        .catch((err) => {
+          alert(err);
+        }).finally(() => {
+          this.isLoading = false;
+          history.replaceState(undefined, undefined, "#publishers");
           this.show = 2;
         });
     },
