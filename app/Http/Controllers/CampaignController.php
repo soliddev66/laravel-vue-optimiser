@@ -115,7 +115,7 @@ class CampaignController extends Controller
                 DB::raw('SUM(lp_views) as lp_views'),
                 DB::raw('SUM(lp_clicks) as lp_clicks'),
                 DB::raw('SUM(prelp_clicks) as prelp_clicks'),
-                DB::raw('ROUND(SUM(lp_clicks) / SUM(impressions) * 100, 2) as lp_ctr'),
+                DB::raw('ROUND(SUM(lp_clicks) / SUM(lp_views) * 100, 2) as lp_ctr'),
                 DB::raw('SUM(conversions) as conversions'),
                 DB::raw('ROUND(SUM(conversions) / SUM(clicks) * 100, 2) as cr'),
                 DB::raw('SUM(conversions) as total_actions'),
