@@ -28,6 +28,11 @@ class TaboolaAPI
         return $this->client->call('GET', $advertiser_id . '/campaigns/?fetch_level=R');
     }
 
+    public function getCampaign($advertiser_id, $campaign_id)
+    {
+        return $this->client->call('GET', $advertiser_id . '/campaigns/' . $campaign_id);
+    }
+
     public function getCountries()
     {
         return $this->client->call('GET', 'resources/countries');

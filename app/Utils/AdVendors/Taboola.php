@@ -13,6 +13,7 @@ use App\Models\UserTracker;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
+use App\Vngodev\Helper;
 
 class Taboola extends Root
 {
@@ -75,6 +76,8 @@ class Taboola extends Root
             foreach (request('campaignItems') as $campaign_item) {
                 $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
             }
+
+            Helper::pullCampaign();
 
             return $campaign_data;
         } catch (Exception $e) {
@@ -165,7 +168,21 @@ class Taboola extends Root
 
     public function getCampaignInstance(Campaign $campaign)
     {
-        //
+        try {
+            $api = new TaboolaAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+
+            $instance = $api->getCampaign($campaign->advertiser_id, $campaign->campaign_id);
+
+            $instance['provider'] = $campaign->provider->slug;
+            $instance['provider_id'] = $campaign['provider_id'];
+            $instance['open_id'] = $campaign['open_id'];
+            $instance['instance_id'] = $campaign['id'];
+            $instance['items'] = $api->getCampaignItems($campaign->advertiser_id, $campaign->campaign_id)['results'];
+
+            return $instance;
+        } catch (Exception $e) {
+            return [];
+        }
     }
 
     public function cloneCampaignName(&$instance)

@@ -120,12 +120,37 @@
               </div>
 
               <div v-if="currentStep == 2">
-                <fieldset class="mb-3 p-3 rounded border" v-for="(campaignsItem, index) in campaignItems" :key="index">
+                <fieldset class="mb-3 p-3 rounded border" v-for="(campaignItem, index) in campaignItems" :key="index">
                   <div class="form-group row">
                     <label for="url" class="col-sm-2 control-label mt-2">Url</label>
                     <div class="col-sm-8">
-                      <input type="text" name="url" placeholder="Enter a url" class="form-control" v-model="campaignsItem.url" />
-                      <small class="text-danger" v-if="campaignsItem.url && !validURL(campaignsItem.url)">URL is invalid. You might need http/https at the beginning.</small>
+                      <input type="text" name="url" placeholder="Enter a url" class="form-control" v-model="campaignItem.url" />
+                      <small class="text-danger" v-if="campaignItem.url && !validURL(campaignItem.url)">URL is invalid. You might need http/https at the beginning.</small>
+                    </div>
+                  </div>
+
+                  <div class="form-group row" v-if="campaignItem.title">
+                    <label for="url" class="col-sm-2 control-label mt-2">Title</label>
+                    <div class="col-sm-8">
+                      <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="campaignItem.title" />
+                    </div>
+                  </div>
+
+                  <div class="form-group row" v-if="typeof campaignItem.description !== 'undefined'">
+                    <label for="description" class="col-sm-2 control-label mt-2">Description</label>
+                    <div class="col-sm-8">
+                      <textarea class="form-control" rows="3" placeholder="Enter description" v-model="campaignItem.description"></textarea>
+                    </div>
+                  </div>
+
+                  <div class="form-group row" v-if="typeof campaignItem.thumbnail_url !== 'undefined'">
+                    <label for="thumbnail_url" class="col-sm-2 control-label mt-2"></label>
+                    <div class="col-sm-8">
+                      <input type="text" name="thumbnail_url" placeholder="Enter a image url" class="form-control" v-model="campaignItem.thumbnail_url" />
+                      <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageThumbnailUrl', index)">Choose File</button>
+                    </div>
+                    <div class="col-sm-8 offset-sm-2">
+                      <small class="text-danger" v-if="campaignItem.thumbnail_url && !validURL(campaignItem.thumbnail_url)">URL is invalid. You might need http/https at the beginning.</small>
                     </div>
                   </div>
 
@@ -156,6 +181,13 @@
         </div>
       </div>
     </div>
+    <modal width="60%" height="80%" name="imageModal">
+      <file-manager v-bind:settings="settings" :props="{
+          upload: true,
+          viewType: 'grid',
+          selectionType: 'single'
+      }"></file-manager>
+    </modal>
   </section>
 </template>
 
@@ -214,11 +246,31 @@ export default {
 
     this.getAdvertisers()
     this.getCountries()
+
+    let vm = this
+    this.$root.$on('fm-selected-items', (value) => {
+      if (value.length == 0)
+        return
+
+      const selectedFilePath = value[0].path
+      if (this.openingFileSelector === 'imageThumbnailUrl') {
+        this.campaignItems[this.fileSelectorIndex].thumbnail_url = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+      }
+      vm.$modal.hide('imageModal')
+    });
   },
   watch: {
 
   },
   data() {
+    console.log(this.instance)
+    let campaignItems = [{
+      url: ''
+    }]
+
+    if (this.instance) {
+      campaignItems = this.instance.items;
+    }
 
     return {
       isLoading: false,
@@ -227,22 +279,24 @@ export default {
       currentStep: 1,
       actionName: this.action,
       advertisers: [],
-      selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
-      campaignName: '',
-      campaignBrandText: '',
-      campaignCPC: '',
-      campaignSpendingLimit: '',
-      campaignSpendingLimitModel: 'MONTHLY',
-      campaignMarketingObjective: 'DRIVE_WEBSITE_TRAFFIC',
+      selectedAdvertiser: this.instance ? this.instance.advertiser_id : '',
+      campaignName: this.instance ? this.instance.name : '',
+      campaignBrandText: this.instance ? this.instance.branding_text : '',
+      campaignCPC: this.instance ? this.instance.cpc : '',
+      campaignSpendingLimit: this.instance ? this.instance.spending_limit : '',
+      campaignSpendingLimitModel: this.instance ? this.instance.spending_limit_model : 'MONTHLY',
+      campaignMarketingObjective: this.instance ? this.instance.marketing_objective : 'DRIVE_WEBSITE_TRAFFIC',
       campaignMarketingObjectives: [
         'BRAND_AWARENESS',
         'LEADS_GENERATION',
         'ONLINE_PURCHASES',
         'DRIVE_WEBSITE_TRAFFIC'
       ],
-      campaignCountryTargeting: [],
+      campaignCountryTargeting: this.instance && this.instance.country_targeting.type == 'INCLUDE' ? this.instance.country_targeting.value : [],
       countries: [],
-      campaignStartDate: this.$moment().format('YYYY-MM-DD'),
+      campaignStartDate: this.instance ? this.instance.start_date : this.$moment().format('YYYY-MM-DD'),
+      campaignEndDate: this.instance && this.instance.end_date != '9999-12-31' ? this.instance.end_date : '',
+      campaignPlatformTargeting: this.instance && this.instance.platform_targeting.type == 'INCLUDE' ? this.instance.platform_targeting.value : [],
       campaignEndDate: '',
       campaignPlatformTargeting: [],
       devices: [{
@@ -258,13 +312,21 @@ export default {
         id: 'DESK',
         text: 'DESKTOP',
       }],
-      campaignIsActive: false,
-      campaignItems: [{
-        url: ''
-      }]
+      campaignIsActive: this.instance ? this.instance.status : false,
+      campaignItems: campaignItems,
+      settings: {
+        baseUrl: '/file-manager', // overwrite base url Axios
+        windowsConfig: 2, // overwrite config
+        lang: 'end'
+      }
     }
   },
   methods: {
+    openChooseFile(name, index, indexImage) {
+      this.openingFileSelector = name
+      this.fileSelectorIndex = index
+      this.$modal.show('imageModal')
+    },
     getAdvertisers() {
       this.advertisers = []
       this.isLoading = true
