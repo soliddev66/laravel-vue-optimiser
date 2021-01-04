@@ -8,16 +8,17 @@ use App\Models\Ad;
 use App\Models\Campaign;
 use App\Models\OutbrainReport;
 use App\Models\Provider;
+use App\Models\RedtrackContentStat;
 use App\Models\RedtrackReport;
 use App\Models\UserTracker;
 use App\Vngodev\AdVendorInterface;
+use App\Vngodev\Helper;
 use Carbon\Carbon;
 use DB;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
-use App\Vngodev\Helper;
 
 class Outbrain extends Root implements AdVendorInterface
 {
@@ -345,6 +346,28 @@ class Outbrain extends Root implements AdVendorInterface
                     'date' => $date,
                     'sub5' => $campaign->campaign_id,
                     'hour_of_day' => $value['hour_of_day']
+                ]);
+                foreach (array_keys($value) as $array_key) {
+                    $redtrack_report->{$array_key} = $value[$array_key];
+                }
+                $redtrack_report->save();
+            }
+
+            // Content stats
+            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub2&sub5=' . $campaign->campaign_id . '&tracks_view=true';
+            $response = $client->get($url);
+
+            $data = json_decode($response->getBody(), true);
+
+            foreach ($data as $i => $value) {
+                $value['date'] = $date;
+                $value['user_id'] = $campaign->user_id;
+                $value['campaign_id'] = $campaign->id;
+                $value['provider_id'] = $campaign->provider_id;
+                $value['open_id'] = $campaign->open_id;
+                $redtrack_report = RedtrackContentStat::firstOrNew([
+                    'date' => $date,
+                    'sub2' => $value['sub2']
                 ]);
                 foreach (array_keys($value) as $array_key) {
                     $redtrack_report->{$array_key} = $value[$array_key];

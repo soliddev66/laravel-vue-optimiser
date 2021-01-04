@@ -312,9 +312,8 @@ export default {
           }
           const filters = { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount };
           const params = {...this.targetDate, ...filters, ...options };
-          axios.get('/campaigns', {
-              params: params
-            }).then((response) => {
+          axios.post('/campaigns/data', params)
+            .then((response) => {
               this.campaigns = response.data;
             })
             .catch((err) => {

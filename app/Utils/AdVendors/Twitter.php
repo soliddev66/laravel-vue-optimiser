@@ -2,31 +2,30 @@
 
 namespace App\Utils\AdVendors;
 
-use Exception;
-use Log;
-use DB;
-
-use Carbon\Carbon;
-use GuzzleHttp\Client;
-use Illuminate\Support\Str;
-
-use App\Models\User;
-use App\Models\AdGroup;
-use App\Models\Campaign;
-use App\Models\Provider;
-use App\Models\UserTracker;
-use App\Models\RedtrackReport;
 use App\Endpoints\TwitterAPI;
 use App\Jobs\DeleteAdGroup;
 use App\Jobs\DeleteCampaign;
 use App\Jobs\DeleteCard;
 use App\Jobs\PullCampaign;
+use App\Models\Ad;
+use App\Models\AdGroup;
+use App\Models\Campaign;
+use App\Models\Provider;
+use App\Models\RedtrackReport;
 use App\Models\TwitterReport;
+use App\Models\User;
+use App\Models\UserTracker;
+use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
-
+use Carbon\Carbon;
+use DB;
+use Exception;
+use GuzzleHttp\Client;
 use Hborras\TwitterAdsSDK\TwitterAdsException;
+use Illuminate\Support\Str;
+use Log;
 
-class Twitter extends Root
+class Twitter extends Root implements AdVendorInterface
 {
     private function api()
     {
@@ -399,7 +398,34 @@ class Twitter extends Root
 
     public function pullAd($user_provider)
     {
-        //
+        $ad_ids = [];
+        AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($ad_groups) use ($user_provider, &$ad_ids) {
+            foreach ($ad_groups as $key => $ad_group) {
+                $ads = (new TwitterAPI($user_provider, $ad_group->advertiser_id))->getPromotedTweets([$ad_group->ad_group_id]);
+                foreach ($ads as $key => $ad) {
+                    $db_ad = Ad::firstOrNew([
+                        'ad_id' => $ad->getId(),
+                        'user_id' => $user_provider->user_id,
+                        'provider_id' => $user_provider->provider_id,
+                        'campaign_id' => $ad_group->campaign_id,
+                        'advertiser_id' => $ad_group->advertiser_id,
+                        'ad_group_id' => $ad_group->ad_group_id,
+                        'open_id' => $user_provider->open_id
+                    ]);
+
+                    $db_ad->name = $ad->getTweetId();
+                    $db_ad->status = $ad->getEntityStatus();
+                    $db_ad->save();
+                    $ad_ids[] = $db_ad->id;
+                }
+            }
+        });
+
+        Ad::where([
+            'user_id' => $user_provider->user_id,
+            'provider_id' => $user_provider->provider_id,
+            'open_id' => $user_provider->open_id
+        ])->whereNotIn('id', $ad_ids)->delete();
     }
 
     public function deleteCampaign(User $user, $campaign_id, $provider_slug, $account, $advertiser)
@@ -473,5 +499,80 @@ class Twitter extends Root
         $summary_data_query->whereBetween('end_time', [request('start'), request('end')]);
 
         return $summary_data_query;
+    }
+
+    public function getWidgetQuery($campaign, $data)
+    {
+        $widgets_query = TwitterReport::select([
+            '*',
+            DB::raw('JSON_EXTRACT(data, "$.summary.conversionMetrics[*].name") as widget_id'),
+            DB::raw('NULL as calc_cpc'),
+            DB::raw('NULL as tr_conv'),
+            DB::raw('NULL as tr_rev'),
+            DB::raw('NULL as tr_net'),
+            DB::raw('NULL as tr_roi'),
+            DB::raw('NULL as tr_epc'),
+            DB::raw('NULL as epc'),
+            DB::raw('NULL as tr_cpa'),
+            DB::raw('NULL as clicks'),
+            DB::raw('NULL as ts_clicks'),
+            DB::raw('NULL as trk_clicks'),
+            DB::raw('NULL as lp_clicks'),
+            DB::raw('NULL as lp_ctr'),
+            DB::raw('NULL as ctr'),
+            DB::raw('NULL as tr_cvr'),
+            DB::raw('NULL as ecpm'),
+            DB::raw('NULL as lp_cr'),
+            DB::raw('NULL as lp_cpc')
+        ]);
+        $widgets_query->where('campaign_id', $campaign->id);
+        $widgets_query->whereBetween('end_time', [$data['start'], $data['end']]);
+        $widgets_query->where(DB::raw('JSON_EXTRACT(data, "$.summary.conversionMetrics[*].name")'), 'LIKE', '%' . $data['search'] . '%');
+
+        return $widgets_query;
+    }
+
+    public function getContentQuery($campaign, $data)
+    {
+        $contents_query = Ad::select([
+            DB::raw('MAX(ads.id) as id'),
+            DB::raw('MAX(ads.campaign_id) as campaign_id'),
+            DB::raw('MAX(ads.ad_group_id) as ad_group_id'),
+            DB::raw('MAX(ads.ad_id) as ad_id'),
+            DB::raw('MAX(ads.name) as name'),
+            DB::raw('MAX(ads.status) as status'),
+            DB::raw('ROUND(SUM(total_revenue)/SUM(total_conversions), 2) as payout'),
+            DB::raw('SUM(clicks) as clicks'),
+            DB::raw('SUM(lp_views) as lp_views'),
+            DB::raw('SUM(lp_clicks) as lp_clicks'),
+            DB::raw('SUM(total_conversions) as total_conversions'),
+            DB::raw('SUM(total_conversions) as total_actions'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as total_actions_cr'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as cr'),
+            DB::raw('ROUND(SUM(total_revenue), 2) as total_revenue'),
+            DB::raw('ROUND(SUM(cost), 2) as cost'),
+            DB::raw('ROUND(SUM(profit), 2) as profit'),
+            DB::raw('ROUND((SUM(profit)/SUM(cost)) * 100, 2) as roi'),
+            DB::raw('ROUND(SUM(cost)/SUM(clicks), 2) as cpc'),
+            DB::raw('ROUND(SUM(cost)/SUM(total_conversions), 2) as cpa'),
+            DB::raw('ROUND(SUM(total_revenue)/SUM(clicks), 2) as epc'),
+            DB::raw('ROUND((SUM(lp_clicks)/SUM(lp_views)) * 100, 2) as lp_ctr'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(lp_views)) * 100, 2) as lp_views_cr'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(lp_clicks)) * 100, 2) as lp_clicks_cr'),
+            DB::raw('ROUND(SUM(cost)/SUM(lp_clicks), 2) as lp_cpc')
+        ]);
+        $contents_query->leftJoin('redtrack_content_stats', function ($join) use ($data) {
+            $join->on('redtrack_content_stats.sub5', '=', 'ads.ad_id')->whereBetween('redtrack_content_stats.date', [$data['start'], $data['end']]);
+        });
+        $contents_query->where('ads.campaign_id', $campaign->campaign_id);
+        $contents_query->where('name', 'LIKE', '%' . $data['search'] . '%');
+        $contents_query->groupBy('ads.ad_id');
+
+        return $contents_query;
+    }
+
+    public function getDomainQuery($campaign, $data)
+    {
+        //
     }
 }

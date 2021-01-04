@@ -625,7 +625,7 @@ class Yahoo extends Root implements AdVendorInterface
             DB::raw('SUM(clicks) as clicks'),
             DB::raw('SUM(lp_views) as lp_views'),
             DB::raw('SUM(lp_clicks) as lp_clicks'),
-            DB::raw('SUM(total_conversions) as total_conversions'),
+            DB::raw('SUM(total_conversions) as conversions'),
             DB::raw('SUM(total_conversions) as total_actions'),
             DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as total_actions_cr'),
             DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as cr'),
