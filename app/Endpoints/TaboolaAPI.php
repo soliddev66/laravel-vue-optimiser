@@ -43,10 +43,25 @@ class TaboolaAPI
         return $this->client->call('POST', $advertiser_id . '/campaigns', $data);
     }
 
+    public function updateCampaign($advertiser_id, $campaign_id, $data)
+    {
+        return $this->client->call('PUT', $advertiser_id . '/campaigns/' . $campaign_id, $data);
+    }
+
     public function createCampaignItem($advertiser_id, $campaign_id, $url)
     {
         return $this->client->call('POST', $advertiser_id . '/campaigns/' . $campaign_id . '/items', [
             'url' => $url
+        ]);
+    }
+
+    public function updateCampaignItem($advertiser_id, $campaign_id, $campaign_item)
+    {
+        return $this->client->call('PUT', $advertiser_id . '/campaigns/' . $campaign_id . '/items/' . $campaign_item['id'], [
+            'url' => $campaign_item['url'],
+            'title' => $campaign_item['title'],
+            'description' => $campaign_item['description'],
+            'thumbnail_url' => $campaign_item['thumbnail_url']
         ]);
     }
 
