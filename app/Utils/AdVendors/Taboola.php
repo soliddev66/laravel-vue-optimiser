@@ -77,6 +77,20 @@ class Taboola extends Root
                 $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
             }
 
+            $campaign = $api->getCampaign(request('advertiser'), $campaign_data['id']);
+
+            $db_campaign = Campaign::firstOrNew([
+                'campaign_id' => $campaign['id'],
+                'provider_id' => Provider::where('slug', request('provider'))->first()->id,
+                'user_id' => auth()->user()->id,
+                'open_id' => request('account')
+            ]);
+            $db_campaign->name = $campaign['name'];
+            $db_campaign->status = $campaign['status'];
+            $db_campaign->advertiser_id = request('advertiser');
+
+            $db_campaign->save();
+
             Helper::pullCampaign();
 
             return $campaign_data;
