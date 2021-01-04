@@ -129,21 +129,21 @@
                     </div>
                   </div>
 
-                  <div class="form-group row" v-if="campaignItem.title">
+                  <div class="form-group row" v-if="action == 'edit'">
                     <label for="url" class="col-sm-2 control-label mt-2">Title</label>
                     <div class="col-sm-8">
                       <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="campaignItem.title" />
                     </div>
                   </div>
 
-                  <div class="form-group row" v-if="typeof campaignItem.description !== 'undefined'">
+                  <div class="form-group row" v-if="action == 'edit'">
                     <label for="description" class="col-sm-2 control-label mt-2">Description</label>
                     <div class="col-sm-8">
                       <textarea class="form-control" rows="3" placeholder="Enter description" v-model="campaignItem.description"></textarea>
                     </div>
                   </div>
 
-                  <div class="form-group row" v-if="typeof campaignItem.thumbnail_url !== 'undefined'">
+                  <div class="form-group row" v-if="action == 'edit'">
                     <label for="thumbnail_url" class="col-sm-2 control-label mt-2"></label>
                     <div class="col-sm-8">
                       <input type="text" name="thumbnail_url" placeholder="Enter a image url" class="form-control" v-model="campaignItem.thumbnail_url" />
@@ -309,7 +309,7 @@ export default {
         id: 'DESK',
         text: 'DESKTOP',
       }],
-      campaignIsActive: this.instance ? this.instance.status : false,
+      campaignIsActive: this.instance && this.action == 'edit' ? this.instance.status : false,
       campaignItems: campaignItems,
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
