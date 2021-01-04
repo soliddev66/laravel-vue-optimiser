@@ -81,8 +81,8 @@ class Taboola extends Root
 
             $db_campaign = Campaign::firstOrNew([
                 'campaign_id' => $campaign['id'],
-                'provider_id' => Provider::where('slug', request('provider'))->first()->id,
-                'user_id' => auth()->user()->id,
+                'provider_id' => 4,
+                'user_id' => auth()->id(),
                 'open_id' => request('account')
             ]);
             $db_campaign->name = $campaign['name'];
