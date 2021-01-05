@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateNetworkSettingTable extends Migration
+class CreateNetworkSettingsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -16,6 +16,7 @@ class CreateNetworkSettingTable extends Migration
         Schema::create('network_settings', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('network_setting_group_id');
             $table->double('group_1a')->nullable();
             $table->double('group_1b')->nullable();
             $table->double('group_2a')->nullable();

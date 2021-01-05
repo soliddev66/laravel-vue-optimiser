@@ -129,7 +129,14 @@
                 <div class="form-group row">
                   <label for="bid_adjustment" class="col-sm-2 control-label mt-2">Native Network Partners</label>
                   <div class="col-sm-8">
+                    <div class="form-group row">
+                      <label for="network_setting_group" class="col-sm-2 control-label mt-2">Group</label>
+                      <div class="col">
+                        <select2 id="network_setting_group" name="network_setting_group" :options="networkSettingGroups" v-model="networkSettingGroup" @change="networkSettingGroupChanged"></select2>
+                      </div>
+                    </div>
                     <div class="row">
+                      <label for="network_setting" class="col-sm-2 control-label mt-2">Setting</label>
                       <div class="col">
                         <select2 id="network_setting" name="network_setting" :options="networkSettings" v-model="networkSetting" @change="networkSettingChanged"></select2>
                       </div>
@@ -187,7 +194,7 @@
                         <button type="button" class="btn btn-primary" @click.prevent="saveNetworkSetting = !saveNetworkSetting">Save these setting</button>
                       </div>
                       <div class="col-sm-2" v-if="!saveNetworkSetting && networkSettingName && campaignSupplyGroupState">
-                        <button type="button" class="btn btn-success" @click.prevent="saveNetworkSettingEvent()">Save</button>
+                        <button type="button" class="btn btn-success" @click.prevent="storeNetworkSetting()">Save</button>
                       </div>
                       <div class="col-sm-2" v-if="!saveNetworkSetting">
                         <button type="button" class="btn btn-warning" @click.prevent="saveNetworkSetting = !saveNetworkSetting">Cancel</button>
@@ -525,7 +532,7 @@ export default {
     this.getLanguages()
     this.getCountries()
     this.getAdvertisers()
-    this.getNetworkSetting()
+    this.getNetworkSettingGroup()
 
     if (this.instance) {
       for (let i = 0; i < this.instance.ads.length; i++) {
@@ -735,6 +742,8 @@ export default {
       networkSetting: '',
       saveNetworkSetting: true,
       networkSettingName: '',
+      networkSettingGroup: '',
+      networkSettingGroups: null,
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
@@ -872,8 +881,23 @@ export default {
         this.isLoading = false
       })
     },
+    getNetworkSettingGroup() {
+      axios.get(`/general/network-setting-group?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
+        if (response.data) {
+          this.networkSettingGroups = response.data.map(item => {
+            return {
+              id: item.id,
+              text: item.name
+            }
+          })
+        }
+      }).catch(err => {}).finally(() => {
+        this.isLoading = false
+      })
+    },
     getNetworkSetting() {
-      axios.get(`/general/network-setting?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
+      this.isLoading = true
+      axios.get(`/general/network-setting?provider=${this.selectedProvider}&account=${this.selectedAccount}&group=${this.networkSettingGroup}`).then(response => {
         if (response.data) {
           this.networkSettings = response.data.map(item => {
             return {
@@ -895,11 +919,15 @@ export default {
       this.campaignSupplyGroup3A = networkSetting.group_3a
       this.campaignSupplyGroup3B = networkSetting.group_3b
     },
-    saveNetworkSettingEvent() {
+    networkSettingGroupChanged() {
+      this.getNetworkSetting()
+    },
+    storeNetworkSetting() {
       this.isLoading = true
       axios.post(`/general/network-setting?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
         networkSettingName: this.networkSettingName,
         campaignSupplyGroup1A: this.campaignSupplyGroup1A,
+        group: this.networkSettingGroup,
         campaignSupplyGroup1B: this.campaignSupplyGroup1B,
         campaignSupplyGroup2A: this.campaignSupplyGroup2A,
         campaignSupplyGroup2B: this.campaignSupplyGroup2B,

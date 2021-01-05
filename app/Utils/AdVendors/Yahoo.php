@@ -17,6 +17,7 @@ use App\Models\RedtrackReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
 use App\Models\NetworkSetting;
+use App\Models\NetworkSettingGroup;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use Carbon\Carbon;
@@ -57,13 +58,19 @@ class Yahoo extends Root implements AdVendorInterface
 
     public function networkSetting()
     {
-        return NetworkSetting::all();
+        return NetworkSetting::where('network_setting_group_id', request('group'))->get();
+    }
+
+    public function networkSettingGroup()
+    {
+        return NetworkSettingGroup::all();
     }
 
     public function storeNetworkSetting()
     {
         NetworkSetting::firstOrNew([
             'name' => request('networkSettingName'),
+            'network_setting_group_id' => request('group'),
             'group_1a' => request('campaignSupplyGroup1A'),
             'group_1b' => request('campaignSupplyGroup1B'),
             'group_2a' => request('campaignSupplyGroup2A'),
