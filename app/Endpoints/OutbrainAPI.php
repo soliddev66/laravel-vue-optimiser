@@ -135,9 +135,9 @@ class OutbrainAPI
         ]);
     }
 
-    public function createAds($campaign_data, $ads)
+    public function createAds($campaign_id, $ads)
     {
-        return $this->client->call('POST', 'campaigns/' . $campaign_data['id'] . '/promotedLinks', $ads);
+        return $this->client->call('POST', 'campaigns/' . $campaign_id . '/promotedLinks', $ads);
     }
 
     public function updateAds($campaign_id, $ads)

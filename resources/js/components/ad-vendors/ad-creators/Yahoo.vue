@@ -7,7 +7,7 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-            <h2 class="mb-0">New Ad</h2>
+            <h2 class="mb-0">New Yahoo Ad</h2>
           </div>
           <div class="card-body">
             <form class="form-horizontal">
