@@ -9,7 +9,9 @@ use App\Models\Campaign;
 use App\Models\OutbrainReport;
 use App\Models\Provider;
 use App\Models\RedtrackContentStat;
+use App\Models\RedtrackPublisherStat;
 use App\Models\RedtrackReport;
+use App\Models\UserProvider;
 use App\Models\UserTracker;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
@@ -341,6 +343,30 @@ class Outbrain extends Root implements AdVendorInterface
                 }
                 $redtrack_report->save();
             }
+
+            // Publishers stats
+            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub3,sub7&sub5=' . $campaign->campaign_id . '&tracks_view=true';
+            $response = $client->get($url);
+
+            $data = json_decode($response->getBody(), true);
+
+            foreach ($data as $i => $value) {
+                $value['date'] = $date;
+                $value['user_id'] = $campaign->user_id;
+                $value['campaign_id'] = $campaign->id;
+                $value['provider_id'] = $campaign->provider_id;
+                $value['open_id'] = $campaign->open_id;
+                $redtrack_report = RedtrackPublisherStat::firstOrNew([
+                    'date' => $date,
+                    'campaign_id' => $campaign->id,
+                    'sub3' => $value['sub3'],
+                    'sub7' => $value['sub7']
+                ]);
+                foreach (array_keys($value) as $array_key) {
+                    $redtrack_report->{$array_key} = $value[$array_key];
+                }
+                $redtrack_report->save();
+            }
         }
     }
 
@@ -408,6 +434,46 @@ class Outbrain extends Root implements AdVendorInterface
         $contents_query->groupBy('ads.ad_id');
 
         return $contents_query;
+    }
+
+    public function getPublisherQuery($campaign, $data)
+    {
+        $publishers_query = RedtrackPublisherStat::select([
+            DB::raw('MAX(redtrack_publisher_stats.id) as id'),
+            'sub3',
+            'sub7',
+            DB::raw('MAX(campaigns.campaign_id) as campaign_id'),
+            DB::raw('MAX(campaigns.name) as name'),
+            DB::raw('MAX(campaigns.status) as status'),
+            DB::raw('ROUND(SUM(total_revenue)/SUM(total_conversions), 2) as payout'),
+            DB::raw('SUM(clicks) as clicks'),
+            DB::raw('SUM(lp_views) as lp_views'),
+            DB::raw('SUM(lp_clicks) as lp_clicks'),
+            DB::raw('SUM(total_conversions) as total_conversions'),
+            DB::raw('SUM(total_conversions) as total_actions'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as total_actions_cr'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as cr'),
+            DB::raw('ROUND(SUM(total_revenue), 2) as total_revenue'),
+            DB::raw('ROUND(SUM(cost), 2) as cost'),
+            DB::raw('ROUND(SUM(profit), 2) as profit'),
+            DB::raw('ROUND((SUM(profit)/SUM(cost)) * 100, 2) as roi'),
+            DB::raw('ROUND(SUM(cost)/SUM(clicks), 2) as cpc'),
+            DB::raw('ROUND(SUM(cost)/SUM(total_conversions), 2) as cpa'),
+            DB::raw('ROUND(SUM(total_revenue)/SUM(clicks), 2) as epc'),
+            DB::raw('ROUND((SUM(lp_clicks)/SUM(lp_views)) * 100, 2) as lp_ctr'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(lp_views)) * 100, 2) as lp_views_cr'),
+            DB::raw('ROUND((SUM(total_conversions)/SUM(lp_clicks)) * 100, 2) as lp_clicks_cr'),
+            DB::raw('ROUND(SUM(cost)/SUM(lp_clicks), 2) as lp_cpc')
+        ]);
+        $publishers_query->leftJoin('campaigns', function ($join) use ($data) {
+            $join->on('campaigns.id', '=', 'redtrack_publisher_stats.campaign_id');
+        });
+        $publishers_query->whereBetween('redtrack_publisher_stats.date', [$data['start'], $data['end']]);
+        $publishers_query->where('campaigns.campaign_id', $campaign->campaign_id);
+        $publishers_query->where('name', 'LIKE', '%' . $data['search'] . '%');
+        $publishers_query->groupBy(['sub3', 'sub7']);
+
+        return $publishers_query;
     }
 
     public function getDomainQuery($campaign, $data)

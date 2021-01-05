@@ -45,6 +45,17 @@ class OutbrainAPI
     }
 
     /**
+     * Fetch publishers.
+     *
+     * @return mixed
+     * @throws GuzzleException
+     */
+    public function getPublishers()
+    {
+        return $this->client->call('GET', 'publishers');
+    }
+
+    /**
      * Fetch budgets.
      *
      * @return mixed

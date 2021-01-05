@@ -5,6 +5,7 @@ namespace App\Console;
 use App\Jobs\PullAd;
 use App\Jobs\PullAdGroup;
 use App\Jobs\PullCampaign;
+use App\Models\GeminiJob;
 use App\Models\Rule;
 use App\Models\User;
 use App\Vngodev\Gemini;
@@ -78,6 +79,11 @@ class Kernel extends ConsoleKernel
 
         // Jobs retry
         $schedule->command('queue:retry all')->everyFifteenMinutes();
+
+        // Delete unuse gemini jobs
+        $schedule->call(function () {
+            GeminiJob::where('status', 'completed')->delete();
+        })->daily();
 
         // Failed jobs clear
         // $schedule->command('queue:flush')->hourly();
