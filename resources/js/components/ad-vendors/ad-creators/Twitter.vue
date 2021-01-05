@@ -18,7 +18,7 @@
                   <div class="col-lg-10 col-xl-8">
                     <div class="row mb-2" v-for="(tweetText, indexText) in card.tweetTexts" :key="indexText">
                       <div class="col-sm-8">
-                        <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="tweetText.text" :disabled="instance && action == 'edit' && saveCard" />
+                        <input type="text" name="tweet_text" placeholder="Enter texts" class="form-control" v-model="tweetText.text" />
                       </div>
                       <div class="col-sm-4">
                         <button type="button" class="btn btn-light" @click.prevent="removeTweetText(index, indexText)" v-if="indexText > 0"><i class="fa fa-minus"></i></button>
@@ -32,10 +32,10 @@
                   <div class="col-lg-4 col-xl-3">
                     <div class="btn-group btn-group-toggle">
                       <label class="btn bg-olive" :class="{ active: card.tweetNullcast }">
-                        <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" :disabled="instance && saveCard" v-model="card.tweetNullcast">TRUE
+                        <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" v-model="card.tweetNullcast">TRUE
                       </label>
                       <label class="btn bg-olive" :class="{ active: !card.tweetNullcast }">
-                        <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" :disabled="instance && saveCard" v-model="card.tweetNullcast">FALSE
+                        <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" v-model="card.tweetNullcast">FALSE
                       </label>
                     </div>
                   </div>
@@ -67,18 +67,13 @@
                     <input type="text" name="card_website_url" placeholder="Enter a website URL" class="form-control" v-model="card.websiteUrl" />
                   </div>
                 </div>
-                <div class="form-group row">
-                  <p class="col-12" v-if="instance && action == 'edit' && saveCard">
-                    Not allow to update the tweet.
-                  </p>
-                </div>
                 <div class="row" v-if="index > 0">
                   <div class="col text-right">
                     <button class="btn btn-warning btn-sm" @click.prevent="removeCard(index)">Remove</button>
                   </div>
                 </div>
               </fieldset>
-              <button class="btn btn-primary btn-sm d-none" @click.prevent="addCard()">Add New</button>
+              <button class="btn btn-primary btn-sm" @click.prevent="addCard()">Add New</button>
             </form>
           </div>
           <div class="card-footer d-flex justify-content-end">
@@ -88,11 +83,11 @@
       </div>
     </div>
 
-    <modal width="60%" height="80%" name="imageModal">
+    <modal width="60%" height="80%" name="cardMedia">
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
           viewType: 'grid',
-          selectionType: 'single'
+          selectionType: 'multiple'
       }"></file-manager>
     </modal>
   </section>
