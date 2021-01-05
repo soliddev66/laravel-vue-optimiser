@@ -86,7 +86,7 @@ class Outbrain extends Root implements AdVendorInterface
                     }
                 }
 
-                $api->createAds($campaign_data, $ads);
+                $api->createAds($campaign_data['id'], $ads);
 
                 Helper::pullCampaign();
             } catch (Exception $e) {
@@ -105,6 +105,39 @@ class Outbrain extends Root implements AdVendorInterface
         }
 
         return $data;
+    }
+
+    public function storeAd($campaign, $ad_group_id = null)
+    {
+        $api = $this->api();
+
+        try {
+
+            $ads = [];
+
+            foreach (request('ads') as $ad) {
+                foreach ($ad['titles'] as $title) {
+                    foreach ($ad['images'] as $image) {
+                        $ads[] = [
+                            'text' => $title['title'],
+                            'url' => $ad['targetUrl'],
+                            'enabled' => true,
+                            'imageMetadata' => [
+                                'url' => $image['url']
+                            ]
+                        ];
+                    }
+                }
+            }
+
+            $api->createAds($campaign->campaign_id, $ads);
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+
+        return [];
     }
 
     public function update(Campaign $campaign)
@@ -147,7 +180,7 @@ class Outbrain extends Root implements AdVendorInterface
             }
 
             if (count($ads) > 0) {
-                $ad_data = $api->createAds($campaign_data, $ads);
+                $ad_data = $api->createAds($campaign_data['id'], $ads);
             }
         } catch (RequestException $e) {
             $data = [
