@@ -49,6 +49,7 @@
                 <data-table :data="widgets" :columns="widgetColumns" @on-table-props-changed="reloadWidgetData"></data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 1 }" id="contents" role="tabpanel" aria-labelledby="contents-tab">
+                <a class="btn btn-primary btn-sm mb-2" v-if="campaign.provider_id == 2" :href="`/campaigns/${campaign.id}/ad-groups/ad-group/ads/create`">Create</a>
                 <data-table :data="contents" :columns="contentColumns" @on-table-props-changed="reloadContentData"></data-table>
               </div>
               <div class="tab-pane fade" v-if="[1,3,4].includes(campaign.provider_id)" :class="{ 'show active': show === 2 }" id="ad-groups" role="tabpanel" aria-labelledby="ad-groups-tab">
