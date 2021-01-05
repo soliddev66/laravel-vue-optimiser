@@ -130,15 +130,8 @@
                   <label for="bid_adjustment" class="col-sm-2 control-label mt-2">Native Network Partners</label>
                   <div class="col-sm-8">
                     <div class="form-group row">
-                      <label for="network_setting_group" class="col-sm-2 control-label mt-2">Group</label>
                       <div class="col">
-                        <select2 id="network_setting_group" name="network_setting_group" :options="networkSettingGroups" v-model="networkSettingGroup" @change="networkSettingGroupChanged"></select2>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <label for="network_setting" class="col-sm-2 control-label mt-2">Setting</label>
-                      <div class="col">
-                        <select2 id="network_setting" name="network_setting" :options="networkSettings" v-model="networkSetting" @change="networkSettingChanged"></select2>
+                        <treeselect :options="networkSettings" :disable-branch-nodes="true" v-model="networkSetting" @select="networkSettingChanged" placeholder="Load from setting..." />
                       </div>
                     </div>
                     <div class="row">
@@ -187,17 +180,20 @@
                     </div>
 
                     <div class="row mt-2">
-                      <div class="col-sm-6" v-if="!saveNetworkSetting">
-                        <input type="text" name="network_setting_name" v-model="networkSettingName" class="form-control" placeholder="Enter network setting name...">
+                      <div class="col-sm-4" v-if="!saveNetworkSetting">
+                        <input type="text" name="network_setting_name" v-model="networkSettingName" class="form-control" placeholder="Enter setting name">
                       </div>
-                      <div class="col-sm-6" v-if="saveNetworkSetting && campaignSupplyGroupState">
-                        <button type="button" class="btn btn-primary" @click.prevent="saveNetworkSetting = !saveNetworkSetting">Save these setting</button>
+
+                      <div class="col-sm-5" v-if="!saveNetworkSetting">
+                        <treeselect :options="networkSettingGroups" v-model="networkSettingGroup" placeholder="Select group..." />
                       </div>
-                      <div class="col-sm-2" v-if="!saveNetworkSetting && networkSettingName && campaignSupplyGroupState">
-                        <button type="button" class="btn btn-success" @click.prevent="storeNetworkSetting()">Save</button>
+
+                      <div class="col-sm-5" v-if="saveNetworkSetting && campaignSupplyGroupState">
+                        <button type="button" class="btn btn-primary" @click.prevent="saveNetworkSetting = !saveNetworkSetting; getNetworkSettingGroups()">Save these setting</button>
                       </div>
-                      <div class="col-sm-2" v-if="!saveNetworkSetting">
-                        <button type="button" class="btn btn-warning" @click.prevent="saveNetworkSetting = !saveNetworkSetting">Cancel</button>
+                      <div class="col-sm-3">
+                        <button type="button" v-if="!saveNetworkSetting && networkSettingName && campaignSupplyGroupState && networkSettingGroup" class="btn btn-success" @click.prevent="storeNetworkSetting()">Save</button>
+                        <button type="button" v-if="!saveNetworkSetting" class="btn btn-warning" @click.prevent="saveNetworkSetting = !saveNetworkSetting">Cancel</button>
                       </div>
                     </div>
                   </div>
@@ -428,8 +424,13 @@ import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
+import Treeselect from '@riophae/vue-treeselect'
+import { LOAD_ROOT_OPTIONS } from '@riophae/vue-treeselect'
+
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css'
 import 'vue-loading-overlay/dist/vue-loading.css'
+
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 let adPreviewCancels = []
 
@@ -463,7 +464,8 @@ export default {
   components: {
     Loading,
     VueCtkDateTimePicker,
-    Select2
+    Select2,
+    Treeselect
   },
   computed: {
     selectedAdvertiserState() {
@@ -532,7 +534,7 @@ export default {
     this.getLanguages()
     this.getCountries()
     this.getAdvertisers()
-    this.getNetworkSettingGroup()
+    this.getNetworkSettings()
 
     if (this.instance) {
       for (let i = 0; i < this.instance.ads.length; i++) {
@@ -738,12 +740,12 @@ export default {
       openingFileSelector: '',
       fileSelectorIndex: 0,
       fileSelectorIndexImage: 0,
-      networkSettings: null,
-      networkSetting: '',
+      networkSettings: [],
+      networkSetting: null,
       saveNetworkSetting: true,
       networkSettingName: '',
-      networkSettingGroup: '',
-      networkSettingGroups: null,
+      networkSettingGroup: null,
+      networkSettingGroups: [],
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
@@ -881,46 +883,38 @@ export default {
         this.isLoading = false
       })
     },
-    getNetworkSettingGroup() {
+    getNetworkSettings() {
+      this.isLoading = true
+      axios.get(`/general/network-setting?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
+        if (response.data) {
+          this.networkSettings = response.data
+        }
+      }).catch(err => {}).finally(() => {
+        this.isLoading = false
+      })
+    },
+    getNetworkSettingGroups() {
+      if (this.networkSettingGroups.length) {
+        return;
+      }
+      this.isLoading = true
       axios.get(`/general/network-setting-group?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
         if (response.data) {
-          this.networkSettingGroups = response.data.map(item => {
-            return {
-              id: item.id,
-              text: item.name
-            }
-          })
+          this.networkSettingGroups = response.data
         }
       }).catch(err => {}).finally(() => {
         this.isLoading = false
       })
     },
-    getNetworkSetting() {
-      this.isLoading = true
-      axios.get(`/general/network-setting?provider=${this.selectedProvider}&account=${this.selectedAccount}&group=${this.networkSettingGroup}`).then(response => {
-        if (response.data) {
-          this.networkSettings = response.data.map(item => {
-            return {
-              id: JSON.stringify(item),
-              text: item.name
-            }
-          })
-        }
-      }).catch(err => {}).finally(() => {
-        this.isLoading = false
-      })
-    },
-    networkSettingChanged() {
-      let networkSetting = JSON.parse(this.networkSetting)
-      this.campaignSupplyGroup1A = networkSetting.group_1a
-      this.campaignSupplyGroup1B = networkSetting.group_1b
-      this.campaignSupplyGroup2A = networkSetting.group_2a
-      this.campaignSupplyGroup2B = networkSetting.group_2b
-      this.campaignSupplyGroup3A = networkSetting.group_3a
-      this.campaignSupplyGroup3B = networkSetting.group_3b
-    },
-    networkSettingGroupChanged() {
-      this.getNetworkSetting()
+    networkSettingChanged(node, instanceId) {
+      if (typeof node.group_1a !== 'undefined') {
+        this.campaignSupplyGroup1A = node.group_1a
+        this.campaignSupplyGroup1B = node.group_1b
+        this.campaignSupplyGroup2A = node.group_2a
+        this.campaignSupplyGroup2B = node.group_2b
+        this.campaignSupplyGroup3A = node.group_3a
+        this.campaignSupplyGroup3B = node.group_3b
+      }
     },
     storeNetworkSetting() {
       this.isLoading = true
@@ -935,7 +929,7 @@ export default {
         campaignSupplyGroup3B: this.campaignSupplyGroup3B,
       }).then(response => {
         this.saveNetworkSetting = true
-        this.getNetworkSetting()
+        this.getNetworkSettings()
       }).catch(err => {}).finally(() => {
         this.isLoading = false
       })

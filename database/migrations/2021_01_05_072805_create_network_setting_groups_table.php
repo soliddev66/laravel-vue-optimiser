@@ -16,6 +16,7 @@ class CreateNetworkSettingGroupsTable extends Migration
         Schema::create('network_setting_groups', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->integer('parent')->nullable();
             $table->timestamps();
         });
     }
