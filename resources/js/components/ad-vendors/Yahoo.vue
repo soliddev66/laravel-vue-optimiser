@@ -130,43 +130,67 @@
                   <label for="bid_adjustment" class="col-sm-2 control-label mt-2">Native Network Partners</label>
                   <div class="col-sm-8">
                     <div class="row">
-                      <label class="col-sm-4 control-label mt-2">Publisher group</label>
-                      <label class="col-sm-8 control-label mt-2">Bid Adjustment</label>
-                    </div>
-                    <div class="row">
-                      <label for="bid_adjustment_group_1a" class="col-sm-4 control-label mt-2">Group 1A</label>
-                      <div class="col-sm-8">
-                        <input type="number" name="bid_adjustment_group_1a" class="form-control" v-model="campaignSupplyGroup1A" />
+                      <div class="col">
+                        <select2 id="network_setting" name="network_setting" :options="networkSettings" v-model="networkSetting" @change="networkSettingChanged"></select2>
                       </div>
                     </div>
                     <div class="row">
-                      <label for="bid_adjustment_group_1b" class="col-sm-4 control-label mt-2">Group 1B</label>
-                      <div class="col-sm-8">
-                        <input type="number" name="bid_adjustment_group_1b" class="form-control" v-model="campaignSupplyGroup1B" />
+                      <div class="col">
+                        <div class="row">
+                          <label class="col-sm-4 control-label mt-2">Publisher group</label>
+                          <label class="col-sm-8 control-label mt-2">Bid Adjustment</label>
+                        </div>
+                        <div class="row">
+                          <label for="bid_adjustment_group_1a" class="col-sm-4 control-label mt-2">Group 1A</label>
+                          <div class="col-sm-8">
+                            <input type="number" name="bid_adjustment_group_1a" class="form-control" v-model="campaignSupplyGroup1A" />
+                          </div>
+                        </div>
+                        <div class="row">
+                          <label for="bid_adjustment_group_1b" class="col-sm-4 control-label mt-2">Group 1B</label>
+                          <div class="col-sm-8">
+                            <input type="number" name="bid_adjustment_group_1b" class="form-control" v-model="campaignSupplyGroup1B" />
+                          </div>
+                        </div>
+                        <div class="row">
+                          <label for="bid_adjustment_group_2a" class="col-sm-4 control-label mt-2">Group 2A</label>
+                          <div class="col-sm-8">
+                            <input type="number" name="bid_adjustment_group_2a" class="form-control" v-model="campaignSupplyGroup2A" />
+                          </div>
+                        </div>
+                        <div class="row">
+                          <label for="bid_adjustment_group_2b" class="col-sm-4 control-label mt-2">Group 2B</label>
+                          <div class="col-sm-8">
+                            <input type="number" name="bid_adjustment_group_2b" class="form-control" v-model="campaignSupplyGroup2B" />
+                          </div>
+                        </div>
+                        <div class="row">
+                          <label for="bid_adjustment_group_3a" class="col-sm-4 control-label mt-2">Group 3A</label>
+                          <div class="col-sm-8">
+                            <input type="number" name="bid_adjustment_group_3a" class="form-control" v-model="campaignSupplyGroup3A" />
+                          </div>
+                        </div>
+                        <div class="row">
+                          <label for="bid_adjustment_group_3b" class="col-sm-4 control-label mt-2">Group 3B</label>
+                          <div class="col-sm-8">
+                            <input type="number" name="bid_adjustment_group_3b" class="form-control" v-model="campaignSupplyGroup3B" />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div class="row">
-                      <label for="bid_adjustment_group_2a" class="col-sm-4 control-label mt-2">Group 2A</label>
-                      <div class="col-sm-8">
-                        <input type="number" name="bid_adjustment_group_2a" class="form-control" v-model="campaignSupplyGroup2A" />
+
+                    <div class="row mt-2">
+                      <div class="col-sm-6" v-if="!saveNetworkSetting">
+                        <input type="text" name="network_setting_name" v-model="networkSettingName" class="form-control" placeholder="Enter network setting name...">
                       </div>
-                    </div>
-                    <div class="row">
-                      <label for="bid_adjustment_group_2b" class="col-sm-4 control-label mt-2">Group 2B</label>
-                      <div class="col-sm-8">
-                        <input type="number" name="bid_adjustment_group_2b" class="form-control" v-model="campaignSupplyGroup2B" />
+                      <div class="col-sm-6" v-if="saveNetworkSetting && campaignSupplyGroupState">
+                        <button type="button" class="btn btn-primary" @click.prevent="saveNetworkSetting = !saveNetworkSetting">Save these setting</button>
                       </div>
-                    </div>
-                    <div class="row">
-                      <label for="bid_adjustment_group_3a" class="col-sm-4 control-label mt-2">Group 3A</label>
-                      <div class="col-sm-8">
-                        <input type="number" name="bid_adjustment_group_3a" class="form-control" v-model="campaignSupplyGroup3A" />
+                      <div class="col-sm-2" v-if="!saveNetworkSetting && networkSettingName && campaignSupplyGroupState">
+                        <button type="button" class="btn btn-success" @click.prevent="saveNetworkSettingEvent()">Save</button>
                       </div>
-                    </div>
-                    <div class="row">
-                      <label for="bid_adjustment_group_3b" class="col-sm-4 control-label mt-2">Group 3B</label>
-                      <div class="col-sm-8">
-                        <input type="number" name="bid_adjustment_group_3b" class="form-control" v-model="campaignSupplyGroup3B" />
+                      <div class="col-sm-2" v-if="!saveNetworkSetting">
+                        <button type="button" class="btn btn-warning" @click.prevent="saveNetworkSetting = !saveNetworkSetting">Cancel</button>
                       </div>
                     </div>
                   </div>
@@ -470,6 +494,9 @@ export default {
       }
 
       return true
+    },
+    campaignSupplyGroupState() {
+      return this.campaignSupplyGroup1A || this.campaignSupplyGroup1B || this.campaignSupplyGroup2A || this.campaignSupplyGroup2B || this.campaignSupplyGroup3A || this.campaignSupplyGroup3B
     }
   },
   mounted() {
@@ -498,6 +525,7 @@ export default {
     this.getLanguages()
     this.getCountries()
     this.getAdvertisers()
+    this.getNetworkSetting()
 
     if (this.instance) {
       for (let i = 0; i < this.instance.ads.length; i++) {
@@ -703,6 +731,10 @@ export default {
       openingFileSelector: '',
       fileSelectorIndex: 0,
       fileSelectorIndexImage: 0,
+      networkSettings: null,
+      networkSetting: '',
+      saveNetworkSetting: true,
+      networkSettingName: '',
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
@@ -824,11 +856,6 @@ export default {
         }
       }
     },
-    selectedAccountChanged() {
-      this.getLanguages()
-      this.getCountries()
-      this.getAdvertisers()
-    },
     getLanguages() {
       this.isLoading = true
       this.languages = []
@@ -841,6 +868,46 @@ export default {
             }
           })
         }
+      }).catch(err => {}).finally(() => {
+        this.isLoading = false
+      })
+    },
+    getNetworkSetting() {
+      axios.get(`/general/network-setting?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
+        if (response.data) {
+          this.networkSettings = response.data.map(item => {
+            return {
+              id: JSON.stringify(item),
+              text: item.name
+            }
+          })
+        }
+      }).catch(err => {}).finally(() => {
+        this.isLoading = false
+      })
+    },
+    networkSettingChanged() {
+      let networkSetting = JSON.parse(this.networkSetting)
+      this.campaignSupplyGroup1A = networkSetting.group_1a
+      this.campaignSupplyGroup1B = networkSetting.group_1b
+      this.campaignSupplyGroup2A = networkSetting.group_2a
+      this.campaignSupplyGroup2B = networkSetting.group_2b
+      this.campaignSupplyGroup3A = networkSetting.group_3a
+      this.campaignSupplyGroup3B = networkSetting.group_3b
+    },
+    saveNetworkSettingEvent() {
+      this.isLoading = true
+      axios.post(`/general/network-setting?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
+        networkSettingName: this.networkSettingName,
+        campaignSupplyGroup1A: this.campaignSupplyGroup1A,
+        campaignSupplyGroup1B: this.campaignSupplyGroup1B,
+        campaignSupplyGroup2A: this.campaignSupplyGroup2A,
+        campaignSupplyGroup2B: this.campaignSupplyGroup2B,
+        campaignSupplyGroup3A: this.campaignSupplyGroup3A,
+        campaignSupplyGroup3B: this.campaignSupplyGroup3B,
+      }).then(response => {
+        this.saveNetworkSetting = true
+        this.getNetworkSetting()
       }).catch(err => {}).finally(() => {
         this.isLoading = false
       })

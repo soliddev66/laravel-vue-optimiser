@@ -16,6 +16,7 @@ use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
+use App\Models\NetworkSetting;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use Carbon\Carbon;
@@ -52,6 +53,26 @@ class Yahoo extends Root implements AdVendorInterface
     public function countries()
     {
         return $this->api()->getCountries();
+    }
+
+    public function networkSetting()
+    {
+        return NetworkSetting::all();
+    }
+
+    public function storeNetworkSetting()
+    {
+        NetworkSetting::firstOrNew([
+            'name' => request('networkSettingName'),
+            'group_1a' => request('campaignSupplyGroup1A'),
+            'group_1b' => request('campaignSupplyGroup1B'),
+            'group_2a' => request('campaignSupplyGroup2A'),
+            'group_2b' => request('campaignSupplyGroup2B'),
+            'group_3a' => request('campaignSupplyGroup3A'),
+            'group_3b' => request('campaignSupplyGroup3B'),
+        ])->save();
+
+        return [];
     }
 
     public function getCampaignInstance(Campaign $campaign)

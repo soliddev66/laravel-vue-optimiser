@@ -28,6 +28,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'general'], function() {
     Route::get('/languages', [App\Http\Controllers\GeneralController::class, 'languages'])->name('general.languages');
     Route::get('/countries', [App\Http\Controllers\GeneralController::class, 'countries'])->name('general.countries');
     Route::post('/preview', [App\Http\Controllers\GeneralController::class, 'preview'])->name('general.preview');
+    Route::get('/network-setting', [App\Http\Controllers\GeneralController::class, 'networkSetting'])->name('general.networkSetting');
+    Route::post('/network-setting', [App\Http\Controllers\GeneralController::class, 'storeNetworkSetting'])->name('general.storeNetworkSetting');
     Route::post('/upload-files', [App\Http\Controllers\GeneralController::class, 'uploadFiles'])->name('general.upload_files');
 });
 
