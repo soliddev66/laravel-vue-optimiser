@@ -7,7 +7,8 @@
 <script>
 import {
   yahoo,
-  outbrain
+  outbrain,
+  twitter
 } from './ad-vendors/ad-creators'
 
 export default {
@@ -24,7 +25,8 @@ export default {
 
   components: {
     yahoo,
-    outbrain
+    outbrain,
+    twitter
   },
 
   computed: {},
