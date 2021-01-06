@@ -431,21 +431,24 @@ class Twitter extends Root implements AdVendorInterface
         AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($ad_groups) use ($user_provider, &$ad_ids) {
             foreach ($ad_groups as $key => $ad_group) {
                 $ads = (new TwitterAPI($user_provider, $ad_group->advertiser_id))->getPromotedTweets([$ad_group->ad_group_id]);
-                foreach ($ads as $key => $ad) {
-                    $db_ad = Ad::firstOrNew([
-                        'ad_id' => $ad->getId(),
-                        'user_id' => $user_provider->user_id,
-                        'provider_id' => $user_provider->provider_id,
-                        'campaign_id' => $ad_group->campaign_id,
-                        'advertiser_id' => $ad_group->advertiser_id,
-                        'ad_group_id' => $ad_group->ad_group_id,
-                        'open_id' => $user_provider->open_id
-                    ]);
 
-                    $db_ad->name = $ad->getTweetId();
-                    $db_ad->status = $ad->getEntityStatus();
-                    $db_ad->save();
-                    $ad_ids[] = $db_ad->id;
+                if ($ads) {
+                    foreach ($ads as $key => $ad) {
+                        $db_ad = Ad::firstOrNew([
+                            'ad_id' => $ad->getId(),
+                            'user_id' => $user_provider->user_id,
+                            'provider_id' => $user_provider->provider_id,
+                            'campaign_id' => $ad_group->campaign_id,
+                            'advertiser_id' => $ad_group->advertiser_id,
+                            'ad_group_id' => $ad_group->ad_group_id,
+                            'open_id' => $user_provider->open_id
+                        ]);
+
+                        $db_ad->name = $ad->getTweetId();
+                        $db_ad->status = $ad->getEntityStatus();
+                        $db_ad->save();
+                        $ad_ids[] = $db_ad->id;
+                    }
                 }
             }
         });

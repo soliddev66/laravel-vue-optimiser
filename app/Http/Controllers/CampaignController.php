@@ -24,7 +24,6 @@ class CampaignController extends Controller
 {
     public function index()
     {
-        Helper::pullCampaign();
         return view('campaigns.index');
     }
 
