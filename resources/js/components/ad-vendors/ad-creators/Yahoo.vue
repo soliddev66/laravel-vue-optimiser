@@ -13,89 +13,89 @@
             <form class="form-horizontal">
               <h2 class="pb-2">General information</h2>
               <fieldset class="mb-3 p-3 rounded border" v-for="(content, index) in contents" :key="index">
-                  <div class="row">
-                    <div class="col-sm-7">
-                      <div class="form-group row">
-                        <label for="title" class="col-sm-4 control-label mt-2">Title</label>
-                        <div class="col-sm-8">
-                          <div class="row mb-2" v-for="(title, indexTitle) in content.titles" :key="indexTitle">
-                            <div class="col-sm-8">
-                              <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" v-on:blur="loadPreviewEvent($event, index)" />
-                            </div>
-                            <div class="col-sm-4">
-                              <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle); loadPreviewEvent($event, index)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
-                              <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length"><i class="fa fa-plus"></i></button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
-                        <div class="col-sm-8">
-                          <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" v-on:blur="loadPreviewEvent($event, index)" />
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="description" class="col-sm-4 control-label mt-2">Description</label>
-                        <div class="col-sm-8">
-                          <textarea class="form-control" rows="3" placeholder="Enter description" v-model="content.description" v-on:blur="loadPreviewEvent($event, index)"></textarea>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
-                        <div class="col-sm-8 text-center">
-                          <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" v-on:blur="loadPreviewEvent($event, index)" />
-                          <small class="text-danger" v-if="content.displayUrl && !validURL(content.displayUrl)">URL is invalid. You might need http/https at the beginning.</small>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
-                        <div class="col-sm-8 text-center">
-                          <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" v-on:blur="loadPreviewEvent($event, index)" />
-                          <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
-                        </div>
-                      </div>
-                      <fieldset class="mb-3 p-3 rounded border" v-for="(image, indexImage) in content.images" :key="indexImage">
-                        <div class="form-group row">
-                          <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
+                <div class="row">
+                  <div class="col-sm-7">
+                    <div class="form-group row">
+                      <label for="title" class="col-sm-4 control-label mt-2">Title</label>
+                      <div class="col-sm-8">
+                        <div class="row mb-2" v-for="(title, indexTitle) in content.titles" :key="indexTitle">
                           <div class="col-sm-8">
-                            <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index)" />
-                            <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index, indexImage)">Choose File</button>
+                            <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" v-on:blur="loadPreviewEvent($event, index)" />
                           </div>
-                          <div class="col-sm-8 offset-sm-4">
-                            <small class="text-danger" v-if="image.imageUrlHQ && !validURL(image.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
-                            <small class="text-danger" v-if="!image.imageUrlHQState">Image is invalid. You might need an 1200x627 image.</small>
-                          </div>
-                        </div>
-                        <div class="form-group row">
-                          <label for="image_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
-                          <div class="col-sm-8">
-                            <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index)" />
-                            <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, indexImage)">Choose File</button>
-                          </div>
-                          <div class="col-sm-8 offset-sm-4">
-                            <small class="text-danger" v-if="image.imageUrl && !validURL(image.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
-                            <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
+                          <div class="col-sm-4">
+                            <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle); loadPreviewEvent($event, index)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length"><i class="fa fa-plus"></i></button>
                           </div>
                         </div>
-                        <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeImage(index, indexImage); loadPreviewEvent($event, index)" v-if="indexImage > 0">Remove Image</button>
-                      </fieldset>
-                      <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)">Add Image</button>
+                      </div>
                     </div>
-                    <div class="col-sm-5">
-                      <h1>Preview</h1>
-                      <div class="row mb-2" v-for="(preview, indexPreview) in content.adPreviews" :key="indexPreview">
-                        <div class="col" v-html="preview.data"></div>
+                    <div class="form-group row">
+                      <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" v-on:blur="loadPreviewEvent($event, index)" />
                       </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="description" class="col-sm-4 control-label mt-2">Description</label>
+                      <div class="col-sm-8">
+                        <textarea class="form-control" rows="3" placeholder="Enter description" v-model="content.description" v-on:blur="loadPreviewEvent($event, index)"></textarea>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
+                      <div class="col-sm-8 text-center">
+                        <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                        <small class="text-danger" v-if="content.displayUrl && !validURL(content.displayUrl)">URL is invalid. You might need http/https at the beginning.</small>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
+                      <div class="col-sm-8 text-center">
+                        <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                        <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
+                      </div>
+                    </div>
+                    <fieldset class="mb-3 p-3 rounded border" v-for="(image, indexImage) in content.images" :key="indexImage">
+                      <div class="form-group row">
+                        <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
+                        <div class="col-sm-8">
+                          <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index)" />
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index, indexImage)">Choose File</button>
+                        </div>
+                        <div class="col-sm-8 offset-sm-4">
+                          <small class="text-danger" v-if="image.imageUrlHQ && !validURL(image.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
+                          <small class="text-danger" v-if="!image.imageUrlHQState">Image is invalid. You might need an 1200x627 image.</small>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label for="image_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
+                        <div class="col-sm-8">
+                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index)" />
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, indexImage)">Choose File</button>
+                        </div>
+                        <div class="col-sm-8 offset-sm-4">
+                          <small class="text-danger" v-if="image.imageUrl && !validURL(image.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
+                          <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
+                        </div>
+                      </div>
+                      <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeImage(index, indexImage); loadPreviewEvent($event, index)" v-if="indexImage > 0">Remove Image</button>
+                    </fieldset>
+                    <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)">Add Image</button>
+                  </div>
+                  <div class="col-sm-5">
+                    <h1>Preview</h1>
+                    <div class="row mb-2" v-for="(preview, indexPreview) in content.adPreviews" :key="indexPreview">
+                      <div class="col" v-html="preview.data"></div>
                     </div>
                   </div>
-                  <div class="row" v-if="index > 0">
-                    <div class="col text-right">
-                      <button class="btn btn-warning btn-sm" @click.prevent="removeContent(index)">Remove</button>
-                    </div>
+                </div>
+                <div class="row" v-if="index > 0">
+                  <div class="col text-right">
+                    <button class="btn btn-warning btn-sm" @click.prevent="removeContent(index)">Remove</button>
                   </div>
-                </fieldset>
-                <button class="btn btn-primary btn-sm" @click.prevent="addContent()">Add New</button>
+                </div>
+              </fieldset>
+              <button class="btn btn-primary btn-sm" @click.prevent="addContent()">Add New</button>
             </form>
           </div>
           <div class="card-footer d-flex justify-content-end">
