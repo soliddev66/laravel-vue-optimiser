@@ -271,27 +271,27 @@ class GeminiAPI
         }
 
         if (!empty(request('campaignSupplyGroup1A'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_1_A', 'bidModifier' => request('campaignSupplyGroup1A')];
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_1_A', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup1A') / 100))];
         }
 
         if (!empty(request('campaignSupplyGroup1B'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_1_B', 'bidModifier' => request('campaignSupplyGroup1B')];
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_1_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup1B') / 100))];
         }
 
         if (!empty(request('campaignSupplyGroup2A'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_A', 'bidModifier' => request('campaignSupplyGroup2A')];
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_A', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup2A') / 100))];
         }
 
         if (!empty(request('campaignSupplyGroup2B'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_B', 'bidModifier' => request('campaignSupplyGroup2B')];
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup2B') / 100))];
         }
 
         if (!empty(request('campaignSupplyGroup3A'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_A', 'bidModifier' => request('campaignSupplyGroup3A')];
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_A', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup3A') / 100))];
         }
 
         if (!empty(request('campaignSupplyGroup3B'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_B', 'bidModifier' => request('campaignSupplyGroup3B')];
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup3B') / 100))];
         }
 
         if (!empty(request('campaignSiteBlock'))) {

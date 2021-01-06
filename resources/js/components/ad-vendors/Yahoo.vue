@@ -125,7 +125,6 @@
                     </select>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="bid_adjustment" class="col-sm-2 control-label mt-2">Native Bid Adjustment</label>
                   <div class="col-sm-8">
@@ -137,63 +136,78 @@
                     <div class="row">
                       <div class="col">
                         <div class="row">
-                          <label class="col-sm-4 control-label mt-2">Publishers</label>
-                          <label class="col-sm-8 control-label mt-2">Bid Adjustments</label>
+                          <label class="col-sm-4 mt-2">Publishers</label>
+                          <label class="col-sm-8 mt-2 text-center">Bid Adjustments</label>
                         </div>
                         <div class="row">
-                          <label for="bid_adjustment_group_1a" class="col-sm-4 control-label mt-2">Group 1A</label>
-                          <label class="col-sm-3 control-label mt-2">Increase By</label>
-                          <div class="col-sm-5">
+                          <label for="bid_adjustment_group_1a" class="col-sm-5 control-label mt-2">Group 1A <small>(+800%)</small></label>
+                          <label class="col-sm-3 control-label mt-2"><i>Increase By</i></label>
+                          <div class="input-group col-sm-4 mb-1">
                             <input type="number" name="bid_adjustment_group_1a" class="form-control" v-model="campaignSupplyGroup1A" />
+                            <div class="input-group-append">
+                              <span class="input-group-text">%</span>
+                            </div>
                           </div>
                         </div>
                         <div class="row">
-                          <label for="bid_adjustment_group_1b" class="col-sm-4 control-label mt-2">Group 1B</label>
-                          <label class="col-sm-3 control-label mt-2">Increase By</label>
-                          <div class="col-sm-5">
+                          <label for="bid_adjustment_group_1b" class="col-sm-5 control-label mt-2">Group 1B <small>(+600% - -40%)</small></label>
+                          <label class="col-sm-3 control-label mt-2"><i>Increase By</i></label>
+                          <div class="input-group col-sm-4 mb-1">
                             <input type="number" name="bid_adjustment_group_1b" class="form-control" v-model="campaignSupplyGroup1B" />
+                            <div class="input-group-append">
+                              <span class="input-group-text">%</span>
+                            </div>
                           </div>
                         </div>
                         <div class="row">
-                          <label for="bid_adjustment_group_2a" class="col-sm-4 control-label mt-2">Group 2A</label>
-                          <label class="col-sm-3 control-label mt-2">Increase By</label>
-                          <div class="col-sm-5">
+                          <label for="bid_adjustment_group_2a" class="col-sm-5 control-label mt-2">Group 2A <small>(+800% - -30%)</small></label>
+                          <label class="col-sm-3 control-label mt-2"><i>Increase By</i></label>
+                          <div class="input-group col-sm-4 mb-1">
                             <input type="number" name="bid_adjustment_group_2a" class="form-control" v-model="campaignSupplyGroup2A" />
+                            <div class="input-group-append">
+                              <span class="input-group-text">%</span>
+                            </div>
                           </div>
                         </div>
                         <div class="row">
-                          <label for="bid_adjustment_group_2b" class="col-sm-4 control-label mt-2">Group 2B</label>
-                          <label class="col-sm-3 control-label mt-2">Increase By</label>
-                          <div class="col-sm-5">
+                          <label for="bid_adjustment_group_2b" class="col-sm-5 control-label mt-2">Group 2B <small>(+600% - -70%)</small></label>
+                          <label class="col-sm-3 control-label mt-2"><i>Increase By</i></label>
+                          <div class="input-group col-sm-4 mb-1">
                             <input type="number" name="bid_adjustment_group_2b" class="form-control" v-model="campaignSupplyGroup2B" />
+                            <div class="input-group-append">
+                              <span class="input-group-text">%</span>
+                            </div>
                           </div>
                         </div>
                         <div class="row">
-                          <label for="bid_adjustment_group_3a" class="col-sm-4 control-label mt-2">Group 3A</label>
-                          <label class="col-sm-3 control-label mt-2">Increase By</label>
-                          <div class="col-sm-5">
+                          <label for="bid_adjustment_group_3a" class="col-sm-5 control-label mt-2">Group 3A <small>(+800% - -50%)</small></label>
+                          <label class="col-sm-3 control-label mt-2"><i>Increase By</i></label>
+                          <div class="input-group col-sm-4 mb-1">
                             <input type="number" name="bid_adjustment_group_3a" class="form-control" v-model="campaignSupplyGroup3A" />
+                            <div class="input-group-append">
+                              <span class="input-group-text">%</span>
+                            </div>
                           </div>
                         </div>
                         <div class="row">
-                          <label for="bid_adjustment_group_3b" class="col-sm-4 control-label mt-2">Group 3B</label>
-                          <label class="col-sm-3 control-label mt-2">Increase By</label>
-                          <div class="col-sm-5">
+                          <label for="bid_adjustment_group_3b" class="col-sm-5 control-label mt-2">Group 3B <small>(+600% - -80%)</small></label>
+                          <label class="col-sm-3 control-label mt-2"><i>Increase By</i></label>
+                          <div class="input-group col-sm-4 mb-1">
                             <input type="number" name="bid_adjustment_group_3b" class="form-control" v-model="campaignSupplyGroup3B" />
+                            <div class="input-group-append">
+                              <span class="input-group-text">%</span>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-
                     <div class="row mt-2">
                       <div class="col-sm-4" v-if="!saveNetworkSetting">
                         <input type="text" name="network_setting_name" v-model="networkSettingName" class="form-control" placeholder="Enter setting name">
                       </div>
-
                       <div class="col-sm-5" v-if="!saveNetworkSetting">
                         <treeselect :options="networkSettingGroups" v-model="networkSettingGroup" placeholder="Select group..." />
                       </div>
-
                       <div class="col-sm-5" v-if="saveNetworkSetting && campaignSupplyGroupState">
                         <button type="button" class="btn btn-primary" @click.prevent="saveNetworkSetting = !saveNetworkSetting; getNetworkSettingGroups()">Save these setting</button>
                       </div>
@@ -204,7 +218,6 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="site_block" class="col-sm-2 control-label mt-2">Site blocks</label>
                   <div class="col-sm-8">
@@ -212,7 +225,6 @@
                     <small>Separate sites by comma</small>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="conversion_counting" class="col-sm-2 control-label mt-2">Conversion counting</label>
                   <div class="col-sm-8">
