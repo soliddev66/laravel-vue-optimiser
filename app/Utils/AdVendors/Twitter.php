@@ -189,7 +189,7 @@ class Twitter extends Root implements AdVendorInterface
             $line_item_data = $api->saveLineItem($campaign_data, request('adGroupID'));
 
             if (!request('saveCard')) {
-                $promotable_users = $api->getPromotableUsers();
+                $promotable_users = $this->api()->getPromotableUsers();
                 $promoted_tweets = $api->getPromotedTweets([$line_item_data->getId()]);
 
                 if ($promoted_tweets && count($promoted_tweets) > 0) {
@@ -200,8 +200,8 @@ class Twitter extends Root implements AdVendorInterface
 
                 foreach (request('cards') as $card) {
                     foreach ($card['media'] as $mediaPath) {
-                        $media = $api->uploadMedia($promotable_users, $mediaPath);
-                        $media_library = $api->createMediaLibrary($media->media_key);
+                        $media = $this->api()->uploadMedia($promotable_users, $mediaPath);
+                        $media_library = $this->api()->createMediaLibrary($media->media_key);
                         $card_data = $api->createWebsiteCard($media->media_key, $card);
 
                         foreach ($card['tweetTexts'] as $tweetText) {
@@ -239,10 +239,10 @@ class Twitter extends Root implements AdVendorInterface
                 $media_library = $api->createMediaLibrary($media->media_key);
                 $card_data = $api->createWebsiteCard($media->media_key, $card);
 
-                foreach ($card['tweetTexts'] as $tweetText) {
-                    $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweetText);
-                    $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
-                }
+                // foreach ($card['tweetTexts'] as $tweetText) {
+                //     $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweetText);
+                //     $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+                // }
             }
         }
 
