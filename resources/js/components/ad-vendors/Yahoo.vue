@@ -601,32 +601,40 @@ export default {
     if (this.instance) {
       let siteBlock = [];
 
+      if (this.instance.adGroups.length > 0) {
+        adGroupID = this.instance.adGroups[0]['id'];
+        adGroupName = this.instance.adGroups[0]['adGroupName'];
+
+        if (this.instance.adGroups[0]['bidSet']['bids'].length > 0) {
+          bidAmount = this.instance.adGroups[0]['bidSet']['bids'][0]['value'];
+        }
+      }
+
       this.instance.attributes.forEach(attribute => {
         console.log(attribute)
         if (attribute.type === 'GENDER') {
-          campaignGender.push(attribute.value);
+          campaignGender.push(attribute.value)
         } else if (attribute.type === 'AGE') {
-          campaignAge.push(attribute.value);
+          campaignAge.push(attribute.value)
         } else if (attribute.type === 'DEVICE') {
-          campaignDevice.push(attribute.value);
+          campaignDevice.push(attribute.value)
         } else if (attribute.type === 'WOEID') {
-          campaignLocation.push(attribute.value);
+          campaignLocation.push(attribute.value)
         } else if (attribute.type === 'SUPPLY_GROUP') {
           if (attribute.value === 'GROUP_1_A') {
-            campaignSupplyGroup1A = attribute.bidModifier;
+            campaignSupplyGroup1A = (attribute.bidModifier - bidAmount) / bidAmount * 100
           } else if (attribute.value === 'GROUP_1_B') {
-            campaignSupplyGroup1B = attribute.bidModifier;
+            campaignSupplyGroup1B = (attribute.bidModifier - bidAmount) / bidAmount * 100
           } else if (attribute.value === 'GROUP_2_A') {
-            campaignSupplyGroup2A = attribute.bidModifier;
+            campaignSupplyGroup2A = (attribute.bidModifier - bidAmount) / bidAmount * 100
           } else if (attribute.value === 'GROUP_2_B') {
-            campaignSupplyGroup2B = attribute.bidModifier;
+            campaignSupplyGroup2B = (attribute.bidModifier - bidAmount) / bidAmount * 100
           } else if (attribute.value === 'GROUP_3_A') {
-            campaignSupplyGroup3A = attribute.bidModifier;
+            campaignSupplyGroup3A = (attribute.bidModifier - bidAmount) / bidAmount * 100
           } else if (attribute.value === 'GROUP_3_B') {
-            campaignSupplyGroup3B = attribute.bidModifier;
+            campaignSupplyGroup3B = (attribute.bidModifier - bidAmount) / bidAmount * 100
           }
         } else if (attribute.type === 'SITE_BLOCK') {
-          console.log(attribute.value);
           siteBlock.push(attribute.value);
         }
 
@@ -635,15 +643,6 @@ export default {
 
       if (siteBlock.length > 0) {
         campaignSiteBlock = siteBlock.join(',');
-      }
-
-      if (this.instance.adGroups.length > 0) {
-        adGroupID = this.instance.adGroups[0]['id'];
-        adGroupName = this.instance.adGroups[0]['adGroupName'];
-
-        if (this.instance.adGroups[0]['bidSet']['bids'].length > 0) {
-          bidAmount = this.instance.adGroups[0]['bidSet']['bids'][0]['value'];
-        }
       }
 
       contents = [];
