@@ -127,7 +127,7 @@
                 </div>
 
                 <div class="form-group row">
-                  <label for="bid_adjustment" class="col-sm-2 control-label mt-2">Native Network Partners</label>
+                  <label for="bid_adjustment" class="col-sm-2 control-label mt-2">Native Bid Adjustment</label>
                   <div class="col-sm-8">
                     <div class="form-group row">
                       <div class="col">
@@ -137,42 +137,48 @@
                     <div class="row">
                       <div class="col">
                         <div class="row">
-                          <label class="col-sm-4 control-label mt-2">Publisher group</label>
-                          <label class="col-sm-8 control-label mt-2">Bid Adjustment</label>
+                          <label class="col-sm-4 control-label mt-2">Publishers</label>
+                          <label class="col-sm-8 control-label mt-2">Bid Adjustments</label>
                         </div>
                         <div class="row">
                           <label for="bid_adjustment_group_1a" class="col-sm-4 control-label mt-2">Group 1A</label>
-                          <div class="col-sm-8">
+                          <label class="col-sm-3 control-label mt-2">Increase By</label>
+                          <div class="col-sm-5">
                             <input type="number" name="bid_adjustment_group_1a" class="form-control" v-model="campaignSupplyGroup1A" />
                           </div>
                         </div>
                         <div class="row">
                           <label for="bid_adjustment_group_1b" class="col-sm-4 control-label mt-2">Group 1B</label>
-                          <div class="col-sm-8">
+                          <label class="col-sm-3 control-label mt-2">Increase By</label>
+                          <div class="col-sm-5">
                             <input type="number" name="bid_adjustment_group_1b" class="form-control" v-model="campaignSupplyGroup1B" />
                           </div>
                         </div>
                         <div class="row">
                           <label for="bid_adjustment_group_2a" class="col-sm-4 control-label mt-2">Group 2A</label>
-                          <div class="col-sm-8">
+                          <label class="col-sm-3 control-label mt-2">Increase By</label>
+                          <div class="col-sm-5">
                             <input type="number" name="bid_adjustment_group_2a" class="form-control" v-model="campaignSupplyGroup2A" />
                           </div>
                         </div>
                         <div class="row">
                           <label for="bid_adjustment_group_2b" class="col-sm-4 control-label mt-2">Group 2B</label>
-                          <div class="col-sm-8">
+                          <label class="col-sm-3 control-label mt-2">Increase By</label>
+                          <div class="col-sm-5">
                             <input type="number" name="bid_adjustment_group_2b" class="form-control" v-model="campaignSupplyGroup2B" />
                           </div>
                         </div>
                         <div class="row">
                           <label for="bid_adjustment_group_3a" class="col-sm-4 control-label mt-2">Group 3A</label>
-                          <div class="col-sm-8">
+                          <label class="col-sm-3 control-label mt-2">Increase By</label>
+                          <div class="col-sm-5">
                             <input type="number" name="bid_adjustment_group_3a" class="form-control" v-model="campaignSupplyGroup3A" />
                           </div>
                         </div>
                         <div class="row">
                           <label for="bid_adjustment_group_3b" class="col-sm-4 control-label mt-2">Group 3B</label>
-                          <div class="col-sm-8">
+                          <label class="col-sm-3 control-label mt-2">Increase By</label>
+                          <div class="col-sm-5">
                             <input type="number" name="bid_adjustment_group_3b" class="form-control" v-model="campaignSupplyGroup3B" />
                           </div>
                         </div>
