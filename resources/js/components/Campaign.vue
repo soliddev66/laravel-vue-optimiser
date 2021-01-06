@@ -22,13 +22,13 @@
           </div>
           <div class="card-body">
             <ul class="nav nav-pills mb-3" role="tablist">
-              <li class="nav-item" v-if="[1,3,4].includes(campaign.provider_id)">
+              <li class="nav-item" v-if="[1].includes(campaign.provider_id)">
                 <a class="nav-link" :class="{ 'active': show === 0 }" id="widgets-tab" data-toggle="pill" href="#widgets" role="tab" aria-controls="widgets" aria-selected="true" @click.prevent="getWidgetData()">Widgets</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" :class="{ 'active': show === 1 }" id="contents-tab" data-toggle="pill" href="#contents" role="tab" aria-controls="contents" aria-selected="false" @click.prevent="getContentData()">Contents</a>
               </li>
-              <li class="nav-item" v-if="[1,3,4].includes(campaign.provider_id)">
+              <li class="nav-item" v-if="[1,3].includes(campaign.provider_id)">
                 <a class="nav-link" :class="{ 'active': show === 2 }" id="ad-groups-tab" data-toggle="pill" href="#ad-groups" role="tab" aria-controls="ad-groups" aria-selected="false" @click.prevent="getAdGroupData()">Ad Groups</a>
               </li>
               <li class="nav-item" v-if="[2].includes(campaign.provider_id)">
@@ -49,7 +49,7 @@
                 <data-table :data="widgets" :columns="widgetColumns" @on-table-props-changed="reloadWidgetData"></data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 1 }" id="contents" role="tabpanel" aria-labelledby="contents-tab">
-                <a class="btn btn-primary btn-sm mb-2" v-if="campaign.provider_id == 2" :href="`/campaigns/${campaign.id}/ad-groups/ad-group/ads/create`">Create</a>
+                <a class="btn btn-primary btn-sm mb-2 float-right" v-if="campaign.provider_id == 2" :href="`/campaigns/${campaign.id}/ad-groups/ad-group/ads/create`">Create New Ad</a>
                 <data-table :data="contents" :columns="contentColumns" @on-table-props-changed="reloadContentData"></data-table>
               </div>
               <div class="tab-pane fade" v-if="[1,3,4].includes(campaign.provider_id)" :class="{ 'show active': show === 2 }" id="ad-groups" role="tabpanel" aria-labelledby="ad-groups-tab">
@@ -196,23 +196,25 @@ export default {
       ],
       publisherColumns: [
         { label: 'ID', name: 'id', orderable: true },
-        { label: 'Camp. ID', name: 'campaign_id', orderable: true },
-        { label: 'Ad Group ID', name: 'ad_group_id', orderable: true },
-        { label: 'Name', name: 'name', orderable: true }, {
-          label: 'Actions',
-          name: 'actions',
-          orderable: false,
-          classes: {
-            'btn': true,
-            'btn-primary': false,
-            'btn-sm': true,
-            'btn-add-new-ad': true,
-          },
-          event: "click",
-          handler: this.updateAdGroupStatus,
-          component: ActionsComponent
-        },
-        { label: 'Status', name: 'status', orderable: true }
+        { label: 'Sub3', name: 'sub3', orderable: true },
+        { label: 'Sub7', name: 'sub7', orderable: true },
+        { label: 'Clicks', name: 'clicks', orderable: true },
+        { label: 'LP Views', name: 'lp_views', orderable: true },
+        { label: 'LP Clicks', name: 'lp_clicks', orderable: true },
+        { label: 'Pre LP Clicks', name: 'prelp_clicks', orderable: true },
+        { label: 'LP CTR', name: 'lp_ctr', orderable: true },
+        { label: 'Purchase', name: 'conversions', orderable: true },
+        { label: 'CR', name: 'cr', orderable: true },
+        { label: 'Total Actions', name: 'total_actions', orderable: true },
+        { label: 'TR', name: 'tr', orderable: true },
+        { label: 'Purchase Revenue', name: 'conversion_revenue', orderable: true },
+        { label: 'Total Revenue', name: 'total_revenue', orderable: true },
+        { label: 'Cost', name: 'cost', orderable: true },
+        { label: 'Profit', name: 'profit', orderable: true },
+        { label: 'ROI', name: 'roi', orderable: true },
+        { label: 'CPC', name: 'cpc', orderable: true },
+        { label: 'CPA', name: 'cpa', orderable: true },
+        { label: 'EPC', name: 'epc', orderable: true }
       ],
       domainColumns: [
         { label: 'ID', name: 'id', orderable: true },
@@ -282,7 +284,7 @@ export default {
         case '#performance':
           break;
         default:
-          if (this.campaign.provider_id === 2) {
+          if (this.campaign.provider_id === 2 || this.campaign.provider_id === 4) {
             this.getContentData();
           } else {
             this.getWidgetData();

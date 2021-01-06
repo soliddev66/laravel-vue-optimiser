@@ -2,7 +2,7 @@
   <div>
     <button class="border" :class="classes" @click="click(data)" title="Update">
       <span>
-        <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': data.status == 'ACTIVE' }"></i>
+        <i aria-hidden="true" class="fas fa-play" :class="{ 'fa-stop': ['ACTIVE', 'RUNNING'].includes(data.status) }"></i>
     </span>
     </button>
     <a v-if="classes['btn-add-new-ad']" class="btn btn-sm btn-default border" :data-status="data.status" :href="`/campaigns/${data.campaign_id}/ad-groups/${data.ad_group_id}/ads/create`">

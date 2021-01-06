@@ -201,6 +201,7 @@ class Taboola extends Root implements AdVendorInterface
                 $db_campaign->name = $campaign['name'];
                 $db_campaign->status = $campaign['status'];
                 $db_campaign->advertiser_id = $advertiser['account_id'];
+                $db_campaign->budget = $campaign['spending_limit'];
 
                 $db_campaign->save();
                 $campaign_ids[] = $db_campaign->id;
@@ -426,6 +427,34 @@ class Taboola extends Root implements AdVendorInterface
 
     public function getDomainQuery($campaign, $data)
     {
-        //
+        $domains_query = RedtrackDomainStat::select(
+            DB::raw('MAX(id) as id'),
+            DB::raw('MAX(sub1) as top_domain'),
+            DB::raw('SUM(clicks) as clicks'),
+            DB::raw('SUM(lp_views) as lp_views'),
+            DB::raw('SUM(lp_clicks) as lp_clicks'),
+            DB::raw('SUM(prelp_clicks) as prelp_clicks'),
+            DB::raw('ROUND(SUM(lp_clicks) / SUM(lp_views) * 100, 2) as lp_ctr'),
+            DB::raw('SUM(conversions) as conversions'),
+            DB::raw('ROUND(SUM(conversions) / SUM(clicks) * 100, 2) as cr'),
+            DB::raw('SUM(conversions) as total_actions'),
+            DB::raw('SUM(conversions) as tr'),
+            DB::raw('SUM(revenue) as conversion_revenue'),
+            DB::raw('SUM(total_revenue) as total_revenue'),
+            DB::raw('SUM(cost) as cost'),
+            DB::raw('SUM(profit) as profit'),
+            DB::raw('ROUND(SUM(profit) / SUM(cost) * 100, 2) as roi'),
+            DB::raw('ROUND(SUM(cost) / SUM(clicks), 2) as cpc'),
+            DB::raw('ROUND(SUM(cost) / SUM(total_conversions), 2) as cpa'),
+            DB::raw('ROUND(SUM(total_revenue) / SUM(clicks), 2) as epc')
+        );
+        $domains_query->where('campaign_id', $campaign->id);
+        $domains_query->whereBetween('date', [$data['start'], $data['end']]);
+        if (request('search')) {
+            $domains_query->where('sub1', 'LIKE', '%' . $data['search'] . '%');
+        }
+        $domains_query->groupBy('sub1');
+
+        return $domains_query;
     }
 }
