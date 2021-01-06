@@ -143,7 +143,7 @@ class Twitter extends Root implements AdVendorInterface
 
                     foreach ($card['tweetTexts'] as $tweetText) {
                         $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweetText);
-                        $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+                        $promoted_tweet = $api->createPromotedTweet($line_item_data->getId(), $tweet_data);
                     }
                 }
             }
@@ -206,7 +206,7 @@ class Twitter extends Root implements AdVendorInterface
 
                         foreach ($card['tweetTexts'] as $tweetText) {
                             $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweetText);
-                            $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+                            $promoted_tweet = $api->createPromotedTweet($line_item_data->getId(), $tweet_data);
                         }
                     }
                 }
@@ -225,13 +225,6 @@ class Twitter extends Root implements AdVendorInterface
         $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
 
         $promotable_users = $api->getPromotableUsers();
-        $promoted_tweets = $api->getPromotedTweets([$ad_group_id]);
-
-        if ($promoted_tweets && count($promoted_tweets) > 0) {
-            foreach ($promoted_tweets as $promoted_tweet) {
-                $api->deletePromotedTweet($promoted_tweet->getId());
-            }
-        }
 
         foreach (request('cards') as $card) {
             foreach ($card['media'] as $mediaPath) {
@@ -239,10 +232,10 @@ class Twitter extends Root implements AdVendorInterface
                 $media_library = $api->createMediaLibrary($media->media_key);
                 $card_data = $api->createWebsiteCard($media->media_key, $card);
 
-                // foreach ($card['tweetTexts'] as $tweetText) {
-                //     $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweetText);
-                //     $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
-                // }
+                foreach ($card['tweetTexts'] as $tweetText) {
+                    $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweetText);
+                    $promoted_tweet = $api->createPromotedTweet($ad_group_id, $tweet_data);
+                }
             }
         }
 
