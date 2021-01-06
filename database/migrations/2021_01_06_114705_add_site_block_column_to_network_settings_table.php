@@ -14,7 +14,7 @@ class AddSiteBlockColumnToNetworkSettingsTable extends Migration
     public function up()
     {
         Schema::table('network_settings', function (Blueprint $table) {
-            $table->string('site_block')->after('group_3b')->nullable();
+            $table->text('site_block')->after('group_3b')->nullable();
         });
     }
 
