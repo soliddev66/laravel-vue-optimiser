@@ -220,6 +220,35 @@ class Twitter extends Root implements AdVendorInterface
         return [];
     }
 
+    public function storeAd(Campaign $campaign, $ad_group_id)
+    {
+        $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
+
+        $promotable_users = $api->getPromotableUsers();
+        $promoted_tweets = $api->getPromotedTweets([$ad_group_id]);
+
+        if ($promoted_tweets && count($promoted_tweets) > 0) {
+            foreach ($promoted_tweets as $promoted_tweet) {
+                $api->deletePromotedTweet($promoted_tweet->getId());
+            }
+        }
+
+        foreach (request('cards') as $card) {
+            foreach ($card['media'] as $mediaPath) {
+                $media = $api->uploadMedia($promotable_users, $mediaPath);
+                $media_library = $api->createMediaLibrary($media->media_key);
+                $card_data = $api->createWebsiteCard($media->media_key, $card);
+
+                // foreach ($card['tweetTexts'] as $tweetText) {
+                //     $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweetText);
+                //     $promoted_tweet = $api->createPromotedTweet($line_item_data, $tweet_data);
+                // }
+            }
+        }
+
+        return [];
+    }
+
     public function delete(Campaign $campaign)
     {
         try {
@@ -402,21 +431,24 @@ class Twitter extends Root implements AdVendorInterface
         AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($ad_groups) use ($user_provider, &$ad_ids) {
             foreach ($ad_groups as $key => $ad_group) {
                 $ads = (new TwitterAPI($user_provider, $ad_group->advertiser_id))->getPromotedTweets([$ad_group->ad_group_id]);
-                foreach ($ads as $key => $ad) {
-                    $db_ad = Ad::firstOrNew([
-                        'ad_id' => $ad->getId(),
-                        'user_id' => $user_provider->user_id,
-                        'provider_id' => $user_provider->provider_id,
-                        'campaign_id' => $ad_group->campaign_id,
-                        'advertiser_id' => $ad_group->advertiser_id,
-                        'ad_group_id' => $ad_group->ad_group_id,
-                        'open_id' => $user_provider->open_id
-                    ]);
 
-                    $db_ad->name = $ad->getTweetId();
-                    $db_ad->status = $ad->getEntityStatus();
-                    $db_ad->save();
-                    $ad_ids[] = $db_ad->id;
+                if ($ads) {
+                    foreach ($ads as $key => $ad) {
+                        $db_ad = Ad::firstOrNew([
+                            'ad_id' => $ad->getId(),
+                            'user_id' => $user_provider->user_id,
+                            'provider_id' => $user_provider->provider_id,
+                            'campaign_id' => $ad_group->campaign_id,
+                            'advertiser_id' => $ad_group->advertiser_id,
+                            'ad_group_id' => $ad_group->ad_group_id,
+                            'open_id' => $user_provider->open_id
+                        ]);
+
+                        $db_ad->name = $ad->getTweetId();
+                        $db_ad->status = $ad->getEntityStatus();
+                        $db_ad->save();
+                        $ad_ids[] = $db_ad->id;
+                    }
                 }
             }
         });

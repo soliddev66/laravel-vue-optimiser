@@ -265,7 +265,39 @@ class Taboola extends Root implements AdVendorInterface
 
     public function pullAd($user_provider)
     {
-        //
+        $ad_ids = [];
+
+        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', $user_provider->provider_id)->chunk(10, function ($campaigns) use ($user_provider, &$ad_ids) {
+            $api = new TaboolaAPI($user_provider);
+            foreach ($campaigns as $key => $campaign) {
+                $campaign_items = $api->getCampaignItems($campaign->advertiser_id, $campaign->campaign_id)['results'];
+
+                if ($campaign_items && count($campaign_items)) {
+                    foreach ($campaign_items as $campaign_item) {
+                        $ad = Ad::firstOrNew([
+                            'ad_id' => $campaign_item['id'],
+                            'user_id' => $user_provider->user_id,
+                            'provider_id' => $user_provider->provider_id,
+                            'campaign_id' => $campaign->campaign_id,
+                            'ad_group_id' => 'taboola',
+                            'advertiser_id' => $campaign->advertiser_id,
+                            'open_id' => $user_provider->open_id
+                        ]);
+
+                        $ad->name = $campaign_item['title'];
+                        $ad->status = $campaign_item['status'];
+                        $ad->save();
+                        $ad_ids[] = $ad->id;
+                    }
+                }
+            }
+        });
+
+        Ad::where([
+            'user_id' => $user_provider->user_id,
+            'provider_id' => $user_provider->provider_id,
+            'open_id' => $user_provider->open_id
+        ])->whereNotIn('id', $ad_ids)->delete();
     }
 
     public function pullRedTrack($campaign)

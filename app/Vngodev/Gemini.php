@@ -23,7 +23,7 @@ class Gemini
     public static function crawl()
     {
         $date = Carbon::now()->format('Y-m-d');
-        Campaign::where('provider_id', 1)->whereNotIn('campaign_id', GeminiJob::groupBy('campaign_id')->pluck('campaign_id'))->chunk(10, function ($campaigns) use ($date) {
+        Campaign::where('provider_id', 1)->whereNotIn('campaign_id', GeminiJob::where('status', '!=', 'completed')->groupBy('campaign_id')->pluck('campaign_id'))->chunk(10, function ($campaigns) use ($date) {
             foreach ($campaigns as $key => $campaign) {
                 $jobs = [];
                 $user_info = UserProvider::where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first();
@@ -94,7 +94,7 @@ class Gemini
 
     public static function checkJobs()
     {
-        GeminiJob::chunk(10, function($jobs) {
+        GeminiJob::where('status', '!=', 'completed')->chunk(10, function($jobs) {
             foreach ($jobs as $key => $job) {
                 PullGeminiReport::dispatch($job);
             }

@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
                 $command = unserialize($data['command']);
                 $gemini_job = $command->getGeminiJob();
                 if ($gemini_job->status === 'completed') {
-                    $gemini_job->delete();
+                    // $gemini_job->delete();
                 }
             }
         });

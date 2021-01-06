@@ -38,5 +38,15 @@ class PullOutbrainReport implements ShouldQueue
     public function handle()
     {
         // Need to be updated
+        // $campaign_ids = [];
+
+        // foreach ($this->campaigns as $campaign) {
+        //     $campaign_ids[] = $campaign->campaign_id;
+        // }
+
+        // $api = new OutbrainAPI(UserProvider::where([
+        //     'provider_id' => $this->campaign_account->provider_id,
+        //     'open_id' => $this->campaign_account->open_id
+        // ])->first());
     }
 }
