@@ -88,6 +88,7 @@ class Yahoo extends Root implements AdVendorInterface
                     $child_option['children'][] = [
                         'id' => $networkSetting->id,
                         'label' => $networkSetting->name,
+                        'site_block' => $networkSetting->site_block,
                         'group_1a' => $networkSetting->group_1a,
                         'group_1b' => $networkSetting->group_1b,
                         'group_2a' => $networkSetting->group_2a,
@@ -133,6 +134,7 @@ class Yahoo extends Root implements AdVendorInterface
         NetworkSetting::firstOrNew([
             'name' => request('networkSettingName'),
             'network_setting_group_id' => request('group'),
+            'site_block' => request('campaignSiteBlock'),
             'group_1a' => request('campaignSupplyGroup1A'),
             'group_1b' => request('campaignSupplyGroup1B'),
             'group_2a' => request('campaignSupplyGroup2A'),

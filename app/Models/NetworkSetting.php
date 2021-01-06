@@ -12,6 +12,7 @@ class NetworkSetting extends Model
     protected $fillable = [
         'name',
         'network_setting_group_id',
+        'site_block',
         'group_1a',
         'group_1b',
         'group_2a',
