@@ -201,6 +201,18 @@
                         </div>
                       </div>
                     </div>
+
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="site_block" class="col-sm-2 control-label mt-2">Site blocks</label>
+                  <div class="col-sm-8">
+                    <div class="row">
+                      <div class="col">
+                        <textarea class="form-control" rows="3" placeholder="Enter site block" v-model="campaignSiteBlock" :disabled="actionName == 'edit'"></textarea>
+                        <small>Separate sites by comma</small>
+                      </div>
+                    </div>
                     <div class="row mt-2">
                       <div class="col-sm-4" v-if="!saveNetworkSetting">
                         <input type="text" name="network_setting_name" v-model="networkSettingName" class="form-control" placeholder="Enter setting name">
@@ -216,13 +228,6 @@
                         <button type="button" v-if="!saveNetworkSetting" class="btn btn-warning" @click.prevent="saveNetworkSetting = !saveNetworkSetting">Cancel</button>
                       </div>
                     </div>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="site_block" class="col-sm-2 control-label mt-2">Site blocks</label>
-                  <div class="col-sm-8">
-                    <textarea class="form-control" rows="3" placeholder="Enter site block" v-model="campaignSiteBlock" :disabled="actionName == 'edit'"></textarea>
-                    <small>Separate sites by comma</small>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -601,32 +606,39 @@ export default {
     if (this.instance) {
       let siteBlock = [];
 
+      if (this.instance.adGroups.length > 0) {
+        adGroupID = this.instance.adGroups[0]['id'];
+        adGroupName = this.instance.adGroups[0]['adGroupName'];
+
+        if (this.instance.adGroups[0]['bidSet']['bids'].length > 0) {
+          bidAmount = this.instance.adGroups[0]['bidSet']['bids'][0]['value'];
+        }
+      }
+
       this.instance.attributes.forEach(attribute => {
-        console.log(attribute)
         if (attribute.type === 'GENDER') {
-          campaignGender.push(attribute.value);
+          campaignGender.push(attribute.value)
         } else if (attribute.type === 'AGE') {
-          campaignAge.push(attribute.value);
+          campaignAge.push(attribute.value)
         } else if (attribute.type === 'DEVICE') {
-          campaignDevice.push(attribute.value);
+          campaignDevice.push(attribute.value)
         } else if (attribute.type === 'WOEID') {
-          campaignLocation.push(attribute.value);
+          campaignLocation.push(attribute.value)
         } else if (attribute.type === 'SUPPLY_GROUP') {
           if (attribute.value === 'GROUP_1_A') {
-            campaignSupplyGroup1A = attribute.bidModifier;
+            campaignSupplyGroup1A = (attribute.bidModifier - bidAmount) / bidAmount * 100
           } else if (attribute.value === 'GROUP_1_B') {
-            campaignSupplyGroup1B = attribute.bidModifier;
+            campaignSupplyGroup1B = (attribute.bidModifier - bidAmount) / bidAmount * 100
           } else if (attribute.value === 'GROUP_2_A') {
-            campaignSupplyGroup2A = attribute.bidModifier;
+            campaignSupplyGroup2A = (attribute.bidModifier - bidAmount) / bidAmount * 100
           } else if (attribute.value === 'GROUP_2_B') {
-            campaignSupplyGroup2B = attribute.bidModifier;
+            campaignSupplyGroup2B = (attribute.bidModifier - bidAmount) / bidAmount * 100
           } else if (attribute.value === 'GROUP_3_A') {
-            campaignSupplyGroup3A = attribute.bidModifier;
+            campaignSupplyGroup3A = (attribute.bidModifier - bidAmount) / bidAmount * 100
           } else if (attribute.value === 'GROUP_3_B') {
-            campaignSupplyGroup3B = attribute.bidModifier;
+            campaignSupplyGroup3B = (attribute.bidModifier - bidAmount) / bidAmount * 100
           }
         } else if (attribute.type === 'SITE_BLOCK') {
-          console.log(attribute.value);
           siteBlock.push(attribute.value);
         }
 
@@ -635,15 +647,6 @@ export default {
 
       if (siteBlock.length > 0) {
         campaignSiteBlock = siteBlock.join(',');
-      }
-
-      if (this.instance.adGroups.length > 0) {
-        adGroupID = this.instance.adGroups[0]['id'];
-        adGroupName = this.instance.adGroups[0]['adGroupName'];
-
-        if (this.instance.adGroups[0]['bidSet']['bids'].length > 0) {
-          bidAmount = this.instance.adGroups[0]['bidSet']['bids'][0]['value'];
-        }
       }
 
       contents = [];
@@ -932,14 +935,16 @@ export default {
         this.campaignSupplyGroup2B = node.group_2b
         this.campaignSupplyGroup3A = node.group_3a
         this.campaignSupplyGroup3B = node.group_3b
+        this.campaignSiteBlock = node.site_block
       }
     },
     storeNetworkSetting() {
       this.isLoading = true
       axios.post(`/general/network-setting?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
         networkSettingName: this.networkSettingName,
-        campaignSupplyGroup1A: this.campaignSupplyGroup1A,
         group: this.networkSettingGroup,
+        campaignSiteBlock: this.campaignSiteBlock,
+        campaignSupplyGroup1A: this.campaignSupplyGroup1A,
         campaignSupplyGroup1B: this.campaignSupplyGroup1B,
         campaignSupplyGroup2A: this.campaignSupplyGroup2A,
         campaignSupplyGroup2B: this.campaignSupplyGroup2B,
