@@ -34,7 +34,7 @@
               <li class="nav-item" v-if="[2].includes(campaign.provider_id)">
                 <a class="nav-link" :class="{ 'active': show === 2 }" id="publishers-tab" data-toggle="pill" href="#publishers" role="tab" aria-controls="publishers" aria-selected="false" @click.prevent="getPublisherData()">Publishers</a>
               </li>
-              <li class="nav-item" v-if="[1,3,4].includes(campaign.provider_id)">
+              <li class="nav-item" v-if="[1,4].includes(campaign.provider_id)">
                 <a class="nav-link" :class="{ 'active': show === 3 }" id="domains-tab" data-toggle="pill" href="#domains" role="tab" aria-controls="domains" aria-selected="false" @click.prevent="getDomainData()">Domains</a>
               </li>
               <li class="nav-item">
@@ -284,7 +284,7 @@ export default {
         case '#performance':
           break;
         default:
-          if (this.campaign.provider_id === 2 || this.campaign.provider_id === 4) {
+          if ([2, 3, 4].includes(this.campaign.provider_id)) {
             this.getContentData();
           } else {
             this.getWidgetData();

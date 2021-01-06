@@ -567,38 +567,29 @@ class Twitter extends Root implements AdVendorInterface
     public function getContentQuery($campaign, $data)
     {
         $contents_query = Ad::select([
-            DB::raw('MAX(ads.id) as id'),
-            DB::raw('MAX(ads.campaign_id) as campaign_id'),
-            DB::raw('MAX(ads.ad_group_id) as ad_group_id'),
-            DB::raw('MAX(ads.ad_id) as ad_id'),
-            DB::raw('MAX(ads.name) as name'),
-            DB::raw('MAX(ads.status) as status'),
-            DB::raw('ROUND(SUM(total_revenue)/SUM(total_conversions), 2) as payout'),
-            DB::raw('SUM(clicks) as clicks'),
-            DB::raw('SUM(lp_views) as lp_views'),
-            DB::raw('SUM(lp_clicks) as lp_clicks'),
-            DB::raw('SUM(total_conversions) as total_conversions'),
-            DB::raw('SUM(total_conversions) as total_actions'),
-            DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as total_actions_cr'),
-            DB::raw('ROUND((SUM(total_conversions)/SUM(clicks)) * 100, 2) as cr'),
-            DB::raw('ROUND(SUM(total_revenue), 2) as total_revenue'),
-            DB::raw('ROUND(SUM(cost), 2) as cost'),
-            DB::raw('ROUND(SUM(profit), 2) as profit'),
-            DB::raw('ROUND((SUM(profit)/SUM(cost)) * 100, 2) as roi'),
-            DB::raw('ROUND(SUM(cost)/SUM(clicks), 2) as cpc'),
-            DB::raw('ROUND(SUM(cost)/SUM(total_conversions), 2) as cpa'),
-            DB::raw('ROUND(SUM(total_revenue)/SUM(clicks), 2) as epc'),
-            DB::raw('ROUND((SUM(lp_clicks)/SUM(lp_views)) * 100, 2) as lp_ctr'),
-            DB::raw('ROUND((SUM(total_conversions)/SUM(lp_views)) * 100, 2) as lp_views_cr'),
-            DB::raw('ROUND((SUM(total_conversions)/SUM(lp_clicks)) * 100, 2) as lp_clicks_cr'),
-            DB::raw('ROUND(SUM(cost)/SUM(lp_clicks), 2) as lp_cpc')
+            '*',
+            DB::raw('null as payout'),
+            DB::raw('null as clicks'),
+            DB::raw('null as lp_views'),
+            DB::raw('null as lp_clicks'),
+            DB::raw('null as total_conversions'),
+            DB::raw('null as total_actions'),
+            DB::raw('null as total_actions_cr'),
+            DB::raw('null as cr'),
+            DB::raw('null as total_revenue'),
+            DB::raw('null as cost'),
+            DB::raw('null as profit'),
+            DB::raw('null as roi'),
+            DB::raw('null as cpc'),
+            DB::raw('null as cpa'),
+            DB::raw('null as epc'),
+            DB::raw('null as lp_ctr'),
+            DB::raw('null as lp_views_cr'),
+            DB::raw('null as lp_clicks_cr'),
+            DB::raw('null as lp_cpc')
         ]);
-        $contents_query->leftJoin('redtrack_content_stats', function ($join) use ($data) {
-            $join->on('redtrack_content_stats.sub5', '=', 'ads.ad_id')->whereBetween('redtrack_content_stats.date', [$data['start'], $data['end']]);
-        });
         $contents_query->where('ads.campaign_id', $campaign->campaign_id);
         $contents_query->where('name', 'LIKE', '%' . $data['search'] . '%');
-        $contents_query->groupBy('ads.ad_id');
 
         return $contents_query;
     }
