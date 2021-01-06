@@ -170,7 +170,7 @@
             <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
           </div>
           <div class="d-flex justify-content-end" v-if="currentStep === 1">
-            <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!submitStep1State">Next</button>
+            <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="submitStep1State">Next</button>
           </div>
           <div class="d-flex justify-content-end" v-if="currentStep === 2">
             <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!submitStep2State">Next</button>
@@ -235,9 +235,15 @@ export default {
   },
   computed: {
     submitStep1State() {
-      return true
+      return !this.selectedAdvertiser || !this.campaignName || !this.campaignBrandText || !this.campaignCPC || !this.campaignSpendingLimit
     },
     submitStep2State() {
+      for (let i = 0; i < this.campaignItems.length; i++) {
+        if (!this.campaignItems[i].url) {
+          return false
+        }
+      }
+
       return true
     }
   },
@@ -270,8 +276,6 @@ export default {
     if (this.instance) {
       campaignItems = this.instance.items;
     }
-
-    console.log(this.instance)
 
     return {
       isLoading: false,
