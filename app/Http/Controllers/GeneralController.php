@@ -26,6 +26,27 @@ class GeneralController extends Controller
         return (new $adVendorClass)->countries();
     }
 
+    public function networkSetting()
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+
+        return (new $adVendorClass)->networkSetting();
+    }
+
+    public function networkSettingGroup()
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+
+        return (new $adVendorClass)->networkSettingGroup();
+    }
+
+    public function storeNetworkSetting()
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+
+        return (new $adVendorClass)->storeNetworkSetting();
+    }
+
     public function preview()
     {
         $data = [];

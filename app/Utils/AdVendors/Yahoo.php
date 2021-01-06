@@ -16,6 +16,8 @@ use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
+use App\Models\NetworkSetting;
+use App\Models\NetworkSettingGroup;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use Carbon\Carbon;
@@ -52,6 +54,94 @@ class Yahoo extends Root implements AdVendorInterface
     public function countries()
     {
         return $this->api()->getCountries();
+    }
+
+    public function networkSetting()
+    {
+        $options = [];
+
+        $this->buildNetworkSetting(NetworkSettingGroup::whereNull('parent')->get(), $options);
+
+        return $options;
+    }
+
+    private function buildNetworkSetting($root, &$options)
+    {
+        foreach ($root as $item) {
+            $child_option = [
+                'id' => 'group' . $item->id,
+                'label' => $item->name
+            ];
+
+            if (count($item->groups) > 0) {
+                $child_option['children'] = [];
+                $this->buildNetworkSetting($item->groups, $child_option['children']);
+            } elseif (count($item->networkSettings) == 0) {
+                $child_option['isDisabled'] = true;
+            }
+
+            if (count($item->networkSettings) > 0) {
+                if (!isset($child_option['children']) || !is_array($child_option['children'])) {
+                    $child_option['children'] = [];
+                }
+                foreach ($item->networkSettings as $networkSetting) {
+                    $child_option['children'][] = [
+                        'id' => $networkSetting->id,
+                        'label' => $networkSetting->name,
+                        'group_1a' => $networkSetting->group_1a,
+                        'group_1b' => $networkSetting->group_1b,
+                        'group_2a' => $networkSetting->group_2a,
+                        'group_2b' => $networkSetting->group_2b,
+                        'group_3a' => $networkSetting->group_3a,
+                        'group_3b' => $networkSetting->group_3b,
+                    ];
+                }
+            }
+
+            $options[] = $child_option;
+        }
+    }
+
+    public function networkSettingGroup()
+    {
+        $options = [];
+
+        $this->buildNetworkSettingGroup(NetworkSettingGroup::whereNull('parent')->get(), $options);
+
+        return $options;
+    }
+
+    public function buildNetworkSettingGroup($root, &$options)
+    {
+        foreach ($root as $item) {
+            $child_option = [
+                'id' => $item->id,
+                'label' => $item->name
+            ];
+
+            if (count($item->groups) > 0) {
+                $child_option['children'] = [];
+                $this->buildNetworkSettingGroup($item->groups, $child_option['children']);
+            }
+
+            $options[] = $child_option;
+        }
+    }
+
+    public function storeNetworkSetting()
+    {
+        NetworkSetting::firstOrNew([
+            'name' => request('networkSettingName'),
+            'network_setting_group_id' => request('group'),
+            'group_1a' => request('campaignSupplyGroup1A'),
+            'group_1b' => request('campaignSupplyGroup1B'),
+            'group_2a' => request('campaignSupplyGroup2A'),
+            'group_2b' => request('campaignSupplyGroup2B'),
+            'group_3a' => request('campaignSupplyGroup3A'),
+            'group_3b' => request('campaignSupplyGroup3B'),
+        ])->save();
+
+        return [];
     }
 
     public function getCampaignInstance(Campaign $campaign)
