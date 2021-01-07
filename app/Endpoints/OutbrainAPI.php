@@ -81,7 +81,7 @@ class OutbrainAPI
     public function createBudget()
     {
         return $this->client->call('POST', 'marketers/' . request('selectedAdvertiser') . '/budgets', [
-            'name' => request('campaignName'),
+            'name' => request('campaignName') . '_' . Carbon::now(),
             'amount' => request('campaignBudget'),
             'startDate' => request('campaignStartDate'),
             'endDate' => request('campaignEndDate'),
@@ -94,7 +94,7 @@ class OutbrainAPI
     public function updateBudget($budget_id)
     {
         return $this->client->call('PUT', 'budgets/' . $budget_id, [
-            'name' => request('campaignName'),
+            'name' => request('campaignName') . '_' . Carbon::now(),
             'amount' => request('campaignBudget'),
             'startDate' => request('campaignStartDate'),
             'endDate' => request('campaignEndDate'),
@@ -121,7 +121,7 @@ class OutbrainAPI
             ],
             'suffixTrackingCode' => request('campaignTrackingCode'),
             'onAirType' => request('campaignStartTime') ? 'StartHour' : 'Scheduled',
-            'startHour' => request('campaignStartTime'),
+            'startHour' => strtoupper(request('campaignStartTime')),
             'objective' => request('campaignObjective')
         ]);
     }
@@ -141,19 +141,19 @@ class OutbrainAPI
             ],
             'suffixTrackingCode' => request('campaignTrackingCode'),
             'onAirType' => request('campaignStartTime') ? 'StartHour' : 'Scheduled',
-            'startHour' => request('campaignStartTime'),
+            'startHour' => strtoupper(request('campaignStartTime')),
             'objective' => request('campaignObjective')
         ]);
     }
 
-    public function createAds($campaign_id, $ads)
+    public function createAd($campaign_id, $ad)
     {
-        return $this->client->call('POST', 'campaigns/' . $campaign_id . '/promotedLinks', $ads);
+        return $this->client->call('POST', 'campaigns/' . $campaign_id . '/promotedLinks', $ad);
     }
 
-    public function updateAds($campaign_id, $ads)
+    public function updateAd($campaign_id, $ad)
     {
-        return $this->client->call('PUT', 'campaigns/' . $campaign_id . '/promotedLinks', $ads);
+        return $this->client->call('PUT', 'campaigns/' . $campaign_id . '/promotedLinks', $ad);
     }
 
     public function deleteCampaign($campaign_id)
