@@ -16,8 +16,6 @@ class CreateTaboolaReportsTable extends Migration
         Schema::create('taboola_reports', function (Blueprint $table) {
             $table->id();
             $table->integer('campaign_id')->unsigned();
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
             $table->date('date')->nullable();
             $table->date('date_end_period')->nullable();
             $table->double('clicks')->nullable();

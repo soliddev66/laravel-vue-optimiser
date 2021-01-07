@@ -11,8 +11,6 @@ class TaboolaReport extends Model
 
     protected $fillable = [
         'campaign_id',
-        'start_date',
-        'end_date',
         'date',
         'date_end_period',
         'clicks',

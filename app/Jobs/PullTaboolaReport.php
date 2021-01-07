@@ -41,7 +41,6 @@ class PullTaboolaReport implements ShouldQueue
     public function handle()
     {
         $current_date = new DateTime;
-        $next_date = (new DateTime)->add(new DateInterval('P1D'));
 
         foreach ($this->campaigns as $campaign) {
             $api = new TaboolaAPI(UserProvider::where([
@@ -50,15 +49,15 @@ class PullTaboolaReport implements ShouldQueue
             ])->first());
 
             if ($api) {
-                $reports = $api->getReport($campaign->advertiser_id, $campaign->campaign_id, $current_date->format('Y-m-d'), $next_date->format('Y-m-d'))['results'];
-
+                $reports = $api->getReport($campaign->advertiser_id, $campaign->campaign_id, $current_date->format('Y-m-d'), $current_date->format('Y-m-d'))['results'];
                 if (count($reports) > 0) {
                     foreach ($reports as $item) {
                         $report = TaboolaReport::firstOrNew([
                             'campaign_id' => $campaign->id,
-                            'start_date' => $current_date->format('Y-m-d'),
-                            'end_date' => $next_date->format('Y-m-d')
+                            'date' => $current_date->format('Y-m-d')
                         ]);
+
+                        unset($item['date']);
 
                         foreach (array_keys($item) as $key) {
                             $report->{$key} = $item[$key];
