@@ -61,6 +61,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/{campaign}/ad-groups', [App\Http\Controllers\CampaignController::class, 'adGroups'])->name('campaigns.ad_groups');
     Route::get('/{campaign}/ad-groups/{ad_group_id}/ads/create', [App\Http\Controllers\CampaignController::class, 'createCampaignAd'])->name('campaigns.createCampaignAd');
     Route::post('/{campaign}/ad-groups/{ad_group_id}/ads/store-ad', [App\Http\Controllers\CampaignController::class, 'storeAd'])->name('campaigns.storeAd');
+    Route::post('/{campaign}/ad-groups/{ad_group_id}/ads/update-ad', [App\Http\Controllers\CampaignController::class, 'updateAd'])->name('campaigns.updateAd');
     Route::get('/{campaign}/ad-groups/{ad_group_id}/ads/{ad_id}', [App\Http\Controllers\CampaignController::class, 'ad'])->name('campaigns.ad');
     Route::post('/{campaign}/ad-groups/{ad_group_id}/ads/status/{ad_id}', [App\Http\Controllers\CampaignController::class, 'adStatus'])->name('campaigns.adStatus');
     Route::post('/{campaign}/ad-groups/{ad_group_id}/status', [App\Http\Controllers\CampaignController::class, 'adGroupStatus'])->name('campaigns.adGroupStatus');

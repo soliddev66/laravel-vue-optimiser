@@ -312,6 +312,13 @@ class CampaignController extends Controller
         return (new $adVendorClass())->storeAd($campaign, $ad_group_id);
     }
 
+    public function updateAd(Campaign $campaign, $ad_group_id = null)
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+
+        return (new $adVendorClass())->updateAd($campaign, $ad_group_id);
+    }
+
     public function edit(Campaign $campaign)
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
