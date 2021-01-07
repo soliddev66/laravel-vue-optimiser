@@ -59,6 +59,12 @@ class PullTaboolaReport implements ShouldQueue
                             'start_date' => $current_date->format('Y-m-d'),
                             'end_date' => $next_date->format('Y-m-d')
                         ]);
+
+                        foreach (array_keys($item) as $key) {
+                            $report->{$key} = $item[$key];
+                        }
+
+                        $report->save();
                     }
                 }
             }
