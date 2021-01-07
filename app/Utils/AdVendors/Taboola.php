@@ -10,6 +10,7 @@ use App\Models\Provider;
 use App\Models\RedtrackContentStat;
 use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
+use App\Models\TaboolaReport;
 use App\Models\UserTracker;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
@@ -378,7 +379,24 @@ class Taboola extends Root implements AdVendorInterface
 
     public function getSummaryDataQuery($data)
     {
-        //
+        $summary_data_query = TaboolaReport::select(
+            DB::raw('SUM(spent) as total_cost'),
+            DB::raw('SUM(conversions_value) as total_revenue'),
+            DB::raw('SUM(conversions_value) - SUM(spent) as total_net'),
+            DB::raw('(SUM(conversions_value)/SUM(spent)) * 100 as avg_roi')
+        );
+        $summary_data_query->leftJoin('campaigns', function ($join) use ($data) {
+            $join->on('campaigns.campaign_id', '=', 'taboola_reports.campaign_id');
+            if ($data['provider']) {
+                $join->where('campaigns.provider_id', $data['provider']);
+            }
+            if ($data['account']) {
+                $join->where('campaigns.open_id', $data['account']);
+            }
+        });
+        $summary_data_query->whereBetween('date', [request('start'), request('end')]);
+
+        return $summary_data_query;
     }
 
     public function getWidgetQuery($campaign, $data)

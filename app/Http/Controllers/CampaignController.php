@@ -195,6 +195,19 @@ class CampaignController extends Controller
                 $campaigns_query->where('name', 'LIKE', '%' . request('search') . '%');
             }
             $campaigns_query->groupBy('campaigns.id');
+        } else if (request('provider') === 4) {
+            $campaigns_query = Campaign::with(['taboolaReports' => function ($q) {
+                $q->whereBetween('date', [request('start'), request('end')]);
+            }]);
+            if (request('provider')) {
+                $campaigns_query->where('provider_id', request('provider'));
+            }
+            if (request('account')) {
+                $campaigns_query->where('open_id', request('account'));
+            }
+            if (request('search')) {
+                $campaigns_query->where('name', 'LIKE', '%' . request('search') . '%');
+            }
         } else {
             $campaigns_query = Campaign::with(['performanceStats' => function ($q) {
                 $q->whereBetween('day', [request('start'), request('end')]);

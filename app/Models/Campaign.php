@@ -6,6 +6,7 @@ use App\Models\Ad;
 use App\Models\AdGroup;
 use App\Models\GeminiPerformanceStat;
 use App\Models\RedtrackReport;
+use App\Models\TaboolaReport;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -65,6 +66,11 @@ class Campaign extends Model
     public function performanceStats()
     {
         return $this->hasMany(GeminiPerformanceStat::class, 'campaign_id', 'campaign_id');
+    }
+
+    public function taboolaReports()
+    {
+        return $this->hasMany(TaboolaReport::class, 'campaign_id', 'campaign_id');
     }
 
     public function provider()
