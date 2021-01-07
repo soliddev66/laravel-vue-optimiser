@@ -113,7 +113,7 @@ class Twitter extends Root implements AdVendorInterface
         foreach ($funding_instruments as $funding_instrument) {
             $result[] = [
                 'id' => $funding_instrument->getId(),
-                'name' => $funding_instrument->getName()
+                'name' => $funding_instrument->getDescription()
             ];
         }
 

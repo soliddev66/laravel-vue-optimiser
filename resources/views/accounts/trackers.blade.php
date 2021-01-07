@@ -7,7 +7,7 @@
 @stop
 
 @section('content')
-    <trackers :trackers="{{ auth()->user()->trackers }}"></trackers>
+    <trackers :trackers-list="{{ \App\Models\Tracker::all() }}" :trackers="{{ auth()->user()->trackers }}" :providers="{{ \App\Models\Provider::all() }}"></trackers>
 @stop
 
 @section('css')

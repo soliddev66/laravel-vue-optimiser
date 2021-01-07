@@ -26,21 +26,18 @@
                     </select>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="name" class="col-sm-2 control-label mt-2">Name</label>
                   <div class="col-sm-8">
                     <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="campaignName" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="branding_text" class="col-sm-2 control-label mt-2">Branding Name</label>
                   <div class="col-sm-8">
                     <input type="text" name="branding_text" placeholder="Enter branding text" class="form-control" v-model="campaignBrandText" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="is_active" class="col-sm-2 control-label mt-2">Active</label>
                   <div class="col-lg-10 col-xl-8">
@@ -54,7 +51,6 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="cpc" class="col-sm-2 control-label mt-2">Cost per Click</label>
                   <div class="col-sm-8">
@@ -85,28 +81,24 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="marketing_objective" class="col-sm-2 control-label mt-2">Marketing Objective</label>
                   <div class="col-sm-8">
                     <select2 id="marketing_objective" v-model="campaignMarketingObjective" :options="campaignMarketingObjectives" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="country_targeting" class="col-sm-2 control-label mt-2">Location</label>
                   <div class="col-sm-8">
                     <select2 id="country_targeting" name="country_targeting" v-model="campaignCountryTargeting" :options="countries" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="platform_targeting" class="col-sm-2 control-label mt-2">Device</label>
                   <div class="col-sm-8">
                     <select2 name="platform_targeting" v-model="campaignPlatformTargeting" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
                   <div class="col-sm-3">
@@ -118,7 +110,6 @@
                   </div>
                 </div>
               </div>
-
               <div v-if="currentStep == 2">
                 <fieldset class="mb-3 p-3 rounded border" v-for="(campaignItem, index) in campaignItems" :key="index">
                   <div class="form-group row">
@@ -128,21 +119,18 @@
                       <small class="text-danger" v-if="campaignItem.url && !validURL(campaignItem.url)">URL is invalid. You might need http/https at the beginning.</small>
                     </div>
                   </div>
-
                   <div class="form-group row" v-if="action == 'edit'">
                     <label for="url" class="col-sm-2 control-label mt-2">Title</label>
                     <div class="col-sm-8">
                       <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="campaignItem.title" />
                     </div>
                   </div>
-
                   <div class="form-group row" v-if="action == 'edit'">
                     <label for="description" class="col-sm-2 control-label mt-2">Description</label>
                     <div class="col-sm-8">
                       <textarea class="form-control" rows="3" placeholder="Enter description" v-model="campaignItem.description"></textarea>
                     </div>
                   </div>
-
                   <div class="form-group row" v-if="action == 'edit'">
                     <label for="thumbnail_url" class="col-sm-2 control-label mt-2"></label>
                     <div class="col-sm-8">
@@ -153,12 +141,11 @@
                       <small class="text-danger" v-if="campaignItem.thumbnail_url && !validURL(campaignItem.thumbnail_url)">URL is invalid. You might need http/https at the beginning.</small>
                     </div>
                   </div>
-
                   <div class="row" v-if="index > 0 && action == 'create'">
-                      <div class="col text-right">
-                        <button class="btn btn-warning btn-sm" @click.prevent="removeCampaignItem(index)">Remove</button>
-                      </div>
+                    <div class="col text-right">
+                      <button class="btn btn-warning btn-sm" @click.prevent="removeCampaignItem(index)">Remove</button>
                     </div>
+                  </div>
                 </fieldset>
                 <button class="btn btn-primary btn-sm" @click.prevent="addCampaignItem()" v-if="action == 'create'">Add New</button>
               </div>
@@ -335,11 +322,11 @@ export default {
       this.isLoading = true
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
         this.advertisers = response.data.map(item => {
-            return {
-              id: item.account_id,
-              name: item.name
-            }
-          })
+          return {
+            id: item.account_id,
+            name: item.name
+          }
+        })
       }).catch(err => {}).finally(() => {
         this.isLoading = false
       })
@@ -368,7 +355,7 @@ export default {
       this.campaignItems.push({ url: '' })
     },
     removeCampaignItem(index) {
-      this.campaignItems[index].splice(index, 1)
+      this.campaignItems.splice(index, 1)
     },
     submitStep1() {
       const step1Data = {
@@ -409,7 +396,7 @@ export default {
           this.isLoading = false
         } else {
           let me = this
-          let interval = setInterval(function () {
+          let interval = setInterval(function() {
             axios.post('/campaigns/item-status', {
               provider: me.selectedProvider,
               account: me.selectedAccount,
