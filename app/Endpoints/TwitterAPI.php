@@ -257,11 +257,11 @@ class TwitterAPI
         ])->getCollection();
     }
 
-    public function createPromotedTweet($line_item, $tweet)
+    public function createPromotedTweet($line_item_id, $tweet)
     {
         try {
             $promoted_tweet = new PromotedTweet();
-            $promoted_tweet->setLineItemId($line_item->getId());
+            $promoted_tweet->setLineItemId($line_item_id);
             $promoted_tweet->setTweetId($tweet->id);
 
             return $promoted_tweet->save();
