@@ -74,4 +74,9 @@ class TaboolaAPI
     {
         return $this->client->call('DELETE', $advertiser_id . '/campaigns/' . $campaign_id);
     }
+
+    public function getReport($advertiser_id, $campaign_id, $start_date, $end_date)
+    {
+        return $this->client->call('GET', $advertiser_id . '/reports/campaign-summary/dimensions/day?campaign=' . $campaign_id . '&start_date=' . $start_date . '&end_date=' . $end_date);
+    }
 }

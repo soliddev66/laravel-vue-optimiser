@@ -12,6 +12,7 @@ use App\Vngodev\Gemini;
 use App\Vngodev\Outbrain;
 use App\Vngodev\RedTrack;
 use App\Vngodev\Twitter;
+use App\Vngodev\Taboola;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -48,6 +49,9 @@ class Kernel extends ConsoleKernel
         })->everyThirtyMinutes();
         $schedule->call(function () {
             Twitter::getReport();
+        })->everyThirtyMinutes();
+        $schedule->call(function () {
+            Taboola::getReport();
         })->everyThirtyMinutes();
 
         // Redtrack
