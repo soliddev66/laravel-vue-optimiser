@@ -8,20 +8,21 @@
               <thead>
                 <tr>
                   <th>ID</th>
+                  <th>Account ID</th>
                   <th>Account Name</th>
                   <th>Status</th>
-                  <th>Tracking Platform</th>
-                  <th>Actions</th>
+                  <th>Tracking For</th>
+                  <th>Platform</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="tracker in trackers">
                   <td>{{ tracker.id }}</td>
+                  <td>{{ tracker.open_id }}</td>
                   <td>{{ tracker.name }}</td>
                   <td>Enabled</td>
-                  <td>{{ tracker.tracker_id }}</td>
-                  <td>
-                  </td>
+                  <td>{{ providers.find(provider => provider.id === tracker.provider_id).label }} - {{ tracker.provider_open_id }}</td>
+                  <td>{{ trackersList.find(dbTracker => dbTracker.id === tracker.tracker_id).label }}</td>
                 </tr>
               </tbody>
             </table>
@@ -36,13 +37,17 @@
 export default {
   props: {
     trackers: {
-      type: Array,
-      default: []
+      type: Array
+    },
+    providers: {
+      type: Array
+    },
+    trackersList: {
+      type: Array
     }
   },
   mounted() {
     console.log('Component mounted.')
-    console.log(this.trackers)
   },
   data() {
     return {

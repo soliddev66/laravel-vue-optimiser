@@ -87,7 +87,7 @@
     </div>
     <div class="row justify-content-center mb-3">
       <div class="col-md-12 col-12">
-        <h3>Performace by Traffic Source</h3>
+        <h3>Performace by Traffic Source (Redtrack)</h3>
       </div>
       <div class="col-md-6 col-12 d-none">
         <select class="form-control" v-model="selectedProvider">
@@ -105,14 +105,14 @@
     </div>
     <div class="row justify-content-center mb-3">
       <div class="col-md-12 col-12">
-        <h3>TOP Winners/Losers</h3>
+        <h3>TOP Winners/Losers (Redtrack)</h3>
       </div>
       <div class="col-md-6 col-12 d-none">
         <select class="form-control">
           <option value="total_net">NET</option>
         </select>
       </div>
-      <div class="col-6 mt-3">
+      <div class="col-12 mt-3">
         <div class="card">
           <div class="card-body table-responsive">
             <table class="table table-bordered table-hover text-center">
@@ -130,19 +130,19 @@
               <tbody>
                 <tr v-for="data in topWinners">
                   <td>{{ providerName(data.provider_id) }}</td>
-                  <td>{{ round(summaryData.total_views, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.total_clicks, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.total_cost, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.total_revenue, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.total_net, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.roi, 2) || 0 }}%</td>
+                  <td>{{ round(data.total_views, 2) || '' }}</td>
+                  <td>{{ round(data.total_clicks, 2) || 0 }}</td>
+                  <td>{{ round(data.total_cost, 2) || 0 }}</td>
+                  <td>{{ round(data.total_revenue, 2) || 0 }}</td>
+                  <td>{{ round(data.total_net, 2) || 0 }}</td>
+                  <td>{{ round(data.roi, 2) || 0 }}%</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
-      <div class="col-6 mt-3">
+      <div class="col-12 mt-3">
         <div class="card">
           <div class="card-body table-responsive">
             <table class="table table-bordered table-hover text-center">
@@ -160,12 +160,12 @@
               <tbody>
                 <tr v-for="data in topLosers">
                   <td>{{ providerName(data.provider_id) }}</td>
-                  <td>{{ round(summaryData.total_views, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.total_clicks, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.total_cost, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.total_revenue, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.total_net, 2) || 0 }}</td>
-                  <td>{{ round(summaryData.roi, 2) || 0 }}%</td>
+                  <td>{{ round(data.total_views, 2) || '' }}</td>
+                  <td>{{ round(data.total_clicks, 2) || 0 }}</td>
+                  <td>{{ round(data.total_cost, 2) || 0 }}</td>
+                  <td>{{ round(data.total_revenue, 2) || 0 }}</td>
+                  <td>{{ round(data.total_net, 2) || 0 }}</td>
+                  <td>{{ round(data.roi, 2) || 0 }}%</td>
                 </tr>
               </tbody>
             </table>

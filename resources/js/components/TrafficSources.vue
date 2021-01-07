@@ -11,23 +11,16 @@
                   <th>Account Name</th>
                   <th>Status</th>
                   <th>Traffic Source</th>
-                  <th>Linked Trackers</th>
-                  <th>Timezone</th>
-                  <th>Currency</th>
-                  <th>Actions</th>
+                  <th>Linked Tracker</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="provider in providers">
-                  <td>{{ provider.id }}</td>
-                  <td>{{ provider.open_id }}</td>
+                <tr v-for="trafficSource in trafficSources">
+                  <td>{{ trafficSource.id }}</td>
+                  <td>{{ trafficSource.open_id }}</td>
                   <td>Enabled</td>
-                  <td>{{ provider.provider_id }}</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td>
-                  </td>
+                  <td>{{ providers.find(provider => provider.id === trafficSource.provider_id).label }}</td>
+                  <td>{{ trackers.find(tracker => tracker.provider_open_id === trafficSource.open_id).name }}</td>
                 </tr>
               </tbody>
             </table>
@@ -42,13 +35,17 @@
 export default {
   props: {
     providers: {
-      type: Array,
-      default: []
+      type: Array
+    },
+    trafficSources: {
+      type: Array
+    },
+    trackers: {
+      type: Array
     }
   },
   mounted() {
     console.log('Component mounted.')
-    console.log(this.providers)
   },
   data() {
     return {

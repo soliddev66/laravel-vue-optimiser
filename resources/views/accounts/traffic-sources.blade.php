@@ -7,7 +7,7 @@
 @stop
 
 @section('content')
-    <traffic-sources :providers="{{ auth()->user()->providers }}"></traffic-sources>
+    <traffic-sources :providers="{{ \App\Models\Provider::all() }}" :trackers="{{ auth()->user()->trackers }}" :traffic-sources="{{ auth()->user()->providers }}"></traffic-sources>
 @stop
 
 @section('css')

@@ -86,7 +86,10 @@ class Outbrain extends Root implements AdVendorInterface
                     }
                 }
 
-                $api->createAds($campaign_data['id'], $ads);
+                foreach ($ads as $key => $ad) {
+                    $ad_data = $api->createAd($campaign_data['id'], $ad);
+                    Log::info('OUTBRAIN: Created ad: ' . $ad_data['id']);
+                }
 
                 Helper::pullCampaign();
             } catch (Exception $e) {
