@@ -145,7 +145,7 @@ export default {
         search: params.get('search') || '',
         length: params.get('length') || 10,
         column: params.get('column') || 'clicks',
-        dir: params.get('dir') || 'asc',
+        dir: params.get('dir') || 'desc',
       },
       campaignColumns: [{
         label: 'ID',
