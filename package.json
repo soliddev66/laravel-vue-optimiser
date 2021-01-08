@@ -26,6 +26,8 @@
     "dependencies": {
         "@hiendv/vue-tabs": "^0.3.10",
         "@riophae/vue-treeselect": "^0.4.0",
+        "@sentry/tracing": "^5.29.2",
+        "@sentry/vue": "^5.29.2",
         "babel-helper-vue-jsx-merge-props": "^2.0.3",
         "chart.js": "^2.9.4",
         "laravel-vue-datatable": "^0.6.0",

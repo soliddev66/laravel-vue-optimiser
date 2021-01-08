@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Throwable;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -22,8 +23,25 @@ class Handler extends ExceptionHandler
      */
     protected $dontFlash = [
         'password',
-        'password_confirmation',
+        'password_confirmation'
     ];
+
+    /**
+     * Report or log an exception.
+     *
+     * @param  \Throwable  $e
+     * @return void
+     *
+     * @throws \Throwable
+     */
+    public function report(Throwable $exception)
+    {
+        if (app()->bound('sentry') && $this->shouldReport($exception)) {
+            app('sentry')->captureException($exception);
+        }
+
+        parent::report($exception);
+    }
 
     /**
      * Register the exception handling callbacks for the application.

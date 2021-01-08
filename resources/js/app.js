@@ -16,6 +16,8 @@ import VModal from 'vue-js-modal';
 import Select2 from 'v-select2-component';
 import vueDebounce from 'vue-debounce';
 import DataTable from 'laravel-vue-datatable';
+import * as Sentry from '@sentry/browser';
+import { Integrations } from '@sentry/tracing';
 
 import moment from './plugins/moment.js';
 
@@ -32,6 +34,18 @@ Vue.use(VModal);
 Vue.use(vueDebounce);
 Vue.use(moment);
 Vue.use(DataTable);
+Sentry.init({
+  Vue,
+  dsn: 'https://cab5a7c169254985ba5c039f83db66b1@o501900.ingest.sentry.io/5583628',
+  autoSessionTracking: true,
+  integrations: [
+    new Integrations.BrowserTracing(),
+  ],
+
+  // We recommend adjusting this value in production, or using tracesSampler
+  // for finer control
+  tracesSampleRate: 1.0,
+});
 
 /**
  * The following block of code may be used to automatically register your

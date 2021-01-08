@@ -58,6 +58,12 @@
  */
 
 /*!
+ * vue-treeselect v0.4.0 | (c) 2017-2019 Riophae Lee
+ * Released under the MIT License.
+ * https://vue-treeselect.js.org/
+ */
+
+/*!
  * vuex v3.6.0
  * (c) 2020 Evan You
  * @license MIT
