@@ -144,7 +144,7 @@ export default {
         page: params.get('page') || 1,
         search: params.get('search') || '',
         length: params.get('length') || 10,
-        column: params.get('column') || 'id',
+        column: params.get('column') || 'clicks',
         dir: params.get('dir') || 'asc',
       },
       campaignColumns: [{
