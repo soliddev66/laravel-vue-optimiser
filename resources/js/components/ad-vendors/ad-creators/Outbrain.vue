@@ -13,83 +13,83 @@
             <form class="form-horizontal">
               <h2 class="pb-2">General information</h2>
               <fieldset class="mb-3 p-3 rounded border" v-for="(content, index) in ads" :key="index">
-                  <div class="row">
-                    <div class="col-sm-7">
-                      <div class="form-group row">
-                        <label for="title" class="col-sm-4 control-label mt-2">Title</label>
-                        <div class="col-sm-8">
-                          <div class="row mb-2" v-for="(title, indexTitle) in content.titles" :key="indexTitle">
-                            <div class="col-sm-8">
-                              <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" />
-                            </div>
-                            <div class="col-sm-4">
-                              <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
-                              <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length"><i class="fa fa-plus"></i></button>
-                            </div>
+                <div class="row">
+                  <div class="col-sm-7">
+                    <div class="form-group row">
+                      <label for="title" class="col-sm-4 control-label mt-2">Title</label>
+                      <div class="col-sm-8">
+                        <div class="row mb-2" v-for="(title, indexTitle) in content.titles" :key="indexTitle">
+                          <div class="col-sm-8">
+                            <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" />
                           </div>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
-                        <div class="col-sm-8">
-                          <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" />
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="cpc" class="col-sm-4 control-label mt-2">CPC</label>
-                        <div class="col-sm-8">
-                          <input type="number" name="cpc" placeholder="Enter cpc" class="form-control" v-model="content.cpc" />
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
-                        <div class="col-sm-8">
-                          <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" />
-                          <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="image_url" class="col-sm-4 control-label mt-2">Image URL</label>
-                        <div class="col-sm-8">
-                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrl" disabled="true" />
-                        </div>
-                        <div class="col-sm-8 offset-sm-4">
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose File</button>
-                        </div>
-                        <div class="col-sm-8 offset-sm-4">
-                          <small class="text-danger" v-for="(image, indexImage) in content.images" :key="indexImage">
-                            <span class="d-inline-block" v-if="image.url && !validURL(image.url)">URL {{ image.url }} is invalid. You might need http/https at the beginning.</span>
-                            <span class="d-inline-block" v-if="image.url && !image.state">Image {{ image.url }} is invalid. You might need an 1200 x 800 image.</span>
-                          </small>
+                          <div class="col-sm-4">
+                            <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length"><i class="fa fa-plus"></i></button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <div class="col-sm-5">
-                      <h1>Preview</h1>
-                      <section v-for="(title, indexTitle) in content.titles" :key="indexTitle">
-                        <section v-for="(image, indexImage) in content.images" :key="indexImage">
-                          <div class="row no-gutters mb-2" v-if="image.url">
-                            <div class="col-sm-5">
-                              <img :src="image.url" class="card-img-top h-100">
-                            </div>
-                            <div class="col-sm-7">
-                              <div class="card-body">
-                                <h3 class="card-title">{{ title.title }}</h3>
-                                <h6 class="card-text mt-5"><i>{{ content.brandname }}</i></h6>
-                              </div>
+                    <div class="form-group row">
+                      <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" />
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="cpc" class="col-sm-4 control-label mt-2">CPC</label>
+                      <div class="col-sm-8">
+                        <input type="number" name="cpc" placeholder="Enter cpc" class="form-control" v-model="content.cpc" />
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" />
+                        <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="image_url" class="col-sm-4 control-label mt-2">Image URL</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrl" disabled="true" />
+                      </div>
+                      <div class="col-sm-8 offset-sm-4">
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose File</button>
+                      </div>
+                      <div class="col-sm-8 offset-sm-4">
+                        <small class="text-danger" v-for="(image, indexImage) in content.images" :key="indexImage">
+                          <span class="d-inline-block" v-if="image.url && !validURL(image.url)">URL {{ image.url }} is invalid. You might need http/https at the beginning.</span>
+                          <span class="d-inline-block" v-if="image.url && !image.state">Image {{ image.url }} is invalid. You might need an 1200 x 800 image.</span>
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-5">
+                    <h1>Preview</h1>
+                    <section v-for="(title, indexTitle) in content.titles" :key="indexTitle">
+                      <section v-for="(image, indexImage) in content.images" :key="indexImage">
+                        <div class="row no-gutters mb-2" v-if="image.url">
+                          <div class="col-sm-5">
+                            <img :src="image.url" class="card-img-top h-100">
+                          </div>
+                          <div class="col-sm-7">
+                            <div class="card-body">
+                              <h3 class="card-title">{{ title.title }}</h3>
+                              <h6 class="card-text mt-5"><i>{{ content.brandname }}</i></h6>
                             </div>
                           </div>
-                        </section>
+                        </div>
                       </section>
-                    </div>
+                    </section>
                   </div>
-                  <div class="row" v-if="index > 0">
-                    <div class="col text-right">
-                      <button class="btn btn-warning btn-sm" @click.prevent="removeAd(index)">Remove</button>
-                    </div>
+                </div>
+                <div class="row" v-if="index > 0">
+                  <div class="col text-right">
+                    <button class="btn btn-warning btn-sm" @click.prevent="removeAd(index)">Remove</button>
                   </div>
-                </fieldset>
-                <button class="btn btn-primary btn-sm" @click.prevent="addAd()">Add New</button>
+                </div>
+              </fieldset>
+              <button class="btn btn-primary btn-sm" @click.prevent="addAd()">Add New</button>
             </form>
           </div>
           <div class="card-footer d-flex justify-content-end">
