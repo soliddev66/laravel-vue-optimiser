@@ -20,7 +20,7 @@
                   <td>{{ trafficSource.open_id }}</td>
                   <td>Enabled</td>
                   <td>{{ providers.find(provider => provider.id === trafficSource.provider_id).label }}</td>
-                  <td>{{ trackers.find(tracker => tracker.provider_open_id === trafficSource.open_id).name }}</td>
+                  <td>{{ linkedTracker(trafficSource) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -53,7 +53,13 @@ export default {
     }
   },
   methods: {
-
+    linkedTracker(trafficSource) {
+      const tracker = this.trackers.find(tracker => tracker.provider_open_id === trafficSource.open_id);
+      if (tracker) {
+        return tracker.name;
+      }
+      return '';
+    }
   }
 }
 </script>
