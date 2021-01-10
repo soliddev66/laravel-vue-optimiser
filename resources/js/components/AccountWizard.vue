@@ -36,7 +36,7 @@
           </div>
           <div class="card-body" v-if="currentStep == 2">
             <label v-for="tracker in trackers" :key="tracker.slug">
-              <input type="radio" v-model="selectedTracker" :value="tracker.slug"></input> {{ tracker.label }}
+              <input type="radio" v-model="selectedTracker" :value="tracker.slug" /> {{ tracker.label }}
             </label>
             <div class="form-group mt-3" v-if="selectedTracker === 'redtrack'">
               <label>API key</label>

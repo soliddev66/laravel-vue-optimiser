@@ -40,5 +40,11 @@ class ProvidersTableSeeder extends Seeder
             'scopes' => null,
             'created_at' => Carbon::now()
         ]);
+        DB::table('providers')->insert([
+            'label' => 'Yahoo Japan',
+            'slug' => 'yahoojp',
+            'scopes' => null,
+            'created_at' => Carbon::now()
+        ]);
     }
 }
