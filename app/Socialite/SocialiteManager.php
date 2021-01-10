@@ -4,6 +4,13 @@ namespace App\Socialite;
 
 class SocialiteManager extends \Laravel\Socialite\SocialiteManager
 {
+    protected function createYahoojpDriver()
+    {
+        $config = $this->config->get('services.yahoojp');
+
+        return $this->buildProvider('App\Socialite\Two\YahoojpProvider', $config);
+    }
+
     protected function createYahooDriver()
     {
         $config = $this->config->get('services.yahoo');
@@ -16,12 +23,5 @@ class SocialiteManager extends \Laravel\Socialite\SocialiteManager
         $config = $this->config->get('services.taboola');
 
         return $this->buildProvider('App\Socialite\Two\TaboolaProvider', $config);
-    }
-
-    protected function createYahoojpDriver()
-    {
-        $config = $this->config->get('services.yahoojp');
-
-        return $this->buildProvider('App\Socialite\Two\YahooJPProvider', $config);
     }
 }

@@ -8,7 +8,7 @@ use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\ProviderInterface;
 use Laravel\Socialite\Two\User;
 
-class YahooJPProvider extends AbstractProvider implements ProviderInterface
+class YahoojpProvider extends AbstractProvider implements ProviderInterface
 {
     protected function getAuthUrl($state)
     {
