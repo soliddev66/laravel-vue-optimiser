@@ -8,7 +8,7 @@ class SocialiteManager extends \Laravel\Socialite\SocialiteManager
     {
         $config = $this->config->get('services.yahoojp');
 
-        return $this->buildProvider('App\Socialite\Two\YahoojpProvider', $config);
+        return $this->buildProvider('App\Socialite\Two\YahooJPProvider', $config);
     }
 
     protected function createYahooDriver()
