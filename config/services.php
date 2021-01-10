@@ -53,4 +53,11 @@ return [
         'client_secret' => env('TABOOLA_CLIENT_SECRET'),
         'redirect'      => env('TABOOLA_REDIRECT'),
     ],
+
+    'yahoojp'  => [
+        'api_endpoint'  => env('YAHOOJP_API_ENDPOINT'),
+        'client_id'     => env('YAHOOJP_CLIENT_ID'),
+        'client_secret' => env('YAHOOJP_CLIENT_SECRET'),
+        'redirect'      => env('YAHOOJP_REDIRECT'),
+    ],
 ];
