@@ -130,8 +130,11 @@
                   <div class="col-sm-8">
                     <div class="form-group row">
                       <div class="col">
-                        <treeselect :options="networkSettings" :disable-branch-nodes="true" v-model="networkSetting" @select="networkSettingChanged" placeholder="Load from setting..." />
+                        <treeselect :options="supportedSites" :disable-branch-nodes="true" @select="supportedSiteChanged" placeholder="Add publisher..." />
                       </div>
+                    </div>
+                    <div class="form-group row">
+                      <select2 id="network_setting" name="network_setting" v-model="networkSetting" :options="networkSettings" />
                     </div>
                     <div class="row">
                       <div class="col">
@@ -141,8 +144,8 @@
                         </div>
                         <div class="row">
                           <label for="bid_adjustment_group_1a" class="col-sm-5 control-label mt-2">Group 1A <small>(+800%)</small></label>
-                          <label class="col-sm-3 control-label mt-2"><i>Increase By</i></label>
-                          <div class="input-group col-sm-4 mb-1">
+                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
+                          <div class="input-group col-sm-3 mb-1">
                             <input type="number" name="bid_adjustment_group_1a" class="form-control" v-model="campaignSupplyGroup1A" />
                             <div class="input-group-append">
                               <span class="input-group-text">%</span>
@@ -150,9 +153,9 @@
                           </div>
                         </div>
                         <div class="row">
-                          <label for="bid_adjustment_group_1b" class="col-sm-5 control-label mt-2">Group 1B <small>(+600% - -40%)</small></label>
-                          <label class="col-sm-3 control-label mt-2"><i>Increase By</i></label>
-                          <div class="input-group col-sm-4 mb-1">
+                          <label for="bid_adjustment_group_1b" class="col-sm-5 control-label mt-2">Group 1B <small>(+600% — -40%)</small></label>
+                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
+                          <div class="input-group col-sm-3 mb-1">
                             <input type="number" name="bid_adjustment_group_1b" class="form-control" v-model="campaignSupplyGroup1B" />
                             <div class="input-group-append">
                               <span class="input-group-text">%</span>
@@ -160,9 +163,9 @@
                           </div>
                         </div>
                         <div class="row">
-                          <label for="bid_adjustment_group_2a" class="col-sm-5 control-label mt-2">Group 2A <small>(+800% - -30%)</small></label>
-                          <label class="col-sm-3 control-label mt-2"><i>Increase By</i></label>
-                          <div class="input-group col-sm-4 mb-1">
+                          <label for="bid_adjustment_group_2a" class="col-sm-5 control-label mt-2">Group 2A <small>(+800% — -30%)</small></label>
+                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
+                          <div class="input-group col-sm-3 mb-1">
                             <input type="number" name="bid_adjustment_group_2a" class="form-control" v-model="campaignSupplyGroup2A" />
                             <div class="input-group-append">
                               <span class="input-group-text">%</span>
@@ -170,9 +173,9 @@
                           </div>
                         </div>
                         <div class="row">
-                          <label for="bid_adjustment_group_2b" class="col-sm-5 control-label mt-2">Group 2B <small>(+600% - -70%)</small></label>
-                          <label class="col-sm-3 control-label mt-2"><i>Increase By</i></label>
-                          <div class="input-group col-sm-4 mb-1">
+                          <label for="bid_adjustment_group_2b" class="col-sm-5 control-label mt-2">Group 2B <small>(+600% — -70%)</small></label>
+                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
+                          <div class="input-group col-sm-3 mb-1">
                             <input type="number" name="bid_adjustment_group_2b" class="form-control" v-model="campaignSupplyGroup2B" />
                             <div class="input-group-append">
                               <span class="input-group-text">%</span>
@@ -180,9 +183,9 @@
                           </div>
                         </div>
                         <div class="row">
-                          <label for="bid_adjustment_group_3a" class="col-sm-5 control-label mt-2">Group 3A <small>(+800% - -50%)</small></label>
-                          <label class="col-sm-3 control-label mt-2"><i>Increase By</i></label>
-                          <div class="input-group col-sm-4 mb-1">
+                          <label for="bid_adjustment_group_3a" class="col-sm-5 control-label mt-2">Group 3A <small>(+800% — -50%)</small></label>
+                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
+                          <div class="input-group col-sm-3 mb-1">
                             <input type="number" name="bid_adjustment_group_3a" class="form-control" v-model="campaignSupplyGroup3A" />
                             <div class="input-group-append">
                               <span class="input-group-text">%</span>
@@ -190,18 +193,31 @@
                           </div>
                         </div>
                         <div class="row">
-                          <label for="bid_adjustment_group_3b" class="col-sm-5 control-label mt-2">Group 3B <small>(+600% - -80%)</small></label>
-                          <label class="col-sm-3 control-label mt-2"><i>Increase By</i></label>
-                          <div class="input-group col-sm-4 mb-1">
+                          <label for="bid_adjustment_group_3b" class="col-sm-5 control-label mt-2">Group 3B <small>(+600% — -80%)</small></label>
+                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
+                          <div class="input-group col-sm-3 mb-1">
                             <input type="number" name="bid_adjustment_group_3b" class="form-control" v-model="campaignSupplyGroup3B" />
                             <div class="input-group-append">
                               <span class="input-group-text">%</span>
                             </div>
                           </div>
                         </div>
+
+                        <div class="row" v-for="(supportedSiteItem, index) in supportedSiteCollections" :key="index">
+                          <label for="bid_adjustment_group_3b" class="col-sm-5 control-label mt-2">{{ supportedSiteItem.label }} <small>{{ supportedSiteItem.subLabel }}</small></label>
+                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
+                          <div class="input-group col-sm-3 mb-1">
+                            <input type="number" name="bid_adjustment_group_3b" class="form-control" v-model="supportedSiteItem.bidModifier" />
+                            <div class="input-group-append">
+                              <span class="input-group-text">%</span>
+                            </div>
+                          </div>
+                          <div class="col-sm-2">
+                            <button class="btn btn-primary">Remove</button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-
                   </div>
                 </div>
                 <div class="form-group row">
@@ -217,14 +233,11 @@
                       <div class="col-sm-4" v-if="!saveNetworkSetting">
                         <input type="text" name="network_setting_name" v-model="networkSettingName" class="form-control" placeholder="Enter setting name">
                       </div>
-                      <div class="col-sm-5" v-if="!saveNetworkSetting">
-                        <treeselect :options="networkSettingGroups" v-model="networkSettingGroup" placeholder="Select group..." />
-                      </div>
                       <div class="col-sm-5" v-if="saveNetworkSetting && campaignSupplyGroupState">
-                        <button type="button" class="btn btn-primary" @click.prevent="saveNetworkSetting = !saveNetworkSetting; getNetworkSettingGroups()">Save these setting</button>
+                        <button type="button" class="btn btn-primary" @click.prevent="saveNetworkSetting = !saveNetworkSetting">Save these setting</button>
                       </div>
                       <div class="col-sm-3">
-                        <button type="button" v-if="!saveNetworkSetting && networkSettingName && campaignSupplyGroupState && networkSettingGroup" class="btn btn-success" @click.prevent="storeNetworkSetting()">Save</button>
+                        <button type="button" v-if="!saveNetworkSetting && networkSettingName && campaignSupplyGroupState" class="btn btn-success" @click.prevent="storeNetworkSetting()">Save</button>
                         <button type="button" v-if="!saveNetworkSetting" class="btn btn-warning" @click.prevent="saveNetworkSetting = !saveNetworkSetting">Cancel</button>
                       </div>
                     </div>
@@ -558,6 +571,7 @@ export default {
     this.getCountries()
     this.getAdvertisers()
     this.getNetworkSettings()
+    this.getBbsxdSupportedSites()
 
     if (this.instance) {
       for (let i = 0; i < this.instance.ads.length; i++) {
@@ -765,8 +779,8 @@ export default {
       networkSetting: null,
       saveNetworkSetting: true,
       networkSettingName: '',
-      networkSettingGroup: null,
-      networkSettingGroups: [],
+      supportedSites: [],
+      supportedSiteCollections: [],
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
@@ -904,24 +918,21 @@ export default {
         this.isLoading = false
       })
     },
-    getNetworkSettings() {
-      this.isLoading = true
-      axios.get(`/general/network-setting?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
+
+    getBbsxdSupportedSites() {
+      axios.get(`/general/bdsxd-supported-sites?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
         if (response.data) {
-          this.networkSettings = response.data
+          this.supportedSites = response.data
         }
       }).catch(err => {}).finally(() => {
         this.isLoading = false
       })
     },
-    getNetworkSettingGroups() {
-      if (this.networkSettingGroups.length) {
-        return;
-      }
+    getNetworkSettings() {
       this.isLoading = true
-      axios.get(`/general/network-setting-group?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
+      axios.get(`/general/network-setting?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
         if (response.data) {
-          this.networkSettingGroups = response.data
+          this.networkSettings = response.data
         }
       }).catch(err => {}).finally(() => {
         this.isLoading = false
@@ -938,11 +949,18 @@ export default {
         this.campaignSiteBlock = node.site_block
       }
     },
+    supportedSiteChanged(node, instanceId) {
+      this.supportedSiteCollections.push({
+        label: node.label,
+        subLabel: '(+800% — -80%)',
+        key: node.id,
+        bidModifier: ''
+      })
+    },
     storeNetworkSetting() {
       this.isLoading = true
       axios.post(`/general/network-setting?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
         networkSettingName: this.networkSettingName,
-        group: this.networkSettingGroup,
         campaignSiteBlock: this.campaignSiteBlock,
         campaignSupplyGroup1A: this.campaignSupplyGroup1A,
         campaignSupplyGroup1B: this.campaignSupplyGroup1B,

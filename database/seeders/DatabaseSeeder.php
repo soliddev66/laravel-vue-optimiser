@@ -19,7 +19,6 @@ class DatabaseSeeder extends Seeder
         // $this->call(TrackersTableSeeder::class);
         // $this->call(UsersTableSeeder::class);
         // $this->call(RulesTableSeeder::class);
-        $this->call(NetworkSettingGroupSeeder::class);
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }
