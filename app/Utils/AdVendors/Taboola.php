@@ -236,7 +236,7 @@ class Taboola extends Root implements AdVendorInterface
                     'open_id' => $user_provider->open_id
                 ]);
                 $db_campaign->name = $campaign['name'];
-                $db_campaign->status = $campaign['status'];
+                $db_campaign->status = $campaign['status'] === 'RUNNING' ? 'ACTIVE' : $campaign['status'];
                 $db_campaign->advertiser_id = $advertiser['account_id'];
                 $db_campaign->budget = $campaign['spending_limit'];
 
@@ -323,7 +323,7 @@ class Taboola extends Root implements AdVendorInterface
                         ]);
 
                         $ad->name = $campaign_item['title'];
-                        $ad->status = $campaign_item['status'];
+                        $ad->status = $campaign_item['status'] === 'RUNNING' ? 'ACTIVE' : $campaign_item['status'];;
                         $ad->save();
                         $ad_ids[] = $ad->id;
                     }
