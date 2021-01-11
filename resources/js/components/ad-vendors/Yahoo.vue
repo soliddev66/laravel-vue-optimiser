@@ -213,7 +213,7 @@
                             </div>
                           </div>
                           <div class="col-sm-2">
-                            <button class="btn btn-primary">Remove</button>
+                            <button class="btn btn-primary" @click.prevent="removeSupportedSite(index)">Remove</button>
                           </div>
                         </div>
                       </div>
@@ -853,6 +853,9 @@ export default {
     removeImage(index, indexImage) {
       this.contents[index].images.splice(indexImage, 1)
     },
+    removeSupportedSite(index) {
+      this.supportedSiteCollections.splice(index, 1);
+    },
     loadPreviewEvent(event, index) {
       this.loadPreview(index)
     },
@@ -968,6 +971,7 @@ export default {
         campaignSupplyGroup2B: this.campaignSupplyGroup2B,
         campaignSupplyGroup3A: this.campaignSupplyGroup3A,
         campaignSupplyGroup3B: this.campaignSupplyGroup3B,
+        supportedSiteCollections: this.supportedSiteCollections
       }).then(response => {
         this.saveNetworkSetting = true
         this.getNetworkSettings()

@@ -19,5 +19,6 @@ class NetworkSetting extends Model
         'group_2b',
         'group_3a',
         'group_3b',
+        'site_group',
     ];
 }

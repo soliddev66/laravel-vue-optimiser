@@ -108,7 +108,10 @@ class Yahoo extends Root implements AdVendorInterface
             'group_2b' => request('campaignSupplyGroup2B'),
             'group_3a' => request('campaignSupplyGroup3A'),
             'group_3b' => request('campaignSupplyGroup3B'),
+            'site_group' => json_encode(request('supportedSiteCollections'))
         ])->save();
+
+        var_dump(json_encode(request('supportedSiteCollections')));
 
         return [];
     }
