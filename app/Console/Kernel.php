@@ -40,19 +40,19 @@ class Kernel extends ConsoleKernel
         // Report data
         $schedule->call(function () {
             Gemini::crawl();
-        })->everyThirtyMinutes();
+        })->daily();
         $schedule->call(function () {
             Gemini::checkJobs();
-        })->everyTenMinutes();
+        })->hourly();
         $schedule->call(function () {
             Outbrain::getReport();
-        })->everyThirtyMinutes();
+        })->hourly();
         $schedule->call(function () {
             Twitter::getReport();
-        })->everyThirtyMinutes();
+        })->hourly();
         $schedule->call(function () {
             Taboola::getReport();
-        })->everyThirtyMinutes();
+        })->hourly();
 
         // Redtrack
         $schedule->call(function () {
