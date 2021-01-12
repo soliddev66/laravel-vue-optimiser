@@ -33,11 +33,11 @@ class GeneralController extends Controller
         return (new $adVendorClass)->networkSetting();
     }
 
-    public function networkSettingGroup()
+    public function bdsxdSupportedSites()
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass)->networkSettingGroup();
+        return (new $adVendorClass)->bdsxdSupportedSites();
     }
 
     public function storeNetworkSetting()

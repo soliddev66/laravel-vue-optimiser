@@ -17,7 +17,6 @@ use App\Models\RedtrackReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
 use App\Models\NetworkSetting;
-use App\Models\NetworkSettingGroup;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use Carbon\Carbon;
@@ -51,6 +50,42 @@ class Yahoo extends Root implements AdVendorInterface
         return $this->api()->getLanguages();
     }
 
+    public function bdsxdSupportedSites()
+    {
+        $bdsxdSupportedSites = $this->api()->getBbsxdSupportedSites();
+
+        $options = [];
+
+        $groups = [];
+
+        $children = [];
+
+        foreach ($bdsxdSupportedSites as $bdsxdSupportedSite) {
+            if (!isset($groups[$bdsxdSupportedSite['category']])) {
+                $children[$bdsxdSupportedSite['category']] = [];
+                $groups[$bdsxdSupportedSite['category']] = [
+                    'id' => $bdsxdSupportedSite['category'],
+                    'label' => $bdsxdSupportedSite['category'],
+                    'children' => &$children[$bdsxdSupportedSite['category']]
+                ];
+
+                $options[] = $groups[$bdsxdSupportedSite['category']];
+            }
+
+            $children[$bdsxdSupportedSite['category']][] = [
+                'id' => $bdsxdSupportedSite['value'] . '|DESKTOP',
+                'label' => $bdsxdSupportedSite['name'] . ' - Desktop'
+            ];
+
+            $children[$bdsxdSupportedSite['category']][] = [
+                'id' => $bdsxdSupportedSite['value'] . '|MOBILE',
+                'label' => $bdsxdSupportedSite['name'] . ' - Mobile'
+            ];
+        }
+
+        return $options;
+    }
+
     public function countries()
     {
         return $this->api()->getCountries();
@@ -58,82 +93,14 @@ class Yahoo extends Root implements AdVendorInterface
 
     public function networkSetting()
     {
-        $options = [];
-
-        $this->buildNetworkSetting(NetworkSettingGroup::whereNull('parent')->get(), $options);
-
-        return $options;
-    }
-
-    private function buildNetworkSetting($root, &$options)
-    {
-        foreach ($root as $item) {
-            $child_option = [
-                'id' => 'group' . $item->id,
-                'label' => $item->name
-            ];
-
-            if (count($item->groups) > 0) {
-                $child_option['children'] = [];
-                $this->buildNetworkSetting($item->groups, $child_option['children']);
-            } elseif (count($item->networkSettings) == 0) {
-                $child_option['isDisabled'] = true;
-            }
-
-            if (count($item->networkSettings) > 0) {
-                if (!isset($child_option['children']) || !is_array($child_option['children'])) {
-                    $child_option['children'] = [];
-                }
-                foreach ($item->networkSettings as $networkSetting) {
-                    $child_option['children'][] = [
-                        'id' => $networkSetting->id,
-                        'label' => $networkSetting->name,
-                        'site_block' => $networkSetting->site_block,
-                        'group_1a' => $networkSetting->group_1a,
-                        'group_1b' => $networkSetting->group_1b,
-                        'group_2a' => $networkSetting->group_2a,
-                        'group_2b' => $networkSetting->group_2b,
-                        'group_3a' => $networkSetting->group_3a,
-                        'group_3b' => $networkSetting->group_3b,
-                    ];
-                }
-            }
-
-            $options[] = $child_option;
-        }
-    }
-
-    public function networkSettingGroup()
-    {
-        $options = [];
-
-        $this->buildNetworkSettingGroup(NetworkSettingGroup::whereNull('parent')->get(), $options);
-
-        return $options;
-    }
-
-    public function buildNetworkSettingGroup($root, &$options)
-    {
-        foreach ($root as $item) {
-            $child_option = [
-                'id' => $item->id,
-                'label' => $item->name
-            ];
-
-            if (count($item->groups) > 0) {
-                $child_option['children'] = [];
-                $this->buildNetworkSettingGroup($item->groups, $child_option['children']);
-            }
-
-            $options[] = $child_option;
-        }
+        return NetworkSetting::where('user_id', auth()->id())->get();
     }
 
     public function storeNetworkSetting()
     {
         NetworkSetting::firstOrNew([
             'name' => request('networkSettingName'),
-            'network_setting_group_id' => request('group'),
+            'user_id' => auth()->id(),
             'site_block' => request('campaignSiteBlock'),
             'group_1a' => request('campaignSupplyGroup1A'),
             'group_1b' => request('campaignSupplyGroup1B'),
@@ -141,6 +108,7 @@ class Yahoo extends Root implements AdVendorInterface
             'group_2b' => request('campaignSupplyGroup2B'),
             'group_3a' => request('campaignSupplyGroup3A'),
             'group_3b' => request('campaignSupplyGroup3B'),
+            'site_group' => json_encode(request('supportedSiteCollections'))
         ])->save();
 
         return [];

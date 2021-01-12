@@ -26,10 +26,10 @@ Auth::routes([
 
 Route::group(['middleware' => 'auth', 'prefix' => 'general'], function() {
     Route::get('/languages', [App\Http\Controllers\GeneralController::class, 'languages'])->name('general.languages');
+    Route::get('/bdsxd-supported-sites', [App\Http\Controllers\GeneralController::class, 'bdsxdSupportedSites'])->name('general.bdsxdSupportedSites');
     Route::get('/countries', [App\Http\Controllers\GeneralController::class, 'countries'])->name('general.countries');
     Route::post('/preview', [App\Http\Controllers\GeneralController::class, 'preview'])->name('general.preview');
     Route::get('/network-setting', [App\Http\Controllers\GeneralController::class, 'networkSetting'])->name('general.networkSetting');
-    Route::get('/network-setting-group', [App\Http\Controllers\GeneralController::class, 'networkSettingGroup'])->name('general.networkSettingGroup');
     Route::post('/network-setting', [App\Http\Controllers\GeneralController::class, 'storeNetworkSetting'])->name('general.storeNetworkSetting');
     Route::post('/upload-files', [App\Http\Controllers\GeneralController::class, 'uploadFiles'])->name('general.upload_files');
 });

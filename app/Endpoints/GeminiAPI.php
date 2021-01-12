@@ -68,6 +68,11 @@ class GeminiAPI
         return $this->client->call('POST', 'ad', $ads);
     }
 
+    public function getBbsxdSupportedSites()
+    {
+        return $this->client->call('GET', 'dictionary/bbsxd_supported_sites');
+    }
+
     public function updateAdStatus($ad_group_id, $ad_id, $status)
     {
         return $this->client->call('PUT', 'ad', [
@@ -242,8 +247,7 @@ class GeminiAPI
             'advertiserId' => request('selectedAdvertiser'),
             'parentType' => 'CAMPAIGN',
             'parentId' => $campaign_data['id'],
-            'status' => 'ACTIVE',
-            'include' => 'TRUE'
+            'status' => 'ACTIVE'
         ];
 
         if (count(request('campaignLocation'))) {
@@ -301,6 +305,12 @@ class GeminiAPI
                 foreach ($campaign_site_blocks as $item) {
                     $request_body[] = $body + ['type' => 'SITE_BLOCK', 'exclude' => 'TRUE', 'value' => trim($item)];
                 }
+            }
+        }
+
+        if (count(request('supportedSiteCollections'))) {
+            foreach (request('supportedSiteCollections') as $item) {
+                $request_body[] = $body + ['type' => 'SITE_X_DEVICE', 'exclude' => 'FALSE', 'value' => $item['key'], 'bidModifier' => request('bidAmount') + request('bidAmount') * $item['bidModifier'] / 100];
             }
         }
 
