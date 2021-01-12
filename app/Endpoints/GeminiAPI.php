@@ -247,8 +247,7 @@ class GeminiAPI
             'advertiserId' => request('selectedAdvertiser'),
             'parentType' => 'CAMPAIGN',
             'parentId' => $campaign_data['id'],
-            'status' => 'ACTIVE',
-            'include' => 'TRUE'
+            'status' => 'ACTIVE'
         ];
 
         if (count(request('campaignLocation'))) {
@@ -308,6 +307,14 @@ class GeminiAPI
                 }
             }
         }
+
+        if (count(request('supportedSiteCollections'))) {
+            foreach (request('supportedSiteCollections') as $item) {
+                $request_body[] = $body + ['type' => 'SITE_GROUP_X_DEVICE', 'exclude' => 'FALSE', 'value' => $item['key'], 'bidModifier' => request('bidAmount') + request('bidAmount') * $item['bidModifier'] / 100];
+            }
+        }
+
+        var_dump($request_body);
 
         return $this->client->call('POST', 'targetingattribute', $request_body);
     }

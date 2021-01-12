@@ -14,6 +14,7 @@ class AddSiteGroupColumnToNetworkSettingsTable extends Migration
     public function up()
     {
         Schema::table('network_settings', function (Blueprint $table) {
+            $table->integer('user_id')->after('id')->unsigned();
             $table->text('site_group')->after('group_3b')->nullable();
         });
     }
@@ -26,6 +27,7 @@ class AddSiteGroupColumnToNetworkSettingsTable extends Migration
     public function down()
     {
         Schema::table('network_settings', function (Blueprint $table) {
+            $table->dropColumn('user_id');
             $table->dropColumn('site_group');
         });
     }

@@ -93,14 +93,14 @@ class Yahoo extends Root implements AdVendorInterface
 
     public function networkSetting()
     {
-
+        return NetworkSetting::where('user_id', auth()->id())->get();
     }
 
     public function storeNetworkSetting()
     {
         NetworkSetting::firstOrNew([
             'name' => request('networkSettingName'),
-            'network_setting_group_id' => request('group'),
+            'user_id' => auth()->id(),
             'site_block' => request('campaignSiteBlock'),
             'group_1a' => request('campaignSupplyGroup1A'),
             'group_1b' => request('campaignSupplyGroup1B'),
@@ -110,8 +110,6 @@ class Yahoo extends Root implements AdVendorInterface
             'group_3b' => request('campaignSupplyGroup3B'),
             'site_group' => json_encode(request('supportedSiteCollections'))
         ])->save();
-
-        var_dump(json_encode(request('supportedSiteCollections')));
 
         return [];
     }
