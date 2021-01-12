@@ -7,7 +7,7 @@
 @stop
 
 @section('content')
-    <queues></queues>
+    <queues :size="{{ Queue::size() }}"></queues>
 @stop
 
 @section('css')

@@ -4,7 +4,9 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-body table-responsive">
-            <h1>Failed Jobs</h1>
+            <h1>Pending Jobs: {{ size }}</h1>
+            <hr>
+            <h2>Failed Jobs</h2>
             <table id="failedJobsTable" class="table table-bordered table-hover">
               <thead>
                 <tr>
@@ -27,6 +29,9 @@
 
 <script>
 export default {
+  props: {
+    size: Number
+  },
   mounted() {
     console.log('Component mounted.')
   },
