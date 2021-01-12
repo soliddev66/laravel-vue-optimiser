@@ -17,6 +17,8 @@ class AddSiteGroupColumnToNetworkSettingsTable extends Migration
             $table->integer('user_id')->after('id')->unsigned();
             $table->text('site_group')->after('group_3b')->nullable();
         });
+
+        Schema::dropIfExists('network_setting_groups');
     }
 
     /**
