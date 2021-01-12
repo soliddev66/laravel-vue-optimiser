@@ -643,7 +643,6 @@ export default {
       }
 
       this.instance.attributes.forEach(attribute => {
-        console.log(attribute.type)
         if (attribute.type === 'GENDER') {
           campaignGender.push(attribute.value)
         } else if (attribute.type === 'AGE') {
@@ -656,7 +655,6 @@ export default {
           if (attribute.value === 'GROUP_1_A') {
             campaignSupplyGroup1A = Math.round((attribute.bidModifier - bidAmount) / bidAmount * 100)
           } else if (attribute.value === 'GROUP_1_B') {
-            console.log('KOKO', attribute.bidModifier)
             campaignSupplyGroup1B = Math.round((attribute.bidModifier - bidAmount) / bidAmount * 100)
           } else if (attribute.value === 'GROUP_2_A') {
             campaignSupplyGroup2A = Math.round((attribute.bidModifier - bidAmount) / bidAmount * 100)
@@ -669,8 +667,7 @@ export default {
           }
         } else if (attribute.type === 'SITE_BLOCK') {
           siteBlock.push(attribute.value);
-        } else if (attribute.type === 'SITE_GROUP_X_DEVICE') {
-          console.log(attribute.value)
+        } else if (attribute.type === 'SITE_X_DEVICE') {
           supportedSiteCollections.push({
             label: '',
             subLabel: '(+800% — -80%)',
@@ -947,9 +944,35 @@ export default {
     },
 
     getBbsxdSupportedSites() {
+      this.isLoading = true
       axios.get(`/general/bdsxd-supported-sites?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
         if (response.data) {
           this.supportedSites = response.data
+
+          let total = 0
+
+          for (let i = 0; i < response.data.length; i++) {
+            for (let j = 0; j < response.data[i].children.length; j++) {
+              for (let l = 0; l < this.supportedSiteCollections.length; l++) {
+                if (response.data[i].children[j].id == this.supportedSiteCollections[l].key) {
+                  this.supportedSiteCollections[l].label = response.data[i].children[j].label
+                  total++
+                }
+
+                if (total > this.supportedSiteCollections.length) {
+                  break
+                }
+              }
+
+              if (total > this.supportedSiteCollections.length) {
+                break
+              }
+            }
+
+            if (total > this.supportedSiteCollections.length) {
+              break
+            }
+          }
         }
       }).catch(err => {}).finally(() => {
         this.isLoading = false
