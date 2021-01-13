@@ -54,7 +54,6 @@ class TaboolaProvider extends AbstractProvider implements ProviderInterface
 
     protected function mapUserToObject(array $user)
     {
-        dd($user);
         return (new User())->setRaw($user)->map([
             'id' => $user['sub'],
             'name' => $user['name'],

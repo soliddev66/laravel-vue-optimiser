@@ -30,6 +30,13 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'yahoojp'  => [
+        'api_endpoint'  => env('YAHOOJP_API_ENDPOINT'),
+        'client_id'     => env('YAHOOJP_CLIENT_ID'),
+        'client_secret' => env('YAHOOJP_CLIENT_SECRET'),
+        'redirect'      => env('YAHOOJP_REDIRECT'),
+    ],
+
     'yahoo'  => [
         'client_id'     => env('YAHOO_CLIENT_ID'),
         'client_secret' => env('YAHOO_CLIENT_SECRET'),

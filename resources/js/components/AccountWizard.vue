@@ -11,7 +11,7 @@
             <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Connect and Finish</label>
           </div>
           <div class="card-body" v-if="currentStep == 1">
-            <p v-for="provider in providers">
+            <p v-for="provider in providers" :key="provider.slug">
               <label>
                 <input type="radio" v-model="selectedProvider" :value="provider.slug" /> {{ provider.label }}
               </label>
@@ -35,8 +35,8 @@
             </form>
           </div>
           <div class="card-body" v-if="currentStep == 2">
-            <label v-for="tracker in trackers">
-              <input type="radio" v-model="selectedTracker" :value="tracker.slug"></input> {{ tracker.label }}
+            <label v-for="tracker in trackers" :key="tracker.slug">
+              <input type="radio" v-model="selectedTracker" :value="tracker.slug" /> {{ tracker.label }}
             </label>
             <div class="form-group mt-3" v-if="selectedTracker === 'redtrack'">
               <label>API key</label>
