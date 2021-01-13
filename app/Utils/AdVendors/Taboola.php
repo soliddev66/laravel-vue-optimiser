@@ -103,7 +103,7 @@ class Taboola extends Root implements AdVendorInterface
                         ]);
 
                         $ad->name = $title['title'];
-                        $ad->image = $image;
+                        $ad->image = $image['image'];
                         $ad->status = $campaign_item_data['status'];
                         $ad->description = $campaign_item['description'];
                         $ad->save();
@@ -166,7 +166,7 @@ class Taboola extends Root implements AdVendorInterface
                 foreach ($campaign_item['titles'] as $title) {
                     foreach ($campaign_item['images'] as $image) {
                         if ($title['existing'] && $image['existing']) {
-                            $campaign_item_data = $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['id'], $campaign_item['url'], $title['title'], $image, $campaign_item['description']);
+                            $campaign_item_data = $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['id'], $campaign_item['url'], $title['title'], $image['image'], $campaign_item['description']);
                         } else {
                             $campaign_item_data = $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
                         }

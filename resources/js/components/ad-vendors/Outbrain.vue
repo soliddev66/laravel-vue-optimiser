@@ -472,7 +472,6 @@ export default {
     this.$root.$on('fm-selected-items', (values) => {
       if (this.openingFileSelector === 'imageModal') {
         this.ads[this.fileSelectorIndex].images = []
-        this.ads[this.fileSelectorIndex].imageUrl = ''
         let paths = []
         for (var i = 0; i < values.length; i++) {
           this.ads[this.fileSelectorIndex].images[i] = {
@@ -482,7 +481,7 @@ export default {
           };
           paths.push(values[i].path)
         }
-        this.ads[this.fileSelectorIndex].imageUrl += paths.join(';')
+        this.ads[this.fileSelectorIndex].imageUrl = paths.join(';')
       }
       vm.$modal.hide(this.openingFileSelector)
     });

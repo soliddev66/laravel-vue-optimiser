@@ -247,12 +247,18 @@ export default {
 
     let vm = this
     this.$root.$on('fm-selected-items', (values) => {
-      this.campaignItems[this.fileSelectorIndex].images = [];
-      for (let i = 0; i < values.length; i++) {
-        this.campaignItems[this.fileSelectorIndex].images.push(values[i].path)
-      }
+
       if (this.openingFileSelector === 'imageModal') {
-        this.campaignItems[this.fileSelectorIndex].imagePath = this.campaignItems[this.fileSelectorIndex].images.join(';')
+        this.campaignItems[this.fileSelectorIndex].images = [];
+        let paths = []
+        for (let i = 0; i < values.length; i++) {
+          this.campaignItems[this.fileSelectorIndex].images.push({
+            image: process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
+            existing: false
+          })
+          paths.push(values[i].path)
+        }
+        this.campaignItems[this.fileSelectorIndex].imagePath = paths.join(';')
       }
       vm.$modal.hide('imageModal')
     });
