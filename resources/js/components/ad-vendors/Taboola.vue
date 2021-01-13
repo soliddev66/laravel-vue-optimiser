@@ -142,7 +142,7 @@
                   <div class="form-group row">
                     <label for="thumbnail_url" class="col-sm-2 control-label mt-2"></label>
                     <div class="col-sm-8">
-                      <input type="text" name="thumbnail_url" placeholder="Thumbnail Images" class="form-control" disabled="disabled" v-model="campaignItem.imagePath" />
+                      <input type="text" name="thumbnail_url" placeholder="Thumbnail Images" class="form-control" v-model="campaignItem.imagePath" />
                       <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose Files</button>
                     </div>
                   </div>
@@ -253,7 +253,7 @@ export default {
         let paths = []
         for (let i = 0; i < values.length; i++) {
           this.campaignItems[this.fileSelectorIndex].images.push({
-            image: process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
+            image: 'https://vngodev.com/yahoo-2.jpg',
             existing: false
           })
           paths.push(values[i].path)
