@@ -253,7 +253,7 @@ export default {
         let paths = []
         for (let i = 0; i < values.length; i++) {
           this.campaignItems[this.fileSelectorIndex].images.push({
-            image: 'https://vngodev.com/yahoo-2.jpg', // process.env.MIX_APP_URL + '/storage/images/' + values[i].path
+            image: process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
             existing: false
           })
           paths.push(values[i].path)
