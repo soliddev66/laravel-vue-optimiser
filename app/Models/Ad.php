@@ -18,6 +18,7 @@ class Ad extends Model
         'ad_group_id',
         'open_id',
         'image',
-        'description'
+        'description',
+        'synced'
     ];
 }

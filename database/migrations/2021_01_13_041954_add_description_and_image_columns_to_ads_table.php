@@ -16,6 +16,7 @@ class AddDescriptionAndImageColumnsToAdsTable extends Migration
         Schema::table('ads', function (Blueprint $table) {
             $table->string('image')->after('status')->nullable();
             $table->text('description')->after('status')->nullable();
+            $table->boolean('synced')->after('status')->nullable();
         });
     }
 
@@ -29,6 +30,7 @@ class AddDescriptionAndImageColumnsToAdsTable extends Migration
         Schema::table('ads', function (Blueprint $table) {
             $table->dropColumn('image');
             $table->dropColumn('description');
+            $table->dropColumn('synced');
         });
     }
 }

@@ -160,7 +160,12 @@ class Taboola extends Root implements AdVendorInterface
                 foreach ($campaign_item['titles'] as $title) {
                     foreach ($campaign_item['images'] as $image) {
                         if ($title['existing'] && $image['existing']) {
-                            $campaign_item_data = $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['id'], $campaign_item['url'], $title['title'], $image['image'], $campaign_item['description']);
+                            $campaign_item_data = $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['id'], [
+                                'url' => $campaign_item['url'],
+                                'title' => $title['title'],
+                                'description' => $campaign_item['description'],
+                                'thumbnail_url' => $image['image']
+                            ]);
                         } else {
                             $campaign_item_data = $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
                         }
@@ -252,6 +257,19 @@ class Taboola extends Root implements AdVendorInterface
                 'errors' => [$e->getMessage()]
             ];
         }
+    }
+
+    public function syncAd(Ad $ad)
+    {
+        $api = new TaboolaAPI(auth()->user()->providers()->where('provider_id', $ad->provider_id)->where('open_id', $ad->open_id)->first());
+        $campaign_item_data = $api->updateCampaignItem($ad->advertiser_id, $ad->campaign_id, $ad->ad_id, [
+            'title' => $ad['title'],
+            'description' => $ad['description'],
+            'thumbnail_url' => $ad['image']
+        ]);
+
+        $ad->synced = true;
+        $ad->save();
     }
 
     public function pullCampaign($user_provider)
