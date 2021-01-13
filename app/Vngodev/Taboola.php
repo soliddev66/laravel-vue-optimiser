@@ -21,8 +21,10 @@ class Taboola
 
     public static function syncAds()
     {
-        Ad::where(['provider_id' => 4, 'synced' => 1])->chunk(10, function ($ad) {
+        \DB::enableQueryLog();
+        Ad::where(['provider_id' => 4, 'synced' => 0])->chunk(10, function ($ad) {
             SyncAd::dispatch($ad);
         });
+        var_dump(\DB::getQueryLog());
     }
 }
