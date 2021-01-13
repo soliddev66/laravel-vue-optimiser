@@ -12,6 +12,7 @@ use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\TaboolaReport;
 use App\Models\UserTracker;
+use App\Models\UserProvider;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use Carbon\Carbon;
@@ -267,9 +268,9 @@ class Taboola extends Root implements AdVendorInterface
 
     public function syncAd(Ad $ad)
     {
-        $api = new TaboolaAPI(auth()->user()->providers()->where('provider_id', $ad->provider_id)->where('open_id', $ad->open_id)->first());
+        $api = new TaboolaAPI(UserProvider::where('provider_id', $ad->provider_id)->where('open_id', $ad->open_id)->first());
         $campaign_item_data = $api->updateCampaignItem($ad->advertiser_id, $ad->campaign_id, $ad->ad_id, [
-            'title' => $ad['title'],
+            'title' => $ad['name'],
             'description' => $ad['description'],
             'thumbnail_url' => $ad['image']
         ]);
