@@ -43,7 +43,7 @@ class ProvidersTableSeeder extends Seeder
         DB::table('providers')->insert([
             'label' => 'Yahoo Japan',
             'slug' => 'yahoojp',
-            'scopes' => null,
+            'scopes' => json_encode(['yahooads']),
             'created_at' => Carbon::now()
         ]);
     }
