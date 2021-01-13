@@ -53,6 +53,9 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             Taboola::getReport();
         })->hourly();
+        $schedule->call(function () {
+            Taboola::syncAds();
+        })->everyMinute();
 
         // Redtrack
         $schedule->call(function () {

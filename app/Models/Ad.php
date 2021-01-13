@@ -16,6 +16,9 @@ class Ad extends Model
         'campaign_id',
         'advertiser_id',
         'ad_group_id',
-        'open_id'
+        'open_id',
+        'image',
+        'description',
+        'synced'
     ];
 }

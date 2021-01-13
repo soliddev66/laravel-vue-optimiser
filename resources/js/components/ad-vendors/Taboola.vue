@@ -119,26 +119,31 @@
                       <small class="text-danger" v-if="campaignItem.url && !validURL(campaignItem.url)">URL is invalid. You might need http/https at the beginning.</small>
                     </div>
                   </div>
-                  <div class="form-group row" v-if="action == 'edit'">
+                  <div class="form-group row">
                     <label for="url" class="col-sm-2 control-label mt-2">Title</label>
                     <div class="col-sm-8">
-                      <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="campaignItem.title" />
+                      <div class="row mb-2" v-for="(title, indexTitle) in campaignItem.titles" :key="indexTitle">
+                        <div class="col-sm-8">
+                          <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" />
+                        </div>
+                        <div class="col-sm-4">
+                          <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
+                          <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == campaignItem.titles.length"><i class="fa fa-plus"></i></button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div class="form-group row" v-if="action == 'edit'">
+                  <div class="form-group row">
                     <label for="description" class="col-sm-2 control-label mt-2">Description</label>
                     <div class="col-sm-8">
                       <textarea class="form-control" rows="3" placeholder="Enter description" v-model="campaignItem.description"></textarea>
                     </div>
                   </div>
-                  <div class="form-group row" v-if="action == 'edit'">
+                  <div class="form-group row">
                     <label for="thumbnail_url" class="col-sm-2 control-label mt-2"></label>
                     <div class="col-sm-8">
-                      <input type="text" name="thumbnail_url" placeholder="Enter a image url" class="form-control" v-model="campaignItem.thumbnail_url" />
-                      <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageThumbnailUrl', index)">Choose File</button>
-                    </div>
-                    <div class="col-sm-8 offset-sm-2">
-                      <small class="text-danger" v-if="campaignItem.thumbnail_url && !validURL(campaignItem.thumbnail_url)">URL is invalid. You might need http/https at the beginning.</small>
+                      <input type="text" name="thumbnail_url" placeholder="Thumbnail Images" class="form-control" v-model="campaignItem.imagePath" />
+                      <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose Files</button>
                     </div>
                   </div>
                   <div class="row" v-if="index > 0 && action == 'create'">
@@ -147,7 +152,7 @@
                     </div>
                   </div>
                 </fieldset>
-                <button class="btn btn-primary btn-sm" @click.prevent="addCampaignItem()" v-if="action == 'create'">Add New</button>
+                <button class="btn btn-primary btn-sm" @click.prevent="addCampaignItem()">Add New</button>
               </div>
             </form>
           </div>
@@ -172,7 +177,7 @@
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
           viewType: 'grid',
-          selectionType: 'single'
+          selectionType: 'multiple'
       }"></file-manager>
     </modal>
   </section>
@@ -241,13 +246,19 @@ export default {
     this.getCountries()
 
     let vm = this
-    this.$root.$on('fm-selected-items', (value) => {
-      if (value.length == 0)
-        return
+    this.$root.$on('fm-selected-items', (values) => {
 
-      const selectedFilePath = value[0].path
-      if (this.openingFileSelector === 'imageThumbnailUrl') {
-        this.campaignItems[this.fileSelectorIndex].thumbnail_url = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+      if (this.openingFileSelector === 'imageModal') {
+        this.campaignItems[this.fileSelectorIndex].images = [];
+        let paths = []
+        for (let i = 0; i < values.length; i++) {
+          this.campaignItems[this.fileSelectorIndex].images.push({
+            image: process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
+            existing: false
+          })
+          paths.push(values[i].path)
+        }
+        this.campaignItems[this.fileSelectorIndex].imagePath = paths.join(';')
       }
       vm.$modal.hide('imageModal')
     });
@@ -257,11 +268,37 @@ export default {
   },
   data() {
     let campaignItems = [{
-      url: ''
+      url: '',
+      titles: [{
+        title: '',
+        existing: false
+      }],
+      description: '',
+      images: [{
+        image: '',
+        existing: false
+      }],
+      imagePath: ''
     }]
 
     if (this.instance) {
-      campaignItems = this.instance.items;
+      campaignItems = []
+      for (let i = 0; i < this.instance.items.length; i++) {
+        campaignItems.push({
+          id: this.instance.items[i].id,
+          url: this.instance.items[i].url,
+          titles: [{
+            title: this.instance.items[i].title,
+            existing: true
+          }],
+          description: this.instance.items[i].description,
+          images: [{
+            image: this.instance.items[i].thumbnail_url,
+            existing: true
+          }],
+          imagePath: this.instance.items[i].thumbnail_url
+        })
+      }
     }
 
     return {
@@ -352,10 +389,31 @@ export default {
       return !!pattern.test(str)
     },
     addCampaignItem(index) {
-      this.campaignItems.push({ url: '' })
+      this.campaignItems.push({
+      url: '',
+      titles: [{
+        title: '',
+        existing: false
+      }],
+      description: '',
+      images: [{
+        image: '',
+        existing: false
+      }],
+      imagePath: ''
+    })
     },
     removeCampaignItem(index) {
       this.campaignItems.splice(index, 1)
+    },
+    addTitle(index) {
+      this.campaignItems[index].titles.push({
+        title: '',
+        existing: false
+      })
+    },
+    removeTitle(index, indexTitle) {
+      this.campaignItems[index].titles.splice(indexTitle, 1)
     },
     submitStep1() {
       const step1Data = {

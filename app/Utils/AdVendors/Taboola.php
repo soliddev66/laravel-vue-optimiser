@@ -12,6 +12,7 @@ use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\TaboolaReport;
 use App\Models\UserTracker;
+use App\Models\UserProvider;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use Carbon\Carbon;
@@ -53,9 +54,6 @@ class Taboola extends Root implements AdVendorInterface
                 'is_active' => request('campaignIsActive'),
                 'start_date' => request('campaignStartDate'),
                 'end_date' => request('campaignEndDate'),
-                'end_date' => request('campaignEndDate'),
-                'end_date' => request('campaignEndDate'),
-                'end_date' => request('campaignEndDate')
             ];
 
             $country_targeting = request('campaignCountryTargeting');
@@ -77,21 +75,40 @@ class Taboola extends Root implements AdVendorInterface
 
             $campaign_data = $api->createCampaign(request('advertiser'), $data);
 
-            foreach (request('campaignItems') as $campaign_item) {
-                $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
-            }
-
-            $campaign = $api->getCampaign(request('advertiser'), $campaign_data['id']);
-
             $db_campaign = Campaign::firstOrNew([
-                'campaign_id' => $campaign['id'],
+                'campaign_id' => $campaign_data['id'],
                 'provider_id' => 4,
                 'user_id' => auth()->id(),
                 'open_id' => request('account')
             ]);
-            $db_campaign->name = $campaign['name'];
-            $db_campaign->status = $campaign['status'];
+            $db_campaign->name = $campaign_data['name'];
+            $db_campaign->status = $campaign_data['status'];
             $db_campaign->advertiser_id = request('advertiser');
+
+            foreach (request('campaignItems') as $campaign_item) {
+                foreach ($campaign_item['titles'] as $title) {
+                    foreach ($campaign_item['images'] as $image) {
+                        $campaign_item_data = $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
+
+                        $ad = Ad::firstOrNew([
+                            'ad_id' => $campaign_item_data['id'],
+                            'user_id' => auth()->id(),
+                            'provider_id' => 4,
+                            'campaign_id' =>  $campaign_data['id'],
+                            'ad_group_id' => 'taboola',
+                            'advertiser_id' => request('advertiser'),
+                            'open_id' => request('account')
+                        ]);
+
+                        $ad->name = $title['title'];
+                        $ad->image = $image['image'];
+                        $ad->status = $campaign_item_data['status'];
+                        $ad->description = $campaign_item['description'];
+                        $ad->synced = 0;
+                        $ad->save();
+                    }
+                }
+            }
 
             $db_campaign->save();
 
@@ -120,9 +137,6 @@ class Taboola extends Root implements AdVendorInterface
                 'is_active' => request('campaignIsActive'),
                 'start_date' => request('campaignStartDate'),
                 'end_date' => request('campaignEndDate'),
-                'end_date' => request('campaignEndDate'),
-                'end_date' => request('campaignEndDate'),
-                'end_date' => request('campaignEndDate'),
             ];
 
             $country_targeting = request('campaignCountryTargeting');
@@ -145,7 +159,41 @@ class Taboola extends Root implements AdVendorInterface
             $campaign_data = $api->updateCampaign($campaign->advertiser_id, $campaign->campaign_id, $data);
 
             foreach (request('campaignItems') as $campaign_item) {
-                $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item);
+                foreach ($campaign_item['titles'] as $title) {
+                    foreach ($campaign_item['images'] as $image) {
+                        $ad = Ad::firstOrNew([
+                            'ad_id' => $campaign_item_data['id'],
+                            'user_id' => auth()->id(),
+                            'provider_id' => 4,
+                            'campaign_id' =>  $campaign_data['id'],
+                            'ad_group_id' => 'taboola',
+                            'advertiser_id' => request('advertiser'),
+                            'open_id' => request('account')
+                        ]);
+
+                        if ($title['existing'] && $image['existing']) {
+                            $campaign_item_data = $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['id'], [
+                                'url' => $campaign_item['url'],
+                                'title' => $title['title'],
+                                'description' => $campaign_item['description'],
+                                'thumbnail_url' => $image['image']
+                            ]);
+
+                            $ad->synced = 1;
+                        } else {
+                            $campaign_item_data = $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
+
+                            $ad->synced = 0;
+                        }
+
+                        $ad->name = $title['title'];
+                        $ad->image = $image;
+                        $ad->status = $campaign_item_data['status'];
+                        $ad->description = $campaign_item['description'];
+
+                        $ad->save();
+                    }
+                }
             }
 
             return $campaign_data;
@@ -190,7 +238,7 @@ class Taboola extends Root implements AdVendorInterface
 
         try {
             foreach (request('campaignItems') as $campaign_item) {
-                $ads[] = $api->createCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['url']);
+                // $ads[] = $api->createCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['url']);
             }
 
             return $ads;
@@ -207,7 +255,7 @@ class Taboola extends Root implements AdVendorInterface
 
         try {
             foreach (request('campaignItems') as $campaign_item) {
-                $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item);
+                // $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item);
             }
 
             return [];
@@ -216,6 +264,19 @@ class Taboola extends Root implements AdVendorInterface
                 'errors' => [$e->getMessage()]
             ];
         }
+    }
+
+    public function syncAd(Ad $ad)
+    {
+        $api = new TaboolaAPI(UserProvider::where('provider_id', $ad->provider_id)->where('open_id', $ad->open_id)->first());
+        $campaign_item_data = $api->updateCampaignItem($ad->advertiser_id, $ad->campaign_id, $ad->ad_id, [
+            'title' => $ad['name'],
+            'description' => $ad['description'],
+            'thumbnail_url' => $ad['image']
+        ]);
+
+        $ad->synced = 1;
+        $ad->save();
     }
 
     public function pullCampaign($user_provider)
@@ -280,6 +341,22 @@ class Taboola extends Root implements AdVendorInterface
             $instance['instance_id'] = $campaign['id'];
             $instance['items'] = $api->getCampaignItems($campaign->advertiser_id, $campaign->campaign_id)['results'];
 
+            foreach ($instance['items'] as &$item) {
+                $ad = Ad::where('ad_id', $item['id'])->first();
+
+                if ($ad) {
+                    if (empty($item['title'])) {
+                        $item['title'] = $ad['title'];
+                    }
+                    if (empty($item['description'])) {
+                        $item['description'] = $ad['description'];
+                    }
+                    if (empty($item['thumbnail_url'])) {
+                        $item['thumbnail_url'] = $ad['image'];
+                    }
+                }
+            }
+
             return $instance;
         } catch (Exception $e) {
             return [];
@@ -323,7 +400,7 @@ class Taboola extends Root implements AdVendorInterface
                         ]);
 
                         $ad->name = $campaign_item['title'] ?? 'NA';
-                        $ad->status = $campaign_item['status'] === 'RUNNING' ? 'ACTIVE' : $campaign_item['status'];;
+                        $ad->status = $campaign_item['status'] === 'RUNNING' ? 'ACTIVE' : $campaign_item['status'];
                         $ad->save();
                         $ad_ids[] = $ad->id;
                     }
