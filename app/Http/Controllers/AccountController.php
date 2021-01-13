@@ -150,18 +150,33 @@ class AccountController extends Controller
         $db_provider = Provider::where('slug', $provider)->first();
         $provider_user = Socialite::driver($provider)->user();
         $open_id = $provider_user->id;
-        $token = $provider_user->token;
+        $token = null;
         $secret_token = null;
         $refresh_token = null;
         $expires_in = null;
+        if (property_exists($provider_user, 'token')) {
+            $token = $provider_user->token;
+        }
+        if (property_exists($provider_user, 'access_token')) {
+            $token = $provider_user->access_token;
+        }
+        if (property_exists($provider_user, 'tokenSecret')) {
+            $secret_token = $provider_user->tokenSecret;
+        }
         if (property_exists($provider_user, 'tokenSecret')) {
             $secret_token = $provider_user->tokenSecret;
         }
         if (property_exists($provider_user, 'refreshToken')) {
             $refresh_token = $provider_user->refreshToken;
         }
+        if (property_exists($provider_user, 'refresh_token')) {
+            $refresh_token = $provider_user->refresh_token;
+        }
         if (property_exists($provider_user, 'expiresIn')) {
             $expires_in = $provider_user->expiresIn;
+        }
+        if (property_exists($provider_user, 'expires_in')) {
+            $expires_in = $provider_user->expires_in;
         }
 
         $user_provider = UserProvider::firstOrNew([

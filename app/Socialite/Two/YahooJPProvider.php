@@ -8,16 +8,18 @@ use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\ProviderInterface;
 use Laravel\Socialite\Two\User;
 
-class TaboolaProvider extends AbstractProvider implements ProviderInterface
+class YahooJPProvider extends AbstractProvider implements ProviderInterface
 {
+    public $user = [];
+
     protected function getAuthUrl($state)
     {
-        return $this->buildAuthUrlFromBase('https://backstage.taboola.com/authentication/oauth/authorize', $state);
+        return $this->buildAuthUrlFromBase('https://biz-oauth.yahoo.co.jp/oauth/v1/authorize', $state);
     }
 
     protected function getTokenUrl()
     {
-        return 'https://backstage.taboola.com/oauth/token';
+        return 'https://biz-oauth.yahoo.co.jp/oauth/v1/token';
     }
 
     /**
@@ -31,6 +33,7 @@ class TaboolaProvider extends AbstractProvider implements ProviderInterface
         $fields = [
             'client_id' => $this->clientId,
             'redirect_uri' => $this->redirectUrl,
+            'scope' => 'yahooads',
             'response_type' => 'code'
         ];
 
@@ -43,9 +46,14 @@ class TaboolaProvider extends AbstractProvider implements ProviderInterface
 
     protected function getUserByToken($token)
     {
-        $response = $this->getHttpClient()->get('https://backstage.taboola.com/backstage/api/1.0/users/current/account', [
+        $response = $this->getHttpClient()->post('https://ads-search.yahooapis.jp/api/v3/AccountService/get', [
             'headers' => [
-                'Authorization' => 'Bearer ' . $token
+                'Authorization' => 'Bearer ' . $token,
+                'Content-Type' => 'application/json'
+            ],
+            'json' => [
+                'startIndex' => 1,
+                'numberResults' => 1
             ]
         ]);
 
@@ -54,12 +62,13 @@ class TaboolaProvider extends AbstractProvider implements ProviderInterface
 
     protected function mapUserToObject(array $user)
     {
+        $user = array_merge($this->user, $user['rval']);
         return (new User())->setRaw($user)->map([
-            'id' => $user['sub'],
-            'name' => $user['name'],
-            'email' => $user['email'],
+            'id' => $user['authorizationBusinessId'],
+            'name' => $user['authorizationBusinessId'],
+            'email' => $user['authorizationBusinessId'],
             'birth_year' => $user['birthdate'] ?? '',
-            'gender' => $user['gender']
+            'gender' => $user['gender'] ?? ''
         ]);
     }
 
@@ -70,19 +79,20 @@ class TaboolaProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessTokenResponse($code)
     {
-        $postKey = (version_compare(ClientInterface::MAJOR_VERSION, '6') === 1) ? 'form_params' : 'body';
-
-        $basic_auth_key = base64_encode($this->clientId . ':' . $this->clientSecret);
-
-        $response = $this->getHttpClient()->post($this->getTokenUrl(), [
-            'headers' => [
-                'Authorization' => 'Basic ' . $basic_auth_key,
-                'Content-Type' => 'application/x-www-form-urlencoded'
-            ],
-            $postKey => $this->getTokenFields($code)
+        $response = $this->getHttpClient()->get($this->getTokenUrl(), [
+            'query' => [
+                'grant_type' => 'authorization_code',
+                'client_id' => env('YAHOOJP_CLIENT_ID'),
+                'client_secret' => env('YAHOOJP_CLIENT_SECRET'),
+                'redirect_uri' => env('YAHOOJP_REDIRECT'),
+                'code' => $code
+            ]
         ]);
 
-        return json_decode($response->getBody(), true);
+        $user_token = json_decode($response->getBody(), true);
+        $this->user = $user_token;
+
+        return $user_token;
     }
 
     /**
