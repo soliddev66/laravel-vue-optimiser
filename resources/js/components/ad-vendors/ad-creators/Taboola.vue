@@ -121,7 +121,7 @@ export default {
         let paths = []
         for (let i = 0; i < values.length; i++) {
           this.campaignItems[this.fileSelectorIndex].images.push({
-            image: 'https://vngodev.com/yahoo-1.png', //process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
+            image: process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
             existing: false
           })
           paths.push(values[i].path)
@@ -222,16 +222,24 @@ export default {
         } else {
           let me = this
 
-          if (me.action == 'edit') {
-            me.isLoading = false
-            this.$dialog.alert('Save successfully!').then(function(dialog) {
-              window.location = '/campaigns';
-            });
+          this.campaignItems = []
 
-            return
+          for (let i = 0; i < response.data.length; i++) {
+            this.campaignItems.push({
+              id: response.data[i].ad_id,
+              url: response.data[i].url,
+              titles: [{
+                title: response.data[i].name,
+                existing: true
+              }],
+              description: response.data[i].description,
+              images: [{
+                image: response.data[i].image,
+                existing: true
+              }],
+              imagePath: response.data[i].image
+            })
           }
-
-          this.campaignItems = response.data
           let interval = setInterval(function () {
             axios.post('/campaigns/item-status', {
               provider: me.selectedProvider,
