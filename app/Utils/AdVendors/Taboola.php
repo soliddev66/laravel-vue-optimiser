@@ -238,7 +238,27 @@ class Taboola extends Root implements AdVendorInterface
 
         try {
             foreach (request('campaignItems') as $campaign_item) {
-                // $ads[] = $api->createCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['url']);
+                foreach ($campaign_item['titles'] as $title) {
+                    foreach ($campaign_item['images'] as $image) {
+                        $campaign_item_data = $api->createCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['url']);
+                        $ad = Ad::firstOrNew([
+                            'ad_id' => $campaign_item_data['id'],
+                            'user_id' => auth()->id(),
+                            'provider_id' => 4,
+                            'campaign_id' =>  $campaign->campaign_id,
+                            'ad_group_id' => 'taboola',
+                            'advertiser_id' => $campaign->advertiser_id,
+                            'open_id' => request('account')
+                        ]);
+
+                        $ad->name = $title['title'];
+                        $ad->image = $image['image'];
+                        $ad->status = $campaign_item_data['status'];
+                        $ad->description = $campaign_item['description'];
+                        $ad->synced = 0;
+                        $ad->save();
+                    }
+                }
             }
 
             return $ads;
