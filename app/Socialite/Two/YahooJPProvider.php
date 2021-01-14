@@ -52,8 +52,7 @@ class YahooJPProvider extends AbstractProvider implements ProviderInterface
                 'Content-Type' => 'application/json'
             ],
             'json' => [
-                'startIndex' => 1,
-                'numberResults' => 1
+                'startIndex' => 1
             ]
         ]);
 
