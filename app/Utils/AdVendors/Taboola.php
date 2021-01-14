@@ -187,7 +187,7 @@ class Taboola extends Root implements AdVendorInterface
                         }
 
                         $ad->name = $title['title'];
-                        $ad->image = $image;
+                        $ad->image = $image['image'];
                         $ad->status = $campaign_item_data['status'];
                         $ad->description = $campaign_item['description'];
 
@@ -238,7 +238,31 @@ class Taboola extends Root implements AdVendorInterface
 
         try {
             foreach (request('campaignItems') as $campaign_item) {
-                // $ads[] = $api->createCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['url']);
+                foreach ($campaign_item['titles'] as $title) {
+                    foreach ($campaign_item['images'] as $image) {
+                        $campaign_item_data = $api->createCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['url']);
+                        $ad = Ad::firstOrNew([
+                            'ad_id' => $campaign_item_data['id'],
+                            'user_id' => auth()->id(),
+                            'provider_id' => 4,
+                            'campaign_id' =>  $campaign->campaign_id,
+                            'ad_group_id' => 'taboola',
+                            'advertiser_id' => $campaign->advertiser_id,
+                            'open_id' => request('account')
+                        ]);
+
+                        $ad->name = $title['title'];
+                        $ad->image = $image['image'];
+                        $ad->status = $campaign_item_data['status'];
+                        $ad->description = $campaign_item['description'];
+                        $ad->synced = 0;
+                        $ad->save();
+
+                        $ad->url = $campaign_item['url'];
+
+                        $ads[] = $ad;
+                    }
+                }
             }
 
             return $ads;
@@ -253,12 +277,52 @@ class Taboola extends Root implements AdVendorInterface
     {
         $api = $this->api();
 
+        $ads = [];
+
         try {
             foreach (request('campaignItems') as $campaign_item) {
-                // $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item);
+                foreach ($campaign_item['titles'] as $title) {
+                    foreach ($campaign_item['images'] as $image) {
+                        $synced = 1;
+                        if ($title['existing'] && $image['existing']) {
+                            $campaign_item_data = $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['id'], [
+                                'url' => $campaign_item['url'],
+                                'title' => $title['title'],
+                                'description' => $campaign_item['description'],
+                                'thumbnail_url' => $image['image']
+                            ]);
+                        } else {
+                            $campaign_item_data = $api->createCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['url']);
+
+                            $synced = 0;
+                        }
+
+                        $ad = Ad::firstOrNew([
+                            'ad_id' => $campaign_item_data['id'],
+                            'user_id' => auth()->id(),
+                            'provider_id' => 4,
+                            'campaign_id' =>  $campaign->campaign_id,
+                            'ad_group_id' => 'taboola',
+                            'advertiser_id' => $campaign->advertiser_id,
+                            'open_id' => request('account')
+                        ]);
+
+                        $ad->name = $title['title'];
+                        $ad->image = $image['image'];
+                        $ad->status = $campaign_item_data['status'];
+                        $ad->description = $campaign_item['description'];
+                        $ad->synced = $synced;
+
+                        $ad->save();
+
+                        $ad->url = $campaign_item['url'];
+
+                        $ads[] = $ad;
+                    }
+                }
             }
 
-            return [];
+            return $ads;
         } catch (Exception $e) {
             return [
                 'errors' => [$e->getMessage()]
