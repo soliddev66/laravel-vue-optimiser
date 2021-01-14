@@ -28,8 +28,10 @@ class Outbrain
                     DB::table('campaigns')->where([
                         'advertiser_id' => $campaign_account->advertiser_id
                     ])->chunkById(20, function ($campaigns) use ($campaign_account) {
-                        PullOutbrainReport::dispatch($campaigns, $campaign_account);
-                        sleep(10);
+                        foreach ($campaigns as $campaign) {
+                            PullOutbrainReport::dispatch($campaign);
+                            sleep(10);
+                        }
                     });
                 }
             }
