@@ -284,7 +284,7 @@ export default {
         case '#performance':
           break;
         default:
-          if ([2, 3, 4].includes(this.campaign.provider_id)) {
+          if ([2, 3, 4, 5].includes(this.campaign.provider_id)) {
             this.getContentData();
           } else {
             this.getWidgetData();

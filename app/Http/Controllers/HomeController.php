@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Provider;
 use App\Models\RedtrackReport;
 use Carbon\Carbon;
 use DB;
@@ -53,8 +54,29 @@ class HomeController extends Controller
         if (request('end')) {
             $end_date = request('end');
         }
-        $data_by_provider = $this->getQuery($start_date, $end_date, 'provider_id')->groupBy('provider_id')->orderBy(request('column'), request('dir'))->paginate(request('length'));
+        $data_by_provider = $this->getDataByProviderQuery($start_date, $end_date)->groupBy('providers.id')->orderBy(request('column'), request('dir'))->paginate(request('length'));
         return new DataTableCollectionResource($data_by_provider);
+    }
+
+    private function getDataByProviderQuery($start_date, $end_date)
+    {
+        return Provider::select(
+                DB::raw('providers.id as provider_id'),
+                DB::raw('MAX(label) as name'),
+                DB::raw('ROUND(SUM(cost), 2) as total_cost'),
+                DB::raw('ROUND(SUM(profit), 2) as total_net'),
+                DB::raw('SUM(clicks) as total_clicks'),
+                DB::raw('ROUND(SUM(cost)/SUM(total_conversions), 2) as cpa'),
+                DB::raw('ROUND(SUM(total_revenue), 2) as total_revenue'),
+                DB::raw('ROUND((SUM(profit)/SUM(cost)) * 100, 2) as roi'),
+                DB::raw('ROUND(SUM(total_conversions), 2) as total_conversions'),
+                DB::raw('ROUND(SUM(total_revenue)/SUM(clicks), 2) as epc')
+            )
+            ->leftJoin('redtrack_reports', function ($join) use ($start_date, $end_date) {
+                $join->on('providers.id', '=', 'redtrack_reports.provider_id');
+                $join->whereBetween('redtrack_reports.date', [$start_date, $end_date]);
+            })
+            ->where('providers.label', 'LIKE', '%' . request('search') . '%');
     }
 
     private function getQuery($start_date, $end_date, $field = '')
