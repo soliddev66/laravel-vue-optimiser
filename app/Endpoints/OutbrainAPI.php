@@ -190,8 +190,8 @@ class OutbrainAPI
         ]);
     }
 
-    public function getPerformanceReport($campaign, $promoted_link, $date)
+    public function getPerformanceReport($campaign, $date)
     {
-        return $this->client->call('GET', 'reports/marketers/' . $campaign->advertiser_id . '/periodic?from=' . $date . '&to=' . $date . '&limit=100&offset=0&includeArchivedCampaigns=true&campaignId=' . $campaign->campaign_id . '&promotedLinkId=' . $promoted_link['id'] . '&breakdown=daily&includeConversionDetails=true&conversionsByClickDate=true');
+        return $this->client->call('GET', 'reports/marketers/' . $campaign->advertiser_id . '/campaigns?from=' . $date . '&to=' . $date . '&limit=100&offset=0&includeArchivedCampaigns=true&campaignId=' . $campaign->campaign_id . '&includeConversionDetails=true&conversionsByClickDate=true');
     }
 }

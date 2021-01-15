@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use DB;
+
 use App\Endpoints\OutbrainAPI;
 use App\Models\Campaign;
 use App\Models\OutbrainReport;
@@ -17,17 +19,14 @@ class PullOutbrainReport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $campaigns;
-    protected $campaign_account;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($campaigns, $campaign_account)
+    public function __construct()
     {
-        $this->campaigns = $campaigns;
-        $this->campaign_account = $campaign_account;
+
     }
 
     /**
@@ -37,16 +36,20 @@ class PullOutbrainReport implements ShouldQueue
      */
     public function handle()
     {
-        // Need to be updated
-        // $campaign_ids = [];
+        DB::table('campaigns')->where('provider_id', 2)->chunkById(20, function ($campaigns) {
+            foreach ($campaigns as $campaign) {
+                $date = Carbon::now()->format('Y-m-d');
+                $api = new OutbrainAPI(UserProvider::where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
 
-        // foreach ($this->campaigns as $campaign) {
-        //     $campaign_ids[] = $campaign->campaign_id;
-        // }
+                $report = OutbrainReport::firstOrNew([
+                    'campaign_id' => $campaign->id,
+                    'date' => $date
+                ]);
+                $report->data = json_encode($api->getPerformanceReport($campaign, $date));
 
-        // $api = new OutbrainAPI(UserProvider::where([
-        //     'provider_id' => $this->campaign_account->provider_id,
-        //     'open_id' => $this->campaign_account->open_id
-        // ])->first());
+                $report->save();
+                sleep(10);
+            }
+        });
     }
 }
