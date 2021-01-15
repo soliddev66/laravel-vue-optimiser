@@ -195,32 +195,10 @@ class CampaignController extends Controller
                 $campaigns_query->where('name', 'LIKE', '%' . request('search') . '%');
             }
             $campaigns_query->groupBy('campaigns.id');
-        } else if (request('provider') === 4) {
-            $campaigns_query = Campaign::with(['taboolaReports' => function ($q) {
-                $q->whereBetween('date', [request('start'), request('end')]);
-            }]);
-            if (request('provider')) {
-                $campaigns_query->where('provider_id', request('provider'));
-            }
-            if (request('account')) {
-                $campaigns_query->where('open_id', request('account'));
-            }
-            if (request('search')) {
-                $campaigns_query->where('name', 'LIKE', '%' . request('search') . '%');
-            }
         } else {
-            $campaigns_query = Campaign::with(['performanceStats' => function ($q) {
-                $q->whereBetween('day', [request('start'), request('end')]);
-            }]);
-            if (request('provider')) {
-                $campaigns_query->where('provider_id', request('provider'));
-            }
-            if (request('account')) {
-                $campaigns_query->where('open_id', request('account'));
-            }
-            if (request('search')) {
-                $campaigns_query->where('name', 'LIKE', '%' . request('search') . '%');
-            }
+            $provider = Provider::find(request('provider'));
+            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
+            $campaigns_query = (new $adVendorClass())->getCampaignQuery(request()->all());
         }
 
         return new DataTableCollectionResource($campaigns_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
