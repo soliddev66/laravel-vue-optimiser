@@ -90,4 +90,27 @@ class Token
             $callback();
         }
     }
+
+    public static function refreshYahooJP($user_info, callable $callback = null)
+    {
+        $client = new Client();
+
+        $response = $client->get('https://biz-oauth.yahoo.co.jp/oauth/v1/token', [
+            'query' => [
+                'client_id' => env('YAHOOJP_CLIENT_ID'),
+                'client_secret' => env('YAHOOJP_CLIENT_SECRET'),
+                'refresh_token' => $user_info->refresh_token,
+                'grant_type' => 'refresh_token'
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+        $user_info->token = $data['access_token'];
+        $user_info->expires_in = Carbon::now()->addSeconds($data['expires_in']);
+        $user_info->save();
+
+        if ($callback) {
+            $callback();
+        }
+    }
 }
