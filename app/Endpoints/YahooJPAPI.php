@@ -68,7 +68,10 @@ class YahooJPAPI
 
     public function getAds($ad_group_ids, $advertiser_id)
     {
-        return $this->client->call('GET', 'ad?adGroupId=' . implode('&adGroupId=', $ad_group_ids) . '&advertiserid=' . $advertiser_id);
+        return $this->client->call('POST', 'AdGroupAdService/get', [
+            'accountId' => $advertiser_id,
+            'adGroupIds' => $ad_group_ids
+        ]);
     }
 
     public function createAd($ads)
@@ -102,7 +105,10 @@ class YahooJPAPI
 
     public function getAdGroups($campaign_id, $advertiser_id)
     {
-        return $this->client->call('GET', 'adgroup?campaignId=' . $campaign_id . '&advertiserid=' . $advertiser_id);
+        return $this->client->call('POST', 'AdGroupService/get', [
+            'accountId' => $advertiser_id,
+            'campaignIds' => [$campaign_id]
+        ]);
     }
 
     public function updateAds($body)
