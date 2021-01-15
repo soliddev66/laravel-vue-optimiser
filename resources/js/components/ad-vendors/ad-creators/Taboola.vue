@@ -44,7 +44,7 @@
                 </div>
 
                 <div class="form-group row">
-                  <label for="thumbnail_url" class="col-sm-2 control-label mt-2"></label>
+                  <label for="thumbnail_url" class="col-sm-4 control-label mt-2">Thumbnail Images</label>
                   <div class="col-sm-8">
                     <input type="text" name="thumbnail_url" placeholder="Thumbnail Images" class="form-control" disabled="disabled" v-model="campaignItem.imagePath" />
                       <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose Files</button>
@@ -168,7 +168,7 @@ export default {
     }
   },
   methods: {
-    openChooseFile(name, index, indexImage) {
+    openChooseFile(name, index) {
       this.openingFileSelector = name
       this.fileSelectorIndex = index
       this.$modal.show('imageModal')
