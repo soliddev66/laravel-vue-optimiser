@@ -59,7 +59,12 @@
                       <label for="thumbnail_url" class="col-sm-4 control-label mt-2">Images</label>
                       <div class="col-sm-8">
                         <input type="text" name="image" placeholder="Images" class="form-control" disabled="disabled" v-model="content.imagePath" />
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose Files</button>
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose Files</button>
+                      </div>
+                      <div class="col-sm-8 offset-sm-4">
+                        <small class="text-danger" v-for="(image, indexImage) in content.images" :key="indexImage">
+                          <span class="d-inline-block" v-if="image.image && !image.state">Image {{ image.image }} is invalid. You might need an 1200 x 628 image.</span>
+                        </small>
                       </div>
                     </div>
                   </div>
@@ -123,6 +128,27 @@ export default {
   },
   computed: {
     submitState() {
+      for (let i = 0; i < this.contents.length; i++) {
+        if (!this.contents[i].principal || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl) || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)) {
+          return false
+        }
+
+        for (let j = 0; j < this.contents[i].headlines.length; j++) {
+          if (!this.contents[i].headlines[j].headline) {
+            return false
+          }
+        }
+
+        if (this.contents[i].images.length == 0) {
+          return false
+        }
+
+        for (let j = 0; j < this.contents[i].images.length; j++) {
+          if (!this.contents[i].images[j].image || !this.validURL(this.contents[i].images[j].image) || !this.contents[i].images[j].state) {
+            return false
+          }
+        }
+      }
 
       return true
     }
@@ -137,6 +163,7 @@ export default {
         for (let i = 0; i < values.length; i++) {
           this.contents[this.fileSelectorIndex].images.push({
             image: values[i].path,
+            state: this.validDimensions(values[i].dimensions, 1200, 628),
             existing: false
           })
           paths.push(values[i].path)
@@ -194,14 +221,16 @@ export default {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
     },
-    validImageSize(imageUrl, width, height) {
-      return new Promise((resolve) => {
-        var image = new Image();
-        image.onload = function() {
-          resolve(this.width == width && this.height == height);
-        };
-        image.src = imageUrl;
-      });
+    validDimensions(dimensions, width, height) {
+      var dimensions = dimensions.split('x')
+
+      if (dimensions.length == 2) {
+        if (dimensions[0].trim() == width && dimensions[1].trim() == height) {
+          return true
+        }
+      }
+
+      return false
     },
     addContent() {
       this.contents.push({
