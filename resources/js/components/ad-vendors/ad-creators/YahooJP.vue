@@ -20,10 +20,10 @@
                       <div class="col-sm-8">
                         <div class="row mb-2" v-for="(headline, indexHeadline) in content.headlines" :key="indexHeadline">
                           <div class="col-sm-8">
-                            <input type="text" name="headline" placeholder="Enter a headline" class="form-control" v-model="headline.headline" v-on:blur="loadPreviewEvent($event, index)" />
+                            <input type="text" name="headline" placeholder="Enter a headline" class="form-control" v-model="headline.headline" />
                           </div>
                           <div class="col-sm-4">
-                            <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexHeadline); loadPreviewEvent($event, index)" v-if="indexHeadline > 0"><i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexHeadline)" v-if="indexHeadline > 0"><i class="fa fa-minus"></i></button>
                             <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexHeadline + 1 == content.headlines.length"><i class="fa fa-plus"></i></button>
                           </div>
                         </div>
@@ -32,26 +32,26 @@
                     <div class="form-group row">
                       <label for="brand_name" class="col-sm-4 control-label mt-2">Principal</label>
                       <div class="col-sm-8">
-                        <input type="text" name="principal" placeholder="Principal" class="form-control" v-model="content.principal" v-on:blur="loadPreviewEvent($event, index)" />
+                        <input type="text" name="principal" placeholder="Principal" class="form-control" v-model="content.principal" />
                       </div>
                     </div>
                     <div class="form-group row">
                       <label for="description" class="col-sm-4 control-label mt-2">Description</label>
                       <div class="col-sm-8">
-                        <textarea class="form-control" rows="3" placeholder="Enter description" v-model="content.description" v-on:blur="loadPreviewEvent($event, index)"></textarea>
+                        <textarea class="form-control" rows="3" placeholder="Enter description" v-model="content.description"></textarea>
                       </div>
                     </div>
                     <div class="form-group row">
                       <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
                       <div class="col-sm-8 text-center">
-                        <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                        <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" />
                         <small class="text-danger" v-if="content.displayUrl && !validURL(content.displayUrl)">URL is invalid. You might need http/https at the beginning.</small>
                       </div>
                     </div>
                     <div class="form-group row">
                       <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
                       <div class="col-sm-8 text-center">
-                        <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                        <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" />
                         <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
                       </div>
                     </div>
@@ -130,13 +130,13 @@ export default {
   mounted() {
     console.log('Component mounted.')
     let vm = this
-    this.$root.$on('fm-selected-items', (value) => {
+    this.$root.$on('fm-selected-items', (values) => {
       if (this.openingFileSelector === 'imageModal') {
         this.contents[this.fileSelectorIndex].images = [];
         let paths = []
         for (let i = 0; i < values.length; i++) {
           this.contents[this.fileSelectorIndex].images.push({
-            image: process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
+            image: values[i].path,
             existing: false
           })
           paths.push(values[i].path)
@@ -233,22 +233,6 @@ export default {
     },
     removeTitle(index, indexHeadline) {
       this.contents[index].titles.splice(indexHeadline, 1)
-    },
-    loadPreviewEvent(event, index) {
-      this.loadPreview(index)
-    },
-    validImageHQSizeEvent(event, index) {
-      this.validImageSize(this.contents[index].imageUrlHQ, 1200, 627).then(result => {
-        this.contents[index].imageUrlHQState = result
-      });
-    },
-    validImageSizeEvent(event, index) {
-      this.validImageSize(this.contents[index].imageUrl, 627, 627).then(result => {
-        this.contents[index].imageUrlState = result
-      });
-    },
-    loadPreview(index, firstLoad = false) {
-
     },
     submit() {
       this.isLoading = true

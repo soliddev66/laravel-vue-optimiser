@@ -78,24 +78,55 @@ class YahooJP extends Root implements AdVendorInterface
         try {
             foreach (request('contents') as $content) {
                 foreach ($content['images'] as $image) {
+                    $file = storage_path('app/public/images/') . $image['image'];
+                    $data = file_get_contents($file);
+                    $media = $api->createMedia([
+                        'accountId' => request('selectedAdvertiser'),
+                        'operand' => [[
+                            'accountId' => request('selectedAdvertiser'),
+                            'imageMedia' => [
+                                'data' => base64_encode($data)
+                            ],
+                            'mediaName' => $image['image'],
+                            'mediaTitle' => md5($image['image']),
+                            'userStatus' => 'ACTIVE',
+                        ]]
+                    ]);
+
+                    $mediaId = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'] ?? $media['rval']['values'][0]['mediaRecord']['mediaId'];
+
+                    if (!$mediaId) {
+                        throw new Exception(json_encode($media['errors']));
+                    }
+
                     foreach ($content['headlines'] as $headlines) {
                         $ads[] = [
+                            'accountId' => request('selectedAdvertiser'),
+                            'ad' => [
+                                'adType' => 'RESPONSIVE_IMAGE_AD',
+                                'responsiveImageAd' => [
+                                    'buttonText' => 'FOR_MORE_INFO',
+                                    'description' => $content['description'],
+                                    'displayUrl' => $content['displayUrl'],
+                                    'headline' => $headlines['headline'],
+                                    'principal' => $content['principal'],
+                                    'url' => $content['targetUrl'],
+                                ]
+                            ],
                             'adGroupId' => $ad_group_id,
-                            'advertiserId' => request('selectedAdvertiser'),
                             'campaignId' => $campaign->campaign_id,
-                            'description' => $content['description'],
-                            'displayUrl' => $content['displayUrl'],
-                            'landingUrl' => $content['targetUrl'],
-                            'principal' => $content['principal'],
-                            'imageUrlHQ' => Helper::encodeUrl($image['imageUrlHQ']),
-                            'headline' => $headlines['headline'],
-                            'status' => 'ACTIVE'
+                            'adName' => $headlines['headline'],
+                            'mediaId' => $mediaId,
+                            'userStatus' => 'ACTIVE'
                         ];
                     }
                 }
             }
 
-            $ad_data = $api->createAd($ads);
+            $ad_data = $api->createAd([
+                'accountId' => request('selectedAdvertiser'),
+                'operand' => $ads
+            ]);
 
             return $ad_data;
         } catch (Exception $e) {
