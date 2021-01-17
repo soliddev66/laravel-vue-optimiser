@@ -226,13 +226,13 @@ export default {
       this.contents.splice(index, 1);
     },
     addTitle(index) {
-      this.contents[index].titles.push({
-        title: '',
+      this.contents[index].headlines.push({
+        headline: '',
         existing: false
       })
     },
     removeTitle(index, indexHeadline) {
-      this.contents[index].titles.splice(indexHeadline, 1)
+      this.contents[index].headlines.splice(indexHeadline, 1)
     },
     submit() {
       this.isLoading = true
