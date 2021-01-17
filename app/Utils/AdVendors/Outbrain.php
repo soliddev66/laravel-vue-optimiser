@@ -251,7 +251,6 @@ class Outbrain extends Root implements AdVendorInterface
 
     public function pullCampaign($user_provider)
     {
-        return;
         $api = new OutbrainAPI($user_provider);
         $campaign_ids = [];
 
@@ -295,7 +294,6 @@ class Outbrain extends Root implements AdVendorInterface
 
     public function pullAd($user_provider)
     {
-        return;
         $ad_ids = [];
         Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 2)->chunk(10, function ($campaigns) use ($user_provider, &$ad_ids) {
             foreach ($campaigns as $key => $campaign) {

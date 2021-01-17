@@ -345,7 +345,6 @@ class Taboola extends Root implements AdVendorInterface
 
     public function pullCampaign($user_provider)
     {
-        return;
         $api = new TaboolaAPI($user_provider);
         $advertisers = $api->getAdvertisers()['results'];
 
@@ -445,7 +444,6 @@ class Taboola extends Root implements AdVendorInterface
 
     public function pullAd($user_provider)
     {
-        return;
         $ad_ids = [];
 
         Campaign::where('user_id', $user_provider->user_id)->where('provider_id', $user_provider->provider_id)->chunk(10, function ($campaigns) use ($user_provider, &$ad_ids) {

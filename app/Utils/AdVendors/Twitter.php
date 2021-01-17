@@ -352,7 +352,6 @@ class Twitter extends Root implements AdVendorInterface
 
     public function pullCampaign($user_provider)
     {
-        return;
         $advertisers = (new TwitterAPI($user_provider))->getAdvertisers();
 
         $campaign_ids = [];
@@ -389,7 +388,6 @@ class Twitter extends Root implements AdVendorInterface
 
     public function pullAdGroup($user_provider)
     {
-        return;
         $ad_group_ids = [];
 
         Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($campaigns) use ($user_provider, &$ad_group_ids) {
@@ -422,7 +420,6 @@ class Twitter extends Root implements AdVendorInterface
 
     public function pullAd($user_provider)
     {
-        return;
         $ad_ids = [];
         AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($ad_groups) use ($user_provider, &$ad_ids) {
             foreach ($ad_groups as $key => $ad_group) {

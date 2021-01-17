@@ -73,7 +73,36 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function storeAd(Campaign $campaign, $ad_group_id)
     {
-        //
+        $api = $this->api();
+
+        try {
+            foreach (request('contents') as $content) {
+                foreach ($content['images'] as $image) {
+                    foreach ($content['headlines'] as $headlines) {
+                        $ads[] = [
+                            'adGroupId' => $ad_group_id,
+                            'advertiserId' => request('selectedAdvertiser'),
+                            'campaignId' => $campaign->campaign_id,
+                            'description' => $content['description'],
+                            'displayUrl' => $content['displayUrl'],
+                            'landingUrl' => $content['targetUrl'],
+                            'principal' => $content['principal'],
+                            'imageUrlHQ' => Helper::encodeUrl($image['imageUrlHQ']),
+                            'headline' => $headlines['headline'],
+                            'status' => 'ACTIVE'
+                        ];
+                    }
+                }
+            }
+
+            $ad_data = $api->createAd($ads);
+
+            return $ad_data;
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function update(Campaign $campaign)
