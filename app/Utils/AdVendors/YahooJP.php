@@ -93,9 +93,9 @@ class YahooJP extends Root implements AdVendorInterface
                         ]]
                     ]);
 
-                    $mediaId = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'] ?? $media['rval']['values'][0]['mediaRecord']['mediaId'];
+                    $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'] ?? $media['rval']['values'][0]['mediaRecord']['mediaId'];
 
-                    if (!$mediaId) {
+                    if (!$media_id) {
                         throw new Exception(json_encode($media['errors']));
                     }
 
@@ -116,7 +116,7 @@ class YahooJP extends Root implements AdVendorInterface
                             'adGroupId' => $ad_group_id,
                             'campaignId' => $campaign->campaign_id,
                             'adName' => $headlines['headline'],
-                            'mediaId' => $mediaId,
+                            'mediaId' => $media_id,
                             'userStatus' => 'ACTIVE'
                         ];
                     }
