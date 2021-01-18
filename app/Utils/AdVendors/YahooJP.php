@@ -38,7 +38,18 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function advertisers()
     {
-        return $this->api()->getAdvertisers();
+        $advertisers = $this->api()->getAdvertisers()['rval']['values'];
+
+        $result = [];
+
+        foreach ($advertisers as $advertiser) {
+            $result[] = [
+                'id' => $advertiser['account']['accountId'],
+                'name' => $advertiser['account']['accountName']
+            ];
+        }
+
+        return $result;
     }
 
     public function signUp()
@@ -111,7 +122,7 @@ class YahooJP extends Root implements AdVendorInterface
         $api = new YahooJPAPI($user_provider);
         $campaign_ids = [];
 
-        $accounts_response = $api->getAccounts();
+        $accounts_response = $api->getAdvertisers();
         $accounts = $accounts_response['rval']['values'];
         foreach ($accounts as $key => $account) {
             $account_id = $account['account']['accountId'];

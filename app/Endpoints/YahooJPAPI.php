@@ -15,7 +15,7 @@ class YahooJPAPI
         $this->client = new YahooJPClient($user_info);
     }
 
-    public function getAccounts()
+    public function getAdvertisers()
     {
         return $this->client->call('POST', 'AccountService/get', [
             'startIndex' => 1

@@ -41,7 +41,8 @@ import {
   yahoo,
   outbrain,
   twitter,
-  taboola
+  taboola,
+  yahoojp
 } from './ad-vendors'
 
 export default {
@@ -68,7 +69,8 @@ export default {
     yahoo,
     outbrain,
     twitter,
-    taboola
+    taboola,
+    yahoojp
   },
   computed: {},
   mounted() {
