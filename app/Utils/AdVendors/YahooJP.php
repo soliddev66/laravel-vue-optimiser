@@ -128,6 +128,58 @@ class YahooJP extends Root implements AdVendorInterface
                 'operand' => $ads
             ]);
 
+            $errors = [];
+
+            if ($ad_data['errors'] && count($ad_data['errors'])) {
+                foreach ($ad_data['errors'] as $error) {
+                    $message = $error['message'];
+
+                    $keys = [];
+
+                    foreach ($error['details'] as $detail) {
+                        if (substr($detail['requestKey'], -6) == 'adName') {
+                            $keys[] = $detail['requestValue'];
+                        }
+                    }
+
+                    if (count($keys)) {
+                        $message .= ' ' . implode(', ', $keys);
+                    }
+
+                    $errors[] = $message;
+                }
+            }
+
+            if (isset($ad_data['rval']['values']) && count($ad_data['rval']['values'])) {
+                foreach ($ad_data['rval']['values'] as $value) {
+                    if (isset($value['errors']) && count($value['errors'])) {
+                        foreach ($value['errors'] as $error) {
+                            $message = $error['message'];
+
+                            $keys = [];
+
+                            foreach ($error['details'] as $detail) {
+                                if ($detail['requestKey'] == 'mediaId') {
+                                    $keys[] = $detail['requestValue'];
+                                }
+                            }
+
+                            if (count($keys)) {
+                                $message .= ' ' . implode(', ', $keys);
+                            }
+
+                            $errors[] = $message;
+                        }
+                    }
+                }
+            }
+
+            if (count($errors)) {
+                return [
+                    'creatorError' => implode(', ', $errors)
+                ];
+            }
+
             return $ad_data;
         } catch (Exception $e) {
             return [
