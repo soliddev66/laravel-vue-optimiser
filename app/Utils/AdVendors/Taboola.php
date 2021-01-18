@@ -576,6 +576,37 @@ class Taboola extends Root implements AdVendorInterface
         return $summary_data_query;
     }
 
+    public function getCampaignQuery($data)
+    {
+        $campaigns_query = Campaign::select([
+            DB::raw('MAX(campaigns.id) AS id'),
+            DB::raw('campaigns.campaign_id AS campaign_id'),
+            DB::raw('MAX(campaigns.name) AS name'),
+            DB::raw('MAX(campaigns.status) AS status'),
+            DB::raw('MAX(campaigns.budget) AS budget'),
+            DB::raw('SUM(clicks) as clicks'),
+            DB::raw('SUM(spent) as cost'),
+            DB::raw('SUM(conversions_value) as total_revenue'),
+            DB::raw('SUM(conversions_value) - SUM(spent) as profit'),
+            DB::raw('(SUM(conversions_value)/SUM(spent)) * 100 as ROI')
+        ]);
+        $campaigns_query->leftJoin('taboola_reports', function ($join) use ($data) {
+            $join->on('taboola_reports.campaign_id', '=', 'campaigns.campaign_id')->whereBetween('taboola_reports.date', [$data['start'], $data['end']]);
+        });
+        if ($data['provider']) {
+            $campaigns_query->where('provider_id', $data['provider']);
+        }
+        if ($data['account']) {
+            $campaigns_query->where('open_id', $data['account']);
+        }
+        if ($data['search']) {
+            $campaigns_query->where('name', 'LIKE', '%' . $data['search'] . '%');
+        }
+        $campaigns_query->groupBy('campaigns.campaign_id');
+
+        return $campaigns_query;
+    }
+
     public function getWidgetQuery($campaign, $data)
     {
         //
