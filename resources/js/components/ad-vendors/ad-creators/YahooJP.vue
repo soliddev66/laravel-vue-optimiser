@@ -276,7 +276,12 @@ export default {
         if (response.data.errors) {
           alert(response.data.errors[0])
         } else {
-          this.$dialog.alert('Save successfully!').then(function(dialog) {
+          let message = 'Save successfully!';
+
+          if (response.data.creatorError) {
+            message += ' ' + response.data.creatorError;
+          }
+          this.$dialog.alert(message).then(function(dialog) {
             window.location = '/campaigns';
           });
         }
