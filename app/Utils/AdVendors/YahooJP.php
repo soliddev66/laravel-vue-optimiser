@@ -344,6 +344,30 @@ class YahooJP extends Root implements AdVendorInterface
         return $summary_data_query;
     }
 
+    public function getCampaignQuery($data)
+    {
+        $campaigns_query = Campaign::select([
+            DB::raw('MAX(campaigns.id) AS id'),
+            DB::raw('campaigns.campaign_id AS campaign_id'),
+            DB::raw('MAX(campaigns.name) AS name'),
+            DB::raw('MAX(campaigns.status) AS status'),
+            DB::raw('MAX(campaigns.budget) AS budget'),
+            DB::raw('null as clicks')
+        ]);
+        if ($data['provider']) {
+            $campaigns_query->where('provider_id', $data['provider']);
+        }
+        if ($data['account']) {
+            $campaigns_query->where('open_id', $data['account']);
+        }
+        if ($data['search']) {
+            $campaigns_query->where('name', 'LIKE', '%' . $data['search'] . '%');
+        }
+        $campaigns_query->groupBy('campaigns.campaign_id');
+
+        return $campaigns_query;
+    }
+
     public function getWidgetQuery($campaign, $data)
     {
         $widgets_query = GeminiSitePerformanceStat::select([

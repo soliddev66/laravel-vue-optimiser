@@ -7,6 +7,8 @@ interface AdVendorInterface
 {
     public function getSummaryDataQuery(array $data);
 
+    public function getCampaignQuery(array $data);
+
     public function getWidgetQuery(Campaign $campaign, array $data);
 
     public function getContentQuery(Campaign $campaign, array $data);
