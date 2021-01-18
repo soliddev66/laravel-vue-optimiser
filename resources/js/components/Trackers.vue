@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container-fluid">
     <div class="row justify-content-center">
       <div class="col-md-12">
         <div class="card">
@@ -8,11 +8,12 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Account ID</th>
-                  <th>Account Name</th>
+                  <th>Acc. ID</th>
+                  <th>Name</th>
                   <th>Status</th>
-                  <th>Tracking For</th>
+                  <th>Provider</th>
                   <th>Platform</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -23,6 +24,9 @@
                   <td>Enabled</td>
                   <td>{{ providers.find(provider => provider.id === tracker.provider_id).label }} - {{ tracker.provider_open_id }}</td>
                   <td>{{ trackersList.find(dbTracker => dbTracker.id === tracker.tracker_id).label }}</td>
+                  <td>
+                    <button class="btn btn-danger" @click="removeTracker(tracker)">Unlink</button>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -55,7 +59,20 @@ export default {
     }
   },
   methods: {
-    //
+    removeTracker(tracker) {
+      console.log('asdas');
+      axios.post(`/trackers/remove`, {
+          providerId: tracker.provider_id,
+          openId: tracker.open_id
+        })
+        .then((response) => {
+          alert('Tracker has been removed!');
+          location.reload();
+        })
+        .catch((err) => {
+          alert(err);
+        });
+    }
   }
 }
 </script>

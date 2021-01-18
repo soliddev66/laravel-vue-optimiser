@@ -12,6 +12,7 @@
                   <th>Status</th>
                   <th>Traffic Source</th>
                   <th>Linked Tracker</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -21,6 +22,9 @@
                   <td>Enabled</td>
                   <td>{{ providers.find(provider => provider.id === trafficSource.provider_id).label }}</td>
                   <td>{{ linkedTracker(trafficSource) }}</td>
+                  <td>
+                    <button class="btn btn-danger" @click.prevent="removeTrafficSource(trafficSource)">Unlink</button>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -59,6 +63,19 @@ export default {
         return tracker.name;
       }
       return '';
+    },
+    removeTrafficSource(trafficSource) {
+      axios.post(`/traffic-sources/remove`, {
+          providerId: trafficSource.provider_id,
+          openId: trafficSource.open_id
+        })
+        .then((response) => {
+          alert('Traffic source has been removed!');
+          location.reload();
+        })
+        .catch((err) => {
+          alert(err);
+        });
     }
   }
 }

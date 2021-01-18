@@ -76,12 +76,12 @@ class YahooJPAPI
 
     public function createAd($ads)
     {
-        return $this->client->call('POST', 'ad', $ads);
+        return $this->client->call('POST', 'AdGroupAdService/add', $ads);
     }
 
-    public function getBbsxdSupportedSites()
+    public function createMedia($media)
     {
-        return $this->client->call('GET', 'dictionary/bbsxd_supported_sites');
+        return $this->client->call('POST', 'MediaService/add', $media);
     }
 
     public function updateAdStatus($ad_group_id, $ad_id, $status)
