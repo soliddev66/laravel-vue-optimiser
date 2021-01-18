@@ -245,8 +245,6 @@ class Yahoo extends Root implements AdVendorInterface
                 'errors' => [$e->getMessage()]
             ];
         }
-
-        return [];
     }
 
     public function update(Campaign $campaign)

@@ -9,7 +9,8 @@ import {
   yahoo,
   outbrain,
   twitter,
-  taboola
+  taboola,
+  yahoojp
 } from './ad-vendors/ad-creators'
 
 export default {
@@ -28,7 +29,8 @@ export default {
     yahoo,
     outbrain,
     twitter,
-    taboola
+    taboola,
+    yahoojp
   },
 
   computed: {},

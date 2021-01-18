@@ -15,7 +15,7 @@
               <div class="col-md-6 col-12">
                 <select id="tracker" class="form-control" v-model="selectedTracker" @change="getData">
                   <option value="">-</option>
-                  <option v-for="tracker in trackers" :value="tracker.slug">{{ tracker.label }}</option>
+                  <option v-for="tracker in trackers" :value="tracker.slug" :key="tracker.slug">{{ tracker.label }}</option>
                 </select>
               </div>
             </div>
@@ -28,7 +28,7 @@
               <li class="nav-item">
                 <a class="nav-link" :class="{ 'active': show === 1 }" id="contents-tab" data-toggle="pill" href="#contents" role="tab" aria-controls="contents" aria-selected="false" @click.prevent="getContentData()">Contents</a>
               </li>
-              <li class="nav-item" v-if="[1,3].includes(campaign.provider_id)">
+              <li class="nav-item" v-if="[1,3,5].includes(campaign.provider_id)">
                 <a class="nav-link" :class="{ 'active': show === 2 }" id="ad-groups-tab" data-toggle="pill" href="#ad-groups" role="tab" aria-controls="ad-groups" aria-selected="false" @click.prevent="getAdGroupData()">Ad Groups</a>
               </li>
               <li class="nav-item" v-if="[2].includes(campaign.provider_id)">
@@ -52,7 +52,7 @@
                 <a class="btn btn-primary mb-2 float-right" v-if="campaign.provider_id == 2 || campaign.provider_id == 4" :href="`/campaigns/${campaign.id}/ad-groups/ad-group/ads/create`">Create New Ad</a>
                 <data-table :data="contents" :columns="contentColumns" @on-table-props-changed="reloadContentData"></data-table>
               </div>
-              <div class="tab-pane fade" v-if="[1,3,4].includes(campaign.provider_id)" :class="{ 'show active': show === 2 }" id="ad-groups" role="tabpanel" aria-labelledby="ad-groups-tab">
+              <div class="tab-pane fade" v-if="[1,3,4,5].includes(campaign.provider_id)" :class="{ 'show active': show === 2 }" id="ad-groups" role="tabpanel" aria-labelledby="ad-groups-tab">
                 <data-table :data="adGroups" :columns="adGroupColumns" @on-table-props-changed="reloadAdGroupData"></data-table>
               </div>
               <div class="tab-pane fade" v-if="[2].includes(campaign.provider_id)" :class="{ 'show active': show === 2 }" id="publishers" role="tabpanel" aria-labelledby="publishers-tab">
