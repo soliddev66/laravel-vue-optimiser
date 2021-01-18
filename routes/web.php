@@ -107,4 +107,7 @@ Route::post('/account/create-funding-instrument', [App\Http\Controllers\AccountC
 Route::get('/account/ad-group-categories', [App\Http\Controllers\AccountController::class, 'adGroupCategories'])->name('account.adGroupCategories');
 Route::post('/account/sign-up', [App\Http\Controllers\AccountController::class, 'signUp'])->name('sign_up');
 Route::get('/traffic-sources', [App\Http\Controllers\AccountController::class, 'trafficSources'])->name('traffic_sources');
+Route::post('/traffic-sources/remove', [App\Http\Controllers\AccountController::class, 'removeTrafficSource'])->name('removeTrafficSource');
 Route::get('/trackers', [App\Http\Controllers\AccountController::class, 'trackers'])->name('trackers');
+Route::post('/trackers/remove', [App\Http\Controllers\AccountController::class, 'removeTracker'])->name('removeTracker');
+

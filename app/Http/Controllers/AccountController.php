@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\PullCampaign;
+use App\Models\Ad;
+use App\Models\AdGroup;
+use App\Models\Campaign;
 use App\Models\Provider;
 use App\Models\Tracker;
 use App\Models\UserProvider;
@@ -14,6 +17,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use Token;
@@ -73,9 +77,45 @@ class AccountController extends Controller
         return view('accounts.traffic-sources');
     }
 
+    public function removeTrafficSource()
+    {
+        // Remove user_provider
+        UserProvider::where('provider_id', request('providerId'))->where('open_id', request('openId'))->delete();
+        // Remove user_tracker
+        UserTracker::where('provider_id', request('providerId'))->where('provider_open_id', request('openId'))->delete();
+        // Remove campaigns / ad groups and ads
+        Campaign::where('provider_id', request('providerId'))->where('open_id', request('openId'))->delete();
+        AdGroup::where('provider_id', request('providerId'))->where('open_id', request('openId'))->delete();
+        Ad::where('provider_id', request('providerId'))->where('open_id', request('openId'))->delete();
+
+        // TO-DO: Delete report
+
+        // Restart the queue
+        Artisan::call('queue:restart');
+
+        return response()->json([
+            'success' => true
+        ]);
+    }
+
     public function trackers()
     {
         return view('accounts.trackers');
+    }
+
+    public function removeTracker()
+    {
+        // Remove user_tracker
+        UserTracker::where('provider_id', request('providerId'))->where('open_id', request('openId'))->delete();
+
+        // TO-DO: Delete report
+
+        // Restart the queue
+        Artisan::call('queue:restart');
+
+        return response()->json([
+            'success' => true
+        ]);
     }
 
     /**
