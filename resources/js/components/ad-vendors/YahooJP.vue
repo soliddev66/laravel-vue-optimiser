@@ -79,18 +79,24 @@
                 </div>
 
                 <div class="form-group row">
-                  <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
-                  <div class="col-sm-3">
-                    <VueCtkDateTimePicker id="start_date" v-model="campaignStartDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
-                  </div>
-                  <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
-                  <div class="col-sm-3">
-                    <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
+                  <label for="budget" class="col-sm-2 control-label mt-2">Bid Strategy</label>
+                  <div class="col-sm-8">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: biddingStrategy === 'MANUAL_CPC' }">
+                        <input type="radio" name="type" id="biddingStrategy1" autocomplete="off" value="MANUAL_CPC" v-model="biddingStrategy"> MANUAL CPC
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: biddingStrategy === 'MANUAL_CPV' }">
+                        <input type="radio" name="type" id="biddingStrategy2" autocomplete="off" value="MANUAL_CPV" v-model="biddingStrategy"> MANUAL CPV
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: biddingStrategy === 'UNKNOWN' }">
+                        <input type="radio" name="type" id="biddingStrategy3" autocomplete="off" value="UNKNOWN" v-model="biddingStrategy"> UNKNOWN
+                      </label>
+                    </div>
                   </div>
                 </div>
 
                 <div class="form-group row">
-                  <label for="bid_strategy" class="col-sm-2 control-label mt-2">Bid Strategy</label>
+                  <label for="bid_strategy" class="col-sm-2 control-label mt-2">Campaign Bid Strategy</label>
                   <div class="col-sm-8">
                     <select name="bid_strategy" class="form-control" v-model="campaignStrategy">
                       <option value="AUTO">Auto</option>
@@ -131,17 +137,14 @@
                   </div>
                 </div>
 
-                <h2>Define your audience</h2>
                 <div class="form-group row">
-                  <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
-                  <div class="col-sm-8">
-                    <select2 id="gender" name="gender" v-model="campaignGender" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                  <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
+                  <div class="col-sm-3">
+                    <VueCtkDateTimePicker id="start_date" v-model="campaignStartDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
-                </div>
-                <div class="form-group row">
-                  <label for="age" class="col-sm-2 control-label mt-2">Age</label>
-                  <div class="col-sm-8">
-                    <select2 id="age" name="age" v-model="campaignAge" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                  <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
+                  <div class="col-sm-3">
+                    <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
                   </div>
                 </div>
 
@@ -156,20 +159,20 @@
                 <div class="form-group row">
                   <label for="bid_cpc" class="col-sm-2 control-label mt-2">Bid (CPC)</label>
                   <div class="col-sm-8">
-                    <input type="number" name="bid_cpc" min="1" class="form-control" v-model="bidAmount" />
+                    <input type="number" name="bid_cpc" min="1" class="form-control" v-model="adGroupBidAmount" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
+                  <div class="col-sm-8">
+                    <select2 id="gender" name="gender" v-model="campaignGender" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label for="schedule" class="col-sm-2 control-label mt-2">Schedule</label>
+                  <label for="age" class="col-sm-2 control-label mt-2">Age</label>
                   <div class="col-sm-8">
-                    <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: scheduleType === 'IMMEDIATELY' }">
-                        <input type="radio" name="schedule" id="scheduleType1" autocomplete="off" value="IMMEDIATELY" v-model="scheduleType"> Start running ads immediately
-                      </label>
-                      <label class="btn bg-olive" :class="{ active: scheduleType === 'CUSTOM' }">
-                        <input type="radio" name="schedule" id="scheduleType2" autocomplete="off" value="CUSTOM" v-model="scheduleType"> Set a start and end date
-                      </label>
-                    </div>
+                    <select2 id="age" name="age" v-model="campaignAge" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
 
@@ -260,7 +263,7 @@
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 1">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!campaignNameState || !selectedAdvertiserState || !campaignBudgetState || !adGroupNameState || !bidAmountState">Next</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep1">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!submitStep2State">Next</button>
@@ -333,21 +336,6 @@ export default {
     Treeselect
   },
   computed: {
-    selectedAdvertiserState() {
-      return this.selectedAdvertiser !== ''
-    },
-    campaignNameState() {
-      return this.campaignName !== ''
-    },
-    campaignBudgetState() {
-      return this.campaignBudget > 0
-    },
-    adGroupNameState() {
-      return this.adGroupName !== ''
-    },
-    bidAmountState() {
-      return this.bidAmount > 0
-    },
     submitStep2State() {
       for (let i = 0; i < this.contents.length; i++) {
         if (!this.contents[i].brandname || !this.contents[i].description || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl) || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)) {
@@ -373,35 +361,25 @@ export default {
   mounted() {
     console.log('Component mounted.')
     let vm = this
-    this.$root.$on('fm-selected-items', (value) => {
-      const selectedFilePath = value[0].path
-      if (this.openingFileSelector === 'imageHQUrl') {
-        this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrlHQ = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
-        this.validImageSize(this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrlHQ, 1200, 627).then(result => {
-          this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrlHQState = result
-        });
-        this.loadPreview(this.fileSelectorIndex)
-      }
-      if (this.openingFileSelector === 'imageUrl') {
-        this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
-        this.validImageSize(this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrl, 627, 627).then(result => {
-          this.contents[this.fileSelectorIndex].images[this.fileSelectorIndexImage].imageUrlState = result
-        });
-        this.loadPreview(this.fileSelectorIndex)
+    this.$root.$on('fm-selected-items', (values) => {
+      if (this.openingFileSelector === 'imageModal') {
+        this.contents[this.fileSelectorIndex].images = [];
+        let paths = []
+        for (let i = 0; i < values.length; i++) {
+          this.contents[this.fileSelectorIndex].images.push({
+            image: values[i].path,
+            state: this.validDimensions(values[i].dimensions, 1200, 628),
+            existing: false
+          })
+          paths.push(values[i].path)
+        }
+        this.contents[this.fileSelectorIndex].imagePath = paths.join(';')
       }
       vm.$modal.hide('imageModal')
     });
     this.currentStep = this.step
 
-    this.getLanguages()
-    this.getCountries()
     this.getAdvertisers()
-
-    if (this.instance) {
-      for (let i = 0; i < this.instance.ads.length; i++) {
-        this.loadPreview(i, true);
-      }
-    }
   },
   watch: {
     selectedAccount: function (newVal, oldVal) {
@@ -414,7 +392,7 @@ export default {
       campaignDevice = [],
       campaignStatus = '',
       adGroupName = '',
-      bidAmount = 1,
+      adGroupBidAmount = 1,
       campaignLocation = [],
       adGroupID = '',
       dataAttributes = [],
@@ -422,56 +400,23 @@ export default {
 
       contents = [{
         id: '',
-        titles: [{
-          title: '',
+        headlines: [{
+          headline: '',
           existing: false
         }],
         displayUrl: '',
         targetUrl: '',
         description: '',
-        brandname: '',
+        principal: '',
         images: [{
-          imageUrlHQ: '',
-          imageUrlHQState: true,
-          imageUrl: '',
-          imageUrlState: true,
+          image: '',
           existing: false
         }],
+        imagePath: '',
         adPreviews: []
       }];
     if (this.instance) {
-      if (this.instance.adGroups.length > 0) {
-        adGroupID = this.instance.adGroups[0]['id'];
-        adGroupName = this.instance.adGroups[0]['adGroupName'];
-
-        if (this.instance.adGroups[0]['bidSet']['bids'].length > 0) {
-          bidAmount = this.instance.adGroups[0]['bidSet']['bids'][0]['value'];
-        }
-      }
-
       contents = [];
-
-      for (let i = 0; i < this.instance.ads.length; i++) {
-        contents.push({
-          id: this.instance.ads[i]['id'],
-          titles: [{
-            title: this.instance.ads[i]['title'],
-            existing: true
-          }],
-          displayUrl: this.instance.ads[i]['displayUrl'],
-          targetUrl: this.instance.ads[i]['landingUrl'],
-          description: this.instance.ads[i]['description'],
-          brandname: this.instance.ads[i]['sponsoredBy'],
-          images: [{
-            imageUrlHQ: this.instance.ads[i]['imageUrlHQ'],
-            imageUrlHQState: true,
-            imageUrl: this.instance.ads[i]['imageUrl'],
-            imageUrlState: true,
-            existing: true
-          }],
-          adPreviews: [],
-        });
-      }
     }
 
     return {
@@ -567,8 +512,7 @@ export default {
       adGroupID: adGroupID,
       adGroupName: adGroupName,
       adGroupBidStrategy: adGroupBidStrategy,
-      bidAmount: bidAmount,
-      scheduleType: 'IMMEDIATELY',
+      adGroupBidAmount: adGroupBidAmount,
       contents: contents,
       dataAttributes: dataAttributes,
       openingFileSelector: '',
@@ -582,43 +526,42 @@ export default {
     }
   },
   methods: {
-    openChooseFile(name, index, indexImage) {
+    openChooseFile(name, index) {
       this.openingFileSelector = name
       this.fileSelectorIndex = index
-      this.fileSelectorIndexImage = indexImage
       this.$modal.show('imageModal')
     },
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
     },
-    validImageSize(imageUrl, width, height) {
-      return new Promise((resolve) => {
-        var image = new Image();
-        image.onload = function() {
-          resolve(this.width == width && this.height == height);
-        };
-        image.src = imageUrl;
-      });
+    validDimensions(dimensions, width, height) {
+      var dimensions = dimensions.split('x')
+
+      if (dimensions.length == 2) {
+        if (dimensions[0].trim() == width && dimensions[1].trim() == height) {
+          return true
+        }
+      }
+
+      return false
     },
     addContent() {
       this.contents.push({
         id: '',
-        titles: [{
-          title: '',
+        headlines: [{
+          headline: '',
           existing: false
         }],
         displayUrl: '',
         targetUrl: '',
         description: '',
-        brandname: '',
+        principal: '',
         images: [{
-          imageUrlHQ: '',
-          imageUrlHQState: true,
-          imageUrl: '',
-          imageUrlState: true,
+          image: '',
           existing: false
         }],
+        imagePath,
         adPreviews: []
       })
     },
@@ -626,59 +569,15 @@ export default {
       this.contents.splice(index, 1);
     },
     addTitle(index) {
-      this.contents[index].titles.push({
-        title: '',
+      this.contents[index].headlines.push({
+        headline: '',
         existing: false
       })
     },
-    removeTitle(index, indexTitle) {
-      this.contents[index].titles.splice(indexTitle, 1)
-    },
-    addImage(index) {
-      this.contents[index].images.push({
-        imageUrlHQ: '',
-        imageUrlHQState: true,
-        imageUrl: '',
-        imageUrlState: true,
-        existing: false
-      })
-    },
-    removeImage(index, indexImage) {
-      this.contents[index].images.splice(indexImage, 1)
-    },
-    getLanguages() {
-      this.isLoading = true
-      this.languages = []
-      axios.get(`/general/languages?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-        if (response.data) {
-          this.languages = response.data.map(language => {
-            return {
-              id: language.value || language.code,
-              text: language.name ? language.name.toUpperCase() : language.value
-            }
-          })
-        }
-      }).catch(err => {}).finally(() => {
-        this.isLoading = false
-      })
+    removeTitle(index, indexHeadline) {
+      this.contents[index].headlines.splice(indexHeadline, 1)
     },
 
-    getCountries() {
-      this.isLoading = true
-      this.countries = []
-      axios.get(`/general/countries?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-        if (response.data) {
-          this.countries = response.data.map(country => {
-            return {
-              id: country.woeid,
-              text: country.name
-            }
-          })
-        }
-      }).catch(err => {}).finally(() => {
-        this.isLoading = false
-      })
-    },
     getAdvertisers() {
       this.advertisers = []
       this.isLoading = true
@@ -698,7 +597,7 @@ export default {
         campaignName: this.campaignName,
         adGroupID: this.adGroupID,
         adGroupName: this.adGroupName,
-        bidAmount: this.bidAmount,
+        adGroupBidAmount: this.adGroupBidAmount,
         campaignType: this.campaignType,
         campaignLanguage: this.campaignLanguage,
         campaignStrategy: this.campaignStrategy,
@@ -707,7 +606,6 @@ export default {
         campaignAge: this.campaignAge,
         campaignDevice: this.campaignDevice,
         campaignConversionCounting: this.campaignConversionCounting,
-        scheduleType: this.scheduleType,
         campaignStartDate: this.campaignStartDate,
         campaignEndDate: this.campaignEndDate,
         campaignSupplyGroup1A: this.campaignSupplyGroup1A,
