@@ -164,20 +164,20 @@
                 <div class="form-group row">
                   <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
                   <div class="col-sm-8">
-                    <select2 id="gender" name="gender" v-model="adGroupGender" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                    <select2 id="gender" name="gender" v-model="campaignGenders" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
                 <div class="form-group row">
                   <label for="age" class="col-sm-2 control-label mt-2">Age</label>
                   <div class="col-sm-8">
-                    <select2 id="age" name="age" v-model="adGroupAge" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                    <select2 id="age" name="age" v-model="campaignAges" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
 
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device</label>
                   <div class="col-sm-8">
-                    <select2 name="device" v-model="adGroupDevice" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                    <select2 name="device" v-model="campaignDevices" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
               </div>
@@ -393,9 +393,9 @@ export default {
     }
   },
   data() {
-    let adGroupGender = [],
-      adGroupAge = [],
-      adGroupDevice = [],
+    let campaignGenders = [],
+      campaignAges = [],
+      campaignDevices = [],
       campaignStatus = '',
       adGroupName = '',
       adGroupBidAmount = 1,
@@ -508,9 +508,9 @@ export default {
       campaignMaxVcpmBidValue: '',
       campaignTargetCpaBidValue: '',
       campaignStatus: 'ACTIVE',
-      adGroupGender: adGroupGender,
-      adGroupAge: adGroupAge,
-      adGroupDevice: adGroupDevice,
+      campaignGenders: campaignGenders,
+      campaignAges: campaignAges,
+      campaignDevices: campaignDevices,
       adGroupID: adGroupID,
       adGroupName: adGroupName,
       adGroupBidStrategy: adGroupBidStrategy,
@@ -596,15 +596,22 @@ export default {
         campaignBudget: this.campaignBudget,
         campaignBudgetDeliveryMethod: this.campaignBudgetDeliveryMethod,
         campaignName: this.campaignName,
+        campaignGoal: this.campaignGoal,
+        campaignStatus: this.campaignStatus,
         campaignStartDate: this.campaignStartDate,
         campaignEndDate: this.campaignEndDate,
+        campaignBidStrategy: this.campaignBidStrategy,
         campaignCampaignBidStrategy: this.campaignCampaignBidStrategy,
+        campaignMaxCpcBidValue: this.campaignMaxCpcBidValue,
+        campaignMaxCpvBidValue: this.campaignMaxCpvBidValue,
+        campaignMaxVcpmBidValue: this.campaignMaxVcpmBidValue,
+        campaignTargetCpaBidValue: this.campaignTargetCpaBidValue,
         adGroupID: this.adGroupID,
         adGroupName: this.adGroupName,
         adGroupBidAmount: this.adGroupBidAmount,
-        adGroupGender: this.adGroupGender,
-        adGroupAge: this.adGroupAge,
-        adGroupDevice: this.adGroupDevice,
+        campaignGenders: this.campaignGenders,
+        campaignAges: this.campaignAges,
+        campaignDevices: this.campaignDevices,
       }
       this.postData = {...this.postData, ...step1Data }
       this.currentStep = 2
@@ -628,7 +635,7 @@ export default {
           alert(response.data.errors[0]);
         } else {
           this.$dialog.alert('Save successfully!').then(function(dialog) {
-            window.location = '/campaigns';
+            // window.location = '/campaigns';
           });
         }
       }).catch(error => {}).finally(() => {
