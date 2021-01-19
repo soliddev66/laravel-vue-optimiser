@@ -22,6 +22,14 @@ class YahooJPAPI
         ]);
     }
 
+    public function getCampaignGoals($account_id)
+    {
+        return $this->client->call('POST', 'AccountAuthorityService/get', [
+            'accountIds' => [$account_id],
+            'startIndex' => 1
+        ]);
+    }
+
     public function getCampaignsByAccountId($id)
     {
         return $this->client->call('POST', 'CampaignService/get', [
@@ -122,7 +130,7 @@ class YahooJPAPI
             'campaignBiddingStrategyType' => request('campaignCampaignBidStrategy')
         ];
 
-        switch(request('campaignBiddingStrategyType')) {
+        switch(request('campaignCampaignBidStrategy')) {
             case 'MAX_CPC':
                 $campaignBiddingStrategy['maxCpcBidValue'] = request('campaignMaxCpcBidValue');
                 break;

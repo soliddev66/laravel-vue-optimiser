@@ -52,6 +52,22 @@ class YahooJP extends Root implements AdVendorInterface
         return $result;
     }
 
+    public function campaignGoals()
+    {
+        $goal = $this->api()->getCampaignGoals(request('advertiser'))['rval']['values'][0];
+
+        $result = [];
+
+        foreach ($goal['accountAuthority']['authorities'] as $authory) {
+            $result[] = [
+                'id' => $authory,
+                'text' => $authory
+            ];
+        }
+
+        return $result;
+    }
+
     public function signUp()
     {
         return $this->api()->createAdvertiser(request('name'));
@@ -83,6 +99,8 @@ class YahooJP extends Root implements AdVendorInterface
 
         try {
             $campaign_data = $api->createCampaign();
+
+            var_dump($campaign_data);
 
             $campaign_id = $campaign_data['rval']['values'][0]['campaign']['campaignId'];
 

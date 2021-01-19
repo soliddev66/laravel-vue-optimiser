@@ -20,7 +20,7 @@
                 <div class="form-group row">
                   <label for="advertiser" class="col-sm-2 control-label mt-2">Advertiser</label>
                   <div class="col-sm-4" v-if="advertisers.length">
-                    <select name="advertiser" class="form-control" v-model="selectedAdvertiser" :disabled="instance">
+                    <select name="advertiser" class="form-control" v-model="selectedAdvertiser" :disabled="instance" @change="selectedAdvertiserChange">
                       <option value="">Select Advertiser</option>
                       <option :value="advertiser.id" v-for="advertiser in advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.name }}</option>
                     </select>
@@ -35,7 +35,7 @@
                 <div class="form-group row">
                   <label for="name" class="col-sm-2 control-label mt-2">Campaign Goal</label>
                   <div class="col-sm-8">
-                    <input type="text" name="goal" placeholder="Enter campaign goal" class="form-control" v-model="campaignGoal" />
+                    <select2 id="goal" name="campaign_campaign_bid_strategy" :options="campaignGoals" v-model="campaignGoal" placeholder="Select campaign goal"></select2>
                   </div>
                 </div>
 
@@ -96,14 +96,7 @@
                 <div class="form-group row">
                   <label for="bid_strategy" class="col-sm-2 control-label mt-2">Campaign Bid Strategy</label>
                   <div class="col-sm-8">
-                    <select name="bid_strategy" class="form-control" v-model="campaignCampaignBidStrategy">
-                      <option value="AUTO">Auto</option>
-                      <option value="MAX_VCPM">Max. Bid Value (vCPM)</option>
-                      <option value="MAX_CPC">Max. Bid Value (CPC)</option>
-                      <option value="MAX_CPV">Max. Bid Value (CPV)</option>
-                      <option value="TARGET_CPA">Target Cost Specification (CPA)</option>
-                      <option value="NONE">No Setting Of Bid Strategy</option>
-                    </select>
+                    <select2 id="campaign_campaign_bid_strategy" name="campaign_campaign_bid_strategy" :options="campaignCampaignBidStrategies" v-model="campaignCampaignBidStrategy"></select2>
                   </div>
                 </div>
 
@@ -492,7 +485,27 @@ export default {
         id: 'TABLET',
         text: 'TABLET',
       }],
+      campaignCampaignBidStrategies: [{
+        id: 'AUTO',
+        text: 'Auto',
+      }, {
+        id: 'MAX_VCPM',
+        text: 'Max. Bid Value (vCPM)',
+      }, {
+        id: 'MAX_CPC',
+        text: 'Max. Bid Value (CPC)',
+      }, {
+        id: 'MAX_CPV',
+        text: 'Max. Bid Value (CPV)',
+      }, {
+        id: 'TARGET_CPA',
+        text: 'Target Cost Specification (CPA)',
+      }, {
+        id: 'NONE',
+        text: 'No Setting Of Bid Strategy',
+      }],
       advertisers: [],
+      campaignGoals: [],
       actionName: this.action,
       campaignGoal: this.instance ? this.instance.campaignGoal : '',
       selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
@@ -500,7 +513,7 @@ export default {
       campaignBudget: this.instance ? this.instance.budget : '',
       campaignStartDate: this.instance ? this.instance.start_date : this.$moment().format('YYYY-MM-DD'),
       campaignEndDate: this.instance ? this.instance.end_date : '',
-      campaignCampaignBidStrategy: '',
+      campaignCampaignBidStrategy: 'AUTO',
       campaignBidStrategy: '',
       campaignBudgetDeliveryMethod: '',
       campaignMaxCpcBidValue: '',
@@ -579,14 +592,25 @@ export default {
       this.contents[index].headlines.splice(indexHeadline, 1)
     },
 
+    getCampaignGoals() {
+      this.isLoading = true
+      axios.get(`/general/campaign-goals?provider=${this.selectedProvider}&account=${this.selectedAccount}&advertiser=${this.selectedAdvertiser}`).then(response => {
+        this.campaignGoals = response.data
+      }).catch(err => {}).finally(() => {
+        this.isLoading = false
+      })
+    },
+
     getAdvertisers() {
-      this.advertisers = []
       this.isLoading = true
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
         this.advertisers = response.data
       }).catch(err => {}).finally(() => {
         this.isLoading = false
       })
+    },
+    selectedAdvertiserChange() {
+      this.getCampaignGoals()
     },
     submitStep1() {
       const step1Data = {

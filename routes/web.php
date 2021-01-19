@@ -27,6 +27,7 @@ Auth::routes([
 Route::group(['middleware' => 'auth', 'prefix' => 'general'], function() {
     Route::get('/languages', [App\Http\Controllers\GeneralController::class, 'languages'])->name('general.languages');
     Route::get('/bdsxd-supported-sites', [App\Http\Controllers\GeneralController::class, 'bdsxdSupportedSites'])->name('general.bdsxdSupportedSites');
+    Route::get('/campaign-goals', [App\Http\Controllers\GeneralController::class, 'campaignGoals'])->name('general.campaignGoals');
     Route::get('/countries', [App\Http\Controllers\GeneralController::class, 'countries'])->name('general.countries');
     Route::post('/preview', [App\Http\Controllers\GeneralController::class, 'preview'])->name('general.preview');
     Route::get('/network-setting', [App\Http\Controllers\GeneralController::class, 'networkSetting'])->name('general.networkSetting');
@@ -110,4 +111,3 @@ Route::get('/traffic-sources', [App\Http\Controllers\AccountController::class, '
 Route::post('/traffic-sources/remove', [App\Http\Controllers\AccountController::class, 'removeTrafficSource'])->name('removeTrafficSource');
 Route::get('/trackers', [App\Http\Controllers\AccountController::class, 'trackers'])->name('trackers');
 Route::post('/trackers/remove', [App\Http\Controllers\AccountController::class, 'removeTracker'])->name('removeTracker');
-
