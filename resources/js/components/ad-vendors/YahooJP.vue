@@ -11,9 +11,7 @@
             <i class="fas fa-arrow-right"></i>
             <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">Add Contents</label>
             <i class="fas fa-arrow-right"></i>
-            <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Generate Variations</label>
-            <i class="fas fa-arrow-right"></i>
-            <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Preview</label>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Finish</label>
           </div>
           <div class="card-body">
             <form class="form-horizontal" v-if="selectedProvider && selectedAccount">
@@ -65,14 +63,14 @@
                   <label for="budget" class="col-sm-2 control-label mt-2">Budget Delivery</label>
                   <div class="col-sm-4">
                     <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: budgetDeliveryMethod === 'STANDARD' }">
-                        <input type="radio" name="type" id="budgetDeliveryMethod1" autocomplete="off" value="STANDARD" v-model="budgetDeliveryMethod"> STANDARD
+                      <label class="btn bg-olive" :class="{ active: campaignBudgetDeliveryMethod === 'STANDARD' }">
+                        <input type="radio" name="type" id="campaignBudgetDeliveryMethod1" autocomplete="off" value="STANDARD" v-model="campaignBudgetDeliveryMethod"> STANDARD
                       </label>
-                      <label class="btn bg-olive" :class="{ active: budgetDeliveryMethod === 'ACCELERATED' }">
-                        <input type="radio" name="type" id="budgetDeliveryMethod2" autocomplete="off" value="ACCELERATED" v-model="budgetDeliveryMethod"> ACCELERATED
+                      <label class="btn bg-olive" :class="{ active: campaignBudgetDeliveryMethod === 'ACCELERATED' }">
+                        <input type="radio" name="type" id="campaignBudgetDeliveryMethod2" autocomplete="off" value="ACCELERATED" v-model="campaignBudgetDeliveryMethod"> ACCELERATED
                       </label>
-                      <label class="btn bg-olive" :class="{ active: budgetDeliveryMethod === 'UNKNOWN' }">
-                        <input type="radio" name="type" id="budgetDeliveryMethod3" autocomplete="off" value="UNKNOWN" v-model="budgetDeliveryMethod"> UNKNOWN
+                      <label class="btn bg-olive" :class="{ active: campaignBudgetDeliveryMethod === 'UNKNOWN' }">
+                        <input type="radio" name="type" id="campaignBudgetDeliveryMethod3" autocomplete="off" value="UNKNOWN" v-model="campaignBudgetDeliveryMethod"> UNKNOWN
                       </label>
                     </div>
                   </div>
@@ -82,14 +80,14 @@
                   <label for="budget" class="col-sm-2 control-label mt-2">Bid Strategy</label>
                   <div class="col-sm-8">
                     <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: biddingStrategy === 'MANUAL_CPC' }">
-                        <input type="radio" name="type" id="biddingStrategy1" autocomplete="off" value="MANUAL_CPC" v-model="biddingStrategy"> MANUAL CPC
+                      <label class="btn bg-olive" :class="{ active: campaignBidStrategy === 'MANUAL_CPC' }">
+                        <input type="radio" name="type" id="campaignBidStrategy1" autocomplete="off" value="MANUAL_CPC" v-model="campaignBidStrategy"> MANUAL CPC
                       </label>
-                      <label class="btn bg-olive" :class="{ active: biddingStrategy === 'MANUAL_CPV' }">
-                        <input type="radio" name="type" id="biddingStrategy2" autocomplete="off" value="MANUAL_CPV" v-model="biddingStrategy"> MANUAL CPV
+                      <label class="btn bg-olive" :class="{ active: campaignBidStrategy === 'MANUAL_CPV' }">
+                        <input type="radio" name="type" id="campaignBidStrategy2" autocomplete="off" value="MANUAL_CPV" v-model="campaignBidStrategy"> MANUAL CPV
                       </label>
-                      <label class="btn bg-olive" :class="{ active: biddingStrategy === 'UNKNOWN' }">
-                        <input type="radio" name="type" id="biddingStrategy3" autocomplete="off" value="UNKNOWN" v-model="biddingStrategy"> UNKNOWN
+                      <label class="btn bg-olive" :class="{ active: campaignBidStrategy === 'UNKNOWN' }">
+                        <input type="radio" name="type" id="campaignBidStrategy3" autocomplete="off" value="UNKNOWN" v-model="campaignBidStrategy"> UNKNOWN
                       </label>
                     </div>
                   </div>
@@ -98,7 +96,7 @@
                 <div class="form-group row">
                   <label for="bid_strategy" class="col-sm-2 control-label mt-2">Campaign Bid Strategy</label>
                   <div class="col-sm-8">
-                    <select name="bid_strategy" class="form-control" v-model="campaignStrategy">
+                    <select name="bid_strategy" class="form-control" v-model="campaignCampaignBidStrategy">
                       <option value="AUTO">Auto</option>
                       <option value="MAX_VCPM">Max. Bid Value (vCPM)</option>
                       <option value="MAX_CPC">Max. Bid Value (CPC)</option>
@@ -109,28 +107,28 @@
                   </div>
                 </div>
 
-                <div class="form-group row" v-if="campaignStrategy == 'MAX_CPC'">
+                <div class="form-group row" v-if="campaignCampaignBidStrategy == 'MAX_CPC'">
                   <label for="name" class="col-sm-2 control-label mt-2">Max Bid Of Campaign (CPC)</label>
                   <div class="col-sm-8">
                     <input type="text" name="campaign_max_cpc_bid_value" placeholder="Max Bid Of Campaign (CPC)" class="form-control" v-model="campaignMaxCpcBidValue" />
                   </div>
                 </div>
 
-                <div class="form-group row" v-if="campaignStrategy == 'MAX_CPV'">
+                <div class="form-group row" v-if="campaignCampaignBidStrategy == 'MAX_CPV'">
                   <label for="name" class="col-sm-2 control-label mt-2">Max bid of campaign (CPV)</label>
                   <div class="col-sm-8">
                     <input type="text" name="campaign_max_cpv_bid_value" placeholder="Max bid of campaign (CPV)" class="form-control" v-model="campaignMaxCpvBidValue" />
                   </div>
                 </div>
 
-                <div class="form-group row" v-if="campaignStrategy == 'MAX_VCPM'">
+                <div class="form-group row" v-if="campaignCampaignBidStrategy == 'MAX_VCPM'">
                   <label for="name" class="col-sm-2 control-label mt-2">Max bid of campaign (vCPM)</label>
                   <div class="col-sm-8">
                     <input type="text" name="campaign_max_vcpm_bid_value" placeholder="Max bid of campaign (vCPM)" class="form-control" v-model="campaignMaxVcpmBidValue" />
                   </div>
                 </div>
 
-                <div class="form-group row" v-if="campaignStrategy == 'TARGET_CPA'">
+                <div class="form-group row" v-if="campaignCampaignBidStrategy == 'TARGET_CPA'">
                   <label for="name" class="col-sm-2 control-label mt-2">Target bid of campaign (tCPA)</label>
                   <div class="col-sm-8">
                     <input type="text" name="campaign_Target_cpa_bid_value" placeholder="Target bid of campaign (tCPA)" class="form-control" v-model="campaignTargetCpaBidValue" />
@@ -166,20 +164,20 @@
                 <div class="form-group row">
                   <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
                   <div class="col-sm-8">
-                    <select2 id="gender" name="gender" v-model="campaignGender" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                    <select2 id="gender" name="gender" v-model="adGroupGender" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
                 <div class="form-group row">
                   <label for="age" class="col-sm-2 control-label mt-2">Age</label>
                   <div class="col-sm-8">
-                    <select2 id="age" name="age" v-model="campaignAge" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                    <select2 id="age" name="age" v-model="adGroupAge" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
 
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device</label>
                   <div class="col-sm-8">
-                    <select2 name="device" v-model="campaignDevice" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                    <select2 name="device" v-model="adGroupDevice" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
               </div>
@@ -263,13 +261,13 @@
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 1">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep1">Next</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!submitStep1State">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!submitStep2State">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 3">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep4">Finish</button>
+              <button type="button" class="btn btn-primary">Finish</button>
             </div>
           </div>
         </div>
@@ -336,20 +334,28 @@ export default {
     Treeselect
   },
   computed: {
+    submitStep1State() {
+      return true
+    },
     submitStep2State() {
+      return true
       for (let i = 0; i < this.contents.length; i++) {
-        if (!this.contents[i].brandname || !this.contents[i].description || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl) || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)) {
+        if (!this.contents[i].principal || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl) || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)) {
           return false
         }
 
-        for (let j = 0; j < this.contents[i].titles.length; j++) {
-          if (!this.contents[i].titles[j].title) {
+        for (let j = 0; j < this.contents[i].headlines.length; j++) {
+          if (!this.contents[i].headlines[j].headline) {
             return false
           }
         }
 
+        if (this.contents[i].images.length == 0) {
+          return false
+        }
+
         for (let j = 0; j < this.contents[i].images.length; j++) {
-          if (!this.contents[i].images[j].imageUrlHQ || !this.validURL(this.contents[i].images[j].imageUrlHQ) || !this.contents[i].images[j].imageUrl || !this.validURL(this.contents[i].images[j].imageUrl) || !this.contents[i].images[j].imageUrlHQState || !this.contents[i].images[j].imageUrlState) {
+          if (!this.contents[i].images[j].image || !this.validURL(this.contents[i].images[j].image) || !this.contents[i].images[j].state) {
             return false
           }
         }
@@ -387,13 +393,12 @@ export default {
     }
   },
   data() {
-    let campaignGender = [],
-      campaignAge = [],
-      campaignDevice = [],
+    let adGroupGender = [],
+      adGroupAge = [],
+      adGroupDevice = [],
       campaignStatus = '',
       adGroupName = '',
       adGroupBidAmount = 1,
-      campaignLocation = [],
       adGroupID = '',
       dataAttributes = [],
       adGroupBidStrategy = '',
@@ -424,11 +429,6 @@ export default {
       fullPage: true,
       postData: {},
       currentStep: 1,
-      saveAdvertiser: true,
-      advertiserName: '',
-      redtrackKey: '',
-      languages: [],
-      countries: [],
       genders: [{
         id: '',
         text: 'All'
@@ -497,18 +497,20 @@ export default {
       campaignGoal: this.instance ? this.instance.campaignGoal : '',
       selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
       campaignName: this.instance ? this.instance.campaignName : '',
-      campaignStatus: 'ACTIVE',
-      campaignLanguage: this.instance ? this.instance.language : 'en',
-      campaignLocation: campaignLocation,
-      campaignGender: campaignGender,
-      campaignAge: campaignAge,
-      campaignDevice: campaignDevice,
       campaignBudget: this.instance ? this.instance.budget : '',
       campaignStartDate: this.instance ? this.instance.start_date : this.$moment().format('YYYY-MM-DD'),
       campaignEndDate: this.instance ? this.instance.end_date : '',
-      budgetDeliveryMethod: this.instance ? this.instance.budgetType : 'DAILY',
-      campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_CLICK',
-      campaignConversionCounting: this.instance ? this.instance.conversionRuleConfig.conversionCounting : 'ALL_PER_INTERACTION',
+      campaignCampaignBidStrategy: '',
+      campaignBidStrategy: '',
+      campaignBudgetDeliveryMethod: '',
+      campaignMaxCpcBidValue: '',
+      campaignMaxCpvBidValue: '',
+      campaignMaxVcpmBidValue: '',
+      campaignTargetCpaBidValue: '',
+      campaignStatus: 'ACTIVE',
+      adGroupGender: adGroupGender,
+      adGroupAge: adGroupAge,
+      adGroupDevice: adGroupDevice,
       adGroupID: adGroupID,
       adGroupName: adGroupName,
       adGroupBidStrategy: adGroupBidStrategy,
@@ -517,7 +519,6 @@ export default {
       dataAttributes: dataAttributes,
       openingFileSelector: '',
       fileSelectorIndex: 0,
-      fileSelectorIndexImage: 0,
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
@@ -593,29 +594,17 @@ export default {
         account: this.selectedAccount,
         selectedAdvertiser: this.selectedAdvertiser,
         campaignBudget: this.campaignBudget,
-        budgetDeliveryMethod: this.budgetDeliveryMethod,
+        campaignBudgetDeliveryMethod: this.campaignBudgetDeliveryMethod,
         campaignName: this.campaignName,
+        campaignStartDate: this.campaignStartDate,
+        campaignEndDate: this.campaignEndDate,
+        campaignCampaignBidStrategy: this.campaignCampaignBidStrategy,
         adGroupID: this.adGroupID,
         adGroupName: this.adGroupName,
         adGroupBidAmount: this.adGroupBidAmount,
-        campaignType: this.campaignType,
-        campaignLanguage: this.campaignLanguage,
-        campaignStrategy: this.campaignStrategy,
-        campaignLocation: this.campaignLocation,
-        campaignGender: this.campaignGender,
-        campaignAge: this.campaignAge,
-        campaignDevice: this.campaignDevice,
-        campaignConversionCounting: this.campaignConversionCounting,
-        campaignStartDate: this.campaignStartDate,
-        campaignEndDate: this.campaignEndDate,
-        campaignSupplyGroup1A: this.campaignSupplyGroup1A,
-        campaignSupplyGroup1B: this.campaignSupplyGroup1B,
-        campaignSupplyGroup2A: this.campaignSupplyGroup2A,
-        campaignSupplyGroup2B: this.campaignSupplyGroup2B,
-        campaignSupplyGroup3A: this.campaignSupplyGroup3A,
-        campaignSupplyGroup3B: this.campaignSupplyGroup3B,
-        supportedSiteCollections: this.supportedSiteCollections,
-        campaignSiteBlock: this.campaignSiteBlock
+        adGroupGender: this.adGroupGender,
+        adGroupAge: this.adGroupAge,
+        adGroupDevice: this.adGroupDevice,
       }
       this.postData = {...this.postData, ...step1Data }
       this.currentStep = 2
@@ -626,9 +615,7 @@ export default {
         dataAttributes: this.dataAttributes
       }
       this.postData = {...this.postData, ...step2Data }
-      this.currentStep = 3
-    },
-    submitStep3() {
+
       this.isLoading = true
       let url = '/campaigns';
 
@@ -647,7 +634,8 @@ export default {
       }).catch(error => {}).finally(() => {
         this.isLoading = false
       })
-    }
+      this.currentStep = 3
+    },
   }
 }
 </script>
