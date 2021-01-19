@@ -35,34 +35,103 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label for="type" class="col-sm-2 control-label mt-2">Type</label>
+                  <label for="name" class="col-sm-2 control-label mt-2">Campaign Goal</label>
+                  <div class="col-sm-8">
+                    <input type="text" name="goal" placeholder="Enter campaign goal" class="form-control" v-model="campaignGoal" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="type" class="col-sm-2 control-label mt-2">Status</label>
                   <div class="col-sm-8">
                     <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: campaignType === 'NATIVE' }">
-                        <input type="radio" name="type" id="campaignType1" autocomplete="off" value="NATIVE" v-model="campaignType"> Native Only
+                      <label class="btn bg-olive" :class="{ active: campaignStatus === 'ACTIVE' }">
+                        <input type="radio" name="type" id="campaignStatus1" autocomplete="off" value="ACTIVE" v-model="campaignStatus"> ACTIVE
                       </label>
-                      <label class="btn bg-olive" :class="{ active: campaignType === 'SEARCH' }">
-                        <input type="radio" name="type" id="campaignType2" autocomplete="off" value="SEARCH" v-model="campaignType"> Search Only
-                      </label>
-                      <label class="btn bg-olive" :class="{ active: campaignType === 'SEARCH_AND_NATIVE' }">
-                        <input type="radio" name="type" id="campaignType3" autocomplete="off" value="SEARCH_AND_NATIVE" v-model="campaignType"> Search and Native
+                      <label class="btn bg-olive" :class="{ active: campaignStatus === 'PAUSED' }">
+                        <input type="radio" name="type" id="campaignStatus2" autocomplete="off" value="PAUSED" v-model="campaignStatus"> PAUSED
                       </label>
                     </div>
                   </div>
                 </div>
+
+                <div class="form-group row">
+                  <label for="budget" class="col-sm-2 control-label mt-2">Budgets</label>
+                  <div class="col-sm-8">
+                    <input type="number" name="budget" min="40" class="form-control" v-model="campaignBudget" />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="budget" class="col-sm-2 control-label mt-2">Budget Delivery</label>
+                  <div class="col-sm-4">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: budgetDeliveryMethod === 'STANDARD' }">
+                        <input type="radio" name="type" id="budgetDeliveryMethod1" autocomplete="off" value="STANDARD" v-model="budgetDeliveryMethod"> STANDARD
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: budgetDeliveryMethod === 'ACCELERATED' }">
+                        <input type="radio" name="type" id="budgetDeliveryMethod2" autocomplete="off" value="ACCELERATED" v-model="budgetDeliveryMethod"> ACCELERATED
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: budgetDeliveryMethod === 'UNKNOWN' }">
+                        <input type="radio" name="type" id="budgetDeliveryMethod3" autocomplete="off" value="UNKNOWN" v-model="budgetDeliveryMethod"> UNKNOWN
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
+                  <div class="col-sm-3">
+                    <VueCtkDateTimePicker id="start_date" v-model="campaignStartDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
+                  </div>
+                  <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
+                  <div class="col-sm-3">
+                    <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="bid_strategy" class="col-sm-2 control-label mt-2">Bid Strategy</label>
+                  <div class="col-sm-8">
+                    <select name="bid_strategy" class="form-control" v-model="campaignStrategy">
+                      <option value="AUTO">Auto</option>
+                      <option value="MAX_VCPM">Max. Bid Value (vCPM)</option>
+                      <option value="MAX_CPC">Max. Bid Value (CPC)</option>
+                      <option value="MAX_CPV">Max. Bid Value (CPV)</option>
+                      <option value="TARGET_CPA">Target Cost Specification (CPA)</option>
+                      <option value="NONE">No Setting Of Bid Strategy</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row" v-if="campaignStrategy == 'MAX_CPC'">
+                  <label for="name" class="col-sm-2 control-label mt-2">Max Bid Of Campaign (CPC)</label>
+                  <div class="col-sm-8">
+                    <input type="text" name="campaign_max_cpc_bid_value" placeholder="Max Bid Of Campaign (CPC)" class="form-control" v-model="campaignMaxCpcBidValue" />
+                  </div>
+                </div>
+
+                <div class="form-group row" v-if="campaignStrategy == 'MAX_CPV'">
+                  <label for="name" class="col-sm-2 control-label mt-2">Max bid of campaign (CPV)</label>
+                  <div class="col-sm-8">
+                    <input type="text" name="campaign_max_cpv_bid_value" placeholder="Max bid of campaign (CPV)" class="form-control" v-model="campaignMaxCpvBidValue" />
+                  </div>
+                </div>
+
+                <div class="form-group row" v-if="campaignStrategy == 'MAX_VCPM'">
+                  <label for="name" class="col-sm-2 control-label mt-2">Max bid of campaign (vCPM)</label>
+                  <div class="col-sm-8">
+                    <input type="text" name="campaign_max_vcpm_bid_value" placeholder="Max bid of campaign (vCPM)" class="form-control" v-model="campaignMaxVcpmBidValue" />
+                  </div>
+                </div>
+
+                <div class="form-group row" v-if="campaignStrategy == 'TARGET_CPA'">
+                  <label for="name" class="col-sm-2 control-label mt-2">Target bid of campaign (tCPA)</label>
+                  <div class="col-sm-8">
+                    <input type="text" name="campaign_Target_cpa_bid_value" placeholder="Target bid of campaign (tCPA)" class="form-control" v-model="campaignTargetCpaBidValue" />
+                  </div>
+                </div>
+
                 <h2>Define your audience</h2>
-                <div class="form-group row">
-                  <label for="language" class="col-sm-2 control-label mt-2">Language</label>
-                  <div class="col-sm-8">
-                    <select2 id="language" name="language" :options="languages" v-model="campaignLanguage"></select2>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="location" class="col-sm-2 control-label mt-2">Location</label>
-                  <div class="col-sm-8">
-                    <select2 id="location" name="location" v-model="campaignLocation" :options="countries" :settings="{ multiple: true }" />
-                  </div>
-                </div>
                 <div class="form-group row">
                   <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
                   <div class="col-sm-8">
@@ -75,173 +144,7 @@
                     <select2 id="age" name="age" v-model="campaignAge" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
-                <div class="form-group row">
-                  <label for="device" class="col-sm-2 control-label mt-2">Device</label>
-                  <div class="col-sm-8">
-                    <select2 name="device" v-model="campaignDevice" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
-                  </div>
-                </div>
-                <h2>Campaign settings</h2>
-                <div class="form-group row">
-                  <label for="budget" class="col-sm-2 control-label mt-2">Budget</label>
-                  <div class="col-sm-2">
-                    <input type="number" name="budget" min="40" class="form-control" v-model="campaignBudget" />
-                  </div>
-                  <div class="col-sm-4">
-                    <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'DAILY' }">
-                        <input type="radio" name="type" id="campaignBudgetType1" autocomplete="off" value="DAILY" v-model="campaignBudgetType"> Per Day
-                      </label>
-                      <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'MONTHLY' }">
-                        <input type="radio" name="type" id="campaignBudgetType2" autocomplete="off" value="MONTHLY" v-model="campaignBudgetType"> Per Month
-                      </label>
-                      <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'LIFETIME' }">
-                        <input type="radio" name="type" id="campaignBudgetType3" autocomplete="off" value="LIFETIME" v-model="campaignBudgetType"> In Total
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="bid_strategy" class="col-sm-2 control-label mt-2">Bid Strategy</label>
-                  <div class="col-sm-8">
-                    <select name="bid_strategy" class="form-control" v-model="campaignStrategy">
-                      <option value="OPT_ENHANCED_CPC">Enhanced CPC</option>
-                      <option value="OPT_POST_INSTALL">Post Install</option>
-                      <option value="OPT_CONVERSION">Conversion</option>
-                      <option value="OPT_CLICK">Click</option>
-                      <option value="MAX_OPT_CONVERSION">Max Conversion</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="bid_adjustment" class="col-sm-2 control-label mt-2">Native Bid Adjustment</label>
-                  <div class="col-sm-8">
-                    <div class="form-group row">
-                      <div class="col">
-                        <treeselect :options="supportedSites" :disable-branch-nodes="true" @select="supportedSiteChanged" placeholder="Add publisher..." />
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <div class="col">
-                        <select2 id="network_setting" name="network_setting" v-model="networkSetting" :options="networkSettings" @change="networkSettingChanged" placeholder="Load from setting..." />
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col">
-                        <div class="row">
-                          <label class="col-sm-4 mt-2">Publishers</label>
-                          <label class="col-sm-8 mt-2 text-center">Bid Adjustments</label>
-                        </div>
-                        <div class="row">
-                          <label for="bid_adjustment_group_1a" class="col-sm-5 control-label mt-2">Group 1A <small>(+800%)</small></label>
-                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
-                          <div class="input-group col-sm-3 mb-1">
-                            <input type="number" name="bid_adjustment_group_1a" max="800" class="form-control" v-model="campaignSupplyGroup1A" />
-                            <div class="input-group-append">
-                              <span class="input-group-text">%</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <label for="bid_adjustment_group_1b" class="col-sm-5 control-label mt-2">Group 1B <small>(+600% — -40%)</small></label>
-                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
-                          <div class="input-group col-sm-3 mb-1">
-                            <input type="number" name="bid_adjustment_group_1b" min="-40" max="600" class="form-control" v-model="campaignSupplyGroup1B" />
-                            <div class="input-group-append">
-                              <span class="input-group-text">%</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <label for="bid_adjustment_group_2a" class="col-sm-5 control-label mt-2">Group 2A <small>(+800% — -30%)</small></label>
-                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
-                          <div class="input-group col-sm-3 mb-1">
-                            <input type="number" name="bid_adjustment_group_2a" min="-30" max="800" class="form-control" v-model="campaignSupplyGroup2A" />
-                            <div class="input-group-append">
-                              <span class="input-group-text">%</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <label for="bid_adjustment_group_2b" class="col-sm-5 control-label mt-2">Group 2B <small>(+600% — -70%)</small></label>
-                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
-                          <div class="input-group col-sm-3 mb-1">
-                            <input type="number" name="bid_adjustment_group_2b" class="form-control" v-model="campaignSupplyGroup2B" />
-                            <div class="input-group-append">
-                              <span class="input-group-text">%</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <label for="bid_adjustment_group_3a" class="col-sm-5 control-label mt-2">Group 3A <small>(+800% — -50%)</small></label>
-                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
-                          <div class="input-group col-sm-3 mb-1">
-                            <input type="number" name="bid_adjustment_group_3a" min="-50" max="800" class="form-control" v-model="campaignSupplyGroup3A" />
-                            <div class="input-group-append">
-                              <span class="input-group-text">%</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <label for="bid_adjustment_group_3b" class="col-sm-5 control-label mt-2">Group 3B <small>(+600% — -80%)</small></label>
-                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
-                          <div class="input-group col-sm-3 mb-1">
-                            <input type="number" name="bid_adjustment_group_3b" min="-80" max="600" class="form-control" v-model="campaignSupplyGroup3B" />
-                            <div class="input-group-append">
-                              <span class="input-group-text">%</span>
-                            </div>
-                          </div>
-                        </div>
 
-                        <div class="row" v-for="(supportedSiteItem, index) in supportedSiteCollections" :key="index">
-                          <label for="bid_adjustment_group_3b" class="col-sm-5 control-label mt-2">{{ supportedSiteItem.label }} <small>{{ supportedSiteItem.subLabel }}</small></label>
-                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
-                          <div class="input-group col-sm-3 mb-1">
-                            <input type="number" name="bid_adjustment_group_3b" min="-80" max="800" class="form-control" v-model="supportedSiteItem.bidModifier" />
-                            <div class="input-group-append">
-                              <span class="input-group-text">%</span>
-                            </div>
-                          </div>
-                          <div class="col-sm-2">
-                            <button class="btn btn-primary" @click.prevent="removeSupportedSite(index)">Remove</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="site_block" class="col-sm-2 control-label mt-2">Site blocks</label>
-                  <div class="col-sm-8">
-                    <div class="row">
-                      <div class="col">
-                        <textarea class="form-control" rows="3" placeholder="Enter site block" v-model="campaignSiteBlock" :disabled="actionName == 'edit'"></textarea>
-                        <small>Separate sites by comma</small>
-                      </div>
-                    </div>
-                    <div class="row mt-2">
-                      <div class="col-sm-4" v-if="!saveNetworkSetting">
-                        <input type="text" name="network_setting_name" v-model="networkSettingName" class="form-control" placeholder="Enter setting name">
-                      </div>
-                      <div class="col-sm-5" v-if="saveNetworkSetting && campaignSupplyGroupState">
-                        <button type="button" class="btn btn-primary" @click.prevent="saveNetworkSetting = !saveNetworkSetting">Save these setting</button>
-                      </div>
-                      <div class="col-sm-3">
-                        <button type="button" v-if="!saveNetworkSetting && networkSettingName && campaignSupplyGroupState" class="btn btn-success" @click.prevent="storeNetworkSetting()">Save</button>
-                        <button type="button" v-if="!saveNetworkSetting" class="btn btn-warning" @click.prevent="saveNetworkSetting = !saveNetworkSetting">Cancel</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="conversion_counting" class="col-sm-2 control-label mt-2">Conversion counting</label>
-                  <div class="col-sm-8">
-                    <select name="conversion_counting" class="form-control" v-model="campaignConversionCounting">
-                      <option value="ALL_PER_INTERACTION">All per interaction</option>
-                      <option value="ONE_PER_INTERACTION">One per interaction</option>
-                    </select>
-                  </div>
-                </div>
                 <h2>Create group</h2>
                 <div class="form-group row">
                   <label for="ad_group_name" class="col-sm-2 control-label mt-2">Ad group name</label>
@@ -249,12 +152,7 @@
                     <input type="text" name="ad_group_name" class="form-control" v-model="adGroupName" />
                   </div>
                 </div>
-                <div class="form-group row">
-                  <label for="bid_strategy" class="col-sm-2 control-label mt-2">Bid strategy</label>
-                  <div class="col-sm-8">
-                    <p>{{ campaignStrategy }}</p>
-                  </div>
-                </div>
+
                 <div class="form-group row">
                   <label for="bid_cpc" class="col-sm-2 control-label mt-2">Bid (CPC)</label>
                   <div class="col-sm-8">
@@ -274,14 +172,11 @@
                     </div>
                   </div>
                 </div>
-                <div class="form-group row" v-if="scheduleType === 'CUSTOM'">
-                  <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
-                  <div class="col-sm-4">
-                    <VueCtkDateTimePicker id="start_date" v-model="campaignStartDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
-                  </div>
-                  <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
-                  <div class="col-sm-4">
-                    <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
+
+                <div class="form-group row">
+                  <label for="device" class="col-sm-2 control-label mt-2">Device</label>
+                  <div class="col-sm-8">
+                    <select2 name="device" v-model="campaignDevice" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
               </div>
@@ -290,71 +185,57 @@
                   <div class="row">
                     <div class="col-sm-7">
                       <div class="form-group row">
-                        <label for="title" class="col-sm-4 control-label mt-2">Title</label>
+                        <label for="title" class="col-sm-4 control-label mt-2">Headline</label>
                         <div class="col-sm-8">
-                          <div class="row mb-2" v-for="(title, indexTitle) in content.titles" :key="indexTitle">
+                          <div class="row mb-2" v-for="(headline, indexHeadline) in content.headlines" :key="indexHeadline">
                             <div class="col-sm-8">
-                              <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" v-on:blur="loadPreviewEvent($event, index)" />
+                              <input type="text" name="headline" placeholder="Enter a headline" class="form-control" v-model="headline.headline" />
                             </div>
                             <div class="col-sm-4">
-                              <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle); loadPreviewEvent($event, index)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
-                              <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length"><i class="fa fa-plus"></i></button>
+                              <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexHeadline)" v-if="indexHeadline > 0"><i class="fa fa-minus"></i></button>
+                              <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexHeadline + 1 == content.headlines.length"><i class="fa fa-plus"></i></button>
                             </div>
                           </div>
                         </div>
                       </div>
                       <div class="form-group row">
-                        <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
+                        <label for="brand_name" class="col-sm-4 control-label mt-2">Principal</label>
                         <div class="col-sm-8">
-                          <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" v-on:blur="loadPreviewEvent($event, index)" />
+                          <input type="text" name="principal" placeholder="Principal" class="form-control" v-model="content.principal" />
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="description" class="col-sm-4 control-label mt-2">Description</label>
                         <div class="col-sm-8">
-                          <textarea class="form-control" rows="3" placeholder="Enter description" v-model="content.description" v-on:blur="loadPreviewEvent($event, index)"></textarea>
+                          <textarea class="form-control" rows="3" placeholder="Enter description" v-model="content.description"></textarea>
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
                         <div class="col-sm-8 text-center">
-                          <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                          <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" />
                           <small class="text-danger" v-if="content.displayUrl && !validURL(content.displayUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
                         <div class="col-sm-8 text-center">
-                          <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                          <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" />
                           <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
-                      <fieldset class="mb-3 p-3 rounded border" v-for="(image, indexImage) in content.images" :key="indexImage">
-                        <div class="form-group row">
-                          <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
-                          <div class="col-sm-8">
-                            <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index)" />
-                            <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index, indexImage)">Choose File</button>
-                          </div>
-                          <div class="col-sm-8 offset-sm-4">
-                            <small class="text-danger" v-if="image.imageUrlHQ && !validURL(image.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
-                            <small class="text-danger" v-if="!image.imageUrlHQState">Image is invalid. You might need an 1200x627 image.</small>
-                          </div>
+                      <div class="form-group row">
+                        <label for="thumbnail_url" class="col-sm-4 control-label mt-2">Images</label>
+                        <div class="col-sm-8">
+                          <input type="text" name="image" placeholder="Images" class="form-control" disabled="disabled" v-model="content.imagePath" />
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose Files</button>
                         </div>
-                        <div class="form-group row">
-                          <label for="image_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
-                          <div class="col-sm-8">
-                            <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index)" />
-                            <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, indexImage)">Choose File</button>
-                          </div>
-                          <div class="col-sm-8 offset-sm-4">
-                            <small class="text-danger" v-if="image.imageUrl && !validURL(image.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
-                            <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
-                          </div>
+                        <div class="col-sm-8 offset-sm-4">
+                          <small class="text-danger" v-for="(image, indexImage) in content.images" :key="indexImage">
+                            <span class="d-inline-block" v-if="image.image && !image.state">Image {{ image.image }} is invalid. You might need an 1200 x 628 image.</span>
+                          </small>
                         </div>
-                        <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeImage(index, indexImage); loadPreviewEvent($event, index)" v-if="indexImage > 0">Remove Image</button>
-                      </fieldset>
-                      <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)">Add Image</button>
+                      </div>
                     </div>
                     <div class="col-sm-5">
                       <h1>Preview</h1>
@@ -369,50 +250,11 @@
                     </div>
                   </div>
                 </fieldset>
-                <button class="btn btn-primary btn-sm d-none" @click.prevent="addContent()">Add New</button>
+                <button class="btn btn-primary btn-sm" @click.prevent="addContent()">Add New</button>
               </div>
             </form>
           </div>
-          <div class="card-body" v-if="currentStep == 3">
-            <div class="row mb-2">
-              <div class="col-sm-12">
-                <h4>Main Variation</h4>
-              </div>
-              <div class="col-sm-12">
-                <div class="form-group row">
-                  <label for="variantGender" class="col-sm-4 control-label mt-2">Gender</label>
-                  <div class="col-sm-8">
-                    <select2 id="variantGender" name="variantGender" v-model="campaignGender" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
-                  </div>
-                </div>
-              </div>
-              <div class="col-sm-12">
-                <div class="form-group row">
-                  <label for="variantAge" class="col-sm-4 control-label mt-2">Age</label>
-                  <div class="col-sm-8">
-                    <select2 id="variantAge" name="variantAge" v-model="campaignAge" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
-                  </div>
-                </div>
-              </div>
-              <div class="col-sm-12 border-bottom">
-                <div class="form-group row">
-                  <label for="variantDevice" class="col-sm-4 control-label mt-2">Device</label>
-                  <div class="col-sm-8">
-                    <select2 id="variantDevice" name="variantDevice" v-model="campaignDevice" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="card-body" v-if="currentStep == 4">
-            <fieldset class="mb-3 p-3 rounded border" v-for="(content, index) in contents" :key="index">
-              <div class="row">
-                <div class="col-sm-6" v-for="(preview, indexY) in content.adPreviews" :key="indexY">
-                  <div v-html="preview.data"></div>
-                </div>
-              </div>
-            </fieldset>
-          </div>
+
           <div class="card-footer d-flex justify-content-end">
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
@@ -424,9 +266,6 @@
               <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!submitStep2State">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 3">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep3">Next</button>
-            </div>
-            <div class="d-flex justify-content-end" v-if="currentStep === 4">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep4">Finish</button>
             </div>
           </div>
@@ -529,19 +368,6 @@ export default {
       }
 
       return true
-    },
-    campaignSupplyGroupState() {
-      if (this.campaignSupplyGroup1A || this.campaignSupplyGroup1B || this.campaignSupplyGroup2A || this.campaignSupplyGroup2B || this.campaignSupplyGroup3A || this.campaignSupplyGroup3B) {
-        return true
-      }
-
-      for (let i = 0; i < this.supportedSiteCollections.length; i++) {
-        if (this.supportedSiteCollections[i].bidModifier > 0) {
-          return true
-        }
-      }
-
-      return false
     }
   },
   mounted() {
@@ -570,8 +396,6 @@ export default {
     this.getLanguages()
     this.getCountries()
     this.getAdvertisers()
-    this.getNetworkSettings()
-    this.getBbsxdSupportedSites()
 
     if (this.instance) {
       for (let i = 0; i < this.instance.ads.length; i++) {
@@ -588,19 +412,14 @@ export default {
     let campaignGender = [],
       campaignAge = [],
       campaignDevice = [],
+      campaignStatus = '',
       adGroupName = '',
       bidAmount = 1,
       campaignLocation = [],
       adGroupID = '',
       dataAttributes = [],
-      campaignSupplyGroup1A = '',
-      campaignSupplyGroup1B = '',
-      campaignSupplyGroup2A = '',
-      campaignSupplyGroup2B = '',
-      campaignSupplyGroup3A = '',
-      campaignSupplyGroup3B = '',
-      campaignSiteBlock = '',
-      supportedSiteCollections = [],
+      adGroupBidStrategy = '',
+
       contents = [{
         id: '',
         titles: [{
@@ -621,8 +440,6 @@ export default {
         adPreviews: []
       }];
     if (this.instance) {
-      let siteBlock = [];
-
       if (this.instance.adGroups.length > 0) {
         adGroupID = this.instance.adGroups[0]['id'];
         adGroupName = this.instance.adGroups[0]['adGroupName'];
@@ -630,47 +447,6 @@ export default {
         if (this.instance.adGroups[0]['bidSet']['bids'].length > 0) {
           bidAmount = this.instance.adGroups[0]['bidSet']['bids'][0]['value'];
         }
-      }
-
-      this.instance.attributes.forEach(attribute => {
-        if (attribute.type === 'GENDER') {
-          campaignGender.push(attribute.value)
-        } else if (attribute.type === 'AGE') {
-          campaignAge.push(attribute.value)
-        } else if (attribute.type === 'DEVICE') {
-          campaignDevice.push(attribute.value)
-        } else if (attribute.type === 'WOEID') {
-          campaignLocation.push(attribute.value)
-        } else if (attribute.type === 'SUPPLY_GROUP') {
-          if (attribute.value === 'GROUP_1_A') {
-            campaignSupplyGroup1A = Math.round((attribute.bidModifier - bidAmount) / bidAmount * 100)
-          } else if (attribute.value === 'GROUP_1_B') {
-            campaignSupplyGroup1B = Math.round((attribute.bidModifier - bidAmount) / bidAmount * 100)
-          } else if (attribute.value === 'GROUP_2_A') {
-            campaignSupplyGroup2A = Math.round((attribute.bidModifier - bidAmount) / bidAmount * 100)
-          } else if (attribute.value === 'GROUP_2_B') {
-            campaignSupplyGroup2B = Math.round((attribute.bidModifier - bidAmount) / bidAmount * 100)
-          } else if (attribute.value === 'GROUP_3_A') {
-            campaignSupplyGroup3A = Math.round((attribute.bidModifier - bidAmount) / bidAmount * 100)
-          } else if (attribute.value === 'GROUP_3_B') {
-            campaignSupplyGroup3B = Math.round((attribute.bidModifier - bidAmount) / bidAmount * 100)
-          }
-        } else if (attribute.type === 'SITE_BLOCK') {
-          siteBlock.push(attribute.value);
-        } else if (attribute.type === 'SITE_X_DEVICE') {
-          supportedSiteCollections.push({
-            label: '',
-            subLabel: '(+800% — -80%)',
-            key: attribute.value,
-            bidModifier: Math.round((attribute.bidModifier - bidAmount) / bidAmount * 100)
-          })
-        }
-
-        dataAttributes.push(attribute.id);
-      });
-
-      if (siteBlock.length > 0) {
-        campaignSiteBlock = siteBlock.join(',');
       }
 
       contents = [];
@@ -712,52 +488,71 @@ export default {
         id: '',
         text: 'All'
       }, {
-        id: 'MALE',
+        id: 'ST_MALE',
         text: 'Male'
       }, {
-        id: 'FEMALE',
+        id: 'ST_FEMALE',
         text: 'Female'
+      }, {
+        id: 'ST_UNKNOWN',
+        text: 'Unknown'
       }],
       ages: [{
         id: '',
         text: 'All',
       }, {
-        id: '18-24',
-        text: '18-24',
+        id: 'GT_RANGE13_14',
+        text: '13-14',
       }, {
-        id: '25-34',
-        text: '25-34',
+        id: 'GT_RANGE15_17',
+        text: '15-17',
       }, {
-        id: '35-44',
-        text: '35-44',
+        id: 'GT_RANGE18_19',
+        text: '18-19',
       }, {
-        id: '45-54',
-        text: '45-54',
+        id: 'GT_RANGE20_21',
+        text: '20-21',
       }, {
-        id: '55-64',
-        text: '55-64',
+        id: 'GT_RANGE22_29',
+        text: '22-29',
       }, {
-        id: '65-120',
-        text: '65-120',
+        id: 'GT_RANGE30_39',
+        text: '30-39',
+      }, {
+        id: 'GT_RANGE40_49',
+        text: '40-49',
+      }, {
+        id: 'GT_RANGE50_59',
+        text: '50-59',
+      }, {
+        id: 'GT_RANGE60_69',
+        text: '60-69',
+      }, {
+        id: 'GT_RANGE70_UL',
+        text: '70 and up',
       }],
       devices: [{
         id: '',
         text: 'All',
+      }, {
+        id: 'DESKTOP',
+        text: 'DESKTOP',
+      }, {
+        id: 'WAP_MOBILE',
+        text: 'WAP_MOBILE',
       }, {
         id: 'SMARTPHONE',
         text: 'SMARTPHONE',
       }, {
         id: 'TABLET',
         text: 'TABLET',
-      }, {
-        id: 'DESKTOP',
-        text: 'DESKTOP',
       }],
       advertisers: [],
       actionName: this.action,
+      campaignGoal: this.instance ? this.instance.campaignGoal : '',
       selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
       campaignName: this.instance ? this.instance.campaignName : '',
-      campaignType: this.instance ? this.instance.channel : 'NATIVE',
+      campaignStatus: 'ACTIVE',
       campaignLanguage: this.instance ? this.instance.language : 'en',
       campaignLocation: campaignLocation,
       campaignGender: campaignGender,
@@ -766,18 +561,12 @@ export default {
       campaignBudget: this.instance ? this.instance.budget : '',
       campaignStartDate: this.instance ? this.instance.start_date : this.$moment().format('YYYY-MM-DD'),
       campaignEndDate: this.instance ? this.instance.end_date : '',
-      campaignBudgetType: this.instance ? this.instance.budgetType : 'DAILY',
+      budgetDeliveryMethod: this.instance ? this.instance.budgetType : 'DAILY',
       campaignStrategy: this.instance ? this.instance.biddingStrategy : 'OPT_CLICK',
       campaignConversionCounting: this.instance ? this.instance.conversionRuleConfig.conversionCounting : 'ALL_PER_INTERACTION',
-      campaignSupplyGroup1A: campaignSupplyGroup1A,
-      campaignSupplyGroup1B: campaignSupplyGroup1B,
-      campaignSupplyGroup2A: campaignSupplyGroup2A,
-      campaignSupplyGroup2B: campaignSupplyGroup2B,
-      campaignSupplyGroup3A: campaignSupplyGroup3A,
-      campaignSupplyGroup3B: campaignSupplyGroup3B,
-      campaignSiteBlock: campaignSiteBlock,
       adGroupID: adGroupID,
       adGroupName: adGroupName,
+      adGroupBidStrategy: adGroupBidStrategy,
       bidAmount: bidAmount,
       scheduleType: 'IMMEDIATELY',
       contents: contents,
@@ -785,13 +574,6 @@ export default {
       openingFileSelector: '',
       fileSelectorIndex: 0,
       fileSelectorIndexImage: 0,
-      networkSettings: [],
-      networkSettingData: [],
-      networkSetting: null,
-      saveNetworkSetting: true,
-      networkSettingName: '',
-      supportedSites: [],
-      supportedSiteCollections: supportedSiteCollections,
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
@@ -864,58 +646,6 @@ export default {
     removeImage(index, indexImage) {
       this.contents[index].images.splice(indexImage, 1)
     },
-    removeSupportedSite(index) {
-      this.supportedSiteCollections.splice(index, 1);
-    },
-    loadPreviewEvent(event, index) {
-      this.loadPreview(index)
-    },
-    validImageHQSizeEvent(event, index) {
-      this.validImageSize(this.contents[index].imageUrlHQ, 1200, 627).then(result => {
-        this.contents[index].imageUrlHQState = result
-      });
-    },
-    validImageSizeEvent(event, index) {
-      this.validImageSize(this.contents[index].imageUrl, 627, 627).then(result => {
-        this.contents[index].imageUrlState = result
-      });
-    },
-    loadPreview(index, firstLoad = false) {
-      if (!firstLoad && adPreviewCancels.length > 0) {
-        for (let i = 0; i < adPreviewCancels.length; i++) {
-          adPreviewCancels[i]()
-        }
-      }
-      this.isLoading = true
-      this.contents[index].adPreviews = [];
-
-      for (let i = 0; i < this.contents[index].titles.length; i++) {
-        for (let y = 0; y < this.contents[index].images.length; y++) {
-          axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
-            title: this.contents[index].titles[i].title,
-            displayUrl: this.contents[index].displayUrl,
-            landingUrl: this.contents[index].targetUrl,
-            description: this.contents[index].description,
-            sponsoredBy: this.contents[index].brandname,
-            imageUrlHQ: this.contents[index].images[y].imageUrlHQ,
-            imageUrl: this.contents[index].images[y].imageUrl,
-            campaignLanguage: this.campaignLanguage
-          }, {
-            cancelToken: new axios.CancelToken(function executor(c) {
-              adPreviewCancels.push(c);
-            })
-          }).then(response => {
-            this.contents[index].adPreviews.push({
-              data: response.data.replace('height="800"', 'height="450"').replace('width="400"', 'width="100%"')
-            })
-          }).catch(err => {
-            console.log(err)
-          }).finally(() => {
-            this.isLoading = false
-          })
-        }
-      }
-    },
     getLanguages() {
       this.isLoading = true
       this.languages = []
@@ -933,98 +663,6 @@ export default {
       })
     },
 
-    getBbsxdSupportedSites() {
-      this.isLoading = true
-      axios.get(`/general/bdsxd-supported-sites?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-        if (response.data) {
-          this.supportedSites = response.data
-
-          let total = 0
-
-          for (let i = 0; i < response.data.length; i++) {
-            for (let j = 0; j < response.data[i].children.length; j++) {
-              for (let l = 0; l < this.supportedSiteCollections.length; l++) {
-                if (response.data[i].children[j].id == this.supportedSiteCollections[l].key) {
-                  this.supportedSiteCollections[l].label = response.data[i].children[j].label
-                  total++
-                }
-
-                if (total > this.supportedSiteCollections.length) {
-                  break
-                }
-              }
-
-              if (total > this.supportedSiteCollections.length) {
-                break
-              }
-            }
-
-            if (total > this.supportedSiteCollections.length) {
-              break
-            }
-          }
-        }
-      }).catch(err => {}).finally(() => {
-        this.isLoading = false
-      })
-    },
-    getNetworkSettings() {
-      this.isLoading = true
-      axios.get(`/general/network-setting?provider=${this.selectedProvider}&account=${this.selectedAccount}`).then(response => {
-        this.networkSettingData = response.data
-        if (response.data) {
-          this.networkSettings = response.data.map((item, index) => {
-            return {
-              id: index,
-              text: item.name
-            }
-          })
-        }
-      }).catch(err => {}).finally(() => {
-        this.isLoading = false
-      })
-    },
-    networkSettingChanged() {
-      let data = this.networkSettingData[this.networkSetting]
-      this.campaignSupplyGroup1A = data.group_1a
-      this.campaignSupplyGroup1B = data.group_1b
-      this.campaignSupplyGroup2A = data.group_2a
-      this.campaignSupplyGroup2B = data.group_2b
-      this.campaignSupplyGroup3A = data.group_3a
-      this.campaignSupplyGroup3B = data.group_3b
-      this.campaignSiteBlock = data.site_block
-
-      if (data.site_group) {
-        this.supportedSiteCollections = JSON.parse(data.site_group)
-      }
-    },
-    supportedSiteChanged(node, instanceId) {
-      this.supportedSiteCollections.push({
-        label: node.label,
-        subLabel: '(+800% — -80%)',
-        key: node.id,
-        bidModifier: ''
-      })
-    },
-    storeNetworkSetting() {
-      this.isLoading = true
-      axios.post(`/general/network-setting?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
-        networkSettingName: this.networkSettingName,
-        campaignSiteBlock: this.campaignSiteBlock,
-        campaignSupplyGroup1A: this.campaignSupplyGroup1A,
-        campaignSupplyGroup1B: this.campaignSupplyGroup1B,
-        campaignSupplyGroup2A: this.campaignSupplyGroup2A,
-        campaignSupplyGroup2B: this.campaignSupplyGroup2B,
-        campaignSupplyGroup3A: this.campaignSupplyGroup3A,
-        campaignSupplyGroup3B: this.campaignSupplyGroup3B,
-        supportedSiteCollections: this.supportedSiteCollections
-      }).then(response => {
-        this.saveNetworkSetting = true
-        this.getNetworkSettings()
-      }).catch(err => {}).finally(() => {
-        this.isLoading = false
-      })
-    },
     getCountries() {
       this.isLoading = true
       this.countries = []
@@ -1056,7 +694,7 @@ export default {
         account: this.selectedAccount,
         selectedAdvertiser: this.selectedAdvertiser,
         campaignBudget: this.campaignBudget,
-        campaignBudgetType: this.campaignBudgetType,
+        budgetDeliveryMethod: this.budgetDeliveryMethod,
         campaignName: this.campaignName,
         adGroupID: this.adGroupID,
         adGroupName: this.adGroupName,
@@ -1093,9 +731,6 @@ export default {
       this.currentStep = 3
     },
     submitStep3() {
-      this.currentStep = 4
-    },
-    submitStep4() {
       this.isLoading = true
       let url = '/campaigns';
 
