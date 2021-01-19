@@ -126,6 +126,56 @@ class YahooJPAPI
 
     public function createCampaign()
     {
+        return $this->client->call('POST', 'CampaignService/add', [
+            'accountId' => request('selectedAdvertiser'),
+            'operand' => [[
+                'type' => 'STANDARD',
+                'accountId' => request('selectedAdvertiser'),
+                'biddingStrategy' => [
+                    'biddingStrategyType' => request('campaignBidStrategy')
+                ],
+                'budget' => [
+                    'amount' => request('campaignBudget'),
+                    'budgetDeliveryMethod' => request('campaignBudgetDeliveryMethod')
+                ],
+                'campaignBiddingStrategy' => $this->getCampaignBiddingStrategy(),
+                'campaignGoal' => request('campaignGoal'),
+                'campaignName' => request('campaignName'),
+                'startDate' => request('campaignStartDate'),
+                'endDate' => request('campaignEndDate'),
+                'userStatus' => request('campaignStatus')
+            ]]
+        ]);
+    }
+
+    public function updateCampaign($campaign)
+    {
+
+    }
+
+    public function deleteCampaign($campaign_id)
+    {
+        return $this->client->call('POST', 'CampaignService/remove', [
+            'accountId' => request('selectedAdvertiser'),
+            'operand' => [[
+                'accountId' => request('selectedAdvertiser'),
+                'biddingStrategy' => [
+                    'biddingStrategyType' => request('campaignBidStrategy')
+                ],
+                'budget' => [
+                    'amount' => request('campaignBudget')
+                ],
+                'campaignBiddingStrategy' => $this->getCampaignBiddingStrategy(),
+                'campaignGoal' => request('campaignGoal'),
+                'campaignId' => $campaign_id,
+                'campaignName' => request('campaignName'),
+                'userStatus' => request('campaignStatus')
+            ]]
+        ]);
+    }
+
+    private function getCampaignBiddingStrategy()
+    {
         $campaignBiddingStrategy = [
             'campaignBiddingStrategyType' => request('campaignCampaignBidStrategy')
         ];
@@ -148,47 +198,28 @@ class YahooJPAPI
                 break;
         }
 
-        return $this->client->call('POST', 'CampaignService/add', [
-            'accountId' => request('selectedAdvertiser'),
-            'operand' => [[
-                'type' => 'STANDARD',
-                'accountId' => request('selectedAdvertiser'),
-                'biddingStrategy' => [
-                    'biddingStrategyType' => request('campaignBidStrategy')
-                ],
-                'budget' => [
-                    'amount' => request('campaignBudget'),
-                    'budgetDeliveryMethod' => request('campaignBudgetDeliveryMethod')
-                ],
-                'campaignBiddingStrategy' => $campaignBiddingStrategy,
-                'campaignGoal' => request('campaignGoal'),
-                'campaignName' => request('campaignName'),
-                'startDate' => request('campaignStartDate'),
-                'endDate' => request('campaignEndDate'),
-                'userStatus' => request('campaignStatus')
-            ]]
-        ]);
+        return $campaignBiddingStrategy;
     }
 
-    public function updateCampaign($campaign)
+    private function getBid()
     {
-        return $this->client->call('PUT', 'campaign', [
-            'id' => $campaign->campaign_id,
-            'advertiserId' => request('selectedAdvertiser'),
-            'budget' => request('campaignBudget'),
-            'budgetType' => request('campaignBudgetType'),
-            'campaignName' => request('campaignName'),
-            'channel' => request('campaignType'),
-            'language' => request('campaignLanguage'),
-            'biddingStrategy' => request('campaignStrategy'),
-            'conversionRuleConfig' => ['conversionCounting' => request('campaignConversionCounting')],
-            'status' => 'ACTIVE'
-        ]);
-    }
+        if (request('campaignBidStrategy') == 'MANUAL_CPC') {
+            return [
+                'manualCPCBid' => [
+                    'maxCpc' => request('adGroupBidAmount')
+                ]
+            ];
+        }
 
-    public function deleteCampaign($campaign_id)
-    {
-        return $this->client->call('DELETE', 'campaign/' . $campaign_id);
+        if (request('campaignBidStrategy') == 'MANUAL_CPV') {
+            return [
+                'manualCPVBid' => [
+                    'maxCpv' => request('adGroupBidAmount')
+                ]
+            ];
+        }
+
+        return [];
     }
 
     public function updateCampaignStatus($campaign)
@@ -199,79 +230,22 @@ class YahooJPAPI
         ]);
     }
 
-    private function getBids()
-    {
-        if (request('campaignType') === 'SEARCH_AND_NATIVE') {
-            return [[
-                'priceType' => 'CPC',
-                'value' => request('bidAmount'),
-                'channel' => 'SEARCH'
-            ], [
-                'priceType' => 'CPC',
-                'value' => request('bidAmount'),
-                'channel' => 'NATIVE'
-            ]];
-        } else {
-            return [[
-                'priceType' => 'CPC',
-                'value' => request('bidAmount'),
-                'channel' => request('campaignType')
-            ]];
-        }
-    }
 
     public function createAdGroup($campaign_id)
     {
-        $campaignBiddingStrategy = [
-            'campaignBiddingStrategyType' => request('campaignCampaignBidStrategy')
-        ];
-
-        switch(request('campaignBiddingStrategyType')) {
-            case 'MAX_CPC':
-                $campaignBiddingStrategy['maxCpcBidValue'] = request('campaignMaxCpcBidValue');
-                break;
-
-            case 'MAX_VCPM':
-                $campaignBiddingStrategy['maxVcpmBidValue'] = request('campaignMaxVcpmBidValue');
-                break;
-
-            case 'MAX_CPV':
-                $campaignBiddingStrategy['maxCpvBidValue'] = request('campaignMaxCpvBidValue');
-                break;
-
-            case 'MAX_VCPM':
-                $campaignBiddingStrategy['targetCpaBidValue'] = request('campaignTargetCpaBidValue');
-                break;
-        }
-
-        $bid = [
-            'type' => request('campaignBidStrategy')
-        ];
-
-        switch (request('campaignBidStrategy')) {
-            case 'MANUAL_CPC':
-                $bid['manualCPCBid'] = [
-                    'maxCpc' => request('adGroupBidAmount')
-                ];
-                break;
-            case 'MANUAL_CPV':
-                $bid['manualCPVBid'] = [
-                    'maxCpv' => request('adGroupBidAmount')
-                ];
-                break;
-        }
-
         $data = [
             'accountId' => request('selectedAdvertiser'),
-            'operand' => [
+            'operand' => [[
                 'accountId' => request('selectedAdvertiser'),
                 'campaignId' => $campaign_id,
                 'adGroupName' => request('adGroupName'),
-                'adGroupBiddingStrategy' => $campaignBiddingStrategy,
-                'bid' => $bid,
+                'adGroupBiddingStrategy' => $this->getCampaignBiddingStrategy(),
+                'bid' => $this->getBid(),
                 'device' => request('campaignDevices'),
+                'deviceApp' => ['NONE'],
+                'deviceOs' => ['NONE'],
                 'userStatus' => 'ACTIVE'
-            ]
+            ]]
         ];
 
         return $this->client->call('POST', 'AdGroupService/add', $data);
@@ -281,53 +255,52 @@ class YahooJPAPI
     {
         $data = [
             'accountId' => request('selectedAdvertiser'),
-            'operand' => [
-                'accountId' => request('selectedAdvertiser'),
-                'campaignId' => $campaign_id,
-                'adGroupId' => $ad_group_id
-            ]
+            'operand' => []
         ];
 
+        $account = [
+            'accountId' => request('selectedAdvertiser'),
+            'campaignId' => $campaign_id,
+            'adGroupId' => $ad_group_id
+        ];
+
+
         foreach (request('campaignAges') as $item) {
-            $this->client->call('POST', 'AdGroupTargetService/add', $data + [
-                'operand' => [
+            $data['operand'][] = $account + [
+                'target' => [
                     'targetType' => 'AGE_TARGET',
-                    'target' => [
-                        'ageTarget' => [
-                            'age' => $item,
-                            'estimateFlg' => 'ACTIVE'
-                        ]
+                    'ageTarget' => [
+                        'age' => $item,
+                        'estimateFlg' => 'ACTIVE'
                     ]
                 ]
-            ]);
+            ];
         }
 
         foreach (request('campaignGenders') as $item) {
-            $this->client->call('POST', 'AdGroupTargetService/add', $data + [
-                'operand' => [
+            $data['operand'][] = $account + [
+                'target' => [
                     'targetType' => 'GENDER_TARGET',
-                    'target' => [
-                        'genderTarget' => [
-                            'gender' => $item,
-                            'estimateFlg' => 'ACTIVE'
-                        ]
+                    'genderTarget' => [
+                        'gender' => $item,
+                        'estimateFlg' => 'ACTIVE'
                     ]
                 ]
-            ]);
+            ];
         }
 
         foreach (request('campaignDevices') as $item) {
-            $this->client->call('POST', 'AdGroupTargetService/add', $data + [
-                'operand' => [
+            $data['operand'][] = $account + [
+                'target' => [
                     'targetType' => 'DEVICE_TARGET',
-                    'target' => [
-                        'deviceTarget' => [
-                            'deviceType' => $item,
-                        ]
+                    'deviceTarget' => [
+                        'deviceType' => $item,
                     ]
                 ]
-            ]);
+            ];
         }
+
+        $this->client->call('POST', 'AdGroupTargetService/add', $data);
     }
 
     public function updateAdGroup($campaign_data)
@@ -345,9 +318,16 @@ class YahooJPAPI
 
     }
 
-    public function deleteAdGroups($ad_group_ids)
+    public function deleteAdGroup($campaign_id, $ad_group_id)
     {
-
+        $this->client->call('POST', 'AdGroupTargetService/add', [
+            'accountId' => request('selectedAdvertiser'),
+            'operand' => [[
+                'accountId' => request('selectedAdvertiser'),
+                'campaignId' => $campaign_id,
+                'adGroupId' => $ad_group_id
+            ]]
+        ]);
     }
 
     public function updateAd($ads)

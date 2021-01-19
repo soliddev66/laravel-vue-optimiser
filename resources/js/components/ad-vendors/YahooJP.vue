@@ -131,11 +131,11 @@
                 <div class="form-group row">
                   <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
                   <div class="col-sm-3">
-                    <VueCtkDateTimePicker id="start_date" v-model="campaignStartDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
+                    <VueCtkDateTimePicker id="start_date" v-model="campaignStartDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true" :minDate="new Date(Date.now())"></VueCtkDateTimePicker>
                   </div>
                   <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
                   <div class="col-sm-3">
-                    <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
+                    <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true" :minDate="new Date(Date.now())"></VueCtkDateTimePicker>
                   </div>
                 </div>
 
@@ -511,7 +511,7 @@ export default {
       selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
       campaignName: this.instance ? this.instance.campaignName : '',
       campaignBudget: this.instance ? this.instance.budget : '',
-      campaignStartDate: this.instance ? this.instance.start_date : this.$moment().format('YYYY-MM-DD'),
+      campaignStartDate: this.instance ? this.instance.start_date : this.$moment().add(1, 'days').format('YYYY-MM-DD'),
       campaignEndDate: this.instance ? this.instance.end_date : '',
       campaignCampaignBidStrategy: 'AUTO',
       campaignBidStrategy: '',
@@ -575,7 +575,7 @@ export default {
           image: '',
           existing: false
         }],
-        imagePath,
+        imagePath: '',
         adPreviews: []
       })
     },
@@ -659,7 +659,7 @@ export default {
           alert(response.data.errors[0]);
         } else {
           this.$dialog.alert('Save successfully!').then(function(dialog) {
-            // window.location = '/campaigns';
+            window.location = '/campaigns';
           });
         }
       }).catch(error => {}).finally(() => {

@@ -247,7 +247,7 @@ export default {
           image: '',
           existing: false
         }],
-        imagePath,
+        imagePath: '',
         adPreviews: []
       })
     },
