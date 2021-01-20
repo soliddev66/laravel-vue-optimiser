@@ -6,8 +6,30 @@ use App\Jobs\PullCampaign;
 use App\Models\Ad;
 use App\Models\AdGroup;
 use App\Models\Campaign;
+use App\Models\GeminiAdExtensionStat;
+use App\Models\GeminiAdjustmentStat;
+use App\Models\GeminiCallExtensionStat;
+use App\Models\GeminiCampaignBidPerformanceStat;
+use App\Models\GeminiConversionRulesStat;
+use App\Models\GeminiDomainPerformanceStat;
+use App\Models\GeminiKeywordStat;
+use App\Models\GeminiPerformanceStat;
+use App\Models\GeminiProductAdPerformanceStat;
+use App\Models\GeminiProductAdsStat;
+use App\Models\GeminiSearchStat;
+use App\Models\GeminiSitePerformanceStat;
+use App\Models\GeminiSlotPerformanceStat;
+use App\Models\GeminiStructuredSnippetExtensionPerformanceStat;
+use App\Models\GeminiUserStat;
+use App\Models\OutbrainReport;
 use App\Models\Provider;
+use App\Models\RedtrackContentStat;
+use App\Models\RedtrackDomainStat;
+use App\Models\RedtrackPublisherStat;
+use App\Models\RedtrackReport;
+use App\Models\TaboolaReport;
 use App\Models\Tracker;
+use App\Models\TwitterReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
 use App\Vngodev\Helper;
@@ -84,11 +106,34 @@ class AccountController extends Controller
         // Remove user_tracker
         UserTracker::where('provider_id', request('providerId'))->where('provider_open_id', request('openId'))->delete();
         // Remove campaigns / ad groups and ads
-        Campaign::where('provider_id', request('providerId'))->where('open_id', request('openId'))->delete();
+        $campaign_ids = Campaign::where('provider_id', request('providerId'))->where('open_id', request('openId'))->pluck('id');
+        Campaign::whereIn('id', $campaign_ids)->delete();
         AdGroup::where('provider_id', request('providerId'))->where('open_id', request('openId'))->delete();
         Ad::where('provider_id', request('providerId'))->where('open_id', request('openId'))->delete();
 
-        // TO-DO: Delete report
+        // Delete report
+        RedtrackReport::where('provider_id', request('providerId'))->where('open_id', request('openId'))->delete();
+        RedtrackDomainStat::where('provider_id', request('providerId'))->where('open_id', request('openId'))->delete();
+        RedtrackContentStat::where('provider_id', request('providerId'))->where('open_id', request('openId'))->delete();
+        RedtrackPublisherStat::where('provider_id', request('providerId'))->where('open_id', request('openId'))->delete();
+        GeminiAdExtensionStat::whereIn('campaign_id', $campaign_ids)->delete();
+        GeminiAdjustmentStat::whereIn('campaign_id', $campaign_ids)->delete();
+        GeminiCallExtensionStat::whereIn('campaign_id', $campaign_ids)->delete();
+        GeminiCampaignBidPerformanceStat::whereIn('campaign_id', $campaign_ids)->delete();
+        GeminiConversionRulesStat::whereIn('campaign_id', $campaign_ids)->delete();
+        GeminiDomainPerformanceStat::whereIn('campaign_id', $campaign_ids)->delete();
+        GeminiKeywordStat::whereIn('campaign_id', $campaign_ids)->delete();
+        GeminiPerformanceStat::whereIn('campaign_id', $campaign_ids)->delete();
+        GeminiProductAdPerformanceStat::whereIn('campaign_id', $campaign_ids)->delete();
+        GeminiProductAdsStat::whereIn('campaign_id', $campaign_ids)->delete();
+        GeminiSearchStat::whereIn('campaign_id', $campaign_ids)->delete();
+        GeminiSitePerformanceStat::whereIn('campaign_id', $campaign_ids)->delete();
+        GeminiSlotPerformanceStat::whereIn('campaign_id', $campaign_ids)->delete();
+        GeminiStructuredSnippetExtensionPerformanceStat::whereIn('campaign_id', $campaign_ids)->delete();
+        GeminiUserStat::whereIn('campaign_id', $campaign_ids)->delete();
+        OutbrainReport::whereIn('campaign_id', $campaign_ids)->delete();
+        TaboolaReport::whereIn('campaign_id', $campaign_ids)->delete();
+        TwitterReport::whereIn('campaign_id', $campaign_ids)->delete();
 
         // Restart the queue
         Artisan::call('queue:restart');
@@ -107,8 +152,6 @@ class AccountController extends Controller
     {
         // Remove user_tracker
         UserTracker::where('provider_id', request('providerId'))->where('open_id', request('openId'))->delete();
-
-        // TO-DO: Delete report
 
         // Restart the queue
         Artisan::call('queue:restart');

@@ -9,6 +9,8 @@ class GeminiStructuredSnippetExtensionPerformanceStat extends Model
 {
     use HasFactory;
 
+    protected $table = 'gemini_structured_snippet_extension_stats';
+
     protected $fillable = [
         'advertiser_id',
         'campaign_id',

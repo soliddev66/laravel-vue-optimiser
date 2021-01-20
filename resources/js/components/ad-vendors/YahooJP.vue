@@ -38,7 +38,6 @@
                     <select2 id="goal" name="campaign_campaign_bid_strategy" :options="campaignGoals" v-model="campaignGoal" placeholder="Select campaign goal"></select2>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="type" class="col-sm-2 control-label mt-2">Status</label>
                   <div class="col-sm-8">
@@ -52,7 +51,6 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="budget" class="col-sm-2 control-label mt-2">Budgets</label>
                   <div class="col-sm-8">
@@ -75,7 +73,6 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="budget" class="col-sm-2 control-label mt-2">Bid Strategy</label>
                   <div class="col-sm-8">
@@ -92,42 +89,36 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="bid_strategy" class="col-sm-2 control-label mt-2">Campaign Bid Strategy</label>
                   <div class="col-sm-8">
                     <select2 id="campaign_campaign_bid_strategy" name="campaign_campaign_bid_strategy" :options="campaignCampaignBidStrategies" v-model="campaignCampaignBidStrategy"></select2>
                   </div>
                 </div>
-
                 <div class="form-group row" v-if="campaignCampaignBidStrategy == 'MAX_CPC'">
                   <label for="name" class="col-sm-2 control-label mt-2">Max Bid Of Campaign (CPC)</label>
                   <div class="col-sm-8">
                     <input type="text" name="campaign_max_cpc_bid_value" placeholder="Max Bid Of Campaign (CPC)" class="form-control" v-model="campaignMaxCpcBidValue" />
                   </div>
                 </div>
-
                 <div class="form-group row" v-if="campaignCampaignBidStrategy == 'MAX_CPV'">
                   <label for="name" class="col-sm-2 control-label mt-2">Max bid of campaign (CPV)</label>
                   <div class="col-sm-8">
                     <input type="text" name="campaign_max_cpv_bid_value" placeholder="Max bid of campaign (CPV)" class="form-control" v-model="campaignMaxCpvBidValue" />
                   </div>
                 </div>
-
                 <div class="form-group row" v-if="campaignCampaignBidStrategy == 'MAX_VCPM'">
                   <label for="name" class="col-sm-2 control-label mt-2">Max bid of campaign (vCPM)</label>
                   <div class="col-sm-8">
                     <input type="text" name="campaign_max_vcpm_bid_value" placeholder="Max bid of campaign (vCPM)" class="form-control" v-model="campaignMaxVcpmBidValue" />
                   </div>
                 </div>
-
                 <div class="form-group row" v-if="campaignCampaignBidStrategy == 'TARGET_CPA'">
                   <label for="name" class="col-sm-2 control-label mt-2">Target bid of campaign (tCPA)</label>
                   <div class="col-sm-8">
                     <input type="text" name="campaign_Target_cpa_bid_value" placeholder="Target bid of campaign (tCPA)" class="form-control" v-model="campaignTargetCpaBidValue" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
                   <div class="col-sm-3">
@@ -138,7 +129,6 @@
                     <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true" :minDate="$moment().add(1, 'days').format('YYYY-MM-DD')"></VueCtkDateTimePicker>
                   </div>
                 </div>
-
                 <h2>Create group</h2>
                 <div class="form-group row">
                   <label for="ad_group_name" class="col-sm-2 control-label mt-2">Ad group name</label>
@@ -146,14 +136,12 @@
                     <input type="text" name="ad_group_name" class="form-control" v-model="adGroupName" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="bid_cpc" class="col-sm-2 control-label mt-2">Bid (CPC)</label>
                   <div class="col-sm-8">
                     <input type="number" name="bid_cpc" min="1" class="form-control" v-model="adGroupBidAmount" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
                   <div class="col-sm-8">
@@ -166,7 +154,6 @@
                     <select2 id="age" name="age" v-model="campaignAges" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device</label>
                   <div class="col-sm-8">
@@ -258,11 +245,10 @@
                     </div>
                   </div>
                 </fieldset>
-                <button class="btn btn-primary btn-sm" @click.prevent="addContent()">Add New</button>
+                <button class="btn btn-primary btn-sm d-none" @click.prevent="addContent()">Add New</button>
               </div>
             </form>
           </div>
-
           <div class="card-footer d-flex justify-content-end">
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
@@ -395,7 +381,7 @@ export default {
     this.getAdvertisers()
   },
   watch: {
-    selectedAccount: function (newVal, oldVal) {
+    selectedAccount: function(newVal, oldVal) {
       this.getAdvertisers()
     }
   },
