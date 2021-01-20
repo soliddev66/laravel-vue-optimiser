@@ -92,6 +92,11 @@ class YahooJPAPI
         return $this->client->call('POST', 'MediaService/add', $media);
     }
 
+    public function deleteMedia($media)
+    {
+        return $this->client->call('POST', 'MediaService/remove', $media);
+    }
+
     public function updateAdStatus($ad_group_id, $ad_id, $status)
     {
         return $this->client->call('PUT', 'ad', [
@@ -241,10 +246,10 @@ class YahooJPAPI
                 'adGroupName' => request('adGroupName'),
                 'adGroupBiddingStrategy' => $this->getCampaignBiddingStrategy(),
                 'bid' => $this->getBid(),
-                'device' => request('campaignDevices'),
-                'deviceApp' => ['NONE'],
-                'deviceOs' => ['NONE'],
-                'userStatus' => 'ACTIVE'
+                'device' => count(request('campaignDevices')) ? request('campaignDevices') : ['NONE'],
+                'deviceApp' => count(request('campaignDeviceApps')) ? request('campaignDeviceApps') : ['NONE'],
+                'deviceOs' => count(request('campaignDeviceOs')) ? request('campaignDeviceOs') : ['NONE'],
+                'userStatus' => request('campaignStatus')
             ]]
         ];
 

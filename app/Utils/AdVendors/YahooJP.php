@@ -2,7 +2,6 @@
 
 namespace App\Utils\AdVendors;
 
-use App\Endpoints\GeminiAPI;
 use App\Endpoints\YahooJPAPI;
 use App\Jobs\PullCampaign;
 use App\Models\Ad;
@@ -137,16 +136,20 @@ class YahooJP extends Root implements AdVendorInterface
                                 'imageMedia' => [
                                     'data' => base64_encode($data)
                                 ],
-                                'mediaName' => $image['image'],
-                                'mediaTitle' => md5($image['image']),
+                                'mediaName' => time() . $image['image'],
+                                'mediaTitle' => md5($image['image'] . time()),
                                 'userStatus' => 'ACTIVE',
                             ]]
                         ]);
 
-                        $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'] ?? $media['rval']['values'][0]['mediaRecord']['mediaId'];
+                        $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
+
+                        if ($media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
+                            $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
+                        }
 
                         if (!$media_id) {
-                            throw new Exception(json_encode($media['errors']));
+                            throw new Exception(json_encode($media));
                         }
 
                         foreach ($content['headlines'] as $headlines) {
@@ -167,7 +170,7 @@ class YahooJP extends Root implements AdVendorInterface
                                 'campaignId' => $campaign_id,
                                 'adName' => $headlines['headline'],
                                 'mediaId' => $media_id,
-                                'userStatus' => 'ACTIVE'
+                                'userStatus' => request('campaignStatus')
                             ];
                         }
                     }
@@ -184,6 +187,8 @@ class YahooJP extends Root implements AdVendorInterface
             }
 
             $api->createTargets($campaign_id, $ad_group_id);
+
+            Helper::pullCampaign();
 
             return [];
         } catch (Exception $e) {
@@ -229,16 +234,20 @@ class YahooJP extends Root implements AdVendorInterface
                             'imageMedia' => [
                                 'data' => base64_encode($data)
                             ],
-                            'mediaName' => $image['image'],
-                            'mediaTitle' => md5($image['image']),
+                            'mediaName' => time() . $image['image'],
+                            'mediaTitle' => md5($image['image'] . time()),
                             'userStatus' => 'ACTIVE',
                         ]]
                     ]);
 
-                    $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'] ?? $media['rval']['values'][0]['mediaRecord']['mediaId'];
+                    $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
+
+                    if ($media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
+                        $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
+                    }
 
                     if (!$media_id) {
-                        throw new Exception(json_encode($media['errors']));
+                        throw new Exception(json_encode($media));
                     }
 
                     foreach ($content['headlines'] as $headlines) {
@@ -259,7 +268,7 @@ class YahooJP extends Root implements AdVendorInterface
                             'campaignId' => $campaign->campaign_id,
                             'adName' => $headlines['headline'],
                             'mediaId' => $media_id,
-                            'userStatus' => 'ACTIVE'
+                            'userStatus' => $campaign->status
                         ];
                     }
                 }
@@ -337,7 +346,17 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function delete(Campaign $campaign)
     {
-        //
+        try {
+            $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+            $api->deleteCampaign($campaign->campaign_id);
+            $campaign->delete();
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function status(Campaign $campaign)
@@ -403,6 +422,11 @@ class YahooJP extends Root implements AdVendorInterface
             foreach ($campaigns as $key => $campaign) {
                 $ad_groups_response = (new YahooJPAPI($user_provider))->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
                 $ad_groups = $ad_groups_response['rval']['values'];
+
+                if (!$ad_groups || count($ad_groups) == 0) {
+                    continue;
+                }
+
                 foreach ($ad_groups as $key => $ad_group) {
                     $ad_group = $ad_group['adGroup'];
                     $db_ad_group = AdGroup::firstOrNew([
@@ -436,6 +460,11 @@ class YahooJP extends Root implements AdVendorInterface
             foreach ($ad_groups as $key => $ad_group) {
                 $ads_response = (new YahooJPAPI($user_provider))->getAds([$ad_group->ad_group_id], $ad_group->advertiser_id);
                 $ads = $ads_response['rval']['values'];
+
+                if (!$ads || count($ads) == 0) {
+                    continue;
+                }
+
                 foreach ($ads as $key => $ad) {
                     $ad = $ad['adGroupAd'];
                     $db_ad = Ad::firstOrNew([
