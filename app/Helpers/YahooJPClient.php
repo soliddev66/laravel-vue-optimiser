@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 use Token;
 
 class YahooJPClient
@@ -27,6 +28,7 @@ class YahooJPClient
         ]];
 
         if ($body) {
+            Log::info($body);
             $request_body['json'] = $body;
         }
 

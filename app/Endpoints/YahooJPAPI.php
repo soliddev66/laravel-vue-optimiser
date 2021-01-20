@@ -241,10 +241,10 @@ class YahooJPAPI
                 'adGroupName' => request('adGroupName'),
                 'adGroupBiddingStrategy' => $this->getCampaignBiddingStrategy(),
                 'bid' => $this->getBid(),
-                'device' => request('campaignDevices'),
+                'device' => ['NONE'],
                 'deviceApp' => ['NONE'],
                 'deviceOs' => ['NONE'],
-                'userStatus' => 'ACTIVE'
+                'userStatus' => request('campaignStatus')
             ]]
         ];
 
