@@ -40,6 +40,13 @@ class GeneralController extends Controller
         return (new $adVendorClass)->bdsxdSupportedSites();
     }
 
+    public function campaignGoals()
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+
+        return (new $adVendorClass)->campaignGoals();
+    }
+
     public function storeNetworkSetting()
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));

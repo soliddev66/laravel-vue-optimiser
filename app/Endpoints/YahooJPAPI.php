@@ -15,9 +15,17 @@ class YahooJPAPI
         $this->client = new YahooJPClient($user_info);
     }
 
-    public function getAccounts()
+    public function getAdvertisers()
     {
         return $this->client->call('POST', 'AccountService/get', [
+            'startIndex' => 1
+        ]);
+    }
+
+    public function getCampaignGoals($account_id)
+    {
+        return $this->client->call('POST', 'AccountAuthorityService/get', [
+            'accountIds' => [$account_id],
             'startIndex' => 1
         ]);
     }
@@ -118,38 +126,100 @@ class YahooJPAPI
 
     public function createCampaign()
     {
-        return $this->client->call('POST', 'campaign', [
-            'advertiserId' => request('selectedAdvertiser'),
-            'budget' => request('campaignBudget'),
-            'budgetType' => request('campaignBudgetType'),
-            'campaignName' => request('campaignName'),
-            'channel' => request('campaignType'),
-            'language' => request('campaignLanguage'),
-            'biddingStrategy' => request('campaignStrategy'),
-            'conversionRuleConfig' => ['conversionCounting' => request('campaignConversionCounting')],
-            'status' => 'ACTIVE'
+        return $this->client->call('POST', 'CampaignService/add', [
+            'accountId' => request('selectedAdvertiser'),
+            'operand' => [[
+                'type' => 'STANDARD',
+                'accountId' => request('selectedAdvertiser'),
+                'biddingStrategy' => [
+                    'biddingStrategyType' => request('campaignBidStrategy')
+                ],
+                'budget' => [
+                    'amount' => request('campaignBudget'),
+                    'budgetDeliveryMethod' => request('campaignBudgetDeliveryMethod')
+                ],
+                'campaignBiddingStrategy' => $this->getCampaignBiddingStrategy(),
+                'campaignGoal' => request('campaignGoal'),
+                'campaignName' => request('campaignName'),
+                'startDate' => request('campaignStartDate'),
+                'endDate' => request('campaignEndDate'),
+                'userStatus' => request('campaignStatus')
+            ]]
         ]);
     }
 
     public function updateCampaign($campaign)
     {
-        return $this->client->call('PUT', 'campaign', [
-            'id' => $campaign->campaign_id,
-            'advertiserId' => request('selectedAdvertiser'),
-            'budget' => request('campaignBudget'),
-            'budgetType' => request('campaignBudgetType'),
-            'campaignName' => request('campaignName'),
-            'channel' => request('campaignType'),
-            'language' => request('campaignLanguage'),
-            'biddingStrategy' => request('campaignStrategy'),
-            'conversionRuleConfig' => ['conversionCounting' => request('campaignConversionCounting')],
-            'status' => 'ACTIVE'
-        ]);
+
     }
 
     public function deleteCampaign($campaign_id)
     {
-        return $this->client->call('DELETE', 'campaign/' . $campaign_id);
+        return $this->client->call('POST', 'CampaignService/remove', [
+            'accountId' => request('selectedAdvertiser'),
+            'operand' => [[
+                'accountId' => request('selectedAdvertiser'),
+                'biddingStrategy' => [
+                    'biddingStrategyType' => request('campaignBidStrategy')
+                ],
+                'budget' => [
+                    'amount' => request('campaignBudget')
+                ],
+                'campaignBiddingStrategy' => $this->getCampaignBiddingStrategy(),
+                'campaignGoal' => request('campaignGoal'),
+                'campaignId' => $campaign_id,
+                'campaignName' => request('campaignName'),
+                'userStatus' => request('campaignStatus')
+            ]]
+        ]);
+    }
+
+    private function getCampaignBiddingStrategy()
+    {
+        $campaignBiddingStrategy = [
+            'campaignBiddingStrategyType' => request('campaignCampaignBidStrategy')
+        ];
+
+        switch(request('campaignCampaignBidStrategy')) {
+            case 'MAX_CPC':
+                $campaignBiddingStrategy['maxCpcBidValue'] = request('campaignMaxCpcBidValue');
+                break;
+
+            case 'MAX_VCPM':
+                $campaignBiddingStrategy['maxVcpmBidValue'] = request('campaignMaxVcpmBidValue');
+                break;
+
+            case 'MAX_CPV':
+                $campaignBiddingStrategy['maxCpvBidValue'] = request('campaignMaxCpvBidValue');
+                break;
+
+            case 'MAX_VCPM':
+                $campaignBiddingStrategy['targetCpaBidValue'] = request('campaignTargetCpaBidValue');
+                break;
+        }
+
+        return $campaignBiddingStrategy;
+    }
+
+    private function getBid()
+    {
+        if (request('campaignBidStrategy') == 'MANUAL_CPC') {
+            return [
+                'manualCPCBid' => [
+                    'maxCpc' => request('adGroupBidAmount')
+                ]
+            ];
+        }
+
+        if (request('campaignBidStrategy') == 'MANUAL_CPV') {
+            return [
+                'manualCPVBid' => [
+                    'maxCpv' => request('adGroupBidAmount')
+                ]
+            ];
+        }
+
+        return [];
     }
 
     public function updateCampaignStatus($campaign)
@@ -160,174 +230,118 @@ class YahooJPAPI
         ]);
     }
 
-    private function getBids()
-    {
-        if (request('campaignType') === 'SEARCH_AND_NATIVE') {
-            return [[
-                'priceType' => 'CPC',
-                'value' => request('bidAmount'),
-                'channel' => 'SEARCH'
-            ], [
-                'priceType' => 'CPC',
-                'value' => request('bidAmount'),
-                'channel' => 'NATIVE'
-            ]];
-        } else {
-            return [[
-                'priceType' => 'CPC',
-                'value' => request('bidAmount'),
-                'channel' => request('campaignType')
-            ]];
-        }
-    }
 
-    public function createAdGroup($campaign_data)
+    public function createAdGroup($campaign_id)
     {
         $data = [
-            'adGroupName' => request('adGroupName'),
-            'advertiserId' => request('selectedAdvertiser'),
-            'bidSet' => [
-                'bids' => $this->getBids()
-            ],
-            'campaignId' => $campaign_data['id'],
-            'startDateStr' => request('scheduleType') === 'IMMEDIATELY' ? Carbon::now()->format('Y-m-d') : request('campaignStartDate'),
-            'endDateStr' => request('scheduleType') === 'IMMEDIATELY' ? '' : request('campaignEndDate'),
-            'status' => 'ACTIVE'
+            'accountId' => request('selectedAdvertiser'),
+            'operand' => [[
+                'accountId' => request('selectedAdvertiser'),
+                'campaignId' => $campaign_id,
+                'adGroupName' => request('adGroupName'),
+                'adGroupBiddingStrategy' => $this->getCampaignBiddingStrategy(),
+                'bid' => $this->getBid(),
+                'device' => request('campaignDevices'),
+                'deviceApp' => ['NONE'],
+                'deviceOs' => ['NONE'],
+                'userStatus' => 'ACTIVE'
+            ]]
         ];
-        if (in_array(request('campaignStrategy'), ['OPT_ENHANCED_CPC', 'OPT_POST_INSTALL', 'OPT_CONVERSION'])) {
-            $data['biddingStrategy'] = request('campaignStrategy');
+
+        return $this->client->call('POST', 'AdGroupService/add', $data);
+    }
+
+    public function createTargets($campaign_id, $ad_group_id)
+    {
+        $data = [
+            'accountId' => request('selectedAdvertiser'),
+            'operand' => []
+        ];
+
+        $account = [
+            'accountId' => request('selectedAdvertiser'),
+            'campaignId' => $campaign_id,
+            'adGroupId' => $ad_group_id
+        ];
+
+
+        foreach (request('campaignAges') as $item) {
+            $data['operand'][] = $account + [
+                'target' => [
+                    'targetType' => 'AGE_TARGET',
+                    'ageTarget' => [
+                        'age' => $item,
+                        'estimateFlg' => 'ACTIVE'
+                    ]
+                ]
+            ];
         }
 
-        return $this->client->call('POST', 'adgroup', $data);
+        foreach (request('campaignGenders') as $item) {
+            $data['operand'][] = $account + [
+                'target' => [
+                    'targetType' => 'GENDER_TARGET',
+                    'genderTarget' => [
+                        'gender' => $item,
+                        'estimateFlg' => 'ACTIVE'
+                    ]
+                ]
+            ];
+        }
+
+        foreach (request('campaignDevices') as $item) {
+            $data['operand'][] = $account + [
+                'target' => [
+                    'targetType' => 'DEVICE_TARGET',
+                    'deviceTarget' => [
+                        'deviceType' => $item,
+                    ]
+                ]
+            ];
+        }
+
+        $this->client->call('POST', 'AdGroupTargetService/add', $data);
     }
 
     public function updateAdGroup($campaign_data)
     {
-        $data = [
-            'id' => request('adGroupID'),
-            'adGroupName' => request('adGroupName'),
-            'advertiserId' => request('selectedAdvertiser'),
-            'bidSet' => [
-                'bids' => $this->getBids()
-            ],
-            'campaignId' => $campaign_data['id'],
-            'startDateStr' => request('scheduleType') === 'IMMEDIATELY' ? Carbon::now()->format('Y-m-d') : request('campaignStartDate'),
-            'endDateStr' => request('scheduleType') === 'IMMEDIATELY' ? '' : request('campaignEndDate'),
-            'status' => 'ACTIVE'
-        ];
-        if (in_array(request('campaignStrategy'), ['OPT_ENHANCED_CPC', 'OPT_POST_INSTALL', 'OPT_CONVERSION'])) {
-            $data['biddingStrategy'] = request('campaignStrategy');
-        }
 
-        return $this->client->call('PUT', 'adgroup', $data);
     }
 
     public function updateAdGroups($body)
     {
-        return $this->client->call('PUT', 'adgroup', $body);
+
     }
 
     public function updateAdGroupStatus($ad_group_id, $status)
     {
-        return $this->client->call('PUT', 'adgroup', [
-            'id' => $ad_group_id,
-            'status' => $status
-        ]);
+
     }
 
-    public function deleteAdGroups($ad_group_ids)
+    public function deleteAdGroup($campaign_id, $ad_group_id)
     {
-        return $this->client->call('DELETE', 'adgroup?id=' . implode('&id=', $ad_group_ids));
+        $this->client->call('POST', 'AdGroupTargetService/add', [
+            'accountId' => request('selectedAdvertiser'),
+            'operand' => [[
+                'accountId' => request('selectedAdvertiser'),
+                'campaignId' => $campaign_id,
+                'adGroupId' => $ad_group_id
+            ]]
+        ]);
     }
 
     public function updateAd($ads)
     {
-        return $this->client->call('PUT', 'ad', $ads);
+
     }
 
     public function deleteAttributes()
     {
-        if (!count(request('dataAttributes'))) {
-            return;
-        }
 
-        return $this->client->call('DELETE', 'targetingattribute?id=' . implode('&id=', request('dataAttributes')));
     }
 
     public function createAttributes($campaign_data)
     {
-        $request_body = [];
-        $body = [
-            'advertiserId' => request('selectedAdvertiser'),
-            'parentType' => 'CAMPAIGN',
-            'parentId' => $campaign_data['id'],
-            'status' => 'ACTIVE'
-        ];
 
-        if (count(request('campaignLocation'))) {
-            foreach (request('campaignLocation') as $key => $item) {
-                $request_body[] = $body + ['type' => 'WOEID', 'value' => $item];
-            }
-        }
-
-        if (count(request('campaignGender'))) {
-            foreach (request('campaignGender') as $key => $item) {
-                $request_body[] = $body + ['type' => 'GENDER', 'value' => $item];
-            }
-        }
-
-        if (count(request('campaignAge'))) {
-            foreach (request('campaignAge') as $key => $item) {
-                $request_body[] = $body + ['type' => 'AGE', 'value' => $item];
-            }
-        }
-
-        if (count(request('campaignDevice'))) {
-            foreach (request('campaignDevice') as $key => $item) {
-                $request_body[] = $body + ['type' => 'DEVICE', 'value' => $item];
-            }
-        }
-
-        if (!empty(request('campaignSupplyGroup1A'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_1_A', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup1A') / 100))];
-        }
-
-        if (!empty(request('campaignSupplyGroup1B'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_1_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup1B') / 100))];
-        }
-
-        if (!empty(request('campaignSupplyGroup2A'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_A', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup2A') / 100))];
-        }
-
-        if (!empty(request('campaignSupplyGroup2B'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup2B') / 100))];
-        }
-
-        if (!empty(request('campaignSupplyGroup3A'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_A', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup3A') / 100))];
-        }
-
-        if (!empty(request('campaignSupplyGroup3B'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup3B') / 100))];
-        }
-
-        if (!empty(request('campaignSiteBlock'))) {
-            $campaign_site_blocks = explode(',', request('campaignSiteBlock'));
-
-            if (count($campaign_site_blocks) > 0) {
-                foreach ($campaign_site_blocks as $item) {
-                    $request_body[] = $body + ['type' => 'SITE_BLOCK', 'exclude' => 'TRUE', 'value' => trim($item)];
-                }
-            }
-        }
-
-        if (count(request('supportedSiteCollections'))) {
-            foreach (request('supportedSiteCollections') as $item) {
-                $request_body[] = $body + ['type' => 'SITE_X_DEVICE', 'exclude' => 'FALSE', 'value' => $item['key'], 'bidModifier' => request('bidAmount') + request('bidAmount') * $item['bidModifier'] / 100];
-            }
-        }
-
-        return $this->client->call('POST', 'targetingattribute', $request_body);
     }
 }

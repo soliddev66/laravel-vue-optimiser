@@ -38,7 +38,34 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function advertisers()
     {
-        return $this->api()->getAdvertisers();
+        $advertisers = $this->api()->getAdvertisers()['rval']['values'];
+
+        $result = [];
+
+        foreach ($advertisers as $advertiser) {
+            $result[] = [
+                'id' => $advertiser['account']['accountId'],
+                'name' => $advertiser['account']['accountName']
+            ];
+        }
+
+        return $result;
+    }
+
+    public function campaignGoals()
+    {
+        $goal = $this->api()->getCampaignGoals(request('advertiser'))['rval']['values'][0];
+
+        $result = [];
+
+        foreach ($goal['accountAuthority']['authorities'] as $authory) {
+            $result[] = [
+                'id' => $authory,
+                'text' => $authory
+            ];
+        }
+
+        return $result;
     }
 
     public function signUp()
@@ -68,7 +95,120 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function store()
     {
-        //
+        $api = $this->api();
+
+        try {
+            $campaign_data = $api->createCampaign();
+
+            $errors = $this->getErrors($campaign_data);
+
+            if (count($errors)) {
+                throw new Exception(json_encode($errors));
+            }
+
+            $campaign_id = $campaign_data['rval']['values'][0]['campaign']['campaignId'];
+
+            try {
+                $ad_group_data = $api->createAdGroup($campaign_id);
+
+                $errors = $this->getErrors($ad_group_data);
+
+                if (count($errors)) {
+                    throw new Exception(json_encode($errors));
+                }
+
+                $ad_group_id = $ad_group_data['rval']['values'][0]['adGroup']['adGroupId'];
+            } catch (Exception $e) {
+                $api->deleteCampaign($campaign_id);
+                throw $e;
+            }
+
+            $ads = [];
+
+            try {
+                foreach (request('contents') as $content) {
+                    foreach ($content['images'] as $image) {
+                        $file = storage_path('app/public/images/') . $image['image'];
+                        $data = file_get_contents($file);
+                        $media = $api->createMedia([
+                            'accountId' => request('selectedAdvertiser'),
+                            'operand' => [[
+                                'accountId' => request('selectedAdvertiser'),
+                                'imageMedia' => [
+                                    'data' => base64_encode($data)
+                                ],
+                                'mediaName' => $image['image'],
+                                'mediaTitle' => md5($image['image']),
+                                'userStatus' => 'ACTIVE',
+                            ]]
+                        ]);
+
+                        $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'] ?? $media['rval']['values'][0]['mediaRecord']['mediaId'];
+
+                        if (!$media_id) {
+                            throw new Exception(json_encode($media['errors']));
+                        }
+
+                        foreach ($content['headlines'] as $headlines) {
+                            $ads[] = [
+                                'accountId' => request('selectedAdvertiser'),
+                                'ad' => [
+                                    'adType' => 'RESPONSIVE_IMAGE_AD',
+                                    'responsiveImageAd' => [
+                                        'buttonText' => 'FOR_MORE_INFO',
+                                        'description' => $content['description'],
+                                        'displayUrl' => $content['displayUrl'],
+                                        'headline' => $headlines['headline'],
+                                        'principal' => $content['principal'],
+                                        'url' => $content['targetUrl'],
+                                    ]
+                                ],
+                                'adGroupId' => $ad_group_id,
+                                'campaignId' => $campaign_id,
+                                'adName' => $headlines['headline'],
+                                'mediaId' => $media_id,
+                                'userStatus' => 'ACTIVE'
+                            ];
+                        }
+                    }
+                }
+
+                $ad_data = $api->createAd([
+                    'accountId' => request('selectedAdvertiser'),
+                    'operand' => $ads
+                ]);
+            } catch (Exception $e) {
+                $api->deleteCampaign($campaign_id);
+                $api->deleteAdGroup($campaign_id, $ad_group_id);
+                throw $e;
+            }
+
+            $api->createTargets($campaign_id, $ad_group_id);
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+    }
+
+    private function getErrors($data)
+    {
+        $errors = [];
+        if ($data['errors'] && count($data['errors'])) {
+            $errors[] = $data['errors'];
+        }
+
+        if (isset($data['rval']['values']) && count($data['rval']['values'])) {
+            foreach ($data['rval']['values'] as $value) {
+                if (isset($value['errors']) && count($value['errors'])) {
+                    $errors[] = $value['errors'];
+                }
+            }
+        }
+
+        return $errors;
     }
 
     public function storeAd(Campaign $campaign, $ad_group_id)
@@ -76,6 +216,8 @@ class YahooJP extends Root implements AdVendorInterface
         $api = $this->api();
 
         try {
+            $ads = [];
+
             foreach (request('contents') as $content) {
                 foreach ($content['images'] as $image) {
                     $file = storage_path('app/public/images/') . $image['image'];
@@ -223,7 +365,7 @@ class YahooJP extends Root implements AdVendorInterface
         $api = new YahooJPAPI($user_provider);
         $campaign_ids = [];
 
-        $accounts_response = $api->getAccounts();
+        $accounts_response = $api->getAdvertisers();
         $accounts = $accounts_response['rval']['values'];
         foreach ($accounts as $key => $account) {
             $account_id = $account['account']['accountId'];
