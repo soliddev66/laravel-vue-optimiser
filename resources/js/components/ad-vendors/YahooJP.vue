@@ -254,7 +254,7 @@
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 1">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!submitStep1State">Next</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="submitStep1State">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!submitStep2State">Next</button>
@@ -328,10 +328,9 @@ export default {
   },
   computed: {
     submitStep1State() {
-      return true
+      return !this.selectedAdvertiser || !this.campaignName || !this.campaignGoals.length || !this.campaignBudget || this.campaignBudget <= 0 || !this.campaignStartDate || !this.adGroupBidAmount || this.adGroupBidAmount <= 0 || !this.adGroupName
     },
     submitStep2State() {
-      return true
       for (let i = 0; i < this.contents.length; i++) {
         if (!this.contents[i].principal || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl) || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)) {
           return false
