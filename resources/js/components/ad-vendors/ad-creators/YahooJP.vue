@@ -144,7 +144,7 @@ export default {
         }
 
         for (let j = 0; j < this.contents[i].images.length; j++) {
-          if (!this.contents[i].images[j].image || !this.validURL(this.contents[i].images[j].image) || !this.contents[i].images[j].state) {
+          if (!this.contents[i].images[j].image || !this.contents[i].images[j].state) {
             return false
           }
         }

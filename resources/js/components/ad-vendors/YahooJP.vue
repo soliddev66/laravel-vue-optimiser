@@ -157,21 +157,21 @@
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device</label>
                   <div class="col-sm-8">
-                    <select2 name="device" v-model="campaignDevices" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                    <select2 id="device" name="device" v-model="campaignDevices" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
 
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device App</label>
                   <div class="col-sm-8">
-                    <select2 name="device" v-model="campaignDeviceApps" :options="deviceApps" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                    <select2 id="device_app" name="device_app" v-model="campaignDeviceApps" :options="deviceApps" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
 
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device Os</label>
                   <div class="col-sm-8">
-                    <select2 name="device" v-model="campaignDeviceOs" :options="deviceOs" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                    <select2 id="device_os" name="device_os" v-model="campaignDeviceOs" :options="deviceOs" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
               </div>
@@ -378,6 +378,10 @@ export default {
     this.currentStep = this.step
 
     this.getAdvertisers()
+
+    if (this.instance) {
+      this.getCampaignGoals()
+    }
   },
   watch: {
     selectedAccount: function(newVal, oldVal) {
@@ -390,7 +394,6 @@ export default {
       campaignDevices = [],
       campaignDeviceApps = [],
       campaignDeviceOs = [],
-      campaignStatus = '',
       adGroupName = '',
       adGroupBidAmount = 1,
       adGroupID = '',
@@ -514,19 +517,19 @@ export default {
       campaignGoals: [],
       actionName: this.action,
       campaignGoal: this.instance ? this.instance.campaignGoal : '',
-      selectedAdvertiser: this.instance ? this.instance.advertiserId : '',
+      selectedAdvertiser: this.instance ? this.instance.accountId : '',
       campaignName: this.instance ? this.instance.campaignName : '',
-      campaignBudget: this.instance ? this.instance.budget : '',
+      campaignBudget: this.instance ? this.instance.budget.amount : '',
       campaignStartDate: this.instance ? this.instance.start_date : this.$moment().add(1, 'days').format('YYYY-MM-DD'),
       campaignEndDate: this.instance ? this.instance.end_date : '',
-      campaignCampaignBidStrategy: 'AUTO',
+      campaignCampaignBidStrategy: this.instance ? this.instance.campaignBiddingStrategy.campaignBiddingStrategyType : 'AUTO',
       campaignBidStrategy: '',
-      campaignBudgetDeliveryMethod: '',
+      campaignBudgetDeliveryMethod: this.instance ? this.instance.budgetDeliveryMethod : '',
       campaignMaxCpcBidValue: '',
       campaignMaxCpvBidValue: '',
       campaignMaxVcpmBidValue: '',
       campaignTargetCpaBidValue: '',
-      campaignStatus: 'ACTIVE',
+      campaignStatus: this.instance ? this.instance.userStatus : 'ACTIVE',
       campaignGenders: campaignGenders,
       campaignAges: campaignAges,
       campaignDevices: campaignDevices,
