@@ -157,21 +157,19 @@
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device</label>
                   <div class="col-sm-8">
-                    <select2 name="device" v-model="campaignDevices" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                    <select2 id="devices" name="devices" v-model="campaignDevices" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device App</label>
                   <div class="col-sm-8">
-                    <select2 name="device" v-model="campaignDeviceApps" :options="deviceApps" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                    <select2 id="deviceApps" name="device_apps" v-model="campaignDeviceApps" :options="deviceApps" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device Os</label>
                   <div class="col-sm-8">
-                    <select2 name="device" v-model="campaignDeviceOs" :options="deviceOs" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                    <select2 id="deviceOs" name="device_os" v-model="campaignDeviceOs" :options="deviceOs" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
               </div>
@@ -333,21 +331,28 @@ export default {
     submitStep2State() {
       for (let i = 0; i < this.contents.length; i++) {
         if (!this.contents[i].principal || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl) || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)) {
+          console.log('error 1')
           return false
         }
 
         for (let j = 0; j < this.contents[i].headlines.length; j++) {
           if (!this.contents[i].headlines[j].headline) {
+            console.log('error 2')
             return false
           }
         }
 
         if (this.contents[i].images.length == 0) {
+          console.log('error 3')
           return false
         }
 
         for (let j = 0; j < this.contents[i].images.length; j++) {
+          console.log(this.contents[i].images[j].image)
+          console.log(this.validURL(this.contents[i].images[j].image))
+          console.log(this.contents[i].images[j].state)
           if (!this.contents[i].images[j].image || !this.validURL(this.contents[i].images[j].image) || !this.contents[i].images[j].state) {
+            console.log('error 4')
             return false
           }
         }
