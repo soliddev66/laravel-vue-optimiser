@@ -270,8 +270,7 @@ class YahooJPAPI
                 'target' => [
                     'targetType' => 'AGE_TARGET',
                     'ageTarget' => [
-                        'age' => $item,
-                        'estimateFlg' => 'ACTIVE'
+                        'age' => $item
                     ]
                 ]
             ];
@@ -282,8 +281,7 @@ class YahooJPAPI
                 'target' => [
                     'targetType' => 'GENDER_TARGET',
                     'genderTarget' => [
-                        'gender' => $item,
-                        'estimateFlg' => 'ACTIVE'
+                        'gender' => $item
                     ]
                 ]
             ];
@@ -300,7 +298,7 @@ class YahooJPAPI
             ];
         }
 
-        $this->client->call('POST', 'AdGroupTargetService/add', $data);
+        return $this->client->call('POST', 'AdGroupTargetService/add', $data);
     }
 
     public function getTargets($advertiser_id, $ad_group_ids)
