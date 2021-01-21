@@ -149,6 +149,7 @@ class YahooJP extends Root implements AdVendorInterface
                     foreach ($content['images'] as $image) {
                         $file = storage_path('app/public/images/') . $image['image'];
                         $data = file_get_contents($file);
+                        $ext = pathinfo($file, PATHINFO_EXTENSION);
                         $media = $api->createMedia([
                             'accountId' => request('selectedAdvertiser'),
                             'operand' => [[
@@ -156,7 +157,7 @@ class YahooJP extends Root implements AdVendorInterface
                                 'imageMedia' => [
                                     'data' => base64_encode($data)
                                 ],
-                                'mediaName' => time() . $image['image'],
+                                'mediaName' => md5($image['image'] . time()) . '.' . $ext,
                                 'mediaTitle' => md5($image['image'] . time()),
                                 'userStatus' => request('campaignStatus')
                             ]]
@@ -249,6 +250,7 @@ class YahooJP extends Root implements AdVendorInterface
                 foreach ($content['images'] as $image) {
                     $file = storage_path('app/public/images/') . $image['image'];
                     $data = file_get_contents($file);
+                    $ext = pathinfo($file, PATHINFO_EXTENSION);
                     $media = $api->createMedia([
                         'accountId' => request('selectedAdvertiser'),
                         'operand' => [[
@@ -256,7 +258,7 @@ class YahooJP extends Root implements AdVendorInterface
                             'imageMedia' => [
                                 'data' => base64_encode($data)
                             ],
-                            'mediaName' => time() . $image['image'],
+                            'mediaName' => md5($image['image'] . time()) . '.' . $ext,
                             'mediaTitle' => md5($image['image'] . time()),
                             'userStatus' => request('campaignStatus')
                         ]]
