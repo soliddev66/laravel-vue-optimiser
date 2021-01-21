@@ -84,7 +84,28 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function getCampaignInstance(Campaign $campaign)
     {
-        //
+        try {
+            $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+
+            $instance = $api->getCampaign($campaign->advertiser_id, $campaign->campaign_id);
+
+            $instance['provider'] = $campaign->provider->slug;
+            $instance['provider_id'] = $campaign['provider_id'];
+            $instance['open_id'] = $campaign['open_id'];
+            $instance['instance_id'] = $campaign['id'];
+            // $instance['attributes'] = $api->getCampaignAttribute($campaign->campaign_id);
+            $instance['adGroups'] = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
+
+            var_dump($instance['adGroups']); exit;
+
+            if (count($instance['adGroups']) > 0) {
+                $instance['ads'] = $api->getAds([$instance['adGroups'][0]['id']], $campaign->advertiser_id);
+            }
+
+            return $instance;
+        } catch (Exception $e) {
+            return [];
+        }
     }
 
     public function cloneCampaignName(&$instance)
@@ -118,7 +139,7 @@ class YahooJP extends Root implements AdVendorInterface
 
                 $ad_group_id = $ad_group_data['rval']['values'][0]['adGroup']['adGroupId'];
             } catch (Exception $e) {
-                $api->deleteCampaign($campaign_id);
+                $api->deleteCampaign(request('selectedAdvertiser'), $campaign_id);
                 throw $e;
             }
 
@@ -183,7 +204,7 @@ class YahooJP extends Root implements AdVendorInterface
 
                 Helper::pullCampaign();
             } catch (Exception $e) {
-                $api->deleteCampaign($campaign_id);
+                $api->deleteCampaign(request('selectedAdvertiser'), $campaign_id);
                 $api->deleteAdGroup($campaign_id, $ad_group_id);
                 throw $e;
             }
@@ -350,7 +371,8 @@ class YahooJP extends Root implements AdVendorInterface
     {
         try {
             $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
-            $api->deleteCampaign($campaign->campaign_id);
+            $data = $api->deleteCampaign($campaign->advertiser_id, $campaign->campaign_id);
+            var_dump($data);
             $campaign->delete();
 
             return [];

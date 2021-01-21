@@ -54,9 +54,14 @@ class YahooJPAPI
         ]);
     }
 
-    public function getCampaign($campaign_id)
+    public function getCampaign($advertiser_id, $campaign_id)
     {
-        return $this->client->call('GET', 'campaign/' . $campaign_id);
+        return $this->client->call('POST', 'CampaignService/get', [
+            'accountId' => $advertiser_id,
+            'campaignIds' => [
+                $campaign_id
+            ]
+        ]);
     }
 
     public function getCampaigns()
@@ -158,23 +163,13 @@ class YahooJPAPI
 
     }
 
-    public function deleteCampaign($campaign_id)
+    public function deleteCampaign($advertiser_id, $campaign_id)
     {
         return $this->client->call('POST', 'CampaignService/remove', [
-            'accountId' => request('selectedAdvertiser'),
+            'accountId' => $advertiser_id,
             'operand' => [[
-                'accountId' => request('selectedAdvertiser'),
-                'biddingStrategy' => [
-                    'biddingStrategyType' => request('campaignBidStrategy')
-                ],
-                'budget' => [
-                    'amount' => request('campaignBudget')
-                ],
-                'campaignBiddingStrategy' => $this->getCampaignBiddingStrategy(),
-                'campaignGoal' => request('campaignGoal'),
-                'campaignId' => $campaign_id,
-                'campaignName' => request('campaignName'),
-                'userStatus' => request('campaignStatus')
+                'accountId' => $advertiser_id,
+                'campaignId' => $campaign_id
             ]]
         ]);
     }
