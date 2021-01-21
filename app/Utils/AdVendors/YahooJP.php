@@ -87,19 +87,18 @@ class YahooJP extends Root implements AdVendorInterface
         try {
             $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
 
-            $instance = $api->getCampaign($campaign->advertiser_id, $campaign->campaign_id);
+            $instance = $api->getCampaign($campaign->advertiser_id, $campaign->campaign_id)['rval']['values'][0]['campaign'];
 
             $instance['provider'] = $campaign->provider->slug;
             $instance['provider_id'] = $campaign['provider_id'];
             $instance['open_id'] = $campaign['open_id'];
             $instance['instance_id'] = $campaign['id'];
-            // $instance['attributes'] = $api->getCampaignAttribute($campaign->campaign_id);
-            $instance['adGroups'] = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
-
-            var_dump($instance['adGroups']); exit;
+            $instance['id'] = $instance['campaignId'];
+            $instance['adGroups'] = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id)['rval']['values'];
 
             if (count($instance['adGroups']) > 0) {
-                $instance['ads'] = $api->getAds([$instance['adGroups'][0]['id']], $campaign->advertiser_id);
+                $instance['ads'] = $api->getAds([$instance['adGroups'][0]['adGroup']['adGroupId']], $campaign->advertiser_id)['rval']['values'];
+                $instance['attributes'] = $api->getTargets($campaign->advertiser_id, [$instance['adGroups'][0]['adGroup']['adGroupId']])['rval']['values'];
             }
 
             return $instance;
