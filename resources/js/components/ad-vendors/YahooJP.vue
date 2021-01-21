@@ -328,6 +328,7 @@ export default {
   },
   computed: {
     submitStep1State() {
+      return false
       return !this.selectedAdvertiser || !this.campaignName || !this.campaignGoals.length || !this.campaignBudget || this.campaignBudget <= 0 || !this.campaignStartDate || !this.adGroupBidAmount || this.adGroupBidAmount <= 0 || !this.adGroupName
     },
     submitStep2State() {
@@ -347,7 +348,7 @@ export default {
         }
 
         for (let j = 0; j < this.contents[i].images.length; j++) {
-          if (!this.contents[i].images[j].image || !this.validURL(this.contents[i].images[j].image) || !this.contents[i].images[j].state) {
+          if (!this.contents[i].images[j].image || !this.contents[i].images[j].state) {
             return false
           }
         }
@@ -414,6 +415,7 @@ export default {
         adPreviews: []
       }];
     if (this.instance) {
+      console.log(this.instance)
       contents = [];
     }
 
@@ -552,6 +554,7 @@ export default {
       this.$modal.show('imageModal')
     },
     validURL(str) {
+      console.log(str)
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
     },
