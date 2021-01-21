@@ -303,6 +303,20 @@ class YahooJPAPI
         $this->client->call('POST', 'AdGroupTargetService/add', $data);
     }
 
+    public function getTargets($advertiser_id, $ad_group_ids)
+    {
+        return $this->client->call('POST', 'AdGroupTargetService/get', [
+            'accountId' => $advertiser_id,
+            'targetTypes' => [
+                'AGE_TARGET',
+                'GENDER_TARGET',
+                'DEVICE_TARGET',
+                'APP_TARGET',
+                'OS_TARGET'
+            ]
+        ]);
+    }
+
     public function updateAdGroup($campaign_data)
     {
 

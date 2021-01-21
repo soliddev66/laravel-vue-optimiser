@@ -331,28 +331,21 @@ export default {
     submitStep2State() {
       for (let i = 0; i < this.contents.length; i++) {
         if (!this.contents[i].principal || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl) || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)) {
-          console.log('error 1')
           return false
         }
 
         for (let j = 0; j < this.contents[i].headlines.length; j++) {
           if (!this.contents[i].headlines[j].headline) {
-            console.log('error 2')
             return false
           }
         }
 
         if (this.contents[i].images.length == 0) {
-          console.log('error 3')
           return false
         }
 
         for (let j = 0; j < this.contents[i].images.length; j++) {
-          console.log(this.contents[i].images[j].image)
-          console.log(this.validURL(this.contents[i].images[j].image))
-          console.log(this.contents[i].images[j].state)
-          if (!this.contents[i].images[j].image || !this.validURL(this.contents[i].images[j].image) || !this.contents[i].images[j].state) {
-            console.log('error 4')
+          if (!this.contents[i].images[j].image || !this.contents[i].images[j].state) {
             return false
           }
         }
