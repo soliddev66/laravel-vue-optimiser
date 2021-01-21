@@ -157,17 +157,15 @@
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device</label>
                   <div class="col-sm-8">
-                    <select2 id="device" name="device" v-model="campaignDevices" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                    <select2 id="devices" name="devices" v-model="campaignDevices" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device App</label>
                   <div class="col-sm-8">
                     <select2 id="device_app" name="device_app" v-model="campaignDeviceApps" :options="deviceApps" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="device" class="col-sm-2 control-label mt-2">Device Os</label>
                   <div class="col-sm-8">
@@ -270,7 +268,7 @@
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
           viewType: 'grid',
-          selectionType: 'single'
+          selectionType: 'multiple'
       }"></file-manager>
     </modal>
   </section>
@@ -417,7 +415,6 @@ export default {
         adPreviews: []
       }];
     if (this.instance) {
-      console.log(this.instance)
       contents = [];
     }
 

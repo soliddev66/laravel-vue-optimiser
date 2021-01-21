@@ -89,7 +89,7 @@
                   </div>
                 </div>
               </fieldset>
-              <button class="btn btn-primary btn-sm" @click.prevent="addAd()">Add New</button>
+              <button class="btn btn-primary btn-sm d-none" @click.prevent="addAd()">Add New</button>
             </form>
           </div>
           <div class="card-footer d-flex justify-content-end">
@@ -98,7 +98,6 @@
         </div>
       </div>
     </div>
-
     <modal width="60%" height="80%" name="imageModal">
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
@@ -183,17 +182,17 @@ export default {
   },
   data() {
     let ads = [{
-        adId: '',
-        titles: [{
-          title: '',
-          existing: false
-        }],
-        targetUrl: '',
-        cpc: '',
-        brandname: '',
-        imageUrl: '',
-        images: []
-      }]
+      adId: '',
+      titles: [{
+        title: '',
+        existing: false
+      }],
+      targetUrl: '',
+      cpc: '',
+      brandname: '',
+      imageUrl: '',
+      images: []
+    }]
 
     return {
       isLoading: false,

@@ -149,7 +149,7 @@ class YahooJP extends Root implements AdVendorInterface
                     foreach ($content['images'] as $image) {
                         $file = storage_path('app/public/images/') . $image['image'];
                         $data = file_get_contents($file);
-                        $ext = pathinfo($file, PATHINFO_EXTENSION);
+                        $ext = explode('.', $image['image']);
                         $media = $api->createMedia([
                             'accountId' => request('selectedAdvertiser'),
                             'operand' => [[
@@ -157,7 +157,7 @@ class YahooJP extends Root implements AdVendorInterface
                                 'imageMedia' => [
                                     'data' => base64_encode($data)
                                 ],
-                                'mediaName' => md5($image['image'] . time()) . '.' . $ext,
+                                'mediaName' => md5($image['image'] . time()) . '.' . end($ext),
                                 'mediaTitle' => md5($image['image'] . time()),
                                 'userStatus' => 'ACTIVE'
                             ]]
@@ -201,8 +201,6 @@ class YahooJP extends Root implements AdVendorInterface
                     'accountId' => request('selectedAdvertiser'),
                     'operand' => $ads
                 ]);
-
-                Helper::pullCampaign();
             } catch (Exception $e) {
                 $api->deleteCampaign(request('selectedAdvertiser'), $campaign_id);
                 $api->deleteAdGroup($campaign_id, $ad_group_id);
@@ -242,15 +240,14 @@ class YahooJP extends Root implements AdVendorInterface
     public function storeAd(Campaign $campaign, $ad_group_id)
     {
         $api = $this->api();
+        $ads = [];
 
         try {
-            $ads = [];
-
             foreach (request('contents') as $content) {
                 foreach ($content['images'] as $image) {
                     $file = storage_path('app/public/images/') . $image['image'];
                     $data = file_get_contents($file);
-                    $ext = pathinfo($file, PATHINFO_EXTENSION);
+                    $ext = explode('.', $image['image']);
                     $media = $api->createMedia([
                         'accountId' => request('selectedAdvertiser'),
                         'operand' => [[
@@ -258,7 +255,7 @@ class YahooJP extends Root implements AdVendorInterface
                             'imageMedia' => [
                                 'data' => base64_encode($data)
                             ],
-                            'mediaName' => md5($image['image'] . time()) . '.' . $ext,
+                            'mediaName' => md5($image['image'] . time()) . '.' . end($ext),
                             'mediaTitle' => md5($image['image'] . time()),
                             'userStatus' => 'ACTIVE'
                         ]]
@@ -354,6 +351,8 @@ class YahooJP extends Root implements AdVendorInterface
                     'creatorError' => implode(', ', $errors)
                 ];
             }
+
+            Helper::pullAd();
 
             return $ad_data;
         } catch (Exception $e) {

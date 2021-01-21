@@ -20,7 +20,6 @@
                     <small class="text-danger" v-if="campaignItem.url && !validURL(campaignItem.url)">URL is invalid. You might need http/https at the beginning.</small>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="url" class="col-sm-2 control-label mt-2">Title</label>
                   <div class="col-sm-8">
@@ -35,29 +34,26 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="description" class="col-sm-2 control-label mt-2">Description</label>
                   <div class="col-sm-8">
                     <textarea class="form-control" rows="3" placeholder="Enter description" v-model="campaignItem.description"></textarea>
                   </div>
                 </div>
-
                 <div class="form-group row">
                   <label for="thumbnail_url" class="col-sm-4 control-label mt-2">Thumbnail Images</label>
                   <div class="col-sm-8">
                     <input type="text" name="thumbnail_url" placeholder="Thumbnail Images" class="form-control" disabled="disabled" v-model="campaignItem.imagePath" />
-                      <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose Files</button>
+                    <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose Files</button>
                   </div>
                 </div>
-
                 <div class="row" v-if="index > 0 && action == 'create'">
-                    <div class="col text-right">
-                      <button class="btn btn-warning btn-sm" @click.prevent="removeCampaignItem(index)">Remove</button>
-                    </div>
+                  <div class="col text-right">
+                    <button class="btn btn-warning btn-sm" @click.prevent="removeCampaignItem(index)">Remove</button>
                   </div>
+                </div>
               </fieldset>
-              <button class="btn btn-primary btn-sm" @click.prevent="addCampaignItem()" v-if="action == 'create'">Add New</button>
+              <button class="btn btn-primary btn-sm d-none" @click.prevent="addCampaignItem()" v-if="action == 'create'">Add New</button>
             </form>
           </div>
           <div class="card-footer d-flex justify-content-end">
@@ -69,7 +65,6 @@
         </div>
       </div>
     </div>
-
     <modal width="60%" height="80%" name="imageModal">
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
@@ -179,18 +174,18 @@ export default {
     },
     addCampaignItem(index) {
       this.campaignItems.push({
-      url: '',
-      titles: [{
-        title: '',
-        existing: false
-      }],
-      description: '',
-      images: [{
-        image: '',
-        existing: false
-      }],
-      imagePath: ''
-    })
+        url: '',
+        titles: [{
+          title: '',
+          existing: false
+        }],
+        description: '',
+        images: [{
+          image: '',
+          existing: false
+        }],
+        imagePath: ''
+      })
     },
     removeCampaignItem(index) {
       this.campaignItems.splice(index, 1)
@@ -240,7 +235,7 @@ export default {
               imagePath: response.data[i].image
             })
           }
-          let interval = setInterval(function () {
+          let interval = setInterval(function() {
             axios.post('/campaigns/item-status', {
               provider: me.selectedProvider,
               account: me.selectedAccount,
