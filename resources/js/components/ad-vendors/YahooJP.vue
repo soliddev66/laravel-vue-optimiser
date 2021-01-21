@@ -328,7 +328,6 @@ export default {
   },
   computed: {
     submitStep1State() {
-      return false
       return !this.selectedAdvertiser || !this.campaignName || !this.campaignGoals.length || !this.campaignBudget || this.campaignBudget <= 0 || !this.campaignStartDate || !this.adGroupBidAmount || this.adGroupBidAmount <= 0 || !this.adGroupName
     },
     submitStep2State() {
