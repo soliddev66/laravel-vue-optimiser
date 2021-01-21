@@ -159,7 +159,7 @@ class YahooJP extends Root implements AdVendorInterface
                                 ],
                                 'mediaName' => md5($image['image'] . time()) . '.' . end($ext),
                                 'mediaTitle' => md5($image['image'] . time()),
-                                'userStatus' => request('campaignStatus')
+                                'userStatus' => 'ACTIVE'
                             ]]
                         ]);
 
@@ -257,7 +257,7 @@ class YahooJP extends Root implements AdVendorInterface
                             ],
                             'mediaName' => md5($image['image'] . time()) . '.' . end($ext),
                             'mediaTitle' => md5($image['image'] . time()),
-                            'userStatus' => $campaign->status
+                            'userStatus' => 'ACTIVE'
                         ]]
                     ]);
 
@@ -424,7 +424,7 @@ class YahooJP extends Root implements AdVendorInterface
                 ]);
 
                 $db_campaign->name = $campaign['campaignName'];
-                $db_campaign->status = $campaign['servingStatus'] === 'SERVING' ? 'ACTIVE' : $campaign['servingStatus'];
+                $db_campaign->status = $campaign['userStatus'];
                 $db_campaign->budget = $campaign['budget']['amount'];
                 $db_campaign->advertiser_id = $account_id;
                 $db_campaign->save();
