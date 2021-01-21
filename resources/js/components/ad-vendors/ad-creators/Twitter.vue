@@ -73,7 +73,7 @@
                   </div>
                 </div>
               </fieldset>
-              <button class="btn btn-primary btn-sm" @click.prevent="addCard()">Add New</button>
+              <button class="btn btn-primary btn-sm d-none" @click.prevent="addCard()">Add New</button>
             </form>
           </div>
           <div class="card-footer d-flex justify-content-end">
@@ -82,7 +82,6 @@
         </div>
       </div>
     </div>
-
     <modal width="60%" height="80%" name="cardMedia">
       <file-manager v-bind:settings="settings" :props="{
           upload: true,

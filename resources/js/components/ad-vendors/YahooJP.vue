@@ -268,7 +268,7 @@
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
           viewType: 'grid',
-          selectionType: 'single'
+          selectionType: 'multiple'
       }"></file-manager>
     </modal>
   </section>
