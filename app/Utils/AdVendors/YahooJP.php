@@ -2,7 +2,6 @@
 
 namespace App\Utils\AdVendors;
 
-use App\Endpoints\GeminiAPI;
 use App\Endpoints\YahooJPAPI;
 use App\Jobs\PullCampaign;
 use App\Models\Ad;
@@ -85,7 +84,28 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function getCampaignInstance(Campaign $campaign)
     {
-        //
+        try {
+            $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+
+            $instance = $api->getCampaign($campaign->advertiser_id, $campaign->campaign_id);
+
+            $instance['provider'] = $campaign->provider->slug;
+            $instance['provider_id'] = $campaign['provider_id'];
+            $instance['open_id'] = $campaign['open_id'];
+            $instance['instance_id'] = $campaign['id'];
+            // $instance['attributes'] = $api->getCampaignAttribute($campaign->campaign_id);
+            $instance['adGroups'] = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
+
+            var_dump($instance['adGroups']); exit;
+
+            if (count($instance['adGroups']) > 0) {
+                $instance['ads'] = $api->getAds([$instance['adGroups'][0]['id']], $campaign->advertiser_id);
+            }
+
+            return $instance;
+        } catch (Exception $e) {
+            return [];
+        }
     }
 
     public function cloneCampaignName(&$instance)
@@ -119,7 +139,7 @@ class YahooJP extends Root implements AdVendorInterface
 
                 $ad_group_id = $ad_group_data['rval']['values'][0]['adGroup']['adGroupId'];
             } catch (Exception $e) {
-                $api->deleteCampaign($campaign_id);
+                $api->deleteCampaign(request('selectedAdvertiser'), $campaign_id);
                 throw $e;
             }
 
@@ -137,16 +157,20 @@ class YahooJP extends Root implements AdVendorInterface
                                 'imageMedia' => [
                                     'data' => base64_encode($data)
                                 ],
-                                'mediaName' => $image['image'],
-                                'mediaTitle' => md5($image['image']),
+                                'mediaName' => time() . $image['image'],
+                                'mediaTitle' => md5($image['image'] . time()),
                                 'userStatus' => request('campaignStatus')
                             ]]
                         ]);
 
-                        $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'] ?? $media['rval']['values'][0]['mediaRecord']['mediaId'];
+                        $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
+
+                        if ($media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
+                            $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
+                        }
 
                         if (!$media_id) {
-                            throw new Exception(json_encode($media['errors']));
+                            throw new Exception(json_encode($media));
                         }
 
                         foreach ($content['headlines'] as $headlines) {
@@ -180,12 +204,14 @@ class YahooJP extends Root implements AdVendorInterface
 
                 Helper::pullCampaign();
             } catch (Exception $e) {
-                $api->deleteCampaign($campaign_id);
+                $api->deleteCampaign(request('selectedAdvertiser'), $campaign_id);
                 $api->deleteAdGroup($campaign_id, $ad_group_id);
                 throw $e;
             }
 
             $api->createTargets($campaign_id, $ad_group_id);
+
+            Helper::pullCampaign();
 
             return [];
         } catch (Exception $e) {
@@ -231,16 +257,20 @@ class YahooJP extends Root implements AdVendorInterface
                             'imageMedia' => [
                                 'data' => base64_encode($data)
                             ],
-                            'mediaName' => $image['image'],
-                            'mediaTitle' => md5($image['image']),
+                            'mediaName' => time() . $image['image'],
+                            'mediaTitle' => md5($image['image'] . time()),
                             'userStatus' => request('campaignStatus')
                         ]]
                     ]);
 
-                    $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'] ?? $media['rval']['values'][0]['mediaRecord']['mediaId'];
+                    $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
+
+                    if ($media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
+                        $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
+                    }
 
                     if (!$media_id) {
-                        throw new Exception(json_encode($media['errors']));
+                        throw new Exception(json_encode($media));
                     }
 
                     foreach ($content['headlines'] as $headlines) {
@@ -261,7 +291,7 @@ class YahooJP extends Root implements AdVendorInterface
                             'campaignId' => $campaign->campaign_id,
                             'adName' => $headlines['headline'],
                             'mediaId' => $media_id,
-                            'userStatus' => request('campaignStatus')
+                            'userStatus' => $campaign->status
                         ];
                     }
                 }
@@ -339,7 +369,18 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function delete(Campaign $campaign)
     {
-        //
+        try {
+            $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+            $data = $api->deleteCampaign($campaign->advertiser_id, $campaign->campaign_id);
+            var_dump($data);
+            $campaign->delete();
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function status(Campaign $campaign)

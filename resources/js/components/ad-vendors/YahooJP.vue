@@ -122,11 +122,11 @@
                 <div class="form-group row">
                   <label for="start_date" class="col-sm-2 control-label mt-2">Start Date</label>
                   <div class="col-sm-3">
-                    <VueCtkDateTimePicker id="start_date" v-model="campaignStartDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true" :minDate="new Date(Date.now())"></VueCtkDateTimePicker>
+                    <VueCtkDateTimePicker id="start_date" v-model="campaignStartDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true" :minDate="$moment().add(1, 'days').format('YYYY-MM-DD')"></VueCtkDateTimePicker>
                   </div>
                   <label for="end_date" class="col-sm-2 control-label mt-2">End Date</label>
                   <div class="col-sm-3">
-                    <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true" :minDate="new Date(Date.now())"></VueCtkDateTimePicker>
+                    <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true" :minDate="$moment().add(1, 'days').format('YYYY-MM-DD')"></VueCtkDateTimePicker>
                   </div>
                 </div>
                 <h2>Create group</h2>
@@ -158,6 +158,20 @@
                   <label for="device" class="col-sm-2 control-label mt-2">Device</label>
                   <div class="col-sm-8">
                     <select2 name="device" v-model="campaignDevices" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="device" class="col-sm-2 control-label mt-2">Device App</label>
+                  <div class="col-sm-8">
+                    <select2 name="device" v-model="campaignDeviceApps" :options="deviceApps" :settings="{ multiple: true, placeholder: 'ALL' }" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="device" class="col-sm-2 control-label mt-2">Device Os</label>
+                  <div class="col-sm-8">
+                    <select2 name="device" v-model="campaignDeviceOs" :options="deviceOs" :settings="{ multiple: true, placeholder: 'ALL' }" />
                   </div>
                 </div>
               </div>
@@ -240,7 +254,7 @@
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 1">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!submitStep1State">Next</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="submitStep1State">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!submitStep2State">Next</button>
@@ -314,10 +328,9 @@ export default {
   },
   computed: {
     submitStep1State() {
-      return true
+      return !this.selectedAdvertiser || !this.campaignName || !this.campaignGoals.length || !this.campaignBudget || this.campaignBudget <= 0 || !this.campaignStartDate || !this.adGroupBidAmount || this.adGroupBidAmount <= 0 || !this.adGroupName
     },
     submitStep2State() {
-      return true
       for (let i = 0; i < this.contents.length; i++) {
         if (!this.contents[i].principal || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl) || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)) {
           return false
@@ -375,11 +388,12 @@ export default {
     let campaignGenders = [],
       campaignAges = [],
       campaignDevices = [],
+      campaignDeviceApps = [],
+      campaignDeviceOs = [],
       campaignStatus = '',
       adGroupName = '',
       adGroupBidAmount = 1,
       adGroupID = '',
-      dataAttributes = [],
       adGroupBidStrategy = '',
 
       contents = [{
@@ -409,9 +423,6 @@ export default {
       postData: {},
       currentStep: 1,
       genders: [{
-        id: '',
-        text: 'All'
-      }, {
         id: 'ST_MALE',
         text: 'Male'
       }, {
@@ -422,9 +433,6 @@ export default {
         text: 'Unknown'
       }],
       ages: [{
-        id: '',
-        text: 'All',
-      }, {
         id: 'GT_RANGE13_14',
         text: '13-14',
       }, {
@@ -456,9 +464,6 @@ export default {
         text: '70 and up',
       }],
       devices: [{
-        id: '',
-        text: 'All',
-      }, {
         id: 'DESKTOP',
         text: 'DESKTOP',
       }, {
@@ -470,6 +475,20 @@ export default {
       }, {
         id: 'TABLET',
         text: 'TABLET',
+      }],
+      deviceApps: [{
+        id: 'APP',
+        text: 'APP',
+      }, {
+        id: 'WEB',
+        text: 'WEB',
+      }],
+      deviceOs: [{
+        id: 'IOS',
+        text: 'IOS',
+      }, {
+        id: 'ANDROID',
+        text: 'ANDROID',
       }],
       campaignCampaignBidStrategies: [{
         id: 'AUTO',
@@ -510,12 +529,13 @@ export default {
       campaignGenders: campaignGenders,
       campaignAges: campaignAges,
       campaignDevices: campaignDevices,
+      campaignDeviceApps: campaignDeviceApps,
+      campaignDeviceOs: campaignDeviceOs,
       adGroupID: adGroupID,
       adGroupName: adGroupName,
       adGroupBidStrategy: adGroupBidStrategy,
       adGroupBidAmount: adGroupBidAmount,
       contents: contents,
-      dataAttributes: dataAttributes,
       openingFileSelector: '',
       fileSelectorIndex: 0,
       settings: {
@@ -622,14 +642,15 @@ export default {
         campaignGenders: this.campaignGenders,
         campaignAges: this.campaignAges,
         campaignDevices: this.campaignDevices,
+        campaignDeviceApps: this.campaignDeviceApps,
+        campaignDeviceOs: this.campaignDeviceOs,
       }
       this.postData = {...this.postData, ...step1Data }
       this.currentStep = 2
     },
     submitStep2() {
       const step2Data = {
-        contents: this.contents,
-        dataAttributes: this.dataAttributes
+        contents: this.contents
       }
       this.postData = {...this.postData, ...step2Data }
 
@@ -644,6 +665,7 @@ export default {
         if (response.data.errors) {
           alert(response.data.errors[0]);
         } else {
+          this.currentStep = 3
           this.$dialog.alert('Save successfully!').then(function(dialog) {
             window.location = '/campaigns';
           });
@@ -651,7 +673,6 @@ export default {
       }).catch(error => {}).finally(() => {
         this.isLoading = false
       })
-      this.currentStep = 3
     },
   }
 }
