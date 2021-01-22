@@ -74,22 +74,6 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label for="budget" class="col-sm-2 control-label mt-2">Bid Strategy</label>
-                  <div class="col-sm-8">
-                    <div class="btn-group btn-group-toggle">
-                      <label class="btn bg-olive" :class="{ active: campaignBidStrategy === 'MANUAL_CPC' }">
-                        <input type="radio" name="type" id="campaignBidStrategy1" autocomplete="off" value="MANUAL_CPC" v-model="campaignBidStrategy"> MANUAL CPC
-                      </label>
-                      <label class="btn bg-olive" :class="{ active: campaignBidStrategy === 'MANUAL_CPV' }">
-                        <input type="radio" name="type" id="campaignBidStrategy2" autocomplete="off" value="MANUAL_CPV" v-model="campaignBidStrategy"> MANUAL CPV
-                      </label>
-                      <label class="btn bg-olive" :class="{ active: campaignBidStrategy === 'UNKNOWN' }">
-                        <input type="radio" name="type" id="campaignBidStrategy3" autocomplete="off" value="UNKNOWN" v-model="campaignBidStrategy"> UNKNOWN
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <div class="form-group row">
                   <label for="bid_strategy" class="col-sm-2 control-label mt-2">Campaign Bid Strategy</label>
                   <div class="col-sm-8">
                     <select2 id="campaign_campaign_bid_strategy" name="campaign_campaign_bid_strategy" :options="campaignCampaignBidStrategies" v-model="campaignCampaignBidStrategy"></select2>
@@ -134,12 +118,6 @@
                   <label for="ad_group_name" class="col-sm-2 control-label mt-2">Ad group name</label>
                   <div class="col-sm-8">
                     <input type="text" name="ad_group_name" class="form-control" v-model="adGroupName" />
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="bid_cpc" class="col-sm-2 control-label mt-2">Bid (CPC)</label>
-                  <div class="col-sm-8">
-                    <input type="number" name="bid_cpc" min="1" class="form-control" v-model="adGroupBidAmount" />
                   </div>
                 </div>
                 <div class="form-group row">
@@ -326,7 +304,7 @@ export default {
   },
   computed: {
     submitStep1State() {
-      return !this.selectedAdvertiser || !this.campaignName || !this.campaignGoals.length || !this.campaignBudget || this.campaignBudget <= 0 || !this.campaignStartDate || !this.adGroupBidAmount || this.adGroupBidAmount <= 0 || !this.adGroupName
+      return !this.selectedAdvertiser || !this.campaignName || !this.campaignGoals.length || !this.campaignBudget || this.campaignBudget <= 0 || !this.campaignStartDate || !this.adGroupName
     },
     submitStep2State() {
       for (let i = 0; i < this.contents.length; i++) {
@@ -393,7 +371,6 @@ export default {
       campaignDeviceApps = [],
       campaignDeviceOs = [],
       adGroupName = '',
-      adGroupBidAmount = 1,
       adGroupID = '',
       adGroupBidStrategy = '',
 
@@ -520,7 +497,6 @@ export default {
       campaignStartDate: this.instance ? this.instance.start_date : this.$moment().add(1, 'days').format('YYYY-MM-DD'),
       campaignEndDate: this.instance ? this.instance.end_date : '',
       campaignCampaignBidStrategy: this.instance ? this.instance.campaignBiddingStrategy.campaignBiddingStrategyType : 'AUTO',
-      campaignBidStrategy: '',
       campaignBudgetDeliveryMethod: this.instance ? this.instance.budgetDeliveryMethod : '',
       campaignMaxCpcBidValue: '',
       campaignMaxCpvBidValue: '',
@@ -535,7 +511,6 @@ export default {
       adGroupID: adGroupID,
       adGroupName: adGroupName,
       adGroupBidStrategy: adGroupBidStrategy,
-      adGroupBidAmount: adGroupBidAmount,
       contents: contents,
       openingFileSelector: '',
       fileSelectorIndex: 0,
@@ -631,7 +606,6 @@ export default {
         campaignStatus: this.campaignStatus,
         campaignStartDate: this.campaignStartDate,
         campaignEndDate: this.campaignEndDate,
-        campaignBidStrategy: this.campaignBidStrategy,
         campaignCampaignBidStrategy: this.campaignCampaignBidStrategy,
         campaignMaxCpcBidValue: this.campaignMaxCpcBidValue,
         campaignMaxCpvBidValue: this.campaignMaxCpvBidValue,
@@ -639,7 +613,6 @@ export default {
         campaignTargetCpaBidValue: this.campaignTargetCpaBidValue,
         adGroupID: this.adGroupID,
         adGroupName: this.adGroupName,
-        adGroupBidAmount: this.adGroupBidAmount,
         campaignGenders: this.campaignGenders,
         campaignAges: this.campaignAges,
         campaignDevices: this.campaignDevices,

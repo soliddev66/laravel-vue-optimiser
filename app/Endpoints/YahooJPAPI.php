@@ -141,9 +141,6 @@ class YahooJPAPI
             'operand' => [[
                 'type' => 'STANDARD',
                 'accountId' => request('selectedAdvertiser'),
-                'biddingStrategy' => [
-                    'biddingStrategyType' => request('campaignBidStrategy')
-                ],
                 'budget' => [
                     'amount' => request('campaignBudget'),
                     'budgetDeliveryMethod' => request('campaignBudgetDeliveryMethod')
@@ -201,27 +198,6 @@ class YahooJPAPI
         return $campaignBiddingStrategy;
     }
 
-    private function getBid()
-    {
-        if (request('campaignBidStrategy') == 'MANUAL_CPC') {
-            return [
-                'manualCPCBid' => [
-                    'maxCpc' => request('adGroupBidAmount')
-                ]
-            ];
-        }
-
-        if (request('campaignBidStrategy') == 'MANUAL_CPV') {
-            return [
-                'manualCPVBid' => [
-                    'maxCpv' => request('adGroupBidAmount')
-                ]
-            ];
-        }
-
-        return [];
-    }
-
     public function updateCampaignStatus($campaign)
     {
         return $this->client->call('PUT', 'campaign', [
@@ -240,7 +216,6 @@ class YahooJPAPI
                 'campaignId' => $campaign_id,
                 'adGroupName' => request('adGroupName'),
                 'adGroupBiddingStrategy' => $this->getCampaignBiddingStrategy(),
-                'bid' => $this->getBid(),
                 'device' => count(request('campaignDevices')) ? request('campaignDevices') : ['NONE'],
                 'deviceApp' => count(request('campaignDeviceApps')) ? request('campaignDeviceApps') : ['NONE'],
                 'deviceOs' => count(request('campaignDeviceOs')) ? request('campaignDeviceOs') : ['NONE'],
