@@ -102,13 +102,9 @@ class YahooJPAPI
         return $this->client->call('POST', 'MediaService/remove', $media);
     }
 
-    public function updateAdStatus($ad_group_id, $ad_id, $status)
+    public function updateAdStatus($data)
     {
-        return $this->client->call('PUT', 'ad', [
-            'adGroupId' => $ad_group_id,
-            'id' => $ad_id,
-            'status' => $status
-        ]);
+        return $this->client->call('POST', 'AdGroupAdService/set', $data);
     }
 
     public function deleteAds($ad_ids)
@@ -224,9 +220,13 @@ class YahooJPAPI
 
     public function updateCampaignStatus($campaign)
     {
-        return $this->client->call('PUT', 'campaign', [
-            'id' => $campaign->campaign_id,
-            'status' => $campaign->status
+        return $this->client->call('POST', 'CampaignService/set', [
+            'accountId' => $campaign->advertiser_id,
+            'operand' => [[
+                'accountId' => $campaign->advertiser_id,
+                'campaignId' => $campaign->campaign_id,
+                'userStatus' => $campaign->status
+            ]]
         ]);
     }
 
@@ -270,7 +270,8 @@ class YahooJPAPI
                 'target' => [
                     'targetType' => 'AGE_TARGET',
                     'ageTarget' => [
-                        'age' => $item
+                        'age' => $item,
+                        'estimateFlg' => 'PAUSED'
                     ]
                 ]
             ];
@@ -281,7 +282,8 @@ class YahooJPAPI
                 'target' => [
                     'targetType' => 'GENDER_TARGET',
                     'genderTarget' => [
-                        'gender' => $item
+                        'gender' => $item,
+                        'estimateFlg' => 'PAUSED'
                     ]
                 ]
             ];
@@ -297,6 +299,8 @@ class YahooJPAPI
                 ]
             ];
         }
+
+        file_put_contents('./test', json_encode($data));
 
         return $this->client->call('POST', 'AdGroupTargetService/add', $data);
     }
@@ -322,7 +326,7 @@ class YahooJPAPI
 
     public function updateAdGroups($body)
     {
-
+        return $this->client->call('POST', 'AdGroupService/set', $body);
     }
 
     public function updateAdGroupStatus($ad_group_id, $status)

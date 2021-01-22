@@ -384,7 +384,6 @@ class YahooJP extends Root implements AdVendorInterface
         try {
             $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
             $data = $api->deleteCampaign($campaign->advertiser_id, $campaign->campaign_id);
-            var_dump($data);
             $campaign->delete();
 
             return [];
@@ -397,7 +396,58 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function status(Campaign $campaign)
     {
-        //
+        try {
+            $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+            $campaign->status = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+
+            $data_campaigns = $api->updateCampaignStatus($campaign);
+
+            $ad_groups = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id)['rval']['values'];
+
+            $ad_group_body = [
+                'accountId' => $campaign->advertiser_id,
+                'operand' => []
+            ];
+
+            $ad_group_ids = [];
+
+            foreach ($ad_groups as $ad_group) {
+                $ad_group_body['operand'][] = [
+                    'accountId' => $campaign->advertiser_id,
+                    'campaignId' => $campaign->campaign_id,
+                    'adGroupId' => $ad_group['adGroup']['adGroupId'],
+                    'userStatus' => $campaign->status
+                ];
+
+                $ad_body = [
+                    'accountId' => $campaign->advertiser_id,
+                    'operand' => []
+                ];
+
+                $ads = $api->getAds([$ad_group['adGroup']['adGroupId']], $campaign->advertiser_id)['rval']['values'];
+
+                foreach ($ads as $ad) {
+                    $ad_body['operand'][] = [
+                        'accountId' => $campaign->advertiser_id,
+                        'campaignId' => $campaign->campaign_id,
+                        'adGroupId' => $ad_group['adGroup']['adGroupId'],
+                        'adId' => $ad['adGroupAd']['adId'],
+                        'userStatus' => $campaign->status
+                    ];
+                }
+
+                $data_ads = $api->updateAdStatus($ad_body);
+            }
+
+            $data_ad_groups = $api->updateAdGroups($ad_group_body);
+            $campaign->save();
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function adGroupData(Campaign $campaign)
