@@ -243,7 +243,7 @@ class YahooJPAPI
         return $this->client->call('POST', 'AdGroupService/add', $data);
     }
 
-    public function createTargets($campaign_id, $ad_group_id)
+    public function createTargets($campaign_id, $ad_group_id, $is_replace = false)
     {
         $data = [
             'accountId' => request('selectedAdvertiser'),
@@ -292,7 +292,7 @@ class YahooJPAPI
             ];
         }
 
-        return $this->client->call('POST', 'AdGroupTargetService/add', $data);
+        return $this->client->call('POST', 'AdGroupTargetService/' . ($is_replace ? 'replace' : 'add'), $data);
     }
 
     public function getTargets($advertiser_id, $ad_group_ids, $campaign_id)

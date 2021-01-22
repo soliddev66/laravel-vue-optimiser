@@ -481,6 +481,8 @@ class YahooJP extends Root implements AdVendorInterface
                 ]);
             }
 
+            $target_data = $api->createTargets($campaign->campaign_id, $ad_group_id, true);
+
             return [];
         } catch (Exception $e) {
             return [
