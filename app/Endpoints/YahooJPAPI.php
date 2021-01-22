@@ -292,8 +292,6 @@ class YahooJPAPI
             ];
         }
 
-        file_put_contents('./test', json_encode($data));
-
         return $this->client->call('POST', 'AdGroupTargetService/add', $data);
     }
 
