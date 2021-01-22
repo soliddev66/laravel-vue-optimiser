@@ -151,9 +151,26 @@ class YahooJPAPI
         ]);
     }
 
-    public function updateCampaign($campaign)
+    public function updateCampaign($campaign_id)
     {
-
+        return $this->client->call('POST', 'CampaignService/set', [
+            'accountId' => request('selectedAdvertiser'),
+            'operand' => [[
+                'type' => 'STANDARD',
+                'accountId' => request('selectedAdvertiser'),
+                'budget' => [
+                    'amount' => request('campaignBudget'),
+                    'budgetDeliveryMethod' => request('campaignBudgetDeliveryMethod')
+                ],
+                'campaignBiddingStrategy' => $this->getCampaignBiddingStrategy(),
+                'campaignGoal' => request('campaignGoal'),
+                'campaignName' => request('campaignName'),
+                'campaignId' => $campaign_id,
+                'startDate' => request('campaignStartDate'),
+                'endDate' => request('campaignEndDate'),
+                'userStatus' => request('campaignStatus')
+            ]]
+        ]);
     }
 
     public function deleteCampaign($advertiser_id, $campaign_id)
@@ -295,9 +312,24 @@ class YahooJPAPI
         ]);
     }
 
-    public function updateAdGroup($campaign_data)
+    public function updateAdGroup($campaign_id)
     {
+        $data = [
+            'accountId' => request('selectedAdvertiser'),
+            'operand' => [[
+                'accountId' => request('selectedAdvertiser'),
+                'campaignId' => $campaign_id,
+                'adGroupId' => request('adGroupID'),
+                'adGroupName' => request('adGroupName'),
+                'adGroupBiddingStrategy' => $this->getCampaignBiddingStrategy(),
+                'device' => count(request('campaignDevices')) ? request('campaignDevices') : ['NONE'],
+                'deviceApp' => count(request('campaignDeviceApps')) ? request('campaignDeviceApps') : ['NONE'],
+                'deviceOs' => count(request('campaignDeviceOs')) ? request('campaignDeviceOs') : ['NONE'],
+                'userStatus' => request('campaignStatus')
+            ]]
+        ];
 
+        return $this->client->call('POST', 'AdGroupService/set', $data);
     }
 
     public function updateAdGroups($body)
@@ -322,9 +354,9 @@ class YahooJPAPI
         ]);
     }
 
-    public function updateAd($ads)
+    public function updateAd($data)
     {
-
+        return $this->client->call('POST', 'AdGroupAdService/set', $data);
     }
 
     public function deleteAttributes()

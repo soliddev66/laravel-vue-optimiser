@@ -376,7 +376,117 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function update(Campaign $campaign)
     {
-        //
+        $api = $this->api();
+
+        try {
+            $campaign_data = $api->updateCampaign($campaign->campaign_id);
+            $ad_group_data = $api->updateAdGroup($campaign->campaign_id);
+
+            $ad_group_id = $ad_group_data['rval']['values'][0]['adGroup']['adGroupId'];
+
+            $ads = [];
+
+            $update_ads = [];
+
+            foreach (request('contents') as $content) {
+                foreach ($content['images'] as $image) {
+                    if ($image['existing']) {
+                        $media_id = $image['mediaId'];
+                    } else {
+                        $file = storage_path('app/public/images/') . $image['image'];
+                        $data = file_get_contents($file);
+                        $ext = explode('.', $image['image']);
+                        $media = $api->createMedia([
+                            'accountId' => request('selectedAdvertiser'),
+                            'operand' => [[
+                                'accountId' => request('selectedAdvertiser'),
+                                'imageMedia' => [
+                                    'data' => base64_encode($data)
+                                ],
+                                'mediaName' => md5($image['image'] . time()) . '.' . end($ext),
+                                'mediaTitle' => md5($image['image'] . time()),
+                                'userStatus' => 'ACTIVE'
+                            ]]
+                        ]);
+
+                        $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
+
+                        if ($media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
+                            $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
+                        }
+
+                        if (!$media_id) {
+                            throw new Exception(json_encode($media));
+                        }
+                    }
+
+                    foreach ($content['headlines'] as $headlines) {
+                        if ($headlines['existing']) {
+                            $update_ads[] = [
+                                'accountId' => request('selectedAdvertiser'),
+                                'ad' => [
+                                    'adType' => 'RESPONSIVE_IMAGE_AD',
+                                    'responsiveImageAd' => [
+                                        'buttonText' => 'FOR_MORE_INFO',
+                                        'description' => $content['description'],
+                                        'displayUrl' => $content['displayUrl'],
+                                        'headline' => $headlines['headline'],
+                                        'principal' => $content['principal'],
+                                        'url' => $content['targetUrl'],
+                                    ]
+                                ],
+                                'adGroupId' => $ad_group_id,
+                                'campaignId' => $campaign->campaign_id,
+                                'adId' => $content['id'],
+                                'adName' => $headlines['headline'],
+                                'mediaId' => $media_id,
+                                'userStatus' => request('campaignStatus')
+                            ];
+                        } else {
+                            $ads[] = [
+                                'accountId' => request('selectedAdvertiser'),
+                                'ad' => [
+                                    'adType' => 'RESPONSIVE_IMAGE_AD',
+                                    'responsiveImageAd' => [
+                                        'buttonText' => 'FOR_MORE_INFO',
+                                        'description' => $content['description'],
+                                        'displayUrl' => $content['displayUrl'],
+                                        'headline' => $headlines['headline'],
+                                        'principal' => $content['principal'],
+                                        'url' => $content['targetUrl'],
+                                    ]
+                                ],
+                                'adGroupId' => $ad_group_id,
+                                'campaignId' => $campaign->campaign_id,
+                                'adName' => $headlines['headline'],
+                                'mediaId' => $media_id,
+                                'userStatus' => request('campaignStatus')
+                            ];
+                        }
+                    }
+                }
+            }
+
+            if (count($ads)) {
+                $ad_data = $api->createAd([
+                    'accountId' => request('selectedAdvertiser'),
+                    'operand' => $ads
+                ]);
+            }
+
+            if (count($update_ads)) {
+                $update_ad_data = $api->updateAd([
+                    'accountId' => request('selectedAdvertiser'),
+                    'operand' => $update_ads
+                ]);
+            }
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function delete(Campaign $campaign)

@@ -323,6 +323,9 @@ export default {
         }
 
         for (let j = 0; j < this.contents[i].images.length; j++) {
+          if (this.contents[i].images[j].mediaId) {
+            continue
+          }
           if (!this.contents[i].images[j].image || !this.contents[i].images[j].state) {
             return false
           }
@@ -337,7 +340,6 @@ export default {
     let vm = this
     this.$root.$on('fm-selected-items', (values) => {
       if (this.openingFileSelector === 'imageModal') {
-        this.contents[this.fileSelectorIndex].images = [];
         let paths = []
         for (let i = 0; i < values.length; i++) {
           this.contents[this.fileSelectorIndex].images.push({
@@ -405,7 +407,32 @@ export default {
         }
       }
 
-      contents = [];
+      campaignDeviceApps = this.instance.adGroups[0]['adGroup'].deviceApp
+      campaignDeviceOs = this.instance.adGroups[0]['adGroup'].deviceOs
+
+      contents = []
+
+      console.log(this.instance.ads)
+
+      for (let i = 0; i < this.instance.ads.length; i++) {
+        contents.push({
+          id: this.instance.ads[i]['adGroupAd']['adId'],
+          headlines: [{
+            headline: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['headline'],
+            existing: true
+          }],
+          displayUrl: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['displayUrl'],
+          targetUrl: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['url'],
+          description: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['description'],
+          principal: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['principal'],
+          images: [{
+            mediaId: this.instance.ads[i]['adGroupAd']['mediaId'],
+            existing: true
+          }],
+          imagePath: this.instance.ads[i]['adGroupAd']['mediaId'],
+          adPreviews: [],
+        });
+      }
     }
 
     return {
@@ -524,7 +551,6 @@ export default {
       campaignDeviceOs: campaignDeviceOs,
       adGroupID: this.instance && this.instance.adGroups.length ? this.instance.adGroups[0]['adGroup']['adGroupId'] : '',
       adGroupName: this.instance && this.instance.adGroups.length ? this.instance.adGroups[0]['adGroup']['adGroupName'] : '',
-      adGroupBidAmount: adGroupBidAmount,
       contents: contents,
       openingFileSelector: '',
       fileSelectorIndex: 0,
