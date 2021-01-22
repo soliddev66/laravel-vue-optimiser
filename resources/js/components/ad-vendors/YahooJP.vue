@@ -416,15 +416,15 @@ export default {
     if (this.instance) {
       for (let i = 0; i < this.instance.attributes.length; i++) {
         if (this.instance.attributes[i]['adGroupTargetList']['target'].targetType == 'AGE_TARGET') {
-          console.log(this.instance.attributes[i]['adGroupTargetList']['target']['ageTarget'])
+          campaignAges.push(this.instance.attributes[i]['adGroupTargetList']['target']['ageTarget']['age'])
         }
 
         if (this.instance.attributes[i]['adGroupTargetList']['target'].targetType == 'GENDER_TARGET') {
-          console.log(this.instance.attributes[i]['adGroupTargetList']['target']['genderTarget'])
+          campaignGenders.push(this.instance.attributes[i]['adGroupTargetList']['target']['genderTarget']['gender'])
         }
 
         if (this.instance.attributes[i]['adGroupTargetList']['target'].targetType == 'DEVICE_TARGET') {
-          console.log(this.instance.attributes[i]['adGroupTargetList']['target']['deviceTarget'])
+          campaignDevices.push(this.instance.attributes[i]['adGroupTargetList']['target']['deviceTarget']['deviceType'])
         }
       }
 

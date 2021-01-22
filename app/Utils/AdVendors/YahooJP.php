@@ -98,7 +98,7 @@ class YahooJP extends Root implements AdVendorInterface
 
             if (count($instance['adGroups']) > 0) {
                 $instance['ads'] = $api->getAds([$instance['adGroups'][0]['adGroup']['adGroupId']], $campaign->advertiser_id)['rval']['values'];
-                $instance['attributes'] = $api->getTargets($campaign->advertiser_id, [$instance['adGroups'][0]['adGroup']['adGroupId']])['rval']['values'];
+                $instance['attributes'] = $api->getTargets($campaign->advertiser_id, [$instance['adGroups'][0]['adGroup']['adGroupId']], $campaign->campaign_id)['rval']['values'];
             }
 
             return $instance;
