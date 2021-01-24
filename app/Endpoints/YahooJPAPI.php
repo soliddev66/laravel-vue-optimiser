@@ -335,11 +335,6 @@ class YahooJPAPI
         return $this->client->call('POST', 'AdGroupService/set', $body);
     }
 
-    public function updateAdGroupStatus($ad_group_id, $status)
-    {
-
-    }
-
     public function deleteAdGroup($campaign_id, $ad_group_id)
     {
         $this->client->call('POST', 'AdGroupTargetService/add', [

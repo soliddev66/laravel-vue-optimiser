@@ -573,12 +573,82 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function adStatus(Campaign $campaign, $ad_group_id, $ad_id)
     {
-        //
+        try {
+            $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+            $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+
+            $data_ads = $api->updateAdStatus([
+                'accountId' => $campaign->advertiser_id,
+                'operand' => [[
+                    'accountId' => $campaign->advertiser_id,
+                    'campaignId' => $campaign->campaign_id,
+                    'adGroupId' => $ad_group_id,
+                    'adId' => $ad_id,
+                    'userStatus' => $status
+                ]]
+            ]);
+
+            $ad = Ad::where('ad_id', $ad_id)->first();
+            $ad->status = $status;
+            $ad->save();
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function adGroupStatus(Campaign $campaign, $ad_group_id)
     {
-        //
+        try {
+            $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+            $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+
+            $ad_group = $api->updateAdGroups([
+                'accountId' => $campaign->advertiser_id,
+                'operand' => [[
+                    'accountId' => $campaign->advertiser_id,
+                    'campaignId' => $campaign->campaign_id,
+                    'adGroupId' => $ad_group_id,
+                    'userStatus' => $status
+                ]]
+            ]);
+
+            $ad_body = [
+                'accountId' => $campaign->advertiser_id,
+                'operand' => []
+            ];
+
+            $ads = $api->getAds([$ad_group_id], $campaign->advertiser_id)['rval']['values'];
+
+            foreach ($ads as $ad) {
+                $ad_body['operand'][] = [
+                    'accountId' => $campaign->advertiser_id,
+                    'campaignId' => $campaign->campaign_id,
+                    'adGroupId' => $ad_group_id,
+                    'adId' => $ad['adGroupAd']['adId'],
+                    'userStatus' => $campaign->status
+                ];
+
+                $ad = Ad::where('ad_id', $ad['adGroupAd']['adId'])->first();
+                $ad->status = $status;
+                $ad->save();
+            }
+
+            $data_ads = $api->updateAdStatus($ad_body);
+
+            $ad_group = AdGroup::where('ad_group_id', $ad_group_id)->first();
+            $ad_group->status = $status;
+            $ad_group->save();
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function pullCampaign($user_provider)
