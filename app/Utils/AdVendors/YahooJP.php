@@ -109,7 +109,7 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function cloneCampaignName(&$instance)
     {
-        //
+        $instance['campaignName'] = $instance['campaignName'] . ' - Copy';
     }
 
     public function store()
@@ -147,30 +147,34 @@ class YahooJP extends Root implements AdVendorInterface
             try {
                 foreach (request('contents') as $content) {
                     foreach ($content['images'] as $image) {
-                        $file = storage_path('app/public/images/') . $image['image'];
-                        $data = file_get_contents($file);
-                        $ext = explode('.', $image['image']);
-                        $media = $api->createMedia([
-                            'accountId' => request('selectedAdvertiser'),
-                            'operand' => [[
+                        if ($image['existing']) {
+                            $media_id = $image['mediaId'];
+                        } else {
+                            $file = storage_path('app/public/images/') . $image['image'];
+                            $data = file_get_contents($file);
+                            $ext = explode('.', $image['image']);
+                            $media = $api->createMedia([
                                 'accountId' => request('selectedAdvertiser'),
-                                'imageMedia' => [
-                                    'data' => base64_encode($data)
-                                ],
-                                'mediaName' => md5($image['image'] . time()) . '.' . end($ext),
-                                'mediaTitle' => md5($image['image'] . time()),
-                                'userStatus' => 'ACTIVE'
-                            ]]
-                        ]);
+                                'operand' => [[
+                                    'accountId' => request('selectedAdvertiser'),
+                                    'imageMedia' => [
+                                        'data' => base64_encode($data)
+                                    ],
+                                    'mediaName' => md5($image['image'] . time()) . '.' . end($ext),
+                                    'mediaTitle' => md5($image['image'] . time()),
+                                    'userStatus' => 'ACTIVE'
+                                ]]
+                            ]);
 
-                        $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
+                            $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
 
-                        if ($media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
-                            $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
-                        }
+                            if ($media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
+                                $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
+                            }
 
-                        if (!$media_id) {
-                            throw new Exception(json_encode($media));
+                            if (!$media_id) {
+                                throw new Exception(json_encode($media));
+                            }
                         }
 
                         foreach ($content['headlines'] as $headlines) {

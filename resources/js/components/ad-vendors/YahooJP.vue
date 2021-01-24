@@ -412,8 +412,6 @@ export default {
 
       contents = []
 
-      console.log(this.instance.ads)
-
       for (let i = 0; i < this.instance.ads.length; i++) {
         contents.push({
           id: this.instance.ads[i]['adGroupAd']['adId'],
