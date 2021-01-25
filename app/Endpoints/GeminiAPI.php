@@ -316,4 +316,9 @@ class GeminiAPI
 
         return $this->client->call('POST', 'targetingattribute', $request_body);
     }
+
+    public function addAttributes($body)
+    {
+        return $this->client->call('POST', 'targetingattribute', $body);
+    }
 }

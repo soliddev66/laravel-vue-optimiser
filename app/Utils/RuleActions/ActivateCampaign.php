@@ -10,10 +10,11 @@ class ActivateCampaign extends Root
 {
     public function process($campaign)
     {
+        return;
         try {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
             (new $adVendorClass)->status($campaign);
-            echo 'Campaign hasn''t been activated', "\n";
+            echo 'Campaign hasn\'t been activated', "\n";
         } catch (Exception $e) {
             echo "Error happened. Campaign wasn't being activated\n";
         }

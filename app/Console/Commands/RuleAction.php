@@ -51,18 +51,41 @@ class RuleAction extends Command
         $campaigns = Campaign::find(json_decode($rule->action_data)->ruleCampaigns);
 
         foreach ($campaigns as $campaign) {
-            $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
-            $performance_data = $campaign->performanceStats()->whereBetween('day', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+            switch ($rule->ruleAction->calculation_type) {
+                case 1:
+                    $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+                    $performance_data = $campaign->performanceStats()->whereBetween('day', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
 
-            if ($this->checkConditions($rule, $campaign, $redtrack_data, $performance_data)) {
-                echo 'PASSED', "\n";
-                $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
+                    if ($this->checkConditions($rule, $campaign, $redtrack_data, $performance_data)) {
+                        echo 'PASSED', "\n";
+                        $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
 
-                if (class_exists($rule_action_class)) {
-                    (new $rule_action_class)->process($campaign);
-                }
-            } else {
-                echo 'NOPASSED', "\n";
+                        if (class_exists($rule_action_class)) {
+                            (new $rule_action_class)->process($campaign);
+                        }
+                    } else {
+                        echo 'NOPASSED', "\n";
+                    }
+
+                    break;
+
+                case 2:
+                    $redtrack_domain_data = $campaign->redtrackDomainStats()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+
+                    foreach ($redtrack_domain_data as $data) {
+                        if ($this->checkConditions($rule, $campaign, [$data], [$data])) {
+                            echo 'PASSED', "\n";
+
+                            $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
+
+                            if (class_exists($rule_action_class)) {
+                                (new $rule_action_class)->process($campaign, $data);
+                            }
+                        } else {
+                            echo 'NOPASSED', "\n";
+                        }
+                    }
+
             }
 
             echo "\n";
@@ -71,7 +94,7 @@ class RuleAction extends Command
         return 0;
     }
 
-    private function checkConditions($rule, $campaign, $redtrack_data, $performance_data)
+    private function checkConditions($rule, $campaign, $redtrack_data, $performance_data = null)
     {
         foreach ($rule->ruleConditionGroups as $rule_condition_group) {
             $is_adapt = true;
@@ -93,7 +116,7 @@ class RuleAction extends Command
                         ||
                         (
                             $rule_condition->ruleConditionType->report_source == 2
-                            && count($performance_data)
+                            && $performance_data && count($performance_data)
                             && (new $rule_condition_type_class)->check($performance_data, $rule_condition)
                         )
                     )

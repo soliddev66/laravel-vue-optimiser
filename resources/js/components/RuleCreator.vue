@@ -196,6 +196,7 @@ import {
   ChangeCampaignBudget,
   ActivateCampaign,
   PauseCampaign,
+  BlockSite,
 } from './rule-actions'
 
 export default {
@@ -234,7 +235,8 @@ export default {
     Select2,
     ChangeCampaignBudget,
     ActivateCampaign,
-    PauseCampaign
+    PauseCampaign,
+    BlockSite
   },
   computed: {
     ruleNameState() {
