@@ -98,7 +98,7 @@ class YahooJP extends Root implements AdVendorInterface
 
             if (count($instance['adGroups']) > 0) {
                 $instance['ads'] = $api->getAds([$instance['adGroups'][0]['adGroup']['adGroupId']], $campaign->advertiser_id)['rval']['values'];
-                $instance['attributes'] = $api->getTargets($campaign->advertiser_id, [$instance['adGroups'][0]['adGroup']['adGroupId']])['rval']['values'];
+                $instance['attributes'] = $api->getTargets($campaign->advertiser_id, [$instance['adGroups'][0]['adGroup']['adGroupId']], $campaign->campaign_id)['rval']['values'];
             }
 
             return $instance;
@@ -109,7 +109,7 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function cloneCampaignName(&$instance)
     {
-        //
+        $instance['campaignName'] = $instance['campaignName'] . ' - Copy';
     }
 
     public function store()
@@ -147,30 +147,34 @@ class YahooJP extends Root implements AdVendorInterface
             try {
                 foreach (request('contents') as $content) {
                     foreach ($content['images'] as $image) {
-                        $file = storage_path('app/public/images/') . $image['image'];
-                        $data = file_get_contents($file);
-                        $ext = explode('.', $image['image']);
-                        $media = $api->createMedia([
-                            'accountId' => request('selectedAdvertiser'),
-                            'operand' => [[
+                        if ($image['existing']) {
+                            $media_id = $image['mediaId'];
+                        } else {
+                            $file = storage_path('app/public/images/') . $image['image'];
+                            $data = file_get_contents($file);
+                            $ext = explode('.', $image['image']);
+                            $media = $api->createMedia([
                                 'accountId' => request('selectedAdvertiser'),
-                                'imageMedia' => [
-                                    'data' => base64_encode($data)
-                                ],
-                                'mediaName' => md5($image['image'] . time()) . '.' . end($ext),
-                                'mediaTitle' => md5($image['image'] . time()),
-                                'userStatus' => 'ACTIVE'
-                            ]]
-                        ]);
+                                'operand' => [[
+                                    'accountId' => request('selectedAdvertiser'),
+                                    'imageMedia' => [
+                                        'data' => base64_encode($data)
+                                    ],
+                                    'mediaName' => md5($image['image'] . time()) . '.' . end($ext),
+                                    'mediaTitle' => md5($image['image'] . time()),
+                                    'userStatus' => 'ACTIVE'
+                                ]]
+                            ]);
 
-                        $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
+                            $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
 
-                        if ($media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
-                            $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
-                        }
+                            if ($media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
+                                $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
+                            }
 
-                        if (!$media_id) {
-                            throw new Exception(json_encode($media));
+                            if (!$media_id) {
+                                throw new Exception(json_encode($media));
+                            }
                         }
 
                         foreach ($content['headlines'] as $headlines) {
@@ -201,13 +205,25 @@ class YahooJP extends Root implements AdVendorInterface
                     'accountId' => request('selectedAdvertiser'),
                     'operand' => $ads
                 ]);
+
+                $errors = $this->getErrors($ad_data);
+
+                if (count($errors)) {
+                    throw new Exception(json_encode($errors));
+                }
+
+                $target_data = $api->createTargets($campaign_id, $ad_group_id);
+
+                $errors = $this->getErrors($target_data);
+
+                if (count($errors)) {
+                    throw new Exception(json_encode($errors));
+                }
             } catch (Exception $e) {
                 $api->deleteCampaign(request('selectedAdvertiser'), $campaign_id);
                 $api->deleteAdGroup($campaign_id, $ad_group_id);
                 throw $e;
             }
-
-            $api->createTargets($campaign_id, $ad_group_id);
 
             Helper::pullCampaign();
 
@@ -364,7 +380,119 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function update(Campaign $campaign)
     {
-        //
+        $api = $this->api();
+
+        try {
+            $campaign_data = $api->updateCampaign($campaign->campaign_id);
+            $ad_group_data = $api->updateAdGroup($campaign->campaign_id);
+
+            $ad_group_id = $ad_group_data['rval']['values'][0]['adGroup']['adGroupId'];
+
+            $ads = [];
+
+            $update_ads = [];
+
+            foreach (request('contents') as $content) {
+                foreach ($content['images'] as $image) {
+                    if ($image['existing']) {
+                        $media_id = $image['mediaId'];
+                    } else {
+                        $file = storage_path('app/public/images/') . $image['image'];
+                        $data = file_get_contents($file);
+                        $ext = explode('.', $image['image']);
+                        $media = $api->createMedia([
+                            'accountId' => request('selectedAdvertiser'),
+                            'operand' => [[
+                                'accountId' => request('selectedAdvertiser'),
+                                'imageMedia' => [
+                                    'data' => base64_encode($data)
+                                ],
+                                'mediaName' => md5($image['image'] . time()) . '.' . end($ext),
+                                'mediaTitle' => md5($image['image'] . time()),
+                                'userStatus' => 'ACTIVE'
+                            ]]
+                        ]);
+
+                        $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
+
+                        if ($media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
+                            $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
+                        }
+
+                        if (!$media_id) {
+                            throw new Exception(json_encode($media));
+                        }
+                    }
+
+                    foreach ($content['headlines'] as $headlines) {
+                        if ($headlines['existing']) {
+                            $update_ads[] = [
+                                'accountId' => request('selectedAdvertiser'),
+                                'ad' => [
+                                    'adType' => 'RESPONSIVE_IMAGE_AD',
+                                    'responsiveImageAd' => [
+                                        'buttonText' => 'FOR_MORE_INFO',
+                                        'description' => $content['description'],
+                                        'displayUrl' => $content['displayUrl'],
+                                        'headline' => $headlines['headline'],
+                                        'principal' => $content['principal'],
+                                        'url' => $content['targetUrl'],
+                                    ]
+                                ],
+                                'adGroupId' => $ad_group_id,
+                                'campaignId' => $campaign->campaign_id,
+                                'adId' => $content['id'],
+                                'adName' => $headlines['headline'],
+                                'mediaId' => $media_id,
+                                'userStatus' => request('campaignStatus')
+                            ];
+                        } else {
+                            $ads[] = [
+                                'accountId' => request('selectedAdvertiser'),
+                                'ad' => [
+                                    'adType' => 'RESPONSIVE_IMAGE_AD',
+                                    'responsiveImageAd' => [
+                                        'buttonText' => 'FOR_MORE_INFO',
+                                        'description' => $content['description'],
+                                        'displayUrl' => $content['displayUrl'],
+                                        'headline' => $headlines['headline'],
+                                        'principal' => $content['principal'],
+                                        'url' => $content['targetUrl'],
+                                    ]
+                                ],
+                                'adGroupId' => $ad_group_id,
+                                'campaignId' => $campaign->campaign_id,
+                                'adName' => $headlines['headline'],
+                                'mediaId' => $media_id,
+                                'userStatus' => request('campaignStatus')
+                            ];
+                        }
+                    }
+                }
+            }
+
+            if (count($ads)) {
+                $ad_data = $api->createAd([
+                    'accountId' => request('selectedAdvertiser'),
+                    'operand' => $ads
+                ]);
+            }
+
+            if (count($update_ads)) {
+                $update_ad_data = $api->updateAd([
+                    'accountId' => request('selectedAdvertiser'),
+                    'operand' => $update_ads
+                ]);
+            }
+
+            $target_data = $api->createTargets($campaign->campaign_id, $ad_group_id, true);
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function delete(Campaign $campaign)
@@ -372,7 +500,6 @@ class YahooJP extends Root implements AdVendorInterface
         try {
             $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
             $data = $api->deleteCampaign($campaign->advertiser_id, $campaign->campaign_id);
-            var_dump($data);
             $campaign->delete();
 
             return [];
@@ -385,7 +512,58 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function status(Campaign $campaign)
     {
-        //
+        try {
+            $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+            $campaign->status = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+
+            $data_campaigns = $api->updateCampaignStatus($campaign);
+
+            $ad_groups = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id)['rval']['values'];
+
+            $ad_group_body = [
+                'accountId' => $campaign->advertiser_id,
+                'operand' => []
+            ];
+
+            $ad_group_ids = [];
+
+            foreach ($ad_groups as $ad_group) {
+                $ad_group_body['operand'][] = [
+                    'accountId' => $campaign->advertiser_id,
+                    'campaignId' => $campaign->campaign_id,
+                    'adGroupId' => $ad_group['adGroup']['adGroupId'],
+                    'userStatus' => $campaign->status
+                ];
+
+                $ad_body = [
+                    'accountId' => $campaign->advertiser_id,
+                    'operand' => []
+                ];
+
+                $ads = $api->getAds([$ad_group['adGroup']['adGroupId']], $campaign->advertiser_id)['rval']['values'];
+
+                foreach ($ads as $ad) {
+                    $ad_body['operand'][] = [
+                        'accountId' => $campaign->advertiser_id,
+                        'campaignId' => $campaign->campaign_id,
+                        'adGroupId' => $ad_group['adGroup']['adGroupId'],
+                        'adId' => $ad['adGroupAd']['adId'],
+                        'userStatus' => $campaign->status
+                    ];
+                }
+
+                $data_ads = $api->updateAdStatus($ad_body);
+            }
+
+            $data_ad_groups = $api->updateAdGroups($ad_group_body);
+            $campaign->save();
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function adGroupData(Campaign $campaign)
@@ -395,12 +573,82 @@ class YahooJP extends Root implements AdVendorInterface
 
     public function adStatus(Campaign $campaign, $ad_group_id, $ad_id)
     {
-        //
+        try {
+            $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+            $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+
+            $data_ads = $api->updateAdStatus([
+                'accountId' => $campaign->advertiser_id,
+                'operand' => [[
+                    'accountId' => $campaign->advertiser_id,
+                    'campaignId' => $campaign->campaign_id,
+                    'adGroupId' => $ad_group_id,
+                    'adId' => $ad_id,
+                    'userStatus' => $status
+                ]]
+            ]);
+
+            $ad = Ad::where('ad_id', $ad_id)->first();
+            $ad->status = $status;
+            $ad->save();
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function adGroupStatus(Campaign $campaign, $ad_group_id)
     {
-        //
+        try {
+            $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+            $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+
+            $ad_group = $api->updateAdGroups([
+                'accountId' => $campaign->advertiser_id,
+                'operand' => [[
+                    'accountId' => $campaign->advertiser_id,
+                    'campaignId' => $campaign->campaign_id,
+                    'adGroupId' => $ad_group_id,
+                    'userStatus' => $status
+                ]]
+            ]);
+
+            $ad_body = [
+                'accountId' => $campaign->advertiser_id,
+                'operand' => []
+            ];
+
+            $ads = $api->getAds([$ad_group_id], $campaign->advertiser_id)['rval']['values'];
+
+            foreach ($ads as $ad) {
+                $ad_body['operand'][] = [
+                    'accountId' => $campaign->advertiser_id,
+                    'campaignId' => $campaign->campaign_id,
+                    'adGroupId' => $ad_group_id,
+                    'adId' => $ad['adGroupAd']['adId'],
+                    'userStatus' => $campaign->status
+                ];
+
+                $ad = Ad::where('ad_id', $ad['adGroupAd']['adId'])->first();
+                $ad->status = $status;
+                $ad->save();
+            }
+
+            $data_ads = $api->updateAdStatus($ad_body);
+
+            $ad_group = AdGroup::where('ad_group_id', $ad_group_id)->first();
+            $ad_group->status = $status;
+            $ad_group->save();
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function pullCampaign($user_provider)

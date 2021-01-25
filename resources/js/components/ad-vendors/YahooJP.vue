@@ -323,6 +323,9 @@ export default {
         }
 
         for (let j = 0; j < this.contents[i].images.length; j++) {
+          if (this.contents[i].images[j].mediaId) {
+            continue
+          }
           if (!this.contents[i].images[j].image || !this.contents[i].images[j].state) {
             return false
           }
@@ -337,7 +340,6 @@ export default {
     let vm = this
     this.$root.$on('fm-selected-items', (values) => {
       if (this.openingFileSelector === 'imageModal') {
-        this.contents[this.fileSelectorIndex].images = [];
         let paths = []
         for (let i = 0; i < values.length; i++) {
           this.contents[this.fileSelectorIndex].images.push({
@@ -372,7 +374,6 @@ export default {
       campaignDeviceOs = [],
       adGroupName = '',
       adGroupID = '',
-      adGroupBidStrategy = '',
 
       contents = [{
         id: '',
@@ -392,7 +393,44 @@ export default {
         adPreviews: []
       }];
     if (this.instance) {
-      contents = [];
+      for (let i = 0; i < this.instance.attributes.length; i++) {
+        if (this.instance.attributes[i]['adGroupTargetList']['target'].targetType == 'AGE_TARGET') {
+          campaignAges.push(this.instance.attributes[i]['adGroupTargetList']['target']['ageTarget']['age'])
+        }
+
+        if (this.instance.attributes[i]['adGroupTargetList']['target'].targetType == 'GENDER_TARGET') {
+          campaignGenders.push(this.instance.attributes[i]['adGroupTargetList']['target']['genderTarget']['gender'])
+        }
+
+        if (this.instance.attributes[i]['adGroupTargetList']['target'].targetType == 'DEVICE_TARGET') {
+          campaignDevices.push(this.instance.attributes[i]['adGroupTargetList']['target']['deviceTarget']['deviceType'])
+        }
+      }
+
+      campaignDeviceApps = this.instance.adGroups[0]['adGroup'].deviceApp
+      campaignDeviceOs = this.instance.adGroups[0]['adGroup'].deviceOs
+
+      contents = []
+
+      for (let i = 0; i < this.instance.ads.length; i++) {
+        contents.push({
+          id: this.instance.ads[i]['adGroupAd']['adId'],
+          headlines: [{
+            headline: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['headline'],
+            existing: true
+          }],
+          displayUrl: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['displayUrl'],
+          targetUrl: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['url'],
+          description: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['description'],
+          principal: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['principal'],
+          images: [{
+            mediaId: this.instance.ads[i]['adGroupAd']['mediaId'],
+            existing: true
+          }],
+          imagePath: this.instance.ads[i]['adGroupAd']['mediaId'],
+          adPreviews: [],
+        });
+      }
     }
 
     return {
@@ -494,23 +532,23 @@ export default {
       selectedAdvertiser: this.instance ? this.instance.accountId : '',
       campaignName: this.instance ? this.instance.campaignName : '',
       campaignBudget: this.instance ? this.instance.budget.amount : '',
-      campaignStartDate: this.instance ? this.instance.start_date : this.$moment().add(1, 'days').format('YYYY-MM-DD'),
+      campaignStartDate: this.instance ? this.instance.startDate : this.$moment().add(1, 'days').format('YYYY-MM-DD'),
       campaignEndDate: this.instance ? this.instance.end_date : '',
+      campaignBudgetDeliveryMethod: this.instance ? this.instance.budget.budgetDeliveryMethod : '',
+      campaignBidStrategy: this.instance && this.instance.biddingStrategy ? this.instance.biddingStrategy.biddingStrategyType : '',
       campaignCampaignBidStrategy: this.instance ? this.instance.campaignBiddingStrategy.campaignBiddingStrategyType : 'AUTO',
-      campaignBudgetDeliveryMethod: this.instance ? this.instance.budgetDeliveryMethod : '',
-      campaignMaxCpcBidValue: '',
-      campaignMaxCpvBidValue: '',
-      campaignMaxVcpmBidValue: '',
-      campaignTargetCpaBidValue: '',
+      campaignMaxCpcBidValue: this.instance ? this.instance.campaignBiddingStrategy.maxCpcBidValue : '',
+      campaignMaxCpvBidValue: this.instance ? this.instance.campaignBiddingStrategy.maxCpvBidValue : '',
+      campaignMaxVcpmBidValue: this.instance ? this.instance.campaignBiddingStrategy.maxVcpmBidValue : '',
+      campaignTargetCpaBidValue: this.instance ? this.instance.campaignBiddingStrategy.targetCpaBidValue : '',
       campaignStatus: this.instance ? this.instance.userStatus : 'ACTIVE',
       campaignGenders: campaignGenders,
       campaignAges: campaignAges,
       campaignDevices: campaignDevices,
       campaignDeviceApps: campaignDeviceApps,
       campaignDeviceOs: campaignDeviceOs,
-      adGroupID: adGroupID,
-      adGroupName: adGroupName,
-      adGroupBidStrategy: adGroupBidStrategy,
+      adGroupID: this.instance && this.instance.adGroups.length ? this.instance.adGroups[0]['adGroup']['adGroupId'] : '',
+      adGroupName: this.instance && this.instance.adGroups.length ? this.instance.adGroups[0]['adGroup']['adGroupName'] : '',
       contents: contents,
       openingFileSelector: '',
       fileSelectorIndex: 0,
