@@ -13,6 +13,7 @@ use App\Vngodev\Outbrain;
 use App\Vngodev\RedTrack;
 use App\Vngodev\Twitter;
 use App\Vngodev\Taboola;
+use App\Vngodev\YahooJapan;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -52,6 +53,9 @@ class Kernel extends ConsoleKernel
         })->hourly();
         $schedule->call(function () {
             Taboola::getReport();
+        })->hourly();
+        $schedule->call(function () {
+            YahooJapan::getReport();
         })->hourly();
         $schedule->call(function () {
             Taboola::syncAds();
