@@ -12,9 +12,9 @@ class ChangeCampaignBudget extends Root
     public function process($campaign)
     {
         try {
-            echo 'Campaign''s budget was being changed', "\n";
+            echo "Campaign's budget was being changed\n";
         } catch (Exception $e) {
-            echo "Error happened. Campaign''s budget wasn't being changed\n";
+            echo "Error happened. Campaign's budget wasn't being changed\n";
         }
     }
 }

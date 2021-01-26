@@ -240,150 +240,192 @@ class RulesTableSeeder extends Seeder
         DB::table('rule_actions')->insert([[
             'name' => 'Block Widgets / Pushlisher',
             'provider' => 'BlockWidgetsPushlisher',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Un-Block Widgets / Pushlisher',
             'provider' => 'UnBlockWidgetsPushlisher',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Block Apps',
             'provider' => 'BlockApps',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Un-Block Apps',
             'provider' => 'UnBlockApps',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Pause Campaign',
             'provider' => 'PauseCampaign',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Activate Campaign',
             'provider' => 'ActivateCampaign',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Pause Contents',
             'provider' => 'PauseContents',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Activate Contents',
             'provider' => 'ActivateContents',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change Campaign Bid',
             'provider' => 'ChangeCampaignBid',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change Campaign Bid (CAD Only)',
             'provider' => 'ChangeCampaignBidCADOnly',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change Campaign Budget',
             'provider' => 'ChangeCampaignBudget',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Pause Target',
             'provider' => 'PauseTarget',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Activate Target',
             'provider' => 'ActivateTarget',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Pause Site',
             'provider' => 'PauseSite',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Activate Site',
             'provider' => 'ActivateSite',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Pause Exchange',
             'provider' => 'PauseExchange',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Activate Exchange',
             'provider' => 'ActivateExchange',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Pause Sections',
             'provider' => 'PauseSections',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Activate Sections',
             'provider' => 'ActivateSections',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Pause AdGroup',
             'provider' => 'PauseAdGroup',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Activate AdGroup',
             'provider' => 'ActivateAdGroup',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Pause Domain',
             'provider' => 'PauseDomain',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Activate Domain',
             'provider' => 'ActivateDomain',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Pause Spot',
             'provider' => 'PauseSpot',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Activate Spot',
             'provider' => 'ActivateSpot',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change Target Bid',
             'provider' => 'ChangeTargetBid',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change Content Bid',
             'provider' => 'ChangeContentBid',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change Section Bid',
             'provider' => 'ChangeSectionBid',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change Widget Coefficient',
             'provider' => 'ChangeWidgetCoefficient',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change Site Bid',
             'provider' => 'ChangeSiteBid',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change Widget Bid',
             'provider' => 'ChangeWidgetBid',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change Widget Bid (CAD only)',
             'provider' => 'ChangeWidgetBidCADonly',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change Site Bid',
             'provider' => 'ChangeSiteBid',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change Exchange Bid',
             'provider' => 'ChangeExchangeBid',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change Site Bid Modifier',
             'provider' => 'ChangeSiteBidModifier',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change AdGroup Bid',
             'provider' => 'ChangeAdGroupBid',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Day Parting',
             'provider' => 'DayParting',
+            'calculation_type' => 1,
+            'created_at' => Carbon::now()
+        ], [
+            'name' => 'Block Site',
+            'provider' => 'BlockSite',
+            'calculation_type' => 1,
             'created_at' => Carbon::now()
         ]]);
     }

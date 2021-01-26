@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 
 use App\Models\Rule;
+use App\Models\RuleLog;
 use App\Models\Campaign;
 
 class RuleAction extends Command
@@ -22,6 +23,8 @@ class RuleAction extends Command
      * @var string
      */
     protected $description = 'Command description';
+
+    private $log;
 
     /**
      * Create a new command instance.
@@ -51,18 +54,68 @@ class RuleAction extends Command
         $campaigns = Campaign::find(json_decode($rule->action_data)->ruleCampaigns);
 
         foreach ($campaigns as $campaign) {
-            $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
-            $performance_data = $campaign->performanceStats()->whereBetween('day', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+            switch ($rule->ruleAction->calculation_type) {
+                case 1:
+                    $this->log = new RuleLog;
 
-            if ($this->checkConditions($rule, $campaign, $redtrack_data, $performance_data)) {
-                echo 'PASSED', "\n";
-                $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
+                    $this->log->rule_id = $rule_id;
 
-                if (class_exists($rule_action_class)) {
-                    (new $rule_action_class)->process($campaign);
-                }
-            } else {
-                echo 'NOPASSED', "\n";
+                    $this->log->start_date = $time_range[0]->format('Y-m-d');
+                    $this->log->end_date = $time_range[1]->format('Y-m-d');
+
+                    $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+                    $performance_data = $campaign->performanceStats()->whereBetween('day', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+
+                    if ($this->checkConditions($rule, $campaign, $redtrack_data, $performance_data)) {
+                        echo 'PASSED', "\n";
+                        $this->log->passed = true;
+                        $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
+
+                        if (class_exists($rule_action_class)) {
+                            (new $rule_action_class)->process($campaign);
+                        }
+                    } else {
+                        echo 'NOPASSED', "\n";
+                        $this->log->passed = false;
+                    }
+
+                    $this->log->data = json_encode($this->log->data);
+                    $this->log->save();
+
+                    break;
+
+                case 2:
+                    $redtrack_domain_data = $campaign->redtrackDomainStats()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+
+                    foreach ($redtrack_domain_data as $data) {
+                        $this->log = new RuleLog;
+
+                        $this->log->rule_id = $rule_id;
+
+                        $this->log->start_date = $time_range[0]->format('Y-m-d');
+                        $this->log->end_date = $time_range[1]->format('Y-m-d');
+
+                        if ($this->checkConditions($rule, $campaign, [$data], [$data])) {
+                            echo 'PASSED', "\n";
+                            $this->log->passed = true;
+
+                            $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
+
+                            if (class_exists($rule_action_class)) {
+                                (new $rule_action_class)->process($campaign, $data);
+                            }
+                        } else {
+                            echo 'NOPASSED', "\n";
+                            $this->log->passed = false;
+                        }
+
+
+                        $this->log->data = json_encode($this->log->data_text);
+                        $this->log->save();
+                    }
+
+                    break;
+
             }
 
             echo "\n";
@@ -73,45 +126,65 @@ class RuleAction extends Command
 
     private function checkConditions($rule, $campaign, $redtrack_data, $performance_data)
     {
+        $data = [];
+        $this->log->data_text = &$data;
+
         foreach ($rule->ruleConditionGroups as $rule_condition_group) {
             $is_adapt = true;
 
+            $data_items = [];
+
             echo 'GROUP ', $rule_condition_group->id, "\n";
+            $data_items['group'] = $rule_condition_group->id;
+            $data_items['items'] = [];
 
             foreach ($rule_condition_group->ruleConditions as $rule_condition) {
+                $data_item = [];
                 $rule_condition_type_class = 'App\\Utils\\RuleConditionTypes\\' . $rule_condition->ruleConditionType->provider;
 
                 echo $rule_condition_type_class;
+
+                $data_item['ruleConditionType'] = $rule_condition_type_class;
+
+                $rule_condition_type_instance = new $rule_condition_type_class;
+
+                $rule_condition_type_instance->data_log = &$data_item;
 
                 if (class_exists($rule_condition_type_class)
                     && (
                         (
                             $rule_condition->ruleConditionType->report_source == 1
                             && count($redtrack_data)
-                            && (new $rule_condition_type_class)->check($redtrack_data, $rule_condition)
+                            && $rule_condition_type_instance->check($redtrack_data, $rule_condition)
                         )
                         ||
                         (
                             $rule_condition->ruleConditionType->report_source == 2
                             && count($performance_data)
-                            && (new $rule_condition_type_class)->check($performance_data, $rule_condition)
+                            && $rule_condition_type_instance->check($performance_data, $rule_condition)
                         )
                     )
                 ) {
                     echo ' | OK', "\n";
+                    $data_item['passed'] = true;
                     continue;
                 }
 
                 $is_adapt = false;
                 echo ' | NO', "\n";
+                $data_item['passed'] = false;
                 break;
             }
 
+            $data_items['items'][] = $data_item;
+
             if ($is_adapt) {
+                $data[] = $data_items;
                 return true;
             }
         }
 
+        $data[] = $data_items;
         return false;
     }
 }

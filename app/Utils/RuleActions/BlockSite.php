@@ -7,17 +7,16 @@ use Exception;
 use App\Models\Campaign;
 use App\Endpoints\GeminiAPI;
 
-class PauseCampaign extends Root
+class BlockSite extends Root
 {
-    public function process($campaign)
+    public function process($campaign, $data)
     {
-        return;
         try {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            (new $adVendorClass)->status($campaign);
-            echo 'Campaign was being paused', "\n";
+            (new $adVendorClass)->addSiteBlock($campaign, $data);
+            echo "Campaign was being added site block\n";
         } catch (Exception $e) {
-            echo "Campaign wasn't being paused\n";
+            echo "Campaign wasn't being added site block\n";
         }
     }
 }
