@@ -361,4 +361,18 @@ class YahooJPAPI
     {
 
     }
+
+    public function getReport($advertiser_id, $campaign_ids, $start_date, $end_date)
+    {
+        return $this->client->call('POST', 'StatsService/get', [
+            'accountId' => $advertiser_id,
+            'campaignIds' => $campaign_ids,
+            'statsPeriod' => 'CUSTOM_DATE',
+            'periodCustomDate' => [
+                'statsStartDate' => $start_date,
+                'statsEndDate' => $end_date
+            ],
+            'type' => 'CAMPAIGN'
+        ]);
+    }
 }
