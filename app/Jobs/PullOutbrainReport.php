@@ -48,7 +48,7 @@ class PullOutbrainReport implements ShouldQueue
                 $report->data = json_encode($api->getPerformanceReport($campaign, $date));
 
                 $report->save();
-                sleep(10);
+                sleep(20);
             }
         });
     }

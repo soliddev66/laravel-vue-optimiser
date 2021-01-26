@@ -11,11 +11,12 @@ use App\Models\User;
 use App\Vngodev\Gemini;
 use App\Vngodev\Outbrain;
 use App\Vngodev\RedTrack;
-use App\Vngodev\Twitter;
 use App\Vngodev\Taboola;
+use App\Vngodev\Twitter;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\DB;
 
 class Kernel extends ConsoleKernel
 {
@@ -40,10 +41,10 @@ class Kernel extends ConsoleKernel
         // Report data
         $schedule->call(function () {
             Gemini::crawl();
-        })->daily();
+        })->hourly();
         $schedule->call(function () {
             Gemini::checkJobs();
-        })->hourly();
+        })->everyTenMinutes();
         $schedule->call(function () {
             Outbrain::getReport();
         })->hourly();
