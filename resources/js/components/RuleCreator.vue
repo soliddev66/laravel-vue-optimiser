@@ -308,7 +308,7 @@ export default {
       selectedWidgetIncluded: this.rule.is_widget_included ? this.rule.is_widget_included : 1,
       tempRuleCondition: tempRuleCondition,
       ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]],
-      ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : '',
+      ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : this.ruleActions[0].provider,
       ruleActionData: this.rule.rule_action_data ? JSON.parse(this.rule.rule_action_data) : {}
     }
   },

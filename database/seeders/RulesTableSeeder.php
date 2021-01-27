@@ -15,6 +15,7 @@ class RulesTableSeeder extends Seeder
      */
     public function run()
     {
+        DB::table('rule_condition_type_groups')->truncate();
         DB::table('rule_condition_type_groups')->insert([[
             'name' => 'Traffic Sources Fields',
             'created_at' => Carbon::now()
@@ -26,6 +27,7 @@ class RulesTableSeeder extends Seeder
             'created_at' => Carbon::now()
         ]]);
 
+        DB::table('rule_condition_types')->truncate();
         DB::table('rule_condition_types')->insert([[
             'name' => 'Impressions',
             'rule_condition_type_group_id' => 1,
@@ -190,6 +192,7 @@ class RulesTableSeeder extends Seeder
             'created_at' => Carbon::now()
         ]]);
 
+        DB::table('rule_data_from_options')->truncate();
         DB::table('rule_data_from_options')->insert([[
             'name' => 'Today',
             'excluded_day_type' => 1,
@@ -237,7 +240,13 @@ class RulesTableSeeder extends Seeder
             'created_at' => Carbon::now()
         ]]);
 
+        DB::table('rule_actions')->truncate();
         DB::table('rule_actions')->insert([[
+            'name' => 'Block Site',
+            'provider' => 'BlockSite',
+            'calculation_type' => 1,
+            'created_at' => Carbon::now()
+        ], [
             'name' => 'Block Widgets / Pushlisher',
             'provider' => 'BlockWidgetsPushlisher',
             'calculation_type' => 1,
@@ -420,11 +429,6 @@ class RulesTableSeeder extends Seeder
         ], [
             'name' => 'Day Parting',
             'provider' => 'DayParting',
-            'calculation_type' => 1,
-            'created_at' => Carbon::now()
-        ], [
-            'name' => 'Block Site / Publisher',
-            'provider' => 'BlockSite',
             'calculation_type' => 1,
             'created_at' => Carbon::now()
         ]]);
