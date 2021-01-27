@@ -11,7 +11,7 @@ try {
     window.$ = window.jQuery = require('jquery');
     window.moment = require('moment');
 
-    require('bootstrap');
+    // require('bootstrap');
 } catch (e) {}
 
 /**

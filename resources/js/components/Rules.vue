@@ -21,7 +21,7 @@
             </div>
           </div>
           <div class="btn-group" role="group">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".rule-template-modal"><i class="far fa-folder-open"></i> Create from template</button>
+            <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".rule-template-modal"><i class="far fa-folder-open"></i> Create from template</button> -->
           </div>
         </div>
       </div>
