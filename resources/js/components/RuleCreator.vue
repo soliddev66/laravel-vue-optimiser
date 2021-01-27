@@ -308,7 +308,7 @@ export default {
       selectedWidgetIncluded: this.rule.is_widget_included ? this.rule.is_widget_included : 1,
       tempRuleCondition: tempRuleCondition,
       ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]],
-      ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : '',
+      ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : this.ruleActions[0].provider,
       ruleActionData: this.rule.rule_action_data ? JSON.parse(this.rule.rule_action_data) : {}
     }
   },
@@ -376,6 +376,9 @@ export default {
     },
     selectedRuleActionChanged (e) {
       this.ruleActionProvider = e.target.options[e.target.selectedIndex].dataset.provider
+      if (typeof this.$options.components[this.ruleActionProvider] === 'undefined') {
+        alert('The rule action is under development.');
+      }
       this.ruleActionData = this.rule && this.rule.rule_action_id && this.rule.rule_action_data && this.rule.rule_action_id == this.selectedRuleAction ? JSON.parse(this.rule.rule_action_data) : {}
     },
     saveRule () {
