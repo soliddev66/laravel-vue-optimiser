@@ -423,7 +423,7 @@ class RulesTableSeeder extends Seeder
             'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
-            'name' => 'Block Site',
+            'name' => 'Block Site / Publisher',
             'provider' => 'BlockSite',
             'calculation_type' => 1,
             'created_at' => Carbon::now()

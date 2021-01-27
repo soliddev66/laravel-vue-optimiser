@@ -376,6 +376,9 @@ export default {
     },
     selectedRuleActionChanged (e) {
       this.ruleActionProvider = e.target.options[e.target.selectedIndex].dataset.provider
+      if (typeof this.$options.components[this.ruleActionProvider] === 'undefined') {
+        alert('The rule action is under development.');
+      }
       this.ruleActionData = this.rule && this.rule.rule_action_id && this.rule.rule_action_data && this.rule.rule_action_id == this.selectedRuleAction ? JSON.parse(this.rule.rule_action_data) : {}
     },
     saveRule () {
