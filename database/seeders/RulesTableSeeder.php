@@ -244,7 +244,7 @@ class RulesTableSeeder extends Seeder
         DB::table('rule_actions')->insert([[
             'name' => 'Block Site',
             'provider' => 'BlockSite',
-            'calculation_type' => 1,
+            'calculation_type' => 2,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Block Widgets / Pushlisher',
