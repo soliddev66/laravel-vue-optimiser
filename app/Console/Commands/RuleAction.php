@@ -54,7 +54,6 @@ class RuleAction extends Command
         $campaigns = Campaign::find(json_decode($rule->action_data)->ruleCampaigns);
 
         foreach ($campaigns as $campaign) {
-            var_dump($rule->ruleAction->calculation_type);
             switch ($rule->ruleAction->calculation_type) {
                 case 1:
                     $this->log = new RuleLog;
