@@ -22,7 +22,7 @@ class Gemini
 
     public static function crawl()
     {
-        $date = Carbon::now()->format('Y-m-d');
+        $date = Carbon::now()->subDay()->format('Y-m-d');
         Campaign::where('provider_id', 1)->whereNotIn('campaign_id', GeminiJob::where('status', '!=', 'completed')->groupBy('campaign_id')->pluck('campaign_id'))->chunk(10, function ($campaigns) use ($date) {
             foreach ($campaigns as $key => $campaign) {
                 $jobs = [];

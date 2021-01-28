@@ -35,7 +35,7 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th colspan="3">Actions</th>
+                  <th colspan="4">Actions</th>
                   <th>Name</th>
                   <th>Status</th>
                 </tr>
@@ -49,10 +49,13 @@
                     </a>
                   </td>
                   <td class="border-right-0 px-1">
-                    <a class="btn btn-sm btn-default border" :href="'/rules/edit/' + rule.id"><i class="fas fa-edit"></i></a>
+                    <a class="btn btn-sm btn-default border" :href="'/rules/edit/' + rule.id"><i class="fas fa-edit"></i> Edit</a>
+                  </td>
+                  <td class="border-right-0 px-1">
+                    <a class="btn btn-sm btn-default border" :href="`/rules/${rule.id}/logs`"><i class="fas fa-history"></i> Log</a>
                   </td>
                   <td class="px-1">
-                    <a class="btn btn-sm btn-default border" :href="'/rules/delete/' + rule.id" @click.prevent="deleteRule"><i class="fas fa-trash"></i></a>
+                    <a class="btn btn-sm btn-default border" :href="'/rules/delete/' + rule.id" @click.prevent="deleteRule"><i class="fas fa-trash"></i> Delete</a>
                   </td>
                   <td>{{ rule.name }}</td>
                   <td>
@@ -66,7 +69,6 @@
         </div>
       </div>
     </div>
-
     <div class="modal fade rule-template-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">

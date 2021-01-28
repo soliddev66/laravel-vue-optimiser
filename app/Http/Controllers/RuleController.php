@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use DB;
-use Exception;
-
-use Illuminate\Support\Facades\Gate;
-
 use App\Models\Rule;
 use App\Models\RuleAction;
-use App\Models\RuleTemplate;
 use App\Models\RuleCampaign;
 use App\Models\RuleCondition;
-use App\Models\RuleConditionType;
-use App\Models\RuleDataFromOption;
 use App\Models\RuleConditionGroup;
+use App\Models\RuleConditionType;
 use App\Models\RuleConditionTypeGroup;
+use App\Models\RuleDataFromOption;
+use App\Models\RuleTemplate;
+use DB;
+use Exception;
+use Illuminate\Support\Facades\Gate;
+use JamesDordoy\LaravelVueDatatable\Http\Resources\DataTableCollectionResource;
 
 class RuleController extends Controller
 {
@@ -73,6 +72,16 @@ class RuleController extends Controller
     public function create(RuleTemplate $rule)
     {
         return view('rules.form', $this->loadFormData($rule));
+    }
+
+    public function logs(Rule $rule)
+    {
+        return view('rules.logs', compact('rule'));
+    }
+
+    public function logsData(Rule $rule)
+    {
+        return new DataTableCollectionResource($rule->logs()->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
 
     public function edit(Rule $rule)
