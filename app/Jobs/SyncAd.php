@@ -37,8 +37,9 @@ class SyncAd implements ShouldQueue
         $tabola = new Taboola;
 
         Ad::where(['provider_id' => 4, 'synced' => 0])->chunk(10, function ($ads) use ($tabola) {
+            var_dump($ads);var_dump($tabola);
             foreach ($ads as $ad) {
-                $tabola->syncAd($this->ad);
+                $tabola->syncAd($ad);
             }
         });
     }
