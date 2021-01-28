@@ -79,7 +79,7 @@ class RuleAction extends Command
                         $this->log->passed = false;
                     }
 
-                    $this->log->data = json_encode($this->log->data);
+                    $this->log->data = json_encode($this->log->data_text);
                     $this->log->save();
 
                     break;
