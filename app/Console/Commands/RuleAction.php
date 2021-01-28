@@ -54,6 +54,7 @@ class RuleAction extends Command
         $campaigns = Campaign::find(json_decode($rule->action_data)->ruleCampaigns);
 
         foreach ($campaigns as $campaign) {
+            var_dump($rule->ruleAction->calculation_type);
             switch ($rule->ruleAction->calculation_type) {
                 case 1:
                     $this->log = new RuleLog;
@@ -86,7 +87,6 @@ class RuleAction extends Command
 
                 case 2:
                     $redtrack_domain_data = $campaign->redtrackDomainStats()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
-
                     foreach ($redtrack_domain_data as $data) {
                         $this->log = new RuleLog;
 
@@ -102,11 +102,16 @@ class RuleAction extends Command
                             $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
 
                             if (class_exists($rule_action_class)) {
-                                (new $rule_action_class)->process($campaign, $data);
+                                (new $rule_action_class)->process($campaign, $data, $this->log->data_text);
                             }
                         } else {
                             echo 'NOPASSED', "\n";
                             $this->log->passed = false;
+                            $this->log->data_text['effect'] = [
+                                'campaign' => $campaign->name,
+                                'site' => $data['sub1'],
+                                'blocked' => false
+                            ];
                         }
 
 

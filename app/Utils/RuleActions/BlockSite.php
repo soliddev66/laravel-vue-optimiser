@@ -9,13 +9,19 @@ use App\Endpoints\GeminiAPI;
 
 class BlockSite extends Root
 {
-    public function process($campaign, $data)
+    public function process($campaign, $data, &$log)
     {
+        $log['effect'] = [
+            'campaign' => $campaign->name,
+            'site' => $data['sub1']
+        ];
         try {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
             (new $adVendorClass)->addSiteBlock($campaign, $data);
+            $log['effect']['blocked'] = true;
             echo "Campaign was being added site block\n";
         } catch (Exception $e) {
+            $log['effect']['blocked'] = false;
             echo "Campaign wasn't being added site block\n";
         }
     }
