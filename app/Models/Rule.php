@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\RuleLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -51,5 +52,10 @@ class Rule extends Model
     public function ruleAction()
     {
         return $this->belongsTo(RuleAction::class);
+    }
+
+    public function logs()
+    {
+        return $this->hasMany(RuleLog::class);
     }
 }

@@ -297,6 +297,7 @@ export default {
         alert('You need to filter provider along with the tracker or use Redtrack by default!');
         return;
       }
+      this.isLoading = true;
       const filters = { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount };
       const params = {...this.targetDate, ...filters, ...options };
       axios.post('/campaigns/search', params)
@@ -324,6 +325,7 @@ export default {
                   return encodeURIComponent(k) + '=' + encodeURIComponent(params[k])
                 }).join('&'))
               }
+              this.isLoading = false;
             })
         })
     },
