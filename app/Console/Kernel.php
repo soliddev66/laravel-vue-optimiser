@@ -2,9 +2,9 @@
 
 namespace App\Console;
 
-use App\Jobs\PullAd;
-use App\Jobs\PullAdGroup;
-use App\Jobs\PullCampaign;
+use App\Jobs\PullAds;
+use App\Jobs\PullAdGroups;
+use App\Jobs\PullCampaigns;
 use App\Models\GeminiJob;
 use App\Models\Rule;
 use App\Models\User;
@@ -69,17 +69,9 @@ class Kernel extends ConsoleKernel
 
         // Campaign
         $schedule->call(function () {
-            foreach (User::all() as $key => $user) {
-                PullCampaign::dispatch($user);
-            }
-        })->everyTenMinutes();
-
-        // Ad group and ad
-        $schedule->call(function () {
-            foreach (User::all() as $key => $user) {
-                PullAdGroup::dispatch($user);
-                PullAd::dispatch($user);
-            }
+            PullCampaigns::dispatch();
+            PullAdGroups::dispatch();
+            PullAds::dispatch();
         })->everyTenMinutes();
 
         // Rules
