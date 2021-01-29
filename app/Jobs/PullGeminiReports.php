@@ -44,7 +44,7 @@ class PullGeminiReports implements ShouldQueue
             })
             ->dispatch();
 
-            GeminiJob::where('status', '!=', 'completed')->cursor()
+        GeminiJob::where('status', '!=', 'completed')->cursor()
             ->map(function(GeminiJob $job) {
                 return new PullGeminiReport($job);
             })
