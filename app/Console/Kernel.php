@@ -14,7 +14,6 @@ use App\Vngodev\RedTrack;
 use App\Vngodev\Taboola;
 use App\Vngodev\Twitter;
 use App\Vngodev\YahooJapan;
-use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\DB;
@@ -69,9 +68,9 @@ class Kernel extends ConsoleKernel
 
         // Campaign
         $schedule->call(function () {
-            PullCampaigns::dispatch();
-            PullAdGroups::dispatch();
-            PullAds::dispatch();
+            PullCampaigns::dispatch()->onQueue('high-queues');
+            PullAdGroups::dispatch()->onQueue('high-queues');
+            PullAds::dispatch()->onQueue('high-queues');
         })->everyTenMinutes();
 
         // Rules

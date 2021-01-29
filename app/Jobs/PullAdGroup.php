@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\User;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -11,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class PullAdGroup implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $user;
 
@@ -32,6 +33,10 @@ class PullAdGroup implements ShouldQueue
      */
     public function handle()
     {
+        if ($this->batch()->cancelled()) {
+            return;
+        }
+
         foreach ($this->user->providers as $user_provider) {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($user_provider->provider->slug);
 

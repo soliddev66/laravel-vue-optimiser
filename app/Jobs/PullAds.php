@@ -3,6 +3,10 @@
 namespace App\Jobs;
 
 use App\Models\User;
+use Illuminate\Bus\Batch;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\LazyCollection;
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -30,12 +34,24 @@ class PullAds implements ShouldQueue
      */
     public function handle()
     {
-        foreach (User::all() as $key => $user) {
-            foreach ($user->providers as $user_provider) {
-                $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($user_provider->provider->slug);
+        $batch = Bus::batch([])
+            ->allowFailures()
+            ->then(function (Batch $batch) {
 
-                (new $adVendorClass())->pullAd($user_provider);
-            }
-        }
+            })
+            ->finally(function (Batch $batch) {
+
+            })
+            ->dispatch();
+
+        User::cursor()
+            ->map(function(User $user) {
+                return new PullAd($user);
+            })
+            ->filter()
+            ->chunk(100)
+            ->each(function(LazyCollection $jobs) use ($batch) {
+                $batch->add($jobs);
+            });
     }
 }
