@@ -16,6 +16,6 @@ class YahooJapan
 
     public static function getReport()
     {
-        PullYahooJapanReport::dispatch();
+        PullYahooJapanReport::dispatch()->onQueue('low-queues');
     }
 }
