@@ -11,11 +11,11 @@ class Taboola
 
     public static function getReport()
     {
-        PullTaboolaReport::dispatch()->onQueue('low-queues');
+        PullTaboolaReport::dispatch()->onQueue('low');
     }
 
     public static function syncAds()
     {
-        SyncAd::dispatch()->onQueue('high-queues');
+        SyncAd::dispatch()->onQueue('high');
     }
 }

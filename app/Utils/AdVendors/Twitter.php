@@ -168,15 +168,15 @@ class Twitter extends Root implements AdVendorInterface
     private function rollback($campaign_data = null, $line_item_data = null, $card_data = null)
     {
         if ($campaign_data) {
-            DeleteCampaign::dispatch(auth()->user(), $campaign_data->getId(), request('provider'), request('account'), request('advertiser'))->onQueue('highest-queues');
+            DeleteCampaign::dispatch(auth()->user(), $campaign_data->getId(), request('provider'), request('account'), request('advertiser'))->onQueue('highest');
         }
 
         if ($line_item_data) {
-            DeleteAdGroup::dispatch(auth()->user(), $line_item_data->getId(), request('provider'), request('account'), request('advertiser'))->onQueue('highest-queues');
+            DeleteAdGroup::dispatch(auth()->user(), $line_item_data->getId(), request('provider'), request('account'), request('advertiser'))->onQueue('highest');
         }
 
         if ($card_data) {
-            DeleteCard::dispatch(auth()->user(), $card_data->getId(), request('provider'), request('account'), request('advertiser'))->onQueue('highest-queues');
+            DeleteCard::dispatch(auth()->user(), $card_data->getId(), request('provider'), request('account'), request('advertiser'))->onQueue('highest');
         }
     }
 

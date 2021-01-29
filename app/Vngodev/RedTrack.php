@@ -16,6 +16,6 @@ class RedTrack
 
     public static function crawl()
     {
-        PullRedTrackReport::dispatch()->onQueue('low-queues');
+        PullRedTrackReport::dispatch()->onQueue('low');
     }
 }

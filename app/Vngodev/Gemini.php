@@ -96,7 +96,7 @@ class Gemini
     {
         GeminiJob::where('status', '!=', 'completed')->chunk(10, function($jobs) {
             foreach ($jobs as $key => $job) {
-                PullGeminiReport::dispatch($job)->onQueue('low2-queues');
+                PullGeminiReport::dispatch($job)->onQueue('low2');
             }
         });
     }

@@ -17,13 +17,13 @@ class Helper
 
     public static function pullCampaign()
     {
-        PullCampaign::dispatch(auth()->user())->onQueue('high-queues');
-        PullAdGroup::dispatch(auth()->user())->onQueue('high-queues');
-        PullAd::dispatch(auth()->user())->onQueue('high-queues');
+        PullCampaign::dispatch(auth()->user())->onQueue('high');
+        PullAdGroup::dispatch(auth()->user())->onQueue('high');
+        PullAd::dispatch(auth()->user())->onQueue('high');
     }
 
     public static function pullAd()
     {
-        PullAd::dispatch(auth()->user())->onQueue('high-queues');
+        PullAd::dispatch(auth()->user())->onQueue('high');
     }
 }

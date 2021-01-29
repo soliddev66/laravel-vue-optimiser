@@ -68,9 +68,9 @@ class Kernel extends ConsoleKernel
 
         // Campaign
         $schedule->call(function () {
-            PullCampaigns::dispatch()->onQueue('high-queues');
-            PullAdGroups::dispatch()->onQueue('high-queues');
-            PullAds::dispatch()->onQueue('high-queues');
+            PullCampaigns::dispatch()->onQueue('high');
+            PullAdGroups::dispatch()->onQueue('high');
+            PullAds::dispatch()->onQueue('high');
         })->everyTenMinutes();
 
         // Rules

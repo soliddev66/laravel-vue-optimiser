@@ -10,6 +10,6 @@ class Twitter
 
     public static function getReport()
     {
-        PullTwitterReport::dispatch()->onQueue('low-queues');
+        PullTwitterReport::dispatch()->onQueue('low');
     }
 }
