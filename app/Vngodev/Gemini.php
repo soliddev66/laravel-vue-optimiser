@@ -2,7 +2,7 @@
 
 namespace App\Vngodev;
 
-use App\Jobs\PullGeminiReport;
+use App\Jobs\PullGeminiReports;
 use App\Models\Campaign;
 use App\Models\GeminiJob;
 use App\Models\UserProvider;
@@ -94,11 +94,7 @@ class Gemini
 
     public static function checkJobs()
     {
-        GeminiJob::where('status', '!=', 'completed')->chunk(10, function($jobs) {
-            foreach ($jobs as $key => $job) {
-                PullGeminiReport::dispatch($job);
-            }
-        });
+        PullGeminiReports::dispatch()->onQueue('high');
     }
 
     private static function getPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)

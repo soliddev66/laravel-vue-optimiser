@@ -16,6 +16,6 @@ class Outbrain
 
     public static function getReport()
     {
-        PullOutbrainReport::dispatch();
+        PullOutbrainReport::dispatch()->onQueue('low');
     }
 }

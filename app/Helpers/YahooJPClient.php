@@ -28,7 +28,6 @@ class YahooJPClient
         ]];
 
         if ($body) {
-            Log::info($body);
             $request_body['json'] = $body;
         }
 

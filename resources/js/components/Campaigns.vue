@@ -33,7 +33,7 @@
             </div>
           </div>
           <div class="card-body">
-            <data-table :data="campaigns" :columns="campaignColumns" @on-table-props-changed="reloadData">
+            <data-table :data="campaigns" :columns="campaignColumns" @on-table-props-changed="reloadData" :order-by="tableProps.column" :order-dir="tableProps.dir">
               <tbody slot="body" slot-scope="{ data }">
                 <tr v-for="campaign in data" :key="campaign.id">
                   <td>{{ campaign.id }}</td>

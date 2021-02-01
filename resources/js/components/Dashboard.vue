@@ -98,7 +98,7 @@
       <div class="col-12 mt-3">
         <div class="card">
           <div class="card-body table-responsive">
-            <data-table order-by="provider_id" :data="dataByProvider" :columns="dataByProviderColumns" @on-table-props-changed="reloadData"></data-table>
+            <data-table order-by="provider_id" :data="dataByProvider" :columns="dataByProviderColumns" @on-table-props-changed="reloadData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
           </div>
         </div>
       </div>

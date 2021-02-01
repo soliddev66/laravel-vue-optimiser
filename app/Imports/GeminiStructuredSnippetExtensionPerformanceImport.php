@@ -27,7 +27,7 @@ class GeminiStructuredSnippetExtensionPerformanceImport implements OnEachRow, Wi
         $gemini_structured_snippet_extension_performance_stat = GeminiStructuredSnippetExtensionPerformanceStat::firstOrNew([
             'advertiser_id' => $row['advertiser_id'],
             'campaign_id' => $row['campaign_id'],
-            'ad_group_id' => $row['ad_group_id'],
+            'ad_group_id' => $row['ad_group_id'] ?? '',
             'ad_id' => $row['ad_id'],
             'keyword_id' => $row['keyword_id'],
             'structured_snippet_extn_id' => $row['structured_snippet_extn_id'],

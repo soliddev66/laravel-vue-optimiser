@@ -46,20 +46,20 @@
             </ul>
             <div class="tab-content">
               <div class="tab-pane fade" :class="{ 'show active': show === 0 }" id="widgets" role="tabpanel" aria-labelledby="widgets-tab">
-                <data-table :data="widgets" :columns="widgetColumns" @on-table-props-changed="reloadWidgetData"></data-table>
+                <data-table :data="widgets" :columns="widgetColumns" @on-table-props-changed="reloadWidgetData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 1 }" id="contents" role="tabpanel" aria-labelledby="contents-tab">
                 <a class="btn btn-primary mb-2 float-right" v-if="campaign.provider_id == 2 || campaign.provider_id == 4" :href="`/campaigns/${campaign.id}/ad-groups/ad-group/ads/create`">Create New Ad</a>
-                <data-table :data="contents" :columns="contentColumns" @on-table-props-changed="reloadContentData"></data-table>
+                <data-table :data="contents" :columns="contentColumns" @on-table-props-changed="reloadContentData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
               </div>
               <div class="tab-pane fade" v-if="[1,3,4,5].includes(campaign.provider_id)" :class="{ 'show active': show === 2 }" id="ad-groups" role="tabpanel" aria-labelledby="ad-groups-tab">
-                <data-table :data="adGroups" :columns="adGroupColumns" @on-table-props-changed="reloadAdGroupData"></data-table>
+                <data-table :data="adGroups" :columns="adGroupColumns" @on-table-props-changed="reloadAdGroupData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
               </div>
               <div class="tab-pane fade" v-if="[2].includes(campaign.provider_id)" :class="{ 'show active': show === 2 }" id="publishers" role="tabpanel" aria-labelledby="publishers-tab">
-                <data-table :data="publishers" :columns="publisherColumns" @on-table-props-changed="reloadPublisherData"></data-table>
+                <data-table :data="publishers" :columns="publisherColumns" @on-table-props-changed="reloadPublisherData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 3 }" id="domains" role="tabpanel" aria-labelledby="domains-tab">
-                <data-table :data="domains" :columns="domainColumns" @on-table-props-changed="reloadDomainData"></data-table>
+                <data-table :data="domains" :columns="domainColumns" @on-table-props-changed="reloadDomainData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 4 }" id="rules" role="tabpanel" aria-labelledby="rules-tab">
                 Rules
