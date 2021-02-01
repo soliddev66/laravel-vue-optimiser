@@ -4,7 +4,10 @@ namespace App\Vngodev;
 
 use App\Jobs\PullAd;
 use App\Jobs\PullAdGroup;
+use App\Jobs\PullAdGroups;
+use App\Jobs\PullAds;
 use App\Jobs\PullCampaign;
+use App\Jobs\PullCampaigns;
 
 class Helper
 {
@@ -17,13 +20,13 @@ class Helper
 
     public static function pullCampaign()
     {
-        PullCampaign::dispatch(auth()->user())->onQueue('high');
-        PullAdGroup::dispatch(auth()->user())->onQueue('high');
-        PullAd::dispatch(auth()->user())->onQueue('high');
+        PullCampaigns::dispatch()->onQueue('high');
+        PullAdGroups::dispatch()->onQueue('high');
+        PullAds::dispatch()->onQueue('high');
     }
 
     public static function pullAd()
     {
-        PullAd::dispatch(auth()->user())->onQueue('high');
+        PullAds::dispatch()->onQueue('high');
     }
 }

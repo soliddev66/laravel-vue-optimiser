@@ -37,10 +37,10 @@ class PullCampaigns implements ShouldQueue
         $batch = Bus::batch([])
             ->allowFailures()
             ->then(function (Batch $batch) {
-
+                //
             })
             ->finally(function (Batch $batch) {
-
+                //
             })
             ->dispatch();
 

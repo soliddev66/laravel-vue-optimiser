@@ -27,7 +27,7 @@ class GeminiConversionRulesImport implements OnEachRow, WithChunkReading, Should
         $gemini_conversion_rules_stat = GeminiConversionRulesStat::firstOrNew([
             'advertiser_id' => $row['advertiser_id'],
             'campaign_id' => $row['campaign_id'],
-            'ad_group_id' => $row['ad_group_id'],
+            'ad_group_id' => $row['ad_group_id'] ?? '',
             'rule_id' => $row['rule_id'],
             'rule_name' => $row['rule_name'],
             'category_name' => $row['category_name'],

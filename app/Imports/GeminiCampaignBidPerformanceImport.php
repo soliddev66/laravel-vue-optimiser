@@ -27,7 +27,7 @@ class GeminiCampaignBidPerformanceImport implements OnEachRow, WithChunkReading,
         $gemini_campaign_bid_performance_stat = GeminiCampaignBidPerformanceStat::firstOrNew([
             'advertiser_id' => $row['advertiser_id'],
             'campaign_id' => $row['campaign_id'],
-            'section_id' => $row['section_id'],
+            'section_id' => $row['section_id'] ?? '',
             'ad_group_id' => $row['ad_group_id'],
             'day' => $row['day'],
             'supply_type' => $row['supply_type'],

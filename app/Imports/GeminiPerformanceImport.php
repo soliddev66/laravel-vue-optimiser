@@ -28,7 +28,7 @@ class GeminiPerformanceImport implements OnEachRow, WithChunkReading, ShouldQueu
             'advertiser_id' => $row['advertiser_id'],
             'campaign_id' => $row['campaign_id'],
             'ad_group_id' => $row['ad_group_id'] ?? '',
-            'ad_id' => $row['ad_id'],
+            'ad_id' => $row['ad_id'] ?? '',
             'month' => $row['month'],
             'week' => $row['week'],
             'day' => $row['day'],

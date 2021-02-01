@@ -27,7 +27,7 @@ class GeminiDomainPerformanceImport implements OnEachRow, WithChunkReading, Shou
         $gemini_domain_performance_stat = GeminiDomainPerformanceStat::firstOrNew([
             'advertiser_id' => $row['advertiser_id'],
             'campaign_id' => $row['campaign_id'],
-            'ad_group_id' => $row['ad_group_id'] || '',
+            'ad_group_id' => $row['ad_group_id'] ?? '',
             'top_domain' => $row['top_domain'],
             'package_name' => $row['package_name'],
             'day' => $row['day']
