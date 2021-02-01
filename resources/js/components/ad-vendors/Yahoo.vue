@@ -146,9 +146,11 @@
                         </div>
                         <div class="row">
                           <label for="bid_adjustment_group_1a" class="col-sm-5 control-label mt-2">Group 1A <small>(+800%)</small></label>
-                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
+                          <select class="form-control col-sm-2">
+                            <option value="1">Increase By</option>
+                          </select>
                           <div class="input-group col-sm-3 mb-1">
-                            <input type="number" name="bid_adjustment_group_1a" max="800" class="form-control" v-model="campaignSupplyGroup1A" />
+                            <input type="number" name="bid_adjustment_group_1a" min="0" max="800" class="form-control" v-model="campaignSupplyGroup1A" />
                             <div class="input-group-append">
                               <span class="input-group-text">%</span>
                             </div>
@@ -156,9 +158,12 @@
                         </div>
                         <div class="row">
                           <label for="bid_adjustment_group_1b" class="col-sm-5 control-label mt-2">Group 1B <small>(+600% — -40%)</small></label>
-                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
+                          <select class="form-control col-sm-2" v-model="incrementType1b">
+                            <option value="1">Increase By</option>
+                            <option value="2">Decrease By</option>
+                          </select>
                           <div class="input-group col-sm-3 mb-1">
-                            <input type="number" name="bid_adjustment_group_1b" min="-40" max="600" class="form-control" v-model="campaignSupplyGroup1B" />
+                            <input type="number" name="bid_adjustment_group_1b" :min="campaignSupplyGroup1BMin" :max="campaignSupplyGroup1BMax" class="form-control" v-model="campaignSupplyGroup1B" />
                             <div class="input-group-append">
                               <span class="input-group-text">%</span>
                             </div>
@@ -166,9 +171,12 @@
                         </div>
                         <div class="row">
                           <label for="bid_adjustment_group_2a" class="col-sm-5 control-label mt-2">Group 2A <small>(+800% — -30%)</small></label>
-                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
+                          <select class="form-control col-sm-2" v-model="incrementType2a">
+                            <option value="1">Increase By</option>
+                            <option value="2">Decrease By</option>
+                          </select>
                           <div class="input-group col-sm-3 mb-1">
-                            <input type="number" name="bid_adjustment_group_2a" min="-30" max="800" class="form-control" v-model="campaignSupplyGroup2A" />
+                            <input type="number" name="bid_adjustment_group_2a" :min="campaignSupplyGroup2AMin" :max="campaignSupplyGroup2AMax" class="form-control" v-model="campaignSupplyGroup2A" />
                             <div class="input-group-append">
                               <span class="input-group-text">%</span>
                             </div>
@@ -176,9 +184,12 @@
                         </div>
                         <div class="row">
                           <label for="bid_adjustment_group_2b" class="col-sm-5 control-label mt-2">Group 2B <small>(+600% — -70%)</small></label>
-                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
+                          <select class="form-control col-sm-2" v-model="incrementType2b">
+                            <option value="1">Increase By</option>
+                            <option value="2">Decrease By</option>
+                          </select>
                           <div class="input-group col-sm-3 mb-1">
-                            <input type="number" name="bid_adjustment_group_2b" class="form-control" v-model="campaignSupplyGroup2B" />
+                            <input type="number" name="bid_adjustment_group_2b" :min="campaignSupplyGroup2BMin" :max="campaignSupplyGroup2BMax" class="form-control" v-model="campaignSupplyGroup2B" />
                             <div class="input-group-append">
                               <span class="input-group-text">%</span>
                             </div>
@@ -186,9 +197,12 @@
                         </div>
                         <div class="row">
                           <label for="bid_adjustment_group_3a" class="col-sm-5 control-label mt-2">Group 3A <small>(+800% — -50%)</small></label>
-                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
+                          <select class="form-control col-sm-2" v-model="incrementType3a">
+                            <option value="1">Increase By</option>
+                            <option value="2">Decrease By</option>
+                          </select>
                           <div class="input-group col-sm-3 mb-1">
-                            <input type="number" name="bid_adjustment_group_3a" min="-50" max="800" class="form-control" v-model="campaignSupplyGroup3A" />
+                            <input type="number" name="bid_adjustment_group_3a" :min="campaignSupplyGroup3AMin" :max="campaignSupplyGroup3AMax" class="form-control" v-model="campaignSupplyGroup3A" />
                             <div class="input-group-append">
                               <span class="input-group-text">%</span>
                             </div>
@@ -196,9 +210,12 @@
                         </div>
                         <div class="row">
                           <label for="bid_adjustment_group_3b" class="col-sm-5 control-label mt-2">Group 3B <small>(+600% — -80%)</small></label>
-                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
+                          <select class="form-control col-sm-2" v-model="incrementType3b">
+                            <option value="1">Increase By</option>
+                            <option value="2">Decrease By</option>
+                          </select>
                           <div class="input-group col-sm-3 mb-1">
-                            <input type="number" name="bid_adjustment_group_3b" min="-80" max="600" class="form-control" v-model="campaignSupplyGroup3B" />
+                            <input type="number" name="bid_adjustment_group_3b" :min="campaignSupplyGroup3BMin" :max="campaignSupplyGroup3BMax" class="form-control" v-model="campaignSupplyGroup3B" />
                             <div class="input-group-append">
                               <span class="input-group-text">%</span>
                             </div>
@@ -206,10 +223,13 @@
                         </div>
 
                         <div class="row" v-for="(supportedSiteItem, index) in supportedSiteCollections" :key="index">
-                          <label for="bid_adjustment_group_3b" class="col-sm-5 control-label mt-2">{{ supportedSiteItem.label }} <small>{{ supportedSiteItem.subLabel }}</small></label>
-                          <label class="col-sm-2 control-label mt-2"><i>Increase By</i></label>
+                          <label for="bid_adjustment_site_group" class="col-sm-5 control-label mt-2">{{ supportedSiteItem.label }} <small>{{ supportedSiteItem.subLabel }}</small></label>
+                          <select class="form-control col-sm-2" v-model="supportedSiteItem.incrementType" @change="changeSupportSiteIncrementType(index)">
+                            <option value="1">Increase By</option>
+                            <option value="2">Decrease By</option>
+                          </select>
                           <div class="input-group col-sm-3 mb-1">
-                            <input type="number" name="bid_adjustment_group_3b" min="-80" max="800" class="form-control" v-model="supportedSiteItem.bidModifier" />
+                            <input type="number" name="bid_adjustment_site_group" :min="supportedSiteItem.minValue" :max="supportedSiteItem.maxValue" class="form-control" v-model="supportedSiteItem.bidModifier" />
                             <div class="input-group-append">
                               <span class="input-group-text">%</span>
                             </div>
@@ -592,7 +612,52 @@ export default {
     }
   },
   watch: {
-
+    incrementType1b: function (newValue) {
+      console.log(newValue)
+      if (newValue == 1) {
+        this.campaignSupplyGroup1BMin = 0
+        this.campaignSupplyGroup1BMax = 600
+      } else {
+        this.campaignSupplyGroup1BMin = -40
+        this.campaignSupplyGroup1BMax = 0
+      }
+    },
+    incrementType2a: function (newValue) {
+      if (newValue == 1) {
+        this.campaignSupplyGroup2AMin = 0
+        this.campaignSupplyGroup2AMax = 800
+      } else {
+        this.campaignSupplyGroup2AMin = -30
+        this.campaignSupplyGroup2AMax = 0
+      }
+    },
+    incrementType2b: function (newValue) {
+      if (newValue == 1) {
+        this.campaignSupplyGroup2BMin = 0
+        this.campaignSupplyGroup2BMax = 600
+      } else {
+        this.campaignSupplyGroup2BMin = -70
+        this.campaignSupplyGroup2BMax = 0
+      }
+    },
+    incrementType3a: function (newValue) {
+      if (newValue == 1) {
+        this.campaignSupplyGroup3AMin = 0
+        this.campaignSupplyGroup3AMax = 800
+      } else {
+        this.campaignSupplyGroup3AMin = -50
+        this.campaignSupplyGroup3AMax = 0
+      }
+    },
+    incrementType3b: function (newValue) {
+      if (newValue == 1) {
+        this.campaignSupplyGroup3BMin = 0
+        this.campaignSupplyGroup3BMax = 600
+      } else {
+        this.campaignSupplyGroup3BMin = -80
+        this.campaignSupplyGroup3BMax = 0
+      }
+    },
   },
   data() {
     let campaignGender = [],
@@ -672,6 +737,9 @@ export default {
             label: '',
             subLabel: '(+800% — -80%)',
             key: attribute.value,
+            minValue: 0,
+            maxValue: 800,
+            incrementType: 1,
             bidModifier: Math.round((attribute.bidModifier - bidAmount) / bidAmount * 100)
           })
         }
@@ -785,6 +853,21 @@ export default {
       campaignSupplyGroup2B: campaignSupplyGroup2B,
       campaignSupplyGroup3A: campaignSupplyGroup3A,
       campaignSupplyGroup3B: campaignSupplyGroup3B,
+      incrementType1b: 1,
+      campaignSupplyGroup1BMin: 0,
+      campaignSupplyGroup1BMax: 600,
+      incrementType2a: 1,
+      campaignSupplyGroup2AMin: 0,
+      campaignSupplyGroup2AMax: 800,
+      incrementType2b: 1,
+      campaignSupplyGroup2BMin: 0,
+      campaignSupplyGroup2BMax: 600,
+      incrementType3a: 1,
+      campaignSupplyGroup3AMin: 0,
+      campaignSupplyGroup3AMax: 800,
+      incrementType3b: 1,
+      campaignSupplyGroup3BMin: 0,
+      campaignSupplyGroup3BMax: 600,
       campaignSiteBlock: campaignSiteBlock,
       adGroupID: adGroupID,
       adGroupName: adGroupName,
@@ -876,6 +959,15 @@ export default {
     },
     removeSupportedSite(index) {
       this.supportedSiteCollections.splice(index, 1);
+    },
+    changeSupportSiteIncrementType(index) {
+      if (this.supportedSiteCollections[index] == 1) {
+        this.supportedSiteCollections[index].minValue = 0
+        this.supportedSiteCollections[index].maxValue = 800
+      } else {
+        this.supportedSiteCollections[index].minValue = -80
+        this.supportedSiteCollections[index].maxValue = 0
+      }
     },
     loadPreviewEvent(event, index) {
       this.loadPreview(index)
@@ -1006,6 +1098,18 @@ export default {
 
       if (data.site_group) {
         this.supportedSiteCollections = JSON.parse(data.site_group)
+
+        for (let i = 0; i < this.supportedSiteCollections.length; i++) {
+          if (this.supportedSiteCollections[i].bidModifier < 0) {
+            this.supportedSiteCollections[i].minValue = 0
+            this.supportedSiteCollections[i].maxValue = 800
+            this.supportedSiteCollections[i].incrementType = 2
+          } else {
+            this.supportedSiteCollections[i].minValue = -80
+            this.supportedSiteCollections[i].maxValue = 0
+            this.supportedSiteCollections[i].incrementType = 1
+          }
+        }
       }
     },
     supportedSiteChanged(node, instanceId) {
@@ -1013,6 +1117,9 @@ export default {
         label: node.label,
         subLabel: '(+800% — -80%)',
         key: node.id,
+        incrementType: 1,
+        minValue: 0,
+        maxValue: 800,
         bidModifier: ''
       })
     },
