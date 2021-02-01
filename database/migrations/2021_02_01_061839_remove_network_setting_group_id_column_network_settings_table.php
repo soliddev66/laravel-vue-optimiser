@@ -13,7 +13,9 @@ class RemoveNetworkSettingGroupIdColumnNetworkSettingsTable extends Migration
      */
     public function up()
     {
-        $table->dropColumn('network_setting_group_id');
+        Schema::table('network_settings', function (Blueprint $table) {
+            $table->dropColumn('network_setting_group_id');
+        });
     }
 
     /**
@@ -23,6 +25,8 @@ class RemoveNetworkSettingGroupIdColumnNetworkSettingsTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('network_settings', function (Blueprint $table) {
+            $table->string('network_setting_group_id');
+        });
     }
 }

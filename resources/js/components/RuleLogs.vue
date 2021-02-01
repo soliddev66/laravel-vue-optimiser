@@ -49,26 +49,10 @@ export default {
         dir: 'desc',
       },
       logColumns: [{
-        label: 'ID',
-        name: 'id',
-        orderable: true,
-      }, {
-        label: 'Passed',
-        name: 'passed',
-        orderable: true,
-      }, {
-        label: 'Rule ID',
-        name: 'rule_id',
-        orderable: true,
-      }, {
-        label: 'Data',
+        label: 'Log',
         name: 'data',
         component: LogDataComponent,
         orderable: false,
-      }, {
-        label: 'Created At',
-        name: 'created_at',
-        orderable: true,
       }],
       isLoading: false,
       fullPage: true

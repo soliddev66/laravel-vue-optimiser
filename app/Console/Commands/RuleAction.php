@@ -146,7 +146,7 @@ class RuleAction extends Command
                 $data_item = [];
                 $rule_condition_type_class = 'App\\Utils\\RuleConditionTypes\\' . $rule_condition->ruleConditionType->provider;
 
-                echo $rule_condition_type_class;
+                echo $rule_condition_type_class . ' | ' . $redtrack_data[0]->id;
 
                 $data_item['ruleConditionType'] = $rule_condition_type_class;
 
