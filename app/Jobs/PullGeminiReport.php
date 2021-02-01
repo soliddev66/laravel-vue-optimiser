@@ -22,6 +22,7 @@ use App\Models\GeminiJob;
 use App\Models\UserProvider;
 use App\Vngodev\Token;
 use GuzzleHttp\Client;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -30,7 +31,7 @@ use Illuminate\Queue\SerializesModels;
 
 class PullGeminiReport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $gemini_job;
 
@@ -51,6 +52,10 @@ class PullGeminiReport implements ShouldQueue
      */
     public function handle()
     {
+        if ($this->batch()->cancelled()) {
+            return;
+        }
+
         $campaign = Campaign::where('campaign_id', $this->gemini_job->campaign_id)->where('advertiser_id', $this->gemini_job->advertiser_id)->first();
         $user_info = UserProvider::where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first();
         $gemini_job_status = [];
@@ -71,57 +76,57 @@ class PullGeminiReport implements ShouldQueue
                 case 'performance_stats':
                     (new GeminiPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
                         new DeleteCompletedImportFile($file_name)
-                    ]);
+                    ])->onQueue('lowest');
                     break;
                 case 'slot_performance_stats':
                     (new GeminiSlotPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
                         new DeleteCompletedImportFile($file_name)
-                    ]);
+                    ])->onQueue('lowest');
                     break;
                 case 'site_performance_stats':
                     (new GeminiSitePerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
                         new DeleteCompletedImportFile($file_name)
-                    ]);
+                    ])->onQueue('lowest');
                     break;
                 case 'campaign_bid_performance_stats':
                     (new GeminiCampaignBidPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
                         new DeleteCompletedImportFile($file_name)
-                    ]);
+                    ])->onQueue('lowest');
                     break;
                 case 'structured_snippet_extension':
                     (new GeminiStructuredSnippetExtensionPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
                         new DeleteCompletedImportFile($file_name)
-                    ]);
+                    ])->onQueue('lowest');
                     break;
                 case 'product_ad_performance_stats':
                     (new GeminiProductAdPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
                         new DeleteCompletedImportFile($file_name)
-                    ]);
+                    ])->onQueue('lowest');
                     break;
                 case 'adjustment_stats':
                     (new GeminiAdjustmentImport)->queue(public_path('reports/' . $file_name))->chain([
                         new DeleteCompletedImportFile($file_name)
-                    ]);
+                    ])->onQueue('lowest');
                     break;
                 case 'keyword_stats':
                     (new GeminiKeywordImport)->queue(public_path('reports/' . $file_name))->chain([
                         new DeleteCompletedImportFile($file_name)
-                    ]);
+                    ])->onQueue('lowest');
                     break;
                 case 'search_stats':
                     (new GeminiSearchImport)->queue(public_path('reports/' . $file_name))->chain([
                         new DeleteCompletedImportFile($file_name)
-                    ]);
+                    ])->onQueue('lowest');
                     break;
                 case 'ad_extension_details':
                     (new GeminiAdExtensionImport)->queue(public_path('reports/' . $file_name))->chain([
                         new DeleteCompletedImportFile($file_name)
-                    ]);
+                    ])->onQueue('lowest');
                     break;
                 case 'call_extension_stats':
                     (new GeminiCallExtensionImport)->queue(public_path('reports/' . $file_name))->chain([
                         new DeleteCompletedImportFile($file_name)
-                    ]);
+                    ])->onQueue('lowest');
                     break;
                 case 'user_stats':
                     // WON'T DO IT!!!!
@@ -130,17 +135,17 @@ class PullGeminiReport implements ShouldQueue
                 case 'product_ads':
                     (new GeminiProductAdsImport)->queue(public_path('reports/' . $file_name))->chain([
                         new DeleteCompletedImportFile($file_name)
-                    ]);
+                    ])->onQueue('lowest');
                     break;
                 case 'conversion_rules_stats':
                     (new GeminiConversionRulesImport)->queue(public_path('reports/' . $file_name))->chain([
                         new DeleteCompletedImportFile($file_name)
-                    ]);
+                    ])->onQueue('lowest');
                     break;
                 case 'domain_performance_stats':
                     (new GeminiDomainPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
                         new DeleteCompletedImportFile($file_name)
-                    ]);
+                    ])->onQueue('lowest');
                     break;
                 default:
                     break;

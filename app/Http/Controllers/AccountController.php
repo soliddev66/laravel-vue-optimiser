@@ -77,7 +77,7 @@ class AccountController extends Controller
         // Remove user_tracker
         UserTracker::where('provider_id', request('providerId'))->where('provider_open_id', request('openId'))->delete();
 
-        UnlinkTrafficSource::dispatch(request('providerId'), request('openId'));
+        UnlinkTrafficSource::dispatch(request('providerId'), request('openId'))->onQueue('medium');
 
         return response()->json([
             'success' => true

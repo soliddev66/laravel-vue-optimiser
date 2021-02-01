@@ -13,16 +13,14 @@ class PullRedTrackReport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $campaign;
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Campaign $campaign)
+    public function __construct()
     {
-        $this->campaign = $campaign;
+
     }
 
     /**
@@ -32,8 +30,13 @@ class PullRedTrackReport implements ShouldQueue
      */
     public function handle()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($this->campaign->provider->slug);
+        Campaign::chunk(10, function($campaigns) {
+            foreach ($campaigns as $campaign) {
+                $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        (new $adVendorClass())->pullRedTrack($this->campaign);
+                (new $adVendorClass())->pullRedTrack($campaign);
+            }
+        });
+
     }
 }
