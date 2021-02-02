@@ -113,3 +113,10 @@ Route::get('/traffic-sources', [App\Http\Controllers\AccountController::class, '
 Route::post('/traffic-sources/remove', [App\Http\Controllers\AccountController::class, 'removeTrafficSource'])->name('removeTrafficSource');
 Route::get('/trackers', [App\Http\Controllers\AccountController::class, 'trackers'])->name('trackers');
 Route::post('/trackers/remove', [App\Http\Controllers\AccountController::class, 'removeTracker'])->name('removeTracker');
+
+Route::group(['middleware' => ['auth', 'file.manager'], 'prefix' => 'file-manager'], function() {
+    Route::post('upload', [App\Http\Controllers\FileManagerController::class, 'upload'])->name('fm.upload');
+    Route::get('content', [App\Http\Controllers\FileManagerController::class, 'content'])->name('fm.content');
+    Route::get('tree', [App\Http\Controllers\FileManagerController::class, 'tree'])->name('fm.tree');
+    Route::post('create-directory', [App\Http\Controllers\FileManagerController::class, 'createDirectory'])->name('fm.create-directory');
+});
