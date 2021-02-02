@@ -119,4 +119,5 @@ Route::group(['middleware' => ['auth', 'file.manager'], 'prefix' => 'file-manage
     Route::get('content', [App\Http\Controllers\FileManagerController::class, 'content'])->name('fm.content');
     Route::get('tree', [App\Http\Controllers\FileManagerController::class, 'tree'])->name('fm.tree');
     Route::post('create-directory', [App\Http\Controllers\FileManagerController::class, 'createDirectory'])->name('fm.create-directory');
+    Route::post('rename', [App\Http\Controllers\FileManagerController::class, 'rename'])->name('fm.rename');
 });

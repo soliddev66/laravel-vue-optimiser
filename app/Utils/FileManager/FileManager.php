@@ -152,4 +152,37 @@ class FileManager extends \Alexusmai\LaravelFileManager\FileManager
             'files' => $content['files'],
         ];
     }
+
+    /**
+     * Rename file or folder
+     *
+     * @param $disk
+     * @param $newName
+     * @param $oldName
+     *
+     * @return array
+     */
+    public function rename($disk, $newName, $oldName, $path = null, $name = null, $oldBaseName = null)
+    {
+        Storage::disk($disk)->move($oldName, $newName);
+
+        $image = Image::where([
+            'user_id' => auth()->id(),
+            'disk' => $disk,
+            'path' => $path ?? '',
+            'name' => $oldBaseName
+        ])->first();
+
+        if ($image) {
+            $image->name = $name;
+            $image->save();
+        }
+
+        return [
+            'result' => [
+                'status'  => 'success',
+                'message' => 'renamed',
+            ],
+        ];
+    }
 }
