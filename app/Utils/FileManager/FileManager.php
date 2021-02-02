@@ -130,17 +130,24 @@ class FileManager extends \Alexusmai\LaravelFileManager\FileManager
         $content = $this->getContent($disk, $path);
 
         foreach ($content['files'] as &$file) {
-            $image = Image::where([
+            $image = Image::firstOrNew([
                 'user_id' => auth()->id(),
                 'disk' => $disk,
-                'path' => $path ?? '',
+                'path' => $path,
                 'name' => $file['basename']
-            ])->first();
+            ]);
 
-            if ($image) {
-                $file['width'] = $image->width;
-                $file['height'] = $image->height;
+            if (!$image->width) {
+                $dimensions = getimagesize(Storage::disk($disk)->path($file['path']));
+
+                $image->width = $dimensions[0];
+                $image->height = $dimensions[1];
+
+                $image->save();
             }
+
+            $file['width'] = $image->width;
+            $file['height'] = $image->height;
         }
 
         return [
@@ -169,7 +176,7 @@ class FileManager extends \Alexusmai\LaravelFileManager\FileManager
         $image = Image::where([
             'user_id' => auth()->id(),
             'disk' => $disk,
-            'path' => $path ?? '',
+            'path' => $path,
             'name' => $oldBaseName
         ])->first();
 
