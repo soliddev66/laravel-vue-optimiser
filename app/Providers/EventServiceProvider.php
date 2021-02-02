@@ -21,6 +21,10 @@ class EventServiceProvider extends ServiceProvider
 
         \Alexusmai\LaravelFileManager\Events\Deleted::class => [
             \App\Listeners\FileManagerDeleted::class
+        ],
+
+        \Alexusmai\LaravelFileManager\Events\Paste::class => [
+            \App\Listeners\FileManagerPaste::class
         ]
     ];
 
