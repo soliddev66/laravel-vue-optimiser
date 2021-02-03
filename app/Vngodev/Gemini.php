@@ -23,7 +23,7 @@ class Gemini
 
     public static function crawl()
     {
-        SubmitGeminiJobs::dispatch()->onQueue('highest');
+        SubmitGeminiJobs::dispatch()->onQueue('high');
     }
 
     public static function checkJobs()
