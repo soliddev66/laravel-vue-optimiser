@@ -44,4 +44,20 @@ class FileManagerController extends \Alexusmai\LaravelFileManager\Controllers\Fi
             )
         );
     }
+
+    /**
+     * Rename
+     *
+     * @param RequestValidator $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function tag(RequestValidator $request)
+    {
+        return response()->json(
+            $this->fm->tag(
+                $request->input('tag'),
+            )
+        );
+    }
 }
