@@ -26,14 +26,18 @@ class SubmitGeminiJobs implements ShouldQueue
      */
     public $timeout = 3600;
 
+    protected $campaign;
+    protected $date;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($campaign, $date)
     {
-        //
+        $this->campaign = $campaign;
+        $this->date = $date;
     }
 
     /**
@@ -43,74 +47,71 @@ class SubmitGeminiJobs implements ShouldQueue
      */
     public function handle()
     {
-        $date = Carbon::now()->subDay()->format('Y-m-d');
-        Campaign::where('provider_id', 1)->whereNotIn('campaign_id', GeminiJob::where('status', '!=', 'completed')->groupBy('campaign_id')->pluck('campaign_id'))->chunk(10, function ($campaigns) use ($date) {
-            foreach ($campaigns as $key => $campaign) {
-                $jobs = [];
-                $user_info = UserProvider::where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first();
-                Token::refresh($user_info, function () use ($campaign, $user_info, $date, &$jobs) {
-                    $job = self::getPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    $job['name'] = 'performance_stats';
-                    array_push($jobs, $job);
-                    $job = self::getSlotPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    $job['name'] = 'slot_performance_stats';
-                    array_push($jobs, $job);
-                    $job = self::getSitePerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    $job['name'] = 'site_performance_stats';
-                    array_push($jobs, $job);
-                    $job = self::getCampaignBidPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    $job['name'] = 'campaign_bid_performance_stats';
-                    array_push($jobs, $job);
-                    $job = self::getStructuredSnippetExtensionPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    $job['name'] = 'structured_snippet_extension';
-                    array_push($jobs, $job);
-                    $job = self::getProductAdPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    $job['name'] = 'product_ad_performance_stats';
-                    array_push($jobs, $job);
-                    $job = self::getAdjustmentDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    $job['name'] = 'adjustment_stats';
-                    array_push($jobs, $job);
-                    $job = self::getKeywordDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    $job['name'] = 'keyword_stats';
-                    array_push($jobs, $job);
-                    $job = self::getSearchDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    $job['name'] = 'search_stats';
-                    array_push($jobs, $job);
-                    $job = self::getAdExtensionDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    $job['name'] = 'ad_extension_details';
-                    array_push($jobs, $job);
-                    $job = self::getCallExtensionDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    $job['name'] = 'call_extension_stats';
-                    array_push($jobs, $job);
-                    // WON'T DO
-                    // $job = self::getUserDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    // $job['name'] = 'user_stats';
-                    // array_push($jobs, $job);
-                    $job = self::getProductAdsDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    $job['name'] = 'product_ads';
-                    array_push($jobs, $job);
-                    $job = self::getConversionRulesDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    $job['name'] = 'conversion_rules_stats';
-                    array_push($jobs, $job);
-                    $job = self::getDomainPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
-                    $job['name'] = 'domain_performance_stats';
-                    array_push($jobs, $job);
-                });
-
-                foreach ($jobs as $index => $job) {
-                    GeminiJob::create([
-                        'user_id' => $campaign->user_id,
-                        'campaign_id' => $campaign->campaign_id,
-                        'advertiser_id' => $campaign->advertiser_id,
-                        'status' => 'submitted',
-                        'name' => $job['name'],
-                        'job_id' => $job['response']['jobId'],
-                        'job_response' => $job['response']['jobResponse'],
-                        'submited_at' => $job['timestamp']
-                    ]);
-                }
-            }
+        $campaign = $this->campaign;
+        $date = $this->date;
+        $jobs = [];
+        $user_info = UserProvider::where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first();
+        Token::refresh($user_info, function () use ($campaign, $user_info, $date, &$jobs) {
+            $job = self::getPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job['name'] = 'performance_stats';
+            array_push($jobs, $job);
+            $job = self::getSlotPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job['name'] = 'slot_performance_stats';
+            array_push($jobs, $job);
+            $job = self::getSitePerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job['name'] = 'site_performance_stats';
+            array_push($jobs, $job);
+            $job = self::getCampaignBidPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job['name'] = 'campaign_bid_performance_stats';
+            array_push($jobs, $job);
+            $job = self::getStructuredSnippetExtensionPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job['name'] = 'structured_snippet_extension';
+            array_push($jobs, $job);
+            $job = self::getProductAdPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job['name'] = 'product_ad_performance_stats';
+            array_push($jobs, $job);
+            $job = self::getAdjustmentDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job['name'] = 'adjustment_stats';
+            array_push($jobs, $job);
+            $job = self::getKeywordDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job['name'] = 'keyword_stats';
+            array_push($jobs, $job);
+            $job = self::getSearchDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job['name'] = 'search_stats';
+            array_push($jobs, $job);
+            $job = self::getAdExtensionDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job['name'] = 'ad_extension_details';
+            array_push($jobs, $job);
+            $job = self::getCallExtensionDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job['name'] = 'call_extension_stats';
+            array_push($jobs, $job);
+            // WON'T DO
+            // $job = self::getUserDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            // $job['name'] = 'user_stats';
+            // array_push($jobs, $job);
+            $job = self::getProductAdsDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job['name'] = 'product_ads';
+            array_push($jobs, $job);
+            $job = self::getConversionRulesDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job['name'] = 'conversion_rules_stats';
+            array_push($jobs, $job);
+            $job = self::getDomainPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job['name'] = 'domain_performance_stats';
+            array_push($jobs, $job);
         });
+
+        foreach ($jobs as $index => $job) {
+            GeminiJob::create([
+                'user_id' => $campaign->user_id,
+                'campaign_id' => $campaign->campaign_id,
+                'advertiser_id' => $campaign->advertiser_id,
+                'status' => 'submitted',
+                'name' => $job['name'],
+                'job_id' => $job['response']['jobId'],
+                'job_response' => $job['response']['jobResponse'],
+                'submited_at' => $job['timestamp']
+            ]);
+        }
     }
 
     private static function getPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
