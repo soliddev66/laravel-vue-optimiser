@@ -161,6 +161,44 @@ class FileManager extends \Alexusmai\LaravelFileManager\FileManager
     }
 
     /**
+     * Get files and directories for the selected path and disk
+     *
+     * @param $disk
+     * @param $path
+     *
+     * @return array
+     */
+    public function tag($tag)
+    {
+        $result = [
+            'result' => [
+                'status'  => 'success',
+                'message' => null,
+            ],
+            'directories' => [],
+            'files' => []
+        ];
+
+        $files = Image::whereHas('tags', function($q) use ($tag) {
+            $q->whereIn('name', $tag);
+        })->get();
+
+        foreach ($files as $file) {
+            $result['files'][] = [
+                'basename' => $file->name,
+                'dirname' => $file->path,
+                'type' => 'file',
+                'width' => $file->width,
+                'height' => $file->height,
+                'path' => $file->path . '/' . $file->name,
+                'size' => Storage::disk($file->disk)->size($file->path . '/' . $file->name)
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
      * Rename file or folder
      *
      * @param $disk

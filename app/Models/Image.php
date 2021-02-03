@@ -15,4 +15,9 @@ class Image extends Model
         'disk',
         'path'
     ];
+
+    public function tags()
+    {
+        return $this->belongsToMany('App\Models\Tag', 'image_tags');
+    }
 }

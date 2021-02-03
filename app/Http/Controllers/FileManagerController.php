@@ -8,6 +8,7 @@ use Alexusmai\LaravelFileManager\Events\FilesUploading;
 use Alexusmai\LaravelFileManager\Events\Rename;
 
 use App\Utils\FileManager\FileManager;
+use App\Models\Tag;
 
 class FileManagerController extends \Alexusmai\LaravelFileManager\Controllers\FileManagerController
 {
@@ -59,5 +60,17 @@ class FileManagerController extends \Alexusmai\LaravelFileManager\Controllers\Fi
                 $request->input('tag'),
             )
         );
+    }
+
+    /**
+     * Rename
+     *
+     * @param RequestValidator $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function tags()
+    {
+        return Tag::select('name')->get();
     }
 }
