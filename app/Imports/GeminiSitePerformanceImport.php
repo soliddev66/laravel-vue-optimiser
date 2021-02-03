@@ -27,7 +27,7 @@ class GeminiSitePerformanceImport implements OnEachRow, WithChunkReading, Should
         $gemini_site_performance_stat = GeminiSitePerformanceStat::firstOrNew([
             'advertiser_id' => $row['advertiser_id'],
             'campaign_id' => $row['campaign_id'],
-            'ad_group_id' => $row['ad_group_id'] ?? '',
+            'ad_group_id' => $row['ad_group_id'],
             'day' => $row['day'],
             'external_site_name' => $row['external_site_name'],
             'external_site_group_name' => $row['external_site_group_name'],

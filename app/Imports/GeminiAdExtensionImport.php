@@ -27,7 +27,7 @@ class GeminiAdExtensionImport implements OnEachRow, WithChunkReading, ShouldQueu
         $gemini_ad_extension_stat = GeminiAdExtensionStat::firstOrNew([
             'advertiser_id' => $row['advertiser_id'],
             'campaign_id' => $row['campaign_id'],
-            'ad_group_id' => $row['ad_group_id'] ?? '',
+            'ad_group_id' => $row['ad_group_id'],
             'ad_id' => $row['ad_id'],
             'keyword_id' => $row['keyword_id'],
             'ad_extn_id' => $row['ad_extn_id'],
