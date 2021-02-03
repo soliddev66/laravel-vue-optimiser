@@ -26,7 +26,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class YahooJP extends Root implements AdVendorInterface
+class Yahoojp extends Root implements AdVendorInterface
 {
     private function api()
     {
