@@ -71,6 +71,6 @@ class FileManagerController extends \Alexusmai\LaravelFileManager\Controllers\Fi
      */
     public function tags()
     {
-        return Tag::select('name')->get();
+        return Tag::select('name')->where('user_id', auth()->id())->get();
     }
 }
