@@ -134,6 +134,10 @@ export default {
       type: String,
       default: null
     },
+    ad: {
+      type: Object,
+      default: null
+    }
   },
   components: {
     Loading,
@@ -164,6 +168,9 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
+    if (this.ad) {
+      this.loadPreview(0)
+    }
     let vm = this
     this.$root.$on('fm-selected-items', (value) => {
       const selectedFilePath = value[0].path
@@ -185,23 +192,23 @@ export default {
     });
   },
   watch: {
-
+    //
   },
   data() {
     let contents = [{
       id: '',
       titles: [{
-        title: '',
+        title: this.ad ? this.ad.title : '',
         existing: false
       }],
-      displayUrl: '',
-      targetUrl: '',
-      description: '',
-      brandname: '',
+      displayUrl: this.ad ? this.ad.displayUrl : '',
+      targetUrl: this.ad ? this.ad.landingUrl : '',
+      description: this.ad ? this.ad.description : '',
+      brandname: this.ad ? this.ad.sponsoredBy : '',
       images: [{
-        imageUrlHQ: '',
+        imageUrlHQ: this.ad ? this.ad.imageUrlHQ : '',
         imageUrlHQState: true,
-        imageUrl: '',
+        imageUrl: this.ad ? this.ad.imageUrl : '',
         imageUrlState: true,
         existing: false
       }],
@@ -347,13 +354,13 @@ export default {
         selectedAdvertiser: this.campaign.advertiser_id,
         contents: this.contents
       }
-
+      let vm = this
       axios.post(`/campaigns/${this.campaign.id}/ad-groups/${this.adGroupId}/ads/store-ad`, this.postData).then(response => {
         if (response.data.errors) {
           alert(response.data.errors[0])
         } else {
           this.$dialog.alert('Save successfully!').then(function(dialog) {
-            window.location = '/campaigns';
+            window.location = `/campaigns/${vm.campaign.id}`;
           });
         }
       }).catch(error => {

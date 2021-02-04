@@ -148,8 +148,9 @@ export default {
             'btn': true,
             'btn-primary': false,
             'btn-sm': true,
+            'btn-clone-ad': true
           },
-          event: "click",
+          event: 'click',
           handler: this.updateAdStatus,
           component: ActionsComponent
         },
@@ -186,9 +187,9 @@ export default {
             'btn': true,
             'btn-primary': false,
             'btn-sm': true,
-            'btn-add-new-ad': true,
+            'btn-add-new-ad': true
           },
-          event: "click",
+          event: 'click',
           handler: this.updateAdGroupStatus,
           component: ActionsComponent
         },
