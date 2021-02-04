@@ -8,6 +8,7 @@ use Alexusmai\LaravelFileManager\Traits\PathTrait;
 use Alexusmai\LaravelFileManager\Services\ConfigService\ConfigRepository;
 
 use App\Models\Image;
+use App\Models\Tag;
 use Storage;
 
 class FileManager extends \Alexusmai\LaravelFileManager\FileManager
@@ -32,7 +33,7 @@ class FileManager extends \Alexusmai\LaravelFileManager\FileManager
      *
      * @return array
      */
-    public function upload($disk, $path, $files, $overwrite)
+    public function upload($disk, $path, $files, $overwrite, $tags = null)
     {
         $result = [
             'result' => [
@@ -43,6 +44,21 @@ class FileManager extends \Alexusmai\LaravelFileManager\FileManager
         ];
 
         $fileNotUploaded = false;
+
+        $tag_instances = [];
+
+        if ($tags && count($tags)) {
+            foreach ($tags as $item) {
+                $tag = Tag::firstOrNew([
+                    'user_id' => auth()->id(),
+                    'name' => $item
+                ]);
+
+                $tag->save();
+
+                $tag_instances[] = $tag;
+            }
+        }
 
         foreach ($files as $file) {
             if (!$overwrite
@@ -105,6 +121,10 @@ class FileManager extends \Alexusmai\LaravelFileManager\FileManager
             $image->height = $dimensions[1];
 
             $image->save();
+
+            foreach ($tag_instances as $tag) {
+                $image->tags()->save($tag);
+            }
         }
 
         // If the some file was not uploaded

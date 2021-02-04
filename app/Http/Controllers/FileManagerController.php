@@ -24,6 +24,30 @@ class FileManagerController extends \Alexusmai\LaravelFileManager\Controllers\Fi
     }
 
     /**
+     * Upload files
+     *
+     * @param RequestValidator $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function upload(RequestValidator $request)
+    {
+        event(new FilesUploading($request));
+
+        $uploadResponse = $this->fm->upload(
+            $request->input('disk'),
+            $request->input('path'),
+            $request->file('files'),
+            $request->input('overwrite'),
+            $request->input('tags'),
+        );
+
+        event(new FilesUploaded($request));
+
+        return response()->json($uploadResponse);
+    }
+
+    /**
      * Rename
      *
      * @param RequestValidator $request
