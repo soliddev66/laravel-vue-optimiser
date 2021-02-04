@@ -184,6 +184,12 @@ class FileManager extends \Alexusmai\LaravelFileManager\FileManager
         })->get();
 
         foreach ($files as $file) {
+            $extension = explode('.', $file->name);
+            $extension = end($extension);
+            if ($this->configRepository->getAllowFileTypes() && !in_array($extension, $this->configRepository->getAllowFileTypes())) {
+                $extension = null;
+            }
+
             $result['files'][] = [
                 'basename' => $file->name,
                 'dirname' => $file->path,
@@ -191,6 +197,7 @@ class FileManager extends \Alexusmai\LaravelFileManager\FileManager
                 'width' => $file->width,
                 'height' => $file->height,
                 'path' => $file->path . '/' . $file->name,
+                'extension' => $extension,
                 'size' => Storage::disk($file->disk)->size($file->path . '/' . $file->name)
             ];
         }
