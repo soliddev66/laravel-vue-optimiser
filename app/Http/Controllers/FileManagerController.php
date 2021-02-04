@@ -71,7 +71,25 @@ class FileManagerController extends \Alexusmai\LaravelFileManager\Controllers\Fi
     }
 
     /**
-     * Rename
+     * Add Tags
+     *
+     * @param RequestValidator $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function addTags(RequestValidator $request)
+    {
+        return response()->json(
+            $this->fm->addTags(
+                $request->input('disk'),
+                $request->input('selectedList'),
+                $request->input('tags'),
+            )
+        );
+    }
+
+    /**
+     * Tag
      *
      * @param RequestValidator $request
      *
@@ -87,7 +105,7 @@ class FileManagerController extends \Alexusmai\LaravelFileManager\Controllers\Fi
     }
 
     /**
-     * Rename
+     * Tags
      *
      * @param RequestValidator $request
      *

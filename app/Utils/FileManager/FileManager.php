@@ -257,4 +257,46 @@ class FileManager extends \Alexusmai\LaravelFileManager\FileManager
             ],
         ];
     }
+
+    public function addTags($disk, $selectedList, $tags) {
+        $tag_instances = [];
+
+        if ($tags && count($tags)) {
+            foreach ($tags as $item) {
+                $tag = Tag::firstOrNew([
+                    'user_id' => auth()->id(),
+                    'name' => $item
+                ]);
+
+                $tag->save();
+
+                $tag_instances[] = $tag;
+            }
+
+            foreach ($selectedList as $item) {
+                if ($item['type'] == 'dir') {
+                    continue;
+                }
+                $image = Image::where([
+                    'user_id' => auth()->id(),
+                    'disk' => $disk,
+                    'path' => $item['dirname'],
+                    'name' => $item['basename']
+                ])->first();
+
+                if ($image) {
+                    foreach ($tag_instances as $tag) {
+                        $image->tags()->save($tag);
+                    }
+                }
+            }
+        }
+
+        return [
+            'result' => [
+                'status'  => 'success',
+                'message' => 'added',
+            ],
+        ];
+    }
 }

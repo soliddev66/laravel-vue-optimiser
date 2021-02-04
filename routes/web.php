@@ -122,4 +122,5 @@ Route::group(['middleware' => ['auth', 'file.manager'], 'prefix' => 'file-manage
     Route::get('tags', [App\Http\Controllers\FileManagerController::class, 'tags'])->name('fm.tags');
     Route::post('create-directory', [App\Http\Controllers\FileManagerController::class, 'createDirectory'])->name('fm.create-directory');
     Route::post('rename', [App\Http\Controllers\FileManagerController::class, 'rename'])->name('fm.rename');
+    Route::post('addTags', [App\Http\Controllers\FileManagerController::class, 'addTags'])->name('fm.addTags');
 });
