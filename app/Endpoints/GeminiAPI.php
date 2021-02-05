@@ -299,7 +299,7 @@ class GeminiAPI
         }
 
         if (!empty(request('campaignSiteBlock'))) {
-            $campaign_site_blocks = explode(',', request('campaignSiteBlock'));
+            $campaign_site_blocks = explode(PHP_EOL, request('campaignSiteBlock'));
 
             if (count($campaign_site_blocks) > 0) {
                 foreach ($campaign_site_blocks as $item) {
