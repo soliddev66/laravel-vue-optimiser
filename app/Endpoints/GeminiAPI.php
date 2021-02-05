@@ -310,7 +310,6 @@ class GeminiAPI
 
         if (count(request('supportedSiteCollections'))) {
             foreach (request('supportedSiteCollections') as $item) {
-                var_dump(request('bidAmount') + $item['incrementType'] * request('bidAmount') * $item['bidModifier'] / 100);
                 $request_body[] = $body + ['type' => 'SITE_X_DEVICE', 'exclude' => 'FALSE', 'value' => $item['key'], 'bidModifier' => request('bidAmount') + $item['incrementType'] * request('bidAmount') * $item['bidModifier'] / 100];
             }
         }
