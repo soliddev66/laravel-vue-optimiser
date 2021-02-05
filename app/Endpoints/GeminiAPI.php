@@ -279,23 +279,23 @@ class GeminiAPI
         }
 
         if (!empty(request('campaignSupplyGroup1B'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_1_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup1B') / 100))];
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_1_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('incrementType1b') * request('campaignSupplyGroup1B') / 100))];
         }
 
         if (!empty(request('campaignSupplyGroup2A'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_A', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup2A') / 100))];
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_A', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('incrementType2a') * request('campaignSupplyGroup2A') / 100))];
         }
 
         if (!empty(request('campaignSupplyGroup2B'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup2B') / 100))];
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('incrementType2b') * request('campaignSupplyGroup2B') / 100))];
         }
 
         if (!empty(request('campaignSupplyGroup3A'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_A', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup3A') / 100))];
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_A', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('incrementType3a') * request('campaignSupplyGroup3A') / 100))];
         }
 
         if (!empty(request('campaignSupplyGroup3B'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup3B') / 100))];
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('incrementType3b') * request('campaignSupplyGroup3B') / 100))];
         }
 
         if (!empty(request('campaignSiteBlock'))) {
@@ -310,7 +310,7 @@ class GeminiAPI
 
         if (count(request('supportedSiteCollections'))) {
             foreach (request('supportedSiteCollections') as $item) {
-                $request_body[] = $body + ['type' => 'SITE_X_DEVICE', 'exclude' => 'FALSE', 'value' => $item['key'], 'bidModifier' => request('bidAmount') + request('bidAmount') * $item['bidModifier'] / 100];
+                $request_body[] = $body + ['type' => 'SITE_X_DEVICE', 'exclude' => 'FALSE', 'value' => $item['key'], 'bidModifier' => request('bidAmount') + $item['incrementType'] * request('bidAmount') * $item['bidModifier'] / 100];
             }
         }
 

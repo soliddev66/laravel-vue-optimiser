@@ -103,11 +103,11 @@ class Yahoo extends Root implements AdVendorInterface
             'user_id' => auth()->id(),
             'site_block' => request('campaignSiteBlock'),
             'group_1a' => request('campaignSupplyGroup1A'),
-            'group_1b' => request('campaignSupplyGroup1B'),
-            'group_2a' => request('campaignSupplyGroup2A'),
-            'group_2b' => request('campaignSupplyGroup2B'),
-            'group_3a' => request('campaignSupplyGroup3A'),
-            'group_3b' => request('campaignSupplyGroup3B'),
+            'group_1b' => request('incrementType1b') * request('campaignSupplyGroup1B'),
+            'group_2a' => request('incrementType2a') * request('campaignSupplyGroup2A'),
+            'group_2b' => request('incrementType2b') * request('campaignSupplyGroup2B'),
+            'group_3a' => request('incrementType3a') * request('campaignSupplyGroup3A'),
+            'group_3b' => request('incrementType3b') * request('campaignSupplyGroup3B'),
             'site_group' => json_encode(request('supportedSiteCollections'))
         ])->save();
 
