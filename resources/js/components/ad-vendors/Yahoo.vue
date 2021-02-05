@@ -221,7 +221,6 @@
                             </div>
                           </div>
                         </div>
-
                         <div class="row" v-for="(supportedSiteItem, index) in supportedSiteCollections" :key="index">
                           <label for="bid_adjustment_site_group" class="col-sm-5 control-label mt-2">{{ supportedSiteItem.label }} <small>{{ supportedSiteItem.subLabel }}</small></label>
                           <select class="form-control col-sm-2" v-model="supportedSiteItem.incrementType">
@@ -612,7 +611,6 @@ export default {
     }
   },
   watch: {
-
   },
   data() {
     let campaignGender = [],
@@ -1249,3 +1247,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.select2 {
+  width: 100% !important;
+}
+</style>

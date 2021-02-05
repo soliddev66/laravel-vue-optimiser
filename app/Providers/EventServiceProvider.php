@@ -18,6 +18,14 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+
+        \Alexusmai\LaravelFileManager\Events\Deleted::class => [
+            \App\Listeners\FileManagerDeleted::class
+        ],
+
+        \Alexusmai\LaravelFileManager\Events\Paste::class => [
+            \App\Listeners\FileManagerPaste::class
+        ]
     ];
 
     /**
