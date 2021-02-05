@@ -21,7 +21,7 @@ class BlockSite extends Root
             $log['effect']['blocked'] = true;
             echo "Campaign was being added site block\n";
         } catch (Exception $e) {
-            $log['effect']['blocked'] = false;
+            $log['effect']['message'] = $e->getMessage();
             echo "Campaign wasn't being added site block\n";
         }
     }

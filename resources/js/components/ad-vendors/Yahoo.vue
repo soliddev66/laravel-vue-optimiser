@@ -221,7 +221,6 @@
                             </div>
                           </div>
                         </div>
-
                         <div class="row" v-for="(supportedSiteItem, index) in supportedSiteCollections" :key="index">
                           <label for="bid_adjustment_site_group" class="col-sm-5 control-label mt-2">{{ supportedSiteItem.label }} <small>{{ supportedSiteItem.subLabel }}</small></label>
                           <select class="form-control col-sm-2" v-model="supportedSiteItem.incrementType" @change="changeSupportSiteIncrementType(index)">
@@ -612,7 +611,7 @@ export default {
     }
   },
   watch: {
-    incrementType1b: function (newValue) {
+    incrementType1b: function(newValue) {
       console.log(newValue)
       if (newValue == 1) {
         this.campaignSupplyGroup1BMin = 0
@@ -622,7 +621,7 @@ export default {
         this.campaignSupplyGroup1BMax = 0
       }
     },
-    incrementType2a: function (newValue) {
+    incrementType2a: function(newValue) {
       if (newValue == 1) {
         this.campaignSupplyGroup2AMin = 0
         this.campaignSupplyGroup2AMax = 800
@@ -631,7 +630,7 @@ export default {
         this.campaignSupplyGroup2AMax = 0
       }
     },
-    incrementType2b: function (newValue) {
+    incrementType2b: function(newValue) {
       if (newValue == 1) {
         this.campaignSupplyGroup2BMin = 0
         this.campaignSupplyGroup2BMax = 600
@@ -640,7 +639,7 @@ export default {
         this.campaignSupplyGroup2BMax = 0
       }
     },
-    incrementType3a: function (newValue) {
+    incrementType3a: function(newValue) {
       if (newValue == 1) {
         this.campaignSupplyGroup3AMin = 0
         this.campaignSupplyGroup3AMax = 800
@@ -649,7 +648,7 @@ export default {
         this.campaignSupplyGroup3AMax = 0
       }
     },
-    incrementType3b: function (newValue) {
+    incrementType3b: function(newValue) {
       if (newValue == 1) {
         this.campaignSupplyGroup3BMin = 0
         this.campaignSupplyGroup3BMax = 600
@@ -1250,3 +1249,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.select2 {
+  width: 100% !important;
+}
+</style>
