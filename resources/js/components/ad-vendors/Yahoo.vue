@@ -715,7 +715,7 @@ export default {
           }
         } else if (attribute.type === 'SITE_BLOCK') {
           siteBlock.push(attribute.value);
-        } else if (attribute.type === 'SITE_X_DEVICE') {
+        } else if (attribute.type === 'SITE_X_DEVICE' || attribute.type === 'SITE_GROUP_X_DEVICE') {
           let bidModifier = Math.round((attribute.bidModifier - bidAmount) / bidAmount * 100)
           let incrementType = 1
 
@@ -727,6 +727,7 @@ export default {
             label: '',
             subLabel: '(+800% — -80%)',
             key: attribute.value,
+            type: attribute.type === 'SITE_X_DEVICE' ? 'site' : 'group',
             incrementType: incrementType,
             bidModifier: bidModifier
           })
@@ -1106,6 +1107,7 @@ export default {
         label: node.label,
         subLabel: '(+800% — -80%)',
         key: node.id,
+        type: node.type,
         incrementType: 1,
         bidModifier: ''
       })

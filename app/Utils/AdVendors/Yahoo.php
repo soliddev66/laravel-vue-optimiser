@@ -52,19 +52,20 @@ class Yahoo extends Root implements AdVendorInterface
 
     public function bdsxdSupportedSites()
     {
-        $bdsxdSupportedSites = $this->api()->getBbsxdSupportedSites();
-
         $options = [];
 
         $groups = [];
 
         $children = [];
 
+        $bdsxdSupportedSites = $this->api()->getBbsxdSupportedSiteGroups();
+
         foreach ($bdsxdSupportedSites as $bdsxdSupportedSite) {
             if (!isset($groups[$bdsxdSupportedSite['category']])) {
                 $children[$bdsxdSupportedSite['category']] = [];
                 $groups[$bdsxdSupportedSite['category']] = [
                     'id' => $bdsxdSupportedSite['category'],
+                    'type' => 'group',
                     'label' => $bdsxdSupportedSite['category'],
                     'children' => &$children[$bdsxdSupportedSite['category']]
                 ];
@@ -74,11 +75,41 @@ class Yahoo extends Root implements AdVendorInterface
 
             $children[$bdsxdSupportedSite['category']][] = [
                 'id' => $bdsxdSupportedSite['value'] . '|DESKTOP',
+                'type' => 'group',
                 'label' => $bdsxdSupportedSite['name'] . ' - Desktop'
             ];
 
             $children[$bdsxdSupportedSite['category']][] = [
                 'id' => $bdsxdSupportedSite['value'] . '|MOBILE',
+                'type' => 'group',
+                'label' => $bdsxdSupportedSite['name'] . ' - Mobile'
+            ];
+        }
+
+        $bdsxdSupportedSites = $this->api()->getBbsxdSupportedSites();
+
+        foreach ($bdsxdSupportedSites as $bdsxdSupportedSite) {
+            if (!isset($groups[$bdsxdSupportedSite['category']])) {
+                $children[$bdsxdSupportedSite['category']] = [];
+                $groups[$bdsxdSupportedSite['category']] = [
+                    'id' => $bdsxdSupportedSite['category'],
+                    'label' => $bdsxdSupportedSite['category'],
+                    'type' => 'site',
+                    'children' => &$children[$bdsxdSupportedSite['category']]
+                ];
+
+                $options[] = $groups[$bdsxdSupportedSite['category']];
+            }
+
+            $children[$bdsxdSupportedSite['category']][] = [
+                'id' => $bdsxdSupportedSite['value'] . '|DESKTOP',
+                'type' => 'site',
+                'label' => $bdsxdSupportedSite['name'] . ' - Desktop'
+            ];
+
+            $children[$bdsxdSupportedSite['category']][] = [
+                'id' => $bdsxdSupportedSite['value'] . '|MOBILE',
+                'type' => 'site',
                 'label' => $bdsxdSupportedSite['name'] . ' - Mobile'
             ];
         }
