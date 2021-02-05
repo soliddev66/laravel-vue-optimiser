@@ -7,7 +7,11 @@
 @stop
 
 @section('content')
-    <ad-creator :campaign="{{ json_encode($campaign) }}" :ad-group-id="'{{ $ad_group_id }}'"></ad-creator>
+    @if (isset($instance))
+        <ad-creator :campaign="{{ json_encode($campaign) }}" :ad-group-id="'{{ $ad_group_id }}'" :ad="{{ json_encode($instance) }}"></ad-creator>
+    @else
+        <ad-creator :campaign="{{ json_encode($campaign) }}" :ad-group-id="'{{ $ad_group_id }}'"></ad-creator>
+    @endif
 @stop
 
 @section('css')

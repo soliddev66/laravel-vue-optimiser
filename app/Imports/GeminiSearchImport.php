@@ -27,7 +27,7 @@ class GeminiSearchImport implements OnEachRow, WithChunkReading, ShouldQueue, Wi
         $gemini_search_stat = GeminiSearchStat::firstOrNew([
             'advertiser_id' => $row['advertiser_id'],
             'campaign_id' => $row['campaign_id'],
-            'ad_group_id' => $row['ad_group_id'] ?? '',
+            'ad_group_id' => $row['ad_group_id'],
             'ad_id' => $row['ad_id'],
             'keyword_id' => $row['keyword_id'],
             'delivered_match_type' => $row['delivered_match_type'],

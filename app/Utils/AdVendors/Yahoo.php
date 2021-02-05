@@ -138,9 +138,28 @@ class Yahoo extends Root implements AdVendorInterface
         }
     }
 
+    public function getAdInstance(Campaign $campaign, $ad_group_id, $ad_id)
+    {
+        try {
+            $gemini = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+
+            $ad = $gemini->getAd($ad_id);
+            $ad['open_id'] = $campaign['open_id'];
+
+            return $ad;
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
     public function cloneCampaignName(&$instance)
     {
         $instance['campaignName'] = $instance['campaignName'] . ' - Copy';
+    }
+
+    public function cloneAdName(&$instance)
+    {
+        $instance['title'] = $instance['title'] . ' - Copy';
     }
 
     public function store()
@@ -238,6 +257,8 @@ class Yahoo extends Root implements AdVendorInterface
             }
 
             $ad_data = $api->createAd($ads);
+
+            Helper::pullAd();
 
             return $ad_data;
         } catch (Exception $e) {

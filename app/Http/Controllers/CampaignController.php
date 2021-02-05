@@ -338,6 +338,26 @@ class CampaignController extends Controller
         return (new $adVendorClass())->adGroupStatus($campaign, $ad_group_id);
     }
 
+    public function getCloneAd($campaign_id, $ad_group_id, $ad_id)
+    {
+        $campaign = Campaign::find($campaign_id);
+        if (!$campaign) {
+            $campaign = Campaign::where('campaign_id', $campaign_id)->first();
+        }
+        $instance = null;
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $adVendor = new $adVendorClass();
+        $instance = $adVendor->getAdInstance($campaign, $ad_group_id, $ad_id);
+        if (isset($instance['id'])) {
+            $adVendor->cloneAdName($instance);
+        } else {
+            $instance = null;
+        }
+        $campaign['provider_slug'] = $campaign->provider->slug;
+
+        return view('campaigns.adForm', compact('campaign', 'ad_group_id', 'instance'));
+    }
+
     public function adStatus($campaign_id, $ad_group_id, $ad_id)
     {
         $campaign = Campaign::find($campaign_id);

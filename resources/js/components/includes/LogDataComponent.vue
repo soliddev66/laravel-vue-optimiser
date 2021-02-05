@@ -2,12 +2,24 @@
   <div v-if="data">
     <div v-for="(value, name) in data">
       <span>{{ name }}:</span>
-      <ul v-if="typeof value === 'string' && value.startsWith('[')">
-        <li v-for="(info, key) in JSON.parse(value)[0]">
-          <span>{{ key }}:</span>
-          <ul v-if="typeof info === 'object'">
-            <li v-for="i in info">
-              <span>{{ i.ruleConditionType }}: {{ i.passed ? 'Passed' : 'Not Passed' }}</span>
+      <ul v-if="(typeof value == 'string' && (value.startsWith('[') || value.startsWith('{'))) || typeof value === 'object'">
+        <li v-for="(info, key) in JSON.parse(value)">
+          <span>{{ key == 0 ? 'info' : key }}: </span>
+          <ul v-if="typeof info == 'object'">
+            <li v-for="(i, t) in info">
+              <span>{{ t == 0 ? 'info' : t }}: </span>
+              <ul v-if="typeof i == 'object'">
+                <li v-for="(ii, tt) in i">
+                  <span>{{ tt == 0 ? 'info' : tt }}: </span>
+                  <ul v-if="typeof ii == 'object'">
+                    <li v-for="(iii, ttt) in ii">
+                      <span>{{ ttt }}: {{ iii }}</span>
+                    </li>
+                  </ul>
+                  <span v-else>{{ ii }}</span>
+                </li>
+              </ul>
+              <span v-else>{{ i }}</span>
             </li>
           </ul>
           <span v-else>

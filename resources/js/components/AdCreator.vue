@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <component :is="selectedProvider" :campaign="campaign" :adGroupId="adGroupId" />
+    <component :is="selectedProvider" :campaign="campaign" :adGroupId="adGroupId" :ad="ad" />
   </div>
 </template>
 
@@ -23,6 +23,10 @@ export default {
       type: String,
       default: null
     },
+    ad: {
+      type: Object,
+      default: null
+    }
   },
 
   components: {
@@ -46,7 +50,7 @@ export default {
     }
   },
   methods: {
-
+    //
   }
 }
 </script>
