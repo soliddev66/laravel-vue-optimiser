@@ -247,7 +247,7 @@
                     <div class="row">
                       <div class="col">
                         <textarea class="form-control" rows="3" placeholder="Enter site block" v-model="campaignSiteBlock" :disabled="actionName == 'edit'"></textarea>
-                        <small>Separate sites by comma</small>
+                        <small>Separate sites by break new line</small>
                       </div>
                     </div>
                     <div class="row mt-2">
@@ -736,7 +736,7 @@ export default {
       });
 
       if (siteBlock.length > 0) {
-        campaignSiteBlock = siteBlock.join(',');
+        campaignSiteBlock = siteBlock.join("\n");
       }
 
       contents = [];
