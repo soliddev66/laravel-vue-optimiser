@@ -283,6 +283,20 @@ class Twitter extends Root implements AdVendorInterface
         }
     }
 
+    public function getAdInstance(Campaign $campaign, $ad_group_id, $ad_id)
+    {
+        try {
+            $api = $this->api();
+
+            $ad = $api->getAd($ad_id);
+            $ad['open_id'] = $campaign['open_id'];
+
+            return $ad;
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
     public function adGroupData(Campaign $campaign)
     {
         $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
