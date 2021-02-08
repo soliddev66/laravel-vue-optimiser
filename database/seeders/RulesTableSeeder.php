@@ -279,12 +279,12 @@ class RulesTableSeeder extends Seeder
         ], [
             'name' => 'Pause Contents',
             'provider' => 'PauseContents',
-            'calculation_type' => 1,
+            'calculation_type' => 3,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Activate Contents',
             'provider' => 'ActivateContents',
-            'calculation_type' => 1,
+            'calculation_type' => 3,
             'created_at' => Carbon::now()
         ], [
             'name' => 'Change Campaign Bid',

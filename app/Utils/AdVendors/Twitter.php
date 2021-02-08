@@ -10,6 +10,7 @@ use App\Jobs\PullCampaign;
 use App\Models\Ad;
 use App\Models\AdGroup;
 use App\Models\Campaign;
+use App\Models\UserProvider;
 use App\Models\Provider;
 use App\Models\RedtrackReport;
 use App\Models\TwitterReport;
@@ -286,7 +287,7 @@ class Twitter extends Root implements AdVendorInterface
     public function status(Campaign $campaign)
     {
         try {
-            $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
+            $api = new TwitterAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first(), $campaign->advertiser_id);
             $campaign->status = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
 
             $api->updateCampaignStatus($campaign);
@@ -355,7 +356,7 @@ class Twitter extends Root implements AdVendorInterface
         ]);
     }
 
-    public function adStatus(Campaign $campaign, $ad_group_id, $ad_id)
+    public function adStatus(Campaign $campaign, $ad_group_id, $ad_id, $status = null)
     {
         return [];
     }

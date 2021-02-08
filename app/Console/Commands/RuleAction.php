@@ -66,7 +66,7 @@ class RuleAction extends Command
                     $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
                     $performance_data = $campaign->performanceStats()->whereBetween('day', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
 
-                    if ($this->checkConditions($rule, $campaign, $redtrack_data, $performance_data)) {
+                    if ($this->checkConditions($rule, $redtrack_data, $performance_data)) {
                         echo 'PASSED', "\n";
                         $this->log->passed = true;
                         $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
@@ -94,7 +94,7 @@ class RuleAction extends Command
                         $this->log->start_date = $time_range[0]->format('Y-m-d');
                         $this->log->end_date = $time_range[1]->format('Y-m-d');
 
-                        if ($this->checkConditions($rule, $campaign, [$data], [$data])) {
+                        if ($this->checkConditions($rule, [$data], [$data])) {
                             echo 'PASSED', "\n";
                             $this->log->passed = true;
 
@@ -113,6 +113,35 @@ class RuleAction extends Command
                             ];
                         }
 
+                        $this->log->data = json_encode($this->log->data_text);
+                        $this->log->save();
+                    }
+
+                    break;
+
+                case 3:
+                    foreach ($campaign->ads as $ad) {
+                        $redtrack_content_stats = $ad->redtrackContentStats()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+
+                        $this->log = new RuleLog;
+
+                        $this->log->rule_id = $rule_id;
+
+                        $this->log->start_date = $time_range[0]->format('Y-m-d');
+                        $this->log->end_date = $time_range[1]->format('Y-m-d');
+
+                        if ($this->checkConditions($rule, $redtrack_content_stats, $redtrack_content_stats)) {
+                            echo 'PASSED', "\n";
+                            $this->log->passed = true;
+                            $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
+
+                            if (class_exists($rule_action_class)) {
+                                (new $rule_action_class)->process($campaign, $ad);
+                            }
+                        } else {
+                            echo 'NOPASSED', "\n";
+                            $this->log->passed = false;
+                        }
 
                         $this->log->data = json_encode($this->log->data_text);
                         $this->log->save();
@@ -128,7 +157,7 @@ class RuleAction extends Command
         return 0;
     }
 
-    private function checkConditions($rule, $campaign, $redtrack_data, $performance_data)
+    private function checkConditions($rule, $redtrack_data, $performance_data)
     {
         $data = [];
         $this->log->data_text = &$data;

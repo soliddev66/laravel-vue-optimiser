@@ -375,7 +375,7 @@ class Yahoo extends Root implements AdVendorInterface
         $ad_body = [];
 
         try {
-            $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
+            $api = new GeminiAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
             $campaign->status = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
 
             $api->updateCampaignStatus($campaign);
@@ -446,10 +446,13 @@ class Yahoo extends Root implements AdVendorInterface
         ]);
     }
 
-    public function adStatus(Campaign $campaign, $ad_group_id, $ad_id)
+    public function adStatus(Campaign $campaign, $ad_group_id, $ad_id, $status = null)
     {
-        $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
-        $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+        $api = new GeminiAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
+
+        if ($status == null) {
+            $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+        }
 
         try {
             $api->updateAdStatus($ad_group_id, $ad_id, $status);

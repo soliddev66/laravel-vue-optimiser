@@ -442,6 +442,11 @@ class Taboola extends Root implements AdVendorInterface
         //
     }
 
+    public function adStatus(Campaign $campaign, $ad_group_id, $ad_id, $status = null)
+    {
+        //
+    }
+
     public function pullAd($user_provider)
     {
         $ad_ids = [];

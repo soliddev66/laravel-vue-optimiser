@@ -225,7 +225,7 @@ class Outbrain extends Root implements AdVendorInterface
     public function status(Campaign $campaign)
     {
         try {
-            $api = new OutbrainAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+            $api = new OutbrainAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
             $campaign->status = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
 
             $api->updateCampaignStatus($campaign->campaign_id, $campaign->status == Campaign::STATUS_ACTIVE);
@@ -288,6 +288,11 @@ class Outbrain extends Root implements AdVendorInterface
     }
 
     public function pullAdGroup($user_provider)
+    {
+        //
+    }
+
+    public function adStatus(Campaign $campaign, $ad_group_id, $ad_id, $status = null)
     {
         //
     }
