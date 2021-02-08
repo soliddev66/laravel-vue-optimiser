@@ -641,22 +641,22 @@ class Yahoo extends Root implements AdVendorInterface
 
     public function getSummaryDataQuery($data)
     {
-        $summary_data_query = GeminiPerformanceStat::select(
+        $summary_data_query = Campaign::select(
             DB::raw('SUM(spend) as total_cost'),
             DB::raw('"N/A" as total_revenue'),
             DB::raw('"N/A" as total_net'),
             DB::raw('"N/A" as avg_roi')
         );
-        $summary_data_query->leftJoin('campaigns', function ($join) use ($data) {
-            $join->on('campaigns.campaign_id', '=', 'gemini_performance_stats.campaign_id');
-            if ($data['provider']) {
-                $join->where('campaigns.provider_id', $data['provider']);
-            }
-            if ($data['account']) {
-                $join->where('campaigns.open_id', $data['account']);
-            }
+        $summary_data_query->leftJoin('gemini_performance_stats', function ($join) use ($data) {
+            $join->on('gemini_performance_stats.campaign_id', '=', 'campaigns.campaign_id');
+            $join->whereBetween('gemini_performance_stats.day', [$data['start'], $data['end']]);
         });
-        $summary_data_query->whereBetween('day', [request('start'), request('end')]);
+        if ($data['provider']) {
+            $summary_data_query->where('campaigns.provider_id', $data['provider']);
+        }
+        if ($data['account']) {
+            $summary_data_query->where('campaigns.open_id', $data['account']);
+        }
 
         return $summary_data_query;
     }
