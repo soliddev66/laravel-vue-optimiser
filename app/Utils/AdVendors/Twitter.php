@@ -99,9 +99,35 @@ class Twitter extends Root implements AdVendorInterface
         }
     }
 
+    public function getAdInstance(Campaign $campaign, $ad_group_id, $ad_id)
+    {
+        try {
+            $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
+
+            $promoted_tweets = $api->getPromotedTweets([$ad_group_id]);
+
+            if ($promoted_tweets && count($promoted_tweets) > 0) {
+                $tweets = $api->getTweet($promoted_tweets[0]->getTweetId());
+
+                if ($tweets && count($tweets) > 0) {
+                    $instance = $tweets[0]->toArray();
+                }
+            }
+
+            return  $instance;
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
     public function cloneCampaignName(&$instance)
     {
         $instance['name'] = $instance['name'] . ' - Copy';
+    }
+
+    public function cloneAdName(&$instance)
+    {
+        $instance['full_text'] = $instance['full_text'] . ' - Copy';
     }
 
     public function fundingInstruments()
@@ -280,20 +306,6 @@ class Twitter extends Root implements AdVendorInterface
             return [
                 'errors' => [$e->getMessage()]
             ];
-        }
-    }
-
-    public function getAdInstance(Campaign $campaign, $ad_group_id, $ad_id)
-    {
-        try {
-            $api = $this->api();
-
-            $ad = $api->getAd($ad_id);
-            $ad['open_id'] = $campaign['open_id'];
-
-            return $ad;
-        } catch (Exception $e) {
-            return [];
         }
     }
 
