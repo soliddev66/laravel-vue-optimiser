@@ -671,7 +671,7 @@ class Yahoo extends Root implements AdVendorInterface
             DB::raw('MAX(campaigns.budget) AS budget'),
             DB::raw('SUM(clicks) as clicks'),
             DB::raw('ROUND(SUM(spend), 2) as cost'),
-            DB::raw('SUM(impressions) as lp_views')
+            DB::raw('SUM(impressions) as impressions')
         ]);
         $campaigns_query->leftJoin('gemini_performance_stats', function ($join) use ($data) {
             $join->on('gemini_performance_stats.campaign_id', '=', 'campaigns.campaign_id')->whereBetween('gemini_performance_stats.day', [$data['start'], $data['end']]);

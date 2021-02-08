@@ -66,6 +66,7 @@
                   </td>
                   <td>{{ campaign.budget }}</td>
                   <td>{{ campaign.payout || 0 }}</td>
+                  <td>{{ campaign.impressions || 0 }}</td>
                   <td>{{ campaign.clicks || 0 }}</td>
                   <td>{{ campaign.lp_views || 0 }}</td>
                   <td>{{ campaign.lp_clicks || 0 }}</td>
@@ -174,6 +175,10 @@ export default {
       }, {
         label: 'Payout',
         name: 'payout',
+        orderable: true,
+      }, {
+        label: 'Native Impression',
+        name: 'impressions',
         orderable: true,
       }, {
         label: 'Clicks',
