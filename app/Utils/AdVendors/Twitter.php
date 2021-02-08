@@ -407,25 +407,22 @@ class Twitter extends Root implements AdVendorInterface
         Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($campaigns) use ($user_provider, &$ad_group_ids) {
             foreach ($campaigns as $campaign) {
                 $ad_groups = (new TwitterAPI($user_provider, $campaign->advertiser_id))->getAdGroups($campaign->campaign_id);
+                if (is_array($ad_groups) && count($ad_groups)) {
+                    foreach ($ad_groups as $ad_group) {
+                        $db_ad_group = AdGroup::firstOrNew([
+                            'ad_group_id' => $ad_group->getId(),
+                            'user_id' => $user_provider->user_id,
+                            'provider_id' => $user_provider->provider_id,
+                            'campaign_id' => $campaign->campaign_id,
+                            'advertiser_id' => $campaign->advertiser_id,
+                            'open_id' => $user_provider->open_id
+                        ]);
 
-                if (!$ad_groups || !count($ad_groups)) {
-                    continue;
-                }
-
-                foreach ($ad_groups as $ad_group) {
-                    $db_ad_group = AdGroup::firstOrNew([
-                        'ad_group_id' => $ad_group->getId(),
-                        'user_id' => $user_provider->user_id,
-                        'provider_id' => $user_provider->provider_id,
-                        'campaign_id' => $campaign->campaign_id,
-                        'advertiser_id' => $campaign->advertiser_id,
-                        'open_id' => $user_provider->open_id
-                    ]);
-
-                    $db_ad_group->name = $ad_group->getName();
-                    $db_ad_group->status = $ad_group->getEntityStatus();
-                    $db_ad_group->save();
-                    $ad_group_ids[] = $db_ad_group->id;
+                        $db_ad_group->name = $ad_group->getName();
+                        $db_ad_group->status = $ad_group->getEntityStatus();
+                        $db_ad_group->save();
+                        $ad_group_ids[] = $db_ad_group->id;
+                    }
                 }
             }
         });
