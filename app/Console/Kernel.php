@@ -84,7 +84,7 @@ class Kernel extends ConsoleKernel
         // Delete unuse gemini jobs
         $schedule->call(function () {
             GeminiJob::where('status', 'completed')->delete();
-        })->everyTenMinutes();
+        })->weekly();
 
         // Delete unuse gemini files
         $schedule->call(function () {
