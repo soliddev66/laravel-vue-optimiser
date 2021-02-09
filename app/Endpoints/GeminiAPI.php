@@ -73,6 +73,11 @@ class GeminiAPI
         return $this->client->call('GET', 'dictionary/bbsxd_supported_sites');
     }
 
+    public function getBbsxdSupportedSiteGroups()
+    {
+        return $this->client->call('GET', 'dictionary/bbsxd_supported_site_groups');
+    }
+
     public function updateAdStatus($ad_group_id, $ad_id, $status)
     {
         return $this->client->call('PUT', 'ad', [
@@ -310,7 +315,11 @@ class GeminiAPI
 
         if (count(request('supportedSiteCollections'))) {
             foreach (request('supportedSiteCollections') as $item) {
-                $request_body[] = $body + ['type' => 'SITE_X_DEVICE', 'exclude' => 'FALSE', 'value' => $item['key'], 'bidModifier' => request('bidAmount') + $item['incrementType'] * request('bidAmount') * $item['bidModifier'] / 100];
+                if ($item['type'] == 'site') {
+                    $request_body[] = $body + ['type' => 'SITE_X_DEVICE', 'exclude' => 'FALSE', 'value' => $item['key'], 'bidModifier' => request('bidAmount') + $item['incrementType'] * request('bidAmount') * $item['bidModifier'] / 100];
+                } elseif ($item['type'] == 'group') {
+                    $request_body[] = $body + ['type' => 'SITE_GROUP_X_DEVICE', 'exclude' => 'FALSE', 'value' => $item['key'], 'bidModifier' => request('bidAmount') + $item['incrementType'] * request('bidAmount') * $item['bidModifier'] / 100];
+                }
             }
         }
 

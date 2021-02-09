@@ -112,6 +112,10 @@ export default {
       type: String,
       default: null
     },
+    ad: {
+      type: Object,
+      default: null
+    }
   },
   components: {
     Loading,
@@ -150,6 +154,7 @@ export default {
 
   },
   data() {
+    console.log(this.ad)
     return {
       isLoading: false,
       fullPage: true,
@@ -163,8 +168,9 @@ export default {
         websiteTitle: '',
         websiteUrl: '',
         tweetTexts: [{
-          text: ''
+          text: this.ad ? this.ad['full_text'] : ''
         }],
+        tweetNullcast: this.ad ? this.ad['nullcast'] : true
       }],
       openingFileSelector: '',
       fileSelectorIndex: 0,
