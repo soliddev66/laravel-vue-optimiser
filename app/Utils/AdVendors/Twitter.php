@@ -473,7 +473,7 @@ class Twitter extends Root implements AdVendorInterface
         (new TwitterAPI($user->providers()->where('provider_id', $provider->id)->where('open_id', $account)->first(), $advertiser))->deleteCard($card_id);
     }
 
-    public function pullRedTrack($campaign)
+    public function pullRedTrack($campaign, $target_date = null)
     {
         $tracker = UserTracker::where('provider_id', $campaign->provider_id)
             ->where('provider_open_id', $campaign->open_id)
@@ -482,6 +482,9 @@ class Twitter extends Root implements AdVendorInterface
         if ($tracker) {
             $client = new Client();
             $date = Carbon::now()->format('Y-m-d');
+            if ($target_date) {
+                $date = $target_date;
+            }
             $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=hour_of_day&sub3=[' . $campaign->campaign_id . ']&sub9=Twitter&tracks_view=true';
             $response = $client->get($url);
 

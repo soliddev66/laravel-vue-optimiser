@@ -14,8 +14,8 @@ class YahooJapan
         //
     }
 
-    public static function getReport()
+    public static function getReport($date = null)
     {
-        PullYahooJapanReport::dispatch()->onQueue('low');
+        PullYahooJapanReport::dispatch($date)->onQueue('low');
     }
 }

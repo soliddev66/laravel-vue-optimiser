@@ -327,7 +327,7 @@ class Outbrain extends Root implements AdVendorInterface
         ])->whereNotIn('id', $ad_ids)->delete();
     }
 
-    public function pullRedTrack($campaign)
+    public function pullRedTrack($campaign, $target_date = null)
     {
         $tracker = UserTracker::where('provider_id', $campaign->provider_id)
             ->where('provider_open_id', $campaign->open_id)
@@ -336,6 +336,9 @@ class Outbrain extends Root implements AdVendorInterface
         if ($tracker) {
             $client = new Client();
             $date = Carbon::now()->format('Y-m-d');
+            if ($target_date) {
+                $date = $target_date;
+            }
             $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=hour_of_day&sub5=' . $campaign->campaign_id . '&tracks_view=true';
             $response = $client->get($url);
 

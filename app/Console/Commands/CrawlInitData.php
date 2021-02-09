@@ -2,6 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Vngodev\Gemini;
+use App\Vngodev\Outbrain;
+use App\Vngodev\RedTrack;
+use App\Vngodev\Taboola;
+use App\Vngodev\Twitter;
+use App\Vngodev\YahooJapan;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CrawlInitData extends Command
@@ -11,7 +18,7 @@ class CrawlInitData extends Command
      *
      * @var string
      */
-    protected $signature = 'crawl:init';
+    protected $signature = 'crawl:init {start_date?} {end_date?}';
 
     /**
      * The console command description.
@@ -37,6 +44,22 @@ class CrawlInitData extends Command
      */
     public function handle()
     {
-        return 0;
+        if ($this->argument('start_date') && $this->argument('end_date')) {
+            $start_date = Carbon::parse($this->argument('start_date'));
+            $end_date = Carbon::parse($this->argument('end_date'));
+        } else {
+            $start_date = Carbon::now()->subDays(15);
+            $end_date = Carbon::now();
+        }
+
+        Gemini::crawlRange($start_date->format('Y-m-d'), $end_date->format('Y-m-d'));
+
+        for ($date = $start_date; $date->lte($end_date); $date->addDay()) {
+            RedTrack::crawl($date->format('Y-m-d'));
+            Outbrain::getReport($date->format('Y-m-d'));
+            Twitter::getReport($date->format('Y-m-d'));
+            Taboola::getReport($date->format('Y-m-d'));
+            YahooJapan::getReport($date->format('Y-m-d'));
+        }
     }
 }

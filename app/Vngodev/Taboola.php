@@ -9,9 +9,9 @@ class Taboola
 {
     public function __construct() {}
 
-    public static function getReport()
+    public static function getReport($date = null)
     {
-        PullTaboolaReport::dispatch()->onQueue('low');
+        PullTaboolaReport::dispatch($date)->onQueue('low');
     }
 
     public static function syncAds()
