@@ -86,6 +86,9 @@ class Kernel extends ConsoleKernel
             GeminiJob::where('status', 'completed')->delete();
         })->weekly();
 
+        // Delete duplicates
+        $schedule->command('duplicates:remove')->daily();
+
         // Delete unuse gemini files
         $schedule->call(function () {
             $folder_path = public_path('/reports');
@@ -96,7 +99,7 @@ class Kernel extends ConsoleKernel
                     unlink($file);
                 }
             }
-        })->dailyAt('23:30');
+        })->weekly();
 
         // Failed jobs clear
         // $schedule->command('queue:flush')->hourly();

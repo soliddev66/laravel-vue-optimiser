@@ -31,7 +31,6 @@ class GeminiAdjustmentImport implements OnEachRow, WithChunkReading, ShouldQueue
             'pricing_type' => $row['pricing_type'],
             'source_name' => $row['source_name'],
             'is_adjustment' => $row['is_adjustment'],
-            'is_adjustment' => $row['is_adjustment'],
             'adjustment_type' => $row['adjustment_type']
         ]);
 
