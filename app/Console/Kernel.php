@@ -99,7 +99,7 @@ class Kernel extends ConsoleKernel
                     unlink($file);
                 }
             }
-        })->dailyAt('23:30');
+        })->weekly();
 
         // Failed jobs clear
         // $schedule->command('queue:flush')->hourly();
