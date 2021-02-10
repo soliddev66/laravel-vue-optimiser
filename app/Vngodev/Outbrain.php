@@ -14,8 +14,8 @@ class Outbrain
         //
     }
 
-    public static function getReport()
+    public static function getReport($date = null)
     {
-        PullOutbrainReport::dispatch()->onQueue('low');
+        PullOutbrainReport::dispatch($date)->onQueue('low');
     }
 }

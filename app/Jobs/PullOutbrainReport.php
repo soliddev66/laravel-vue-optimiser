@@ -19,14 +19,16 @@ class PullOutbrainReport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    protected $date;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($date)
     {
-
+        $this->date = $date;
     }
 
     /**
@@ -36,9 +38,13 @@ class PullOutbrainReport implements ShouldQueue
      */
     public function handle()
     {
-        DB::table('campaigns')->where('provider_id', 2)->chunkById(20, function ($campaigns) {
+        $target_date = $this->date;
+        DB::table('campaigns')->where('provider_id', 2)->chunkById(20, function ($campaigns) use ($target_date) {
             foreach ($campaigns as $campaign) {
                 $date = Carbon::now()->format('Y-m-d');
+                if ($target_date) {
+                    $date = $target_date;
+                }
                 $api = new OutbrainAPI(UserProvider::where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
 
                 $report = OutbrainReport::firstOrNew([

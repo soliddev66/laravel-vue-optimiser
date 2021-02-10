@@ -19,14 +19,16 @@ class PullYahooJapanReport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    protected $date;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($date)
     {
-
+        $this->date = $date;
     }
 
     /**
@@ -36,29 +38,34 @@ class PullYahooJapanReport implements ShouldQueue
      */
     public function handle()
     {
-        DB::table('campaigns')->where('provider_id', 5)->chunkById(20, function ($campaigns) {
+        $target_date = Carbon::now()->format('Ymd');
+        if ($this->date) {
+            $target_date = $this->date;
+        }
+        DB::table('campaigns')->where('provider_id', 5)->chunkById(20, function ($campaigns) use ($target_date) {
             $campaign_ids = [];
             foreach ($campaigns as $campaign) {
                 $campaign_ids[] = $campaign->campaign_id;
             }
-            $date = Carbon::now()->format('Ymd');
             $api = new YahooJPAPI(UserProvider::where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
 
-            $report_data = $api->getReport($campaign->advertiser_id, $campaign_ids, $date, $date);
+            $report_data = $api->getReport($campaign->advertiser_id, $campaign_ids, $target_date, $target_date);
 
-            foreach ($report_data['rval']['values'] as $item) {
-                $stats = $item['campaignStatsValue'];
+            if ($report_data['rval']) {
+                foreach ($report_data['rval']['values'] as $item) {
+                    $stats = $item['campaignStatsValue'];
 
-                $report = YahooJapanReport::firstOrNew([
-                    'campaign_id' => Campaign::where('campaign_id', $stats['campaignId'])->first()->id,
-                    'date' => $date
-                ]);
+                    $report = YahooJapanReport::firstOrNew([
+                        'campaign_id' => Campaign::where('campaign_id', $stats['campaignId'])->first()->id,
+                        'date' => $target_date
+                    ]);
 
-                foreach (array_keys($stats['stats']) as $key) {
-                    $report->{preg_replace('/([A-Z])/', '_$1', $key)} = $stats['stats'][$key];
+                    foreach (array_keys($stats['stats']) as $key) {
+                        $report->{preg_replace('/([A-Z])/', '_$1', $key)} = $stats['stats'][$key];
+                    }
+
+                    $report->save();
                 }
-
-                $report->save();
             }
         });
     }

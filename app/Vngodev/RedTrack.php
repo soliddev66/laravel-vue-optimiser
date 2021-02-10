@@ -14,8 +14,8 @@ class RedTrack
         //
     }
 
-    public static function crawl()
+    public static function crawl($date = null)
     {
-        PullRedTrackReport::dispatch()->onQueue('low');
+        PullRedTrackReport::dispatch($date)->onQueue('low');
     }
 }

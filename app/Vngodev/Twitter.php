@@ -8,8 +8,8 @@ class Twitter
 {
     public function __construct() {}
 
-    public static function getReport()
+    public static function getReport($date = null)
     {
-        PullTwitterReport::dispatch()->onQueue('low');
+        PullTwitterReport::dispatch($date)->onQueue('low');
     }
 }

@@ -28,16 +28,18 @@ class SubmitGeminiJobs implements ShouldQueue
 
     protected $campaign;
     protected $date;
+    protected $end;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($campaign, $date)
+    public function __construct($campaign, $date, $end = null)
     {
         $this->campaign = $campaign;
         $this->date = $date;
+        $this->end = $end;
     }
 
     /**
@@ -49,53 +51,54 @@ class SubmitGeminiJobs implements ShouldQueue
     {
         $campaign = $this->campaign;
         $date = $this->date;
+        $end = $this->end;
         $jobs = [];
         $user_info = UserProvider::where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first();
-        Token::refresh($user_info, function () use ($campaign, $user_info, $date, &$jobs) {
-            $job = self::getPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+        Token::refresh($user_info, function () use ($campaign, $user_info, $date, $end, &$jobs) {
+            $job = self::getPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             $job['name'] = 'performance_stats';
             array_push($jobs, $job);
-            $job = self::getSlotPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job = self::getSlotPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             $job['name'] = 'slot_performance_stats';
             array_push($jobs, $job);
-            $job = self::getSitePerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job = self::getSitePerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             $job['name'] = 'site_performance_stats';
             array_push($jobs, $job);
-            $job = self::getCampaignBidPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job = self::getCampaignBidPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             $job['name'] = 'campaign_bid_performance_stats';
             array_push($jobs, $job);
-            $job = self::getStructuredSnippetExtensionPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job = self::getStructuredSnippetExtensionPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             $job['name'] = 'structured_snippet_extension';
             array_push($jobs, $job);
-            $job = self::getProductAdPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job = self::getProductAdPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             $job['name'] = 'product_ad_performance_stats';
             array_push($jobs, $job);
-            $job = self::getAdjustmentDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job = self::getAdjustmentDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             $job['name'] = 'adjustment_stats';
             array_push($jobs, $job);
-            $job = self::getKeywordDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job = self::getKeywordDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             $job['name'] = 'keyword_stats';
             array_push($jobs, $job);
-            $job = self::getSearchDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job = self::getSearchDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             $job['name'] = 'search_stats';
             array_push($jobs, $job);
-            $job = self::getAdExtensionDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job = self::getAdExtensionDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             $job['name'] = 'ad_extension_details';
             array_push($jobs, $job);
-            $job = self::getCallExtensionDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job = self::getCallExtensionDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             $job['name'] = 'call_extension_stats';
             array_push($jobs, $job);
             // WON'T DO
-            // $job = self::getUserDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            // $job = self::getUserDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             // $job['name'] = 'user_stats';
             // array_push($jobs, $job);
-            $job = self::getProductAdsDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job = self::getProductAdsDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             $job['name'] = 'product_ads';
             array_push($jobs, $job);
-            $job = self::getConversionRulesDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job = self::getConversionRulesDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             $job['name'] = 'conversion_rules_stats';
             array_push($jobs, $job);
-            $job = self::getDomainPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id);
+            $job = self::getDomainPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             $job['name'] = 'domain_performance_stats';
             array_push($jobs, $job);
         });
@@ -114,7 +117,7 @@ class SubmitGeminiJobs implements ShouldQueue
         }
     }
 
-    private static function getPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -176,7 +179,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [
@@ -188,7 +191,7 @@ class SubmitGeminiJobs implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private static function getSlotPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getSlotPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -218,7 +221,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [
@@ -230,7 +233,7 @@ class SubmitGeminiJobs implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private static function getSitePerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getSitePerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -261,7 +264,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [
@@ -273,7 +276,7 @@ class SubmitGeminiJobs implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private static function getCampaignBidPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getCampaignBidPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -304,7 +307,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [
@@ -316,7 +319,7 @@ class SubmitGeminiJobs implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private static function getStructuredSnippetExtensionPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getStructuredSnippetExtensionPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -352,7 +355,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [
@@ -364,7 +367,7 @@ class SubmitGeminiJobs implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private static function getProductAdPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getProductAdPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -422,7 +425,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [
@@ -434,7 +437,7 @@ class SubmitGeminiJobs implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private static function getAdjustmentDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getAdjustmentDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -457,7 +460,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [
@@ -469,7 +472,7 @@ class SubmitGeminiJobs implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private static function getKeywordDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getKeywordDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -501,7 +504,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [
@@ -513,7 +516,7 @@ class SubmitGeminiJobs implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private static function getSearchDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getSearchDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -547,7 +550,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [
@@ -559,7 +562,7 @@ class SubmitGeminiJobs implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private static function getAdExtensionDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getAdExtensionDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -594,7 +597,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [
@@ -606,7 +609,7 @@ class SubmitGeminiJobs implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private static function getCallExtensionDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getCallExtensionDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -630,7 +633,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [
@@ -642,7 +645,7 @@ class SubmitGeminiJobs implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private static function getUserDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getUserDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -709,7 +712,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [
@@ -721,7 +724,7 @@ class SubmitGeminiJobs implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private static function getProductAdsDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getProductAdsDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -758,7 +761,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [
@@ -770,7 +773,7 @@ class SubmitGeminiJobs implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private static function getConversionRulesDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getConversionRulesDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -804,7 +807,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [
@@ -816,7 +819,7 @@ class SubmitGeminiJobs implements ShouldQueue
         return json_decode($response->getBody(), true);
     }
 
-    private static function getDomainPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id)
+    private static function getDomainPerformanceDataByCampaign($user_info, $date, $campaign_id, $advertiser_id, $end = null)
     {
         $client = new Client();
         $response = $client->request('POST', env('BASE_URL') . '/v3/rest/reports/custom', [
@@ -836,7 +839,7 @@ class SubmitGeminiJobs implements ShouldQueue
                 'filters' => [
                     ['field' => 'Advertiser ID', 'operator' => '=', 'value' => $advertiser_id],
                     ['field' => 'Campaign ID', 'operator' => '=', 'value' => $campaign_id],
-                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $date]
+                    ['field' => 'Day', 'operator' => 'between', 'from' => $date, 'to' => $end ? $end : $date]
                 ]
             ]),
             'headers' => [

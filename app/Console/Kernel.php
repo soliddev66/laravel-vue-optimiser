@@ -2,12 +2,11 @@
 
 namespace App\Console;
 
-use App\Jobs\PullAds;
 use App\Jobs\PullAdGroups;
+use App\Jobs\PullAds;
 use App\Jobs\PullCampaigns;
 use App\Models\GeminiJob;
 use App\Models\Rule;
-use App\Models\User;
 use App\Vngodev\Gemini;
 use App\Vngodev\Outbrain;
 use App\Vngodev\RedTrack;
@@ -85,7 +84,19 @@ class Kernel extends ConsoleKernel
         // Delete unuse gemini jobs
         $schedule->call(function () {
             GeminiJob::where('status', 'completed')->delete();
-        })->everyTenMinutes();
+        })->weekly();
+
+        // Delete unuse gemini files
+        $schedule->call(function () {
+            $folder_path = public_path('/reports');
+            $files = glob($folder_path . '/*');
+
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+        })->dailyAt('23:30');
 
         // Failed jobs clear
         // $schedule->command('queue:flush')->hourly();
@@ -98,14 +109,14 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
 
     private function getFrequency($rule)
     {
-        switch(Rule::FREQUENCIES[$rule->interval_unit]) {
+        switch (Rule::FREQUENCIES[$rule->interval_unit]) {
             default:
                 return '*/' . $rule->interval_amount . ' * * * *';
 
