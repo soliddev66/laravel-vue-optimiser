@@ -41,7 +41,7 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label for="thumbnail_url" class="col-sm-4 control-label mt-2">Thumbnail Images</label>
+                  <label for="thumbnail_url" class="col-sm-2 control-label mt-2">Thumbnail Images</label>
                   <div class="col-sm-8">
                     <input type="text" name="thumbnail_url" placeholder="Thumbnail Images" class="form-control" disabled="disabled" v-model="campaignItem.imagePath" />
                     <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose Files</button>
@@ -91,6 +91,10 @@ export default {
       type: Object,
       default: null
     },
+    ad: {
+      type: Object,
+      default: null
+    }
   },
   components: {
     Loading,
@@ -130,18 +134,19 @@ export default {
 
   },
   data() {
+    console.log(this.ad)
     let campaignItems = [{
-      url: '',
+      url: this.ad ? this.ad.url : '',
       titles: [{
-        title: '',
-        existing: false
+        title: this.ad ? this.ad.title : '',
+        existing: this.ad ? true : false
       }],
-      description: '',
+      description: this.ad ? this.ad.description : '',
       images: [{
-        image: '',
-        existing: false
+        image: this.ad ? this.ad.thumbnail_url : '',
+        existing: this.ad ? true : false
       }],
-      imagePath: ''
+      imagePath: this.ad ? this.ad.thumbnail_url : ''
     }]
 
     return {

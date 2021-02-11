@@ -427,9 +427,30 @@ class Taboola extends Root implements AdVendorInterface
         }
     }
 
+    public function getAdInstance(Campaign $campaign, $ad_group_id, $ad_id)
+    {
+        try {
+            $api = new TaboolaAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+
+            $ad = $api->getCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $ad_id);
+            $ad['open_id'] = $campaign['open_id'];
+
+            return $ad;
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
     public function cloneCampaignName(&$instance)
     {
         //
+    }
+
+    public function cloneAdName(&$instance)
+    {
+        if ($instance['title']) {
+            $instance['title'] = $instance['title'] . ' - Copy';
+        }
     }
 
     public function status(Campaign $campaign)
