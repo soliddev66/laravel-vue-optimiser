@@ -2,6 +2,9 @@
 
 namespace App\Jobs;
 
+use App\Models\Ad;
+use App\Models\AdGroup;
+use App\Models\Campaign;
 use App\Models\GeminiAdExtensionStat;
 use App\Models\GeminiAdjustmentStat;
 use App\Models\GeminiCallExtensionStat;
@@ -24,6 +27,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DeleteDuplicates implements ShouldQueue
 {
@@ -46,6 +50,7 @@ class DeleteDuplicates implements ShouldQueue
      */
     public function handle()
     {
+        $start = microtime(true);
         $limit = 1000;
 
         $total_1 = GeminiPerformanceStat::count();
@@ -381,5 +386,64 @@ class DeleteDuplicates implements ShouldQueue
             ");
             $offset_14 += $limit;
         } while($offset_14 <= $total_14);
+
+        $total_15 = Campaign::count();
+        $offset_15 = 0;
+        do {
+            DB::statement("
+                DELETE cp1
+                FROM campaigns cp1
+                INNER JOIN (SELECT * FROM campaigns LIMIT {$limit} OFFSET {$offset_15}) cp2
+                WHERE
+                    cp1.id < cp2.id AND
+                    cp1.campaign_id = cp2.campaign_id AND
+                    cp1.provider_id = cp2.provider_id AND
+                    cp1.open_id = cp2.open_id AND
+                    cp1.user_id = cp2.user_id;
+            ");
+            $offset_15 += $limit;
+        } while($offset_15 <= $total_15);
+
+        $total_16 = AdGroup::count();
+        $offset_16 = 0;
+        do {
+            DB::statement("
+                DELETE ag1
+                FROM ad_groups ag1
+                INNER JOIN (SELECT * FROM ad_groups LIMIT {$limit} OFFSET {$offset_16}) ag2
+                WHERE
+                    ag1.id < ag2.id AND
+                    ag1.ad_group_id = ag2.ad_group_id AND
+                    ag1.user_id = ag2.user_id AND
+                    ag1.provider_id = ag2.provider_id AND
+                    ag1.campaign_id = ag2.campaign_id AND
+                    ag1.advertiser_id = ag2.advertiser_id AND
+                    ag1.open_id = ag2.open_id;
+            ");
+            $offset_16 += $limit;
+        } while($offset_16 <= $total_16);
+
+        $total_17 = Ad::count();
+        $offset_17 = 0;
+        do {
+            DB::statement("
+                DELETE ad1
+                FROM ads ad1
+                INNER JOIN (SELECT * FROM ads LIMIT {$limit} OFFSET {$offset_17}) ad2
+                WHERE
+                    ad1.id < ad2.id AND
+                    ad1.ad_id = ad2.ad_id AND
+                    ad1.user_id = ad2.user_id AND
+                    ad1.provider_id = ad2.provider_id AND
+                    ad1.campaign_id = ad2.campaign_id AND
+                    ad1.advertiser_id = ad2.advertiser_id AND
+                    ad1.ad_group_id = ad2.ad_group_id AND
+                    ad1.open_id = ad2.open_id;
+            ");
+            $offset_17 += $limit;
+        } while($offset_17 <= $total_17);
+
+        $time_elapsed_secs = microtime(true) - $start;
+        Log::info('Deleted duplicates! Time elapsed in secs: ' . $time_elapsed_secs);
     }
 }
