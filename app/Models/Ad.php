@@ -21,4 +21,9 @@ class Ad extends Model
         'description',
         'synced'
     ];
+
+    public function redtrackContentStats()
+    {
+        return $this->hasMany(RedtrackContentStat::class, 'sub5', 'ad_id');
+    }
 }
