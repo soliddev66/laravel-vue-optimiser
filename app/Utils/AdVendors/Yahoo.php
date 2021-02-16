@@ -790,6 +790,7 @@ class Yahoo extends Root implements AdVendorInterface
             $join->on('redtrack_content_stats.sub5', '=', 'ads.ad_id')->whereBetween('redtrack_content_stats.date', [$data['start'], $data['end']]);
         });
         $contents_query->where('ads.campaign_id', $campaign->campaign_id);
+        $contents_query->where('ads.open_id', $campaign->open_id);
         $contents_query->where('name', 'LIKE', '%' . $data['search'] . '%');
         $contents_query->groupBy('ads.ad_id');
 

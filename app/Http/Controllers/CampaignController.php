@@ -108,6 +108,7 @@ class CampaignController extends Controller
             DB::raw('0 as clicks')
         );
         $ad_groups_query->where('campaign_id', $campaign->campaign_id);
+        $ad_groups_query->where('open_id', $campaign->open_id);
         $ad_groups_query->where('name', 'LIKE', '%' . request('search') . '%');
 
         return new DataTableCollectionResource($ad_groups_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
