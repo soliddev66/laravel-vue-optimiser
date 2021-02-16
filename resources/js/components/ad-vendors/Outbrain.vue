@@ -476,7 +476,7 @@ export default {
         for (var i = 0; i < values.length; i++) {
           this.ads[this.fileSelectorIndex].images[i] = {
             url: process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
-            state: this.validDimensions(values[i].dimensions, 1200, 800),
+            state: this.validDimensions(values[i].width, values[i].height, 1200, 800),
             existing: false
           };
           paths.push(values[i].path)
@@ -588,16 +588,8 @@ export default {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
     },
-    validDimensions(dimensions, width, height) {
-      var dimensions = dimensions.split('x')
-
-      if (dimensions.length == 2) {
-        if (dimensions[0].trim() == width && dimensions[1].trim() == height) {
-          return true
-        }
-      }
-
-      return false
+    validDimensions(fileWidth, fileHeight, width, height) {
+      return fileWidth == width && fileHeight == height
     },
     getLanguages() {
       this.isLoading = true

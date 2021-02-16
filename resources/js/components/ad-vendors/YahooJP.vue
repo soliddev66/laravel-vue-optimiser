@@ -344,7 +344,7 @@ export default {
         for (let i = 0; i < values.length; i++) {
           this.contents[this.fileSelectorIndex].images.push({
             image: values[i].path,
-            state: this.validDimensions(values[i].dimensions, 1200, 628),
+            state: this.validDimensions(values[i].width, values[i].height, 1200, 628),
             existing: false
           })
           paths.push(values[i].path)
@@ -569,16 +569,8 @@ export default {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
     },
-    validDimensions(dimensions, width, height) {
-      var dimensions = dimensions.split('x')
-
-      if (dimensions.length == 2) {
-        if (dimensions[0].trim() == width && dimensions[1].trim() == height) {
-          return true
-        }
-      }
-
-      return false
+    validDimensions(fileWidth, fileHeight, width, height) {
+      return fileWidth == width && fileHeight == height
     },
     addContent() {
       this.contents.push({
