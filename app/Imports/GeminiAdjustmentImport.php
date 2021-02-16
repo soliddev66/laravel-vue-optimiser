@@ -6,13 +6,14 @@ use App\Models\GeminiAdjustmentStat;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\OnEachRow;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Row;
 
-class GeminiAdjustmentImport implements OnEachRow, WithChunkReading, ShouldQueue, WithHeadingRow, WithEvents
+class GeminiAdjustmentImport implements OnEachRow, WithChunkReading, ShouldQueue, WithHeadingRow, WithEvents, WithBatchInserts
 {
     use Importable;
 
@@ -31,7 +32,6 @@ class GeminiAdjustmentImport implements OnEachRow, WithChunkReading, ShouldQueue
             'pricing_type' => $row['pricing_type'],
             'source_name' => $row['source_name'],
             'is_adjustment' => $row['is_adjustment'],
-            'is_adjustment' => $row['is_adjustment'],
             'adjustment_type' => $row['adjustment_type']
         ]);
 
@@ -45,9 +45,17 @@ class GeminiAdjustmentImport implements OnEachRow, WithChunkReading, ShouldQueue
     /**
      * @return int
      */
+    public function batchSize(): int
+    {
+        return 500;
+    }
+
+    /**
+     * @return int
+     */
     public function chunkSize(): int
     {
-        return 1000;
+        return 500;
     }
 
     /**

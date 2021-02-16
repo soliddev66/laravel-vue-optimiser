@@ -65,6 +65,11 @@ class TaboolaAPI
         return $this->client->call('GET', $advertiser_id . '/campaigns/' . $campaign_id . '/items');
     }
 
+    public function getCampaignItem($advertiser_id, $campaign_id, $campaign_item_id)
+    {
+        return $this->client->call('GET', $advertiser_id . '/campaigns/' . $campaign_id . '/items/' . $campaign_item_id);
+    }
+
     public function deleteCampaign($advertiser_id, $campaign_id)
     {
         return $this->client->call('DELETE', $advertiser_id . '/campaigns/' . $campaign_id);

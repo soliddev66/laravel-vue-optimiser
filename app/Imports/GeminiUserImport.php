@@ -6,13 +6,14 @@ use App\Models\GeminiUserStat;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\OnEachRow;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Row;
 
-class GeminiUserImport implements OnEachRow, WithChunkReading, ShouldQueue, WithHeadingRow, WithEvents
+class GeminiUserImport implements OnEachRow, WithChunkReading, ShouldQueue, WithHeadingRow, WithEvents, WithBatchInserts
 {
     use Importable;
 
@@ -60,9 +61,17 @@ class GeminiUserImport implements OnEachRow, WithChunkReading, ShouldQueue, With
     /**
      * @return int
      */
+    public function batchSize(): int
+    {
+        return 500;
+    }
+
+    /**
+     * @return int
+     */
     public function chunkSize(): int
     {
-        return 1000;
+        return 500;
     }
 
     /**

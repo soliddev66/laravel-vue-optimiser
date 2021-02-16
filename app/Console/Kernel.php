@@ -37,12 +37,8 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         // Report data
-        $schedule->call(function () {
-            Gemini::crawl();
-        })->daily();
-        $schedule->call(function () {
-            Gemini::checkJobs();
-        })->everyTenMinutes();
+        $schedule->command('gemini:crawl')->daily();
+        $schedule->command('gemini:check')->everyTenMinutes();
         $schedule->call(function () {
             Outbrain::getReport();
         })->hourly();
@@ -86,6 +82,9 @@ class Kernel extends ConsoleKernel
             GeminiJob::where('status', 'completed')->delete();
         })->weekly();
 
+        // Delete duplicates
+        $schedule->command('duplicates:remove')->daily();
+
         // Delete unuse gemini files
         $schedule->call(function () {
             $folder_path = public_path('/reports');
@@ -96,7 +95,7 @@ class Kernel extends ConsoleKernel
                     unlink($file);
                 }
             }
-        })->dailyAt('23:30');
+        })->weekly();
 
         // Failed jobs clear
         // $schedule->command('queue:flush')->hourly();

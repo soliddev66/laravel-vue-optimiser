@@ -74,78 +74,50 @@ class PullGeminiReport implements ShouldQueue
             file_put_contents(public_path('reports/' . $file_name), $report_file);
             switch ($this->gemini_job->name) {
                 case 'performance_stats':
-                    (new GeminiPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
-                        new DeleteCompletedImportFile($file_name)
-                    ])->onQueue('lowest');
+                    (new GeminiPerformanceImport)->queue(public_path('reports/' . $file_name))->onQueue('lowest');
                     break;
                 case 'slot_performance_stats':
-                    (new GeminiSlotPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
-                        new DeleteCompletedImportFile($file_name)
-                    ])->onQueue('lowest');
+                    (new GeminiSlotPerformanceImport)->queue(public_path('reports/' . $file_name))->onQueue('lowest');
                     break;
                 case 'site_performance_stats':
-                    (new GeminiSitePerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
-                        new DeleteCompletedImportFile($file_name)
-                    ])->onQueue('lowest');
+                    (new GeminiSitePerformanceImport)->queue(public_path('reports/' . $file_name))->onQueue('lowest');
                     break;
                 case 'campaign_bid_performance_stats':
-                    (new GeminiCampaignBidPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
-                        new DeleteCompletedImportFile($file_name)
-                    ])->onQueue('lowest');
+                    (new GeminiCampaignBidPerformanceImport)->queue(public_path('reports/' . $file_name))->onQueue('lowest');
                     break;
                 case 'structured_snippet_extension':
-                    (new GeminiStructuredSnippetExtensionPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
-                        new DeleteCompletedImportFile($file_name)
-                    ])->onQueue('lowest');
+                    (new GeminiStructuredSnippetExtensionPerformanceImport)->queue(public_path('reports/' . $file_name))->onQueue('lowest');
                     break;
                 case 'product_ad_performance_stats':
-                    (new GeminiProductAdPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
-                        new DeleteCompletedImportFile($file_name)
-                    ])->onQueue('lowest');
+                    (new GeminiProductAdPerformanceImport)->queue(public_path('reports/' . $file_name))->onQueue('lowest');
                     break;
                 case 'adjustment_stats':
-                    (new GeminiAdjustmentImport)->queue(public_path('reports/' . $file_name))->chain([
-                        new DeleteCompletedImportFile($file_name)
-                    ])->onQueue('lowest');
+                    (new GeminiAdjustmentImport)->queue(public_path('reports/' . $file_name))->onQueue('lowest');
                     break;
                 case 'keyword_stats':
-                    (new GeminiKeywordImport)->queue(public_path('reports/' . $file_name))->chain([
-                        new DeleteCompletedImportFile($file_name)
-                    ])->onQueue('lowest');
+                    (new GeminiKeywordImport)->queue(public_path('reports/' . $file_name))->onQueue('lowest');
                     break;
                 case 'search_stats':
-                    (new GeminiSearchImport)->queue(public_path('reports/' . $file_name))->chain([
-                        new DeleteCompletedImportFile($file_name)
-                    ])->onQueue('lowest');
+                    (new GeminiSearchImport)->queue(public_path('reports/' . $file_name))->onQueue('lowest');
                     break;
                 case 'ad_extension_details':
-                    (new GeminiAdExtensionImport)->queue(public_path('reports/' . $file_name))->chain([
-                        new DeleteCompletedImportFile($file_name)
-                    ])->onQueue('lowest');
+                    (new GeminiAdExtensionImport)->queue(public_path('reports/' . $file_name))->onQueue('lowest');
                     break;
                 case 'call_extension_stats':
-                    (new GeminiCallExtensionImport)->queue(public_path('reports/' . $file_name))->chain([
-                        new DeleteCompletedImportFile($file_name)
-                    ])->onQueue('lowest');
+                    (new GeminiCallExtensionImport)->queue(public_path('reports/' . $file_name))->onQueue('lowest');
                     break;
                 case 'user_stats':
                     // WON'T DO IT!!!!
                     // Excel::queueImport(new GeminiUserImpor$file_namet, public_path('reports/' . $file_name));
                     break;
                 case 'product_ads':
-                    (new GeminiProductAdsImport)->queue(public_path('reports/' . $file_name))->chain([
-                        new DeleteCompletedImportFile($file_name)
-                    ])->onQueue('lowest');
+                    (new GeminiProductAdsImport)->queue(public_path('reports/' . $file_name))->onQueue('lowest');
                     break;
                 case 'conversion_rules_stats':
-                    (new GeminiConversionRulesImport)->queue(public_path('reports/' . $file_name))->chain([
-                        new DeleteCompletedImportFile($file_name)
-                    ])->onQueue('lowest');
+                    (new GeminiConversionRulesImport)->queue(public_path('reports/' . $file_name))->onQueue('lowest');
                     break;
                 case 'domain_performance_stats':
-                    (new GeminiDomainPerformanceImport)->queue(public_path('reports/' . $file_name))->chain([
-                        new DeleteCompletedImportFile($file_name)
-                    ])->onQueue('lowest');
+                    (new GeminiDomainPerformanceImport)->queue(public_path('reports/' . $file_name))->onQueue('lowest');
                     break;
                 default:
                     break;
