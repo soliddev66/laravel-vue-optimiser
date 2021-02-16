@@ -124,6 +124,10 @@ export default {
       type: Object,
       default: null
     },
+    ad: {
+      type: Object,
+      default: null
+    },
   },
   components: {
     Loading,
@@ -181,17 +185,21 @@ export default {
 
   },
   data() {
+    console.log(this.ad)
     let ads = [{
       adId: '',
       titles: [{
-        title: '',
-        existing: false
+        title: this.ad ? this.ad.text : '',
+        existing: this.ad ? true : false
       }],
-      targetUrl: '',
-      cpc: '',
+      targetUrl: this.ad ? this.ad.url : '',
+      cpc: this.ad ? this.ad.cpc : '',
       brandname: '',
-      imageUrl: '',
-      images: []
+      imageUrl: this.ad && this.ad.imageMetadata && this.ad.imageMetadata.url ? this.ad.imageMetadata.url : '',
+      images: this.ad && this.ad.imageMetadata && this.ad.imageMetadata.url ? [{
+        url: this.ad.imageMetadata.url,
+        state: true
+      }] : []
     }]
 
     return {
