@@ -80,10 +80,10 @@ class Kernel extends ConsoleKernel
         // Delete unuse gemini jobs
         $schedule->call(function () {
             GeminiJob::where('status', 'completed')->delete();
-        })->weekly();
+        })->monthly();
 
         // Delete duplicates
-        $schedule->command('duplicates:remove')->daily();
+        // $schedule->command('duplicates:remove')->daily();
 
         // Delete unuse gemini files
         $schedule->call(function () {
@@ -95,7 +95,7 @@ class Kernel extends ConsoleKernel
                     unlink($file);
                 }
             }
-        })->weekly();
+        })->monthly();
 
         // Failed jobs clear
         // $schedule->command('queue:flush')->hourly();
