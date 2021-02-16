@@ -513,7 +513,7 @@ class Yahoojp extends Root implements AdVendorInterface
     public function status(Campaign $campaign)
     {
         try {
-            $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+            $api = new YahooJPAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
             $campaign->status = $campaign->status == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
 
             $data_campaigns = $api->updateCampaignStatus($campaign);
@@ -571,11 +571,14 @@ class Yahoojp extends Root implements AdVendorInterface
         //
     }
 
-    public function adStatus(Campaign $campaign, $ad_group_id, $ad_id)
+    public function adStatus(Campaign $campaign, $ad_group_id, $ad_id, $status = null)
     {
         try {
-            $api = new YahooJPAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
-            $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+            $api = new YahooJPAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
+
+            if ($status == null) {
+                $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+            }
 
             $data_ads = $api->updateAdStatus([
                 'accountId' => $campaign->advertiser_id,

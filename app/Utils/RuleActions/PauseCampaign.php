@@ -11,7 +11,6 @@ class PauseCampaign extends Root
 {
     public function process($campaign)
     {
-        return;
         try {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
             (new $adVendorClass)->status($campaign);
