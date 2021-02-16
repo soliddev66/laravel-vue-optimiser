@@ -60,12 +60,8 @@ class Kernel extends ConsoleKernel
             RedTrack::crawl();
         })->everyTenMinutes();
 
-        // Campaign
-        $schedule->call(function () {
-            PullCampaigns::dispatch()->onQueue('high');
-            PullAdGroups::dispatch()->onQueue('high');
-            PullAds::dispatch()->onQueue('high');
-        })->everyTenMinutes();
+        // Campaigns & Ad groups & Ads
+        $schedule->command('contents:pull')->everyTenMinutes();
 
         // Rules
         foreach (Rule::all() as $rule) {
