@@ -56,9 +56,7 @@ class Kernel extends ConsoleKernel
         })->everyMinute();
 
         // Redtrack
-        $schedule->call(function () {
-            RedTrack::crawl();
-        })->everyTenMinutes();
+        $schedule->command('redtrack:pull')->everyTenMinutes();
 
         // Campaigns & Ad groups & Ads
         $schedule->command('contents:pull')->everyTenMinutes();
