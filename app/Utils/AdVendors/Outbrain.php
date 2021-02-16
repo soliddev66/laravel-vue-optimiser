@@ -133,7 +133,10 @@ class Outbrain extends Root implements AdVendorInterface
                 }
             }
 
-            $api->createAds($campaign->campaign_id, $ads);
+            foreach ($ads as $key => $ad) {
+                $ad_data = $api->createAd($campaign->campaign_id, $ad);
+                Log::info('OUTBRAIN: Created ad: ' . $ad_data['id']);
+            }
         } catch (Exception $e) {
             return [
                 'errors' => [$e->getMessage()]
@@ -179,11 +182,16 @@ class Outbrain extends Root implements AdVendorInterface
             }
 
             if (count($updated_ads) > 0) {
-                $ad_data = $api->updateAds($campaign->campaign_id, $updated_ads);
+                foreach ($updated_ads as $key => $ad) {
+                    $ad_data = $api->updateAd($campaign->campaign_id, $ad);
+                }
             }
 
             if (count($ads) > 0) {
-                $ad_data = $api->createAds($campaign_data['id'], $ads);
+                foreach ($ads as $key => $ad) {
+                    $ad_data = $api->createAd($campaign_data['id'], $ad);
+                    Log::info('OUTBRAIN: Created ad: ' . $ad_data['id']);
+                }
             }
         } catch (RequestException $e) {
             $data = [
@@ -217,9 +225,38 @@ class Outbrain extends Root implements AdVendorInterface
         }
     }
 
+    public function getAdInstance(Campaign $campaign, $ad_group_id, $ad_id)
+    {
+        try {
+            $api = new OutbrainAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+
+            $ads = $api->getPromotedLinks($campaign->campaign_id)['promotedLinks'];
+
+            $ad = [];
+
+            foreach ($ads as $item) {
+                if ($item['id'] == $ad_id) {
+                    $ad = $item;
+                    break;
+                }
+            }
+
+            $ad['open_id'] = $campaign['open_id'];
+
+            return $ad;
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
     public function cloneCampaignName(&$instance)
     {
         $instance['name'] = $instance['name'] . ' - Copy';
+    }
+
+    public function cloneAdName(&$instance)
+    {
+        $instance['text'] = $instance['text'] . ' - Copy';
     }
 
     public function status(Campaign $campaign)
