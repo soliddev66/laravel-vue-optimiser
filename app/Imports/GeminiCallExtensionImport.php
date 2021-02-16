@@ -25,14 +25,16 @@ class GeminiCallExtensionImport implements OnEachRow, WithChunkReading, ShouldQu
         $rowIndex = $row->getIndex();
         $row = $row->toArray();
 
-        $gemini_call_extension_stat = GeminiCallExtensionStat::firstOrNew([
-            'advertiser_id' => $row['advertiser_id'],
-            'campaign_id' => $row['campaign_id'],
-            'ad_group_id' => $row['ad_group_id'],
-            'month' => $row['month'],
-            'week' => $row['week'],
-            'day' => $row['day']
-        ]);
+        // $gemini_call_extension_stat = GeminiCallExtensionStat::firstOrNew([
+        //     'advertiser_id' => $row['advertiser_id'],
+        //     'campaign_id' => $row['campaign_id'],
+        //     'ad_group_id' => $row['ad_group_id'],
+        //     'month' => $row['month'],
+        //     'week' => $row['week'],
+        //     'day' => $row['day']
+        // ]);
+
+        $gemini_call_extension_stat = new GeminiCallExtensionStat();
 
         foreach (array_keys($row) as $array_key) {
             $gemini_call_extension_stat->{$array_key} = $row[$array_key];

@@ -25,14 +25,16 @@ class GeminiDomainPerformanceImport implements OnEachRow, WithChunkReading, Shou
         $rowIndex = $row->getIndex();
         $row = $row->toArray();
 
-        $gemini_domain_performance_stat = GeminiDomainPerformanceStat::firstOrNew([
-            'advertiser_id' => $row['advertiser_id'],
-            'campaign_id' => $row['campaign_id'],
-            'ad_group_id' => $row['ad_group_id'],
-            'top_domain' => $row['top_domain'],
-            'package_name' => $row['package_name'],
-            'day' => $row['day']
-        ]);
+        // $gemini_domain_performance_stat = GeminiDomainPerformanceStat::firstOrNew([
+        //     'advertiser_id' => $row['advertiser_id'],
+        //     'campaign_id' => $row['campaign_id'],
+        //     'ad_group_id' => $row['ad_group_id'],
+        //     'top_domain' => $row['top_domain'],
+        //     'package_name' => $row['package_name'],
+        //     'day' => $row['day']
+        // ]);
+
+        $gemini_domain_performance_stat = new GeminiDomainPerformanceStat();
 
         foreach (array_keys($row) as $array_key) {
             $gemini_domain_performance_stat->{$array_key} = $row[$array_key];

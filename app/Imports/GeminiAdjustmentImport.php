@@ -25,15 +25,17 @@ class GeminiAdjustmentImport implements OnEachRow, WithChunkReading, ShouldQueue
         $rowIndex = $row->getIndex();
         $row = $row->toArray();
 
-        $gemini_adjustment_stat = GeminiAdjustmentStat::firstOrNew([
-            'advertiser_id' => $row['advertiser_id'],
-            'campaign_id' => $row['campaign_id'],
-            'day' => $row['day'],
-            'pricing_type' => $row['pricing_type'],
-            'source_name' => $row['source_name'],
-            'is_adjustment' => $row['is_adjustment'],
-            'adjustment_type' => $row['adjustment_type']
-        ]);
+        // $gemini_adjustment_stat = GeminiAdjustmentStat::firstOrNew([
+        //     'advertiser_id' => $row['advertiser_id'],
+        //     'campaign_id' => $row['campaign_id'],
+        //     'day' => $row['day'],
+        //     'pricing_type' => $row['pricing_type'],
+        //     'source_name' => $row['source_name'],
+        //     'is_adjustment' => $row['is_adjustment'],
+        //     'adjustment_type' => $row['adjustment_type']
+        // ]);
+
+        $gemini_adjustment_stat = new GeminiAdjustmentStat();
 
         foreach (array_keys($row) as $array_key) {
             $gemini_adjustment_stat->{$array_key} = $row[$array_key];

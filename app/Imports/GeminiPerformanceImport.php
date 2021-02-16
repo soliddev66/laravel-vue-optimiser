@@ -25,19 +25,21 @@ class GeminiPerformanceImport implements OnEachRow, WithChunkReading, ShouldQueu
         $rowIndex = $row->getIndex();
         $row = $row->toArray();
 
-        $gemini_performance_stat = GeminiPerformanceStat::firstOrNew([
-            'advertiser_id' => $row['advertiser_id'],
-            'campaign_id' => $row['campaign_id'],
-            'ad_group_id' => $row['ad_group_id'],
-            'ad_id' => $row['ad_id'],
-            'month' => $row['month'],
-            'week' => $row['week'],
-            'day' => $row['day'],
-            'hour' => $row['hour'],
-            'pricing_type' => $row['pricing_type'],
-            'device_type' => $row['device_type'],
-            'source_name' => $row['source_name']
-        ]);
+        // $gemini_performance_stat = GeminiPerformanceStat::firstOrNew([
+        //     'advertiser_id' => $row['advertiser_id'],
+        //     'campaign_id' => $row['campaign_id'],
+        //     'ad_group_id' => $row['ad_group_id'],
+        //     'ad_id' => $row['ad_id'],
+        //     'month' => $row['month'],
+        //     'week' => $row['week'],
+        //     'day' => $row['day'],
+        //     'hour' => $row['hour'],
+        //     'pricing_type' => $row['pricing_type'],
+        //     'device_type' => $row['device_type'],
+        //     'source_name' => $row['source_name']
+        // ]);
+
+        $gemini_performance_stat = new GeminiPerformanceStat();
 
         foreach (array_keys($row) as $array_key) {
             $gemini_performance_stat->{$array_key} = $row[$array_key];
@@ -69,7 +71,7 @@ class GeminiPerformanceImport implements OnEachRow, WithChunkReading, ShouldQueu
     {
         return [
             // Array callable, refering to a static method.
-            AfterImport::class => [self::class, 'afterSheet'],
+            AfterImport::class => [self::class, 'afterSheet']
         ];
     }
 

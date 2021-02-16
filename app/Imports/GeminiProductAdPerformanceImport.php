@@ -25,18 +25,20 @@ class GeminiProductAdPerformanceImport implements OnEachRow, WithChunkReading, S
         $rowIndex = $row->getIndex();
         $row = $row->toArray();
 
-        $gemini_product_ad_performance_stat = GeminiProductAdPerformanceStat::firstOrNew([
-            'advertiser_id' => $row['advertiser_id'],
-            'campaign_id' => $row['campaign_id'],
-            'ad_group_id' => $row['ad_group_id'],
-            'product_ad_id' => $row['product_ad_id'],
-            'month' => $row['month'],
-            'week' => $row['week'],
-            'day' => $row['day'],
-            'pricing_type' => $row['pricing_type'],
-            'device_type' => $row['device_type'],
-            'source_name' => $row['source_name']
-        ]);
+        // $gemini_product_ad_performance_stat = GeminiProductAdPerformanceStat::firstOrNew([
+        //     'advertiser_id' => $row['advertiser_id'],
+        //     'campaign_id' => $row['campaign_id'],
+        //     'ad_group_id' => $row['ad_group_id'],
+        //     'product_ad_id' => $row['product_ad_id'],
+        //     'month' => $row['month'],
+        //     'week' => $row['week'],
+        //     'day' => $row['day'],
+        //     'pricing_type' => $row['pricing_type'],
+        //     'device_type' => $row['device_type'],
+        //     'source_name' => $row['source_name']
+        // ]);
+
+        $gemini_product_ad_performance_stat = new GeminiProductAdPerformanceStat();
 
         foreach (array_keys($row) as $array_key) {
             $gemini_product_ad_performance_stat->{$array_key} = $row[$array_key];

@@ -25,18 +25,20 @@ class GeminiSitePerformanceImport implements OnEachRow, WithChunkReading, Should
         $rowIndex = $row->getIndex();
         $row = $row->toArray();
 
-        $gemini_site_performance_stat = GeminiSitePerformanceStat::firstOrNew([
-            'advertiser_id' => $row['advertiser_id'],
-            'campaign_id' => $row['campaign_id'],
-            'ad_group_id' => $row['ad_group_id'],
-            'day' => $row['day'],
-            'external_site_name' => $row['external_site_name'],
-            'external_site_group_name' => $row['external_site_group_name'],
-            'device_type' => $row['device_type'],
-            'bid_modifier' => $row['bid_modifier'],
-            'average_bid' => $row['average_bid'],
-            'modified_bid' => $row['modified_bid']
-        ]);
+        // $gemini_site_performance_stat = GeminiSitePerformanceStat::firstOrNew([
+        //     'advertiser_id' => $row['advertiser_id'],
+        //     'campaign_id' => $row['campaign_id'],
+        //     'ad_group_id' => $row['ad_group_id'],
+        //     'day' => $row['day'],
+        //     'external_site_name' => $row['external_site_name'],
+        //     'external_site_group_name' => $row['external_site_group_name'],
+        //     'device_type' => $row['device_type'],
+        //     'bid_modifier' => $row['bid_modifier'],
+        //     'average_bid' => $row['average_bid'],
+        //     'modified_bid' => $row['modified_bid']
+        // ]);
+
+        $gemini_site_performance_stat = new GeminiSitePerformanceStat();
 
         foreach (array_keys($row) as $array_key) {
             $gemini_site_performance_stat->{$array_key} = $row[$array_key];
