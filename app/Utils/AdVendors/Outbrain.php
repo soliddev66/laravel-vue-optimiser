@@ -217,6 +217,23 @@ class Outbrain extends Root implements AdVendorInterface
         }
     }
 
+    public function getAdInstance(Campaign $campaign, $ad_group_id, $ad_id)
+    {
+        try {
+            $api = new OutbrainAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+
+            $ad = $api->getPromotedLinks($campaign->campaign_id)['promotedLinks'];
+
+            var_dump($ad); exit;
+
+            $ad['open_id'] = $campaign['open_id'];
+
+            return $ad;
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
     public function cloneCampaignName(&$instance)
     {
         $instance['name'] = $instance['name'] . ' - Copy';
