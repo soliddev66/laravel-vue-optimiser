@@ -69,7 +69,7 @@ class Kernel extends ConsoleKernel
         }
 
         // Jobs retry
-        // $schedule->command('queue:retry all')->everyFifteenMinutes();
+        $schedule->command('queue:retry all')->hourly();
 
         // Delete unuse gemini jobs
         $schedule->call(function () {
