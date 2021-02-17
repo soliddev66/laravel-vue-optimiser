@@ -2,14 +2,9 @@
 
 namespace App\Console;
 
-use App\Jobs\PullAdGroups;
-use App\Jobs\PullAds;
-use App\Jobs\PullCampaigns;
 use App\Models\GeminiJob;
 use App\Models\Rule;
-use App\Vngodev\Gemini;
 use App\Vngodev\Outbrain;
-use App\Vngodev\RedTrack;
 use App\Vngodev\Taboola;
 use App\Vngodev\Twitter;
 use App\Vngodev\YahooJapan;
@@ -38,6 +33,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         // Report data
         $schedule->command('gemini:crawl')->daily();
+        $schedule->command('gemini:crawl today')->everyTwoHours();
         $schedule->command('gemini:check')->everyTenMinutes();
         $schedule->call(function () {
             Outbrain::getReport();

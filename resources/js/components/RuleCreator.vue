@@ -12,7 +12,6 @@
             <div class="card-body">
               <errors :errors="errors" v-if="errors.errors"></errors>
               <form class="form-horizontal">
-                <h2 class="pb-2">General information</h2>
                 <div class="form-group row">
                   <label for="name" class="col-sm-2 control-label mt-2">Rule Name</label>
                   <div class="col-sm-10">
@@ -43,7 +42,50 @@
                 </div>
 
                 <div class="form-group row">
-                  <label for="dataFrom" class="col-sm-2 control-label">Considering data from</label>
+                  <div class="col">
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="alert" id="runType1" value="1" v-model="ruleRunType">
+                      <label class="form-check-label" for="runType1">Alert</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="alert" id="runType2" value="2" v-model="ruleRunType">
+                      <label class="form-check-label" for="runType2">Execute</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="alert" id="runType3" value="3" v-model="ruleRunType">
+                      <label class="form-check-label" for="runType3">Execute & Alert</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="group" class="col-sm-2 control-label mt-2">Every</label>
+                  <div class="col-sm-5">
+                    <input type="number" name="interval_amount" class="form-control" v-model="ruleIntervalAmount" />
+                  </div>
+                  <div class="col-sm-5">
+                    <select name="interval_unit" class="form-control" v-model="ruleIntervalUnit">
+                      <option value="1">Minutes</option>
+                      <option value="2">Hours</option>
+                      <option value="3">Days</option>
+                      <option value="4">Weeks</option>
+                      <option value="5">Months</option>
+                      <option value="6">Years</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="" class="col-sm-2 control-label mt-2">Do</label>
+                  <div class="col-sm-10">
+                    <select name="rule_action" class="form-control" v-model="selectedRuleAction" @change="selectedRuleActionChanged">
+                      <option :value="ruleAction.id" v-for="ruleAction in ruleActions" :key="ruleAction.id" :data-provider="ruleAction.provider">{{ ruleAction.name }}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="dataFrom" class="col-sm-2 control-label mt-2">Considering data from</label>
                   <div class="col-sm-3">
                     <select name="data_from" class="form-control" v-model="selectedDataFrom" @change="selectedDataFromChanged">
                       <option value="">Select</option>
@@ -58,7 +100,11 @@
                   </div>
                 </div>
 
-                <h2 class="pd-2">Rule Conditions</h2>
+                <h3 class="pb-2">On</h3>
+                <fieldset class="mb-4 p-3 rounded border">
+                  <component :is="ruleActionProvider" :submitData="ruleActionData" />
+                </fieldset>
+
                 <fieldset class="mb-4 p-3 rounded border">
                   <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCondition, index) in ruleConditionData" :key="index">
                     <div class="form-group row" v-for="(condition, indexY) in ruleCondition" :key="indexY">
@@ -123,55 +169,6 @@
                     </div>
                   </div>
                 </fieldset>
-
-                <h2 class="pb-2">Action Detail</h2>
-                <div class="form-group row">
-                  <label for="" class="col-sm-2 control-label">Action</label>
-                  <div class="col-sm-10">
-                    <select name="rule_action" class="form-control" v-model="selectedRuleAction" @change="selectedRuleActionChanged">
-                      <option :value="ruleAction.id" v-for="ruleAction in ruleActions" :key="ruleAction.id" :data-provider="ruleAction.provider">{{ ruleAction.name }}</option>
-                    </select>
-                  </div>
-                </div>
-
-                <h3 class="pb-2">Applied Campaigns</h3>
-                <fieldset class="mb-4 p-3 rounded border">
-                  <component :is="ruleActionProvider" :submitData="ruleActionData" />
-                </fieldset>
-
-                <div class="form-group row">
-                  <label for="group" class="col-sm-2 control-label mt-2">Run this rule every</label>
-                  <div class="col-sm-5">
-                    <input type="number" name="interval_amount" class="form-control" v-model="ruleIntervalAmount" />
-                  </div>
-                  <div class="col-sm-5">
-                    <select name="interval_unit" class="form-control" v-model="ruleIntervalUnit">
-                      <option value="1">Minutes</option>
-                      <option value="2">Hours</option>
-                      <option value="3">Days</option>
-                      <option value="4">Weeks</option>
-                      <option value="5">Months</option>
-                      <option value="6">Years</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="form-group row">
-                  <div class="col">
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="alert" id="runType1" value="1" v-model="ruleRunType">
-                      <label class="form-check-label" for="runType1">Alert Only</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="alert" id="runType2" value="2" v-model="ruleRunType">
-                      <label class="form-check-label" for="runType2">Execute</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="alert" id="runType3" value="3" v-model="ruleRunType">
-                      <label class="form-check-label" for="runType3">Execute & Alert</label>
-                    </div>
-                  </div>
-                </div>
               </form>
             </div>
 
