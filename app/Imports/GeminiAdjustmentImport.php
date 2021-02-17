@@ -3,9 +3,11 @@
 namespace App\Imports;
 
 use App\Models\GeminiAdjustmentStat;
+use App\Vngodev\ResourceImporter;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\OnEachRow;
+use Maatwebsite\Excel\Concerns\ToArray;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -13,35 +15,17 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Row;
 
-class GeminiAdjustmentImport implements OnEachRow, WithChunkReading, ShouldQueue, WithHeadingRow, WithEvents, WithBatchInserts
+class GeminiAdjustmentImport implements ToArray, WithChunkReading, ShouldQueue, WithHeadingRow, WithEvents, WithBatchInserts
 {
     use Importable;
 
     /**
-     * @param Row $row
+     * @param array $array
      */
-    public function onRow(Row $row)
+    public function array(array $rows)
     {
-        $rowIndex = $row->getIndex();
-        $row = $row->toArray();
-
-        // $gemini_adjustment_stat = GeminiAdjustmentStat::firstOrNew([
-        //     'advertiser_id' => $row['advertiser_id'],
-        //     'campaign_id' => $row['campaign_id'],
-        //     'day' => $row['day'],
-        //     'pricing_type' => $row['pricing_type'],
-        //     'source_name' => $row['source_name'],
-        //     'is_adjustment' => $row['is_adjustment'],
-        //     'adjustment_type' => $row['adjustment_type']
-        // ]);
-
-        $gemini_adjustment_stat = new GeminiAdjustmentStat();
-
-        foreach (array_keys($row) as $array_key) {
-            $gemini_adjustment_stat->{$array_key} = $row[$array_key];
-        }
-
-        $gemini_adjustment_stat->save();
+        $resource_importer = new ResourceImporter();
+        $resource_importer->insertOrUpdate('gemini_adjustment_stats', $rows, []);
     }
 
     /**
