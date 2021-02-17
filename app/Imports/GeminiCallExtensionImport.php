@@ -3,9 +3,11 @@
 namespace App\Imports;
 
 use App\Models\GeminiCallExtensionStat;
+use App\Vngodev\ResourceImporter;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\OnEachRow;
+use Maatwebsite\Excel\Concerns\ToArray;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -13,32 +15,17 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Row;
 
-class GeminiCallExtensionImport implements OnEachRow, WithChunkReading, ShouldQueue, WithHeadingRow, WithEvents, WithBatchInserts
+class GeminiCallExtensionImport implements ToArray, WithChunkReading, ShouldQueue, WithHeadingRow, WithEvents, WithBatchInserts
 {
     use Importable;
 
     /**
-     * @param Row $row
+     * @param array $array
      */
-    public function onRow(Row $row)
+    public function array(array $rows)
     {
-        $rowIndex = $row->getIndex();
-        $row = $row->toArray();
-
-        $gemini_call_extension_stat = GeminiCallExtensionStat::firstOrNew([
-            'advertiser_id' => $row['advertiser_id'],
-            'campaign_id' => $row['campaign_id'],
-            'ad_group_id' => $row['ad_group_id'],
-            'month' => $row['month'],
-            'week' => $row['week'],
-            'day' => $row['day']
-        ]);
-
-        foreach (array_keys($row) as $array_key) {
-            $gemini_call_extension_stat->{$array_key} = $row[$array_key];
-        }
-
-        $gemini_call_extension_stat->save();
+        $resource_importer = new ResourceImporter();
+        $resource_importer->insertOrUpdate('gemini_call_extension_stats', $rows, []);
     }
 
     /**

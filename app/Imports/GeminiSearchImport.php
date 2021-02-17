@@ -3,9 +3,11 @@
 namespace App\Imports;
 
 use App\Models\GeminiSearchStat;
+use App\Vngodev\ResourceImporter;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\OnEachRow;
+use Maatwebsite\Excel\Concerns\ToArray;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -13,36 +15,17 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Row;
 
-class GeminiSearchImport implements OnEachRow, WithChunkReading, ShouldQueue, WithHeadingRow, WithEvents, WithBatchInserts
+class GeminiSearchImport implements ToArray, WithChunkReading, ShouldQueue, WithHeadingRow, WithEvents, WithBatchInserts
 {
     use Importable;
 
     /**
-     * @param Row $row
+     * @param array $array
      */
-    public function onRow(Row $row)
+    public function array(array $rows)
     {
-        $rowIndex = $row->getIndex();
-        $row = $row->toArray();
-
-        $gemini_search_stat = GeminiSearchStat::firstOrNew([
-            'advertiser_id' => $row['advertiser_id'],
-            'campaign_id' => $row['campaign_id'],
-            'ad_group_id' => $row['ad_group_id'],
-            'ad_id' => $row['ad_id'],
-            'keyword_id' => $row['keyword_id'],
-            'delivered_match_type' => $row['delivered_match_type'],
-            'search_term' => $row['search_term'],
-            'device_type' => $row['device_type'],
-            'destination_url' => $row['destination_url'],
-            'day' => $row['day']
-        ]);
-
-        foreach (array_keys($row) as $array_key) {
-            $gemini_search_stat->{$array_key} = $row[$array_key];
-        }
-
-        $gemini_search_stat->save();
+        $resource_importer = new ResourceImporter();
+        $resource_importer->insertOrUpdate('gemini_search_stats', $rows, []);
     }
 
     /**

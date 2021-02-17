@@ -25,31 +25,33 @@ class GeminiUserImport implements OnEachRow, WithChunkReading, ShouldQueue, With
         $rowIndex = $row->getIndex();
         $row = $row->toArray();
 
-        $gemini_user_stat = GeminiUserStat::firstOrNew([
-            'advertiser_id' => $row['advertiser_id'],
-            'campaign_id' => $row['campaign_id'],
-            'audience_id' => $row['audience_id'],
-            'audience_name' => $row['audience_name'],
-            'audience_type' => $row['audience_type'],
-            'audience_status' => $row['audience_status'],
-            'ad_group_id' => $row['ad_group_id'],
-            'day' => $row['day'],
-            'pricing_type' => $row['pricing_type'],
-            'source_name' => $row['source_name'],
-            'gender' => $row['gender'],
-            'age' => $row['age'],
-            'device_type' => $row['device_type'],
-            'country' => $row['country'],
-            'state' => $row['state'],
-            'city' => $row['city'],
-            'zip' => $row['zip'],
-            'dma_woeid' => $row['dma_woeid'],
-            'city_woeid' => $row['city_woeid'],
-            'state_woeid' => $row['state_woeid'],
-            'zip_woeid' => $row['zip_woeid'],
-            'country_woeid' => $row['country_woeid'],
-            'location_type' => $row['location_type']
-        ]);
+        // $gemini_user_stat = GeminiUserStat::firstOrNew([
+        //     'advertiser_id' => $row['advertiser_id'],
+        //     'campaign_id' => $row['campaign_id'],
+        //     'audience_id' => $row['audience_id'],
+        //     'audience_name' => $row['audience_name'],
+        //     'audience_type' => $row['audience_type'],
+        //     'audience_status' => $row['audience_status'],
+        //     'ad_group_id' => $row['ad_group_id'],
+        //     'day' => $row['day'],
+        //     'pricing_type' => $row['pricing_type'],
+        //     'source_name' => $row['source_name'],
+        //     'gender' => $row['gender'],
+        //     'age' => $row['age'],
+        //     'device_type' => $row['device_type'],
+        //     'country' => $row['country'],
+        //     'state' => $row['state'],
+        //     'city' => $row['city'],
+        //     'zip' => $row['zip'],
+        //     'dma_woeid' => $row['dma_woeid'],
+        //     'city_woeid' => $row['city_woeid'],
+        //     'state_woeid' => $row['state_woeid'],
+        //     'zip_woeid' => $row['zip_woeid'],
+        //     'country_woeid' => $row['country_woeid'],
+        //     'location_type' => $row['location_type']
+        // ]);
+
+        $gemini_user_stat = new GeminiUserStat();
 
         foreach (array_keys($row) as $array_key) {
             $gemini_user_stat->{$array_key} = $row[$array_key];

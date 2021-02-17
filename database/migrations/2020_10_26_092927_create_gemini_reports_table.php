@@ -68,6 +68,8 @@ class CreateGeminiReportsTable extends Migration
             $table->string('interaction_rate')->nullable();
             $table->double('interactive_impressions_rate')->nullable();
             $table->timestamps();
+
+            $table->unique(['advertiser_id', 'campaign_id', 'ad_group_id', 'ad_id', 'month', 'week', 'day', 'hour', 'pricing_type', 'device_type', 'source_name'], 'performance_stats_unique');
         });
 
         Schema::create('gemini_slot_performance_stats', function (Blueprint $table) {
@@ -93,6 +95,8 @@ class CreateGeminiReportsTable extends Migration
             $table->double('spend')->nullable();
             $table->double('ctr')->nullable();
             $table->timestamps();
+
+            $table->unique(['advertiser_id', 'campaign_id', 'ad_group_id', 'ad_id', 'month', 'week', 'day', 'hour', 'pricing_type', 'source', 'card_id', 'card_position', 'ad_format_name'], 'slot_performance_stats_unique');
         });
 
         Schema::create('gemini_site_performance_stats', function (Blueprint $table) {
@@ -104,7 +108,7 @@ class CreateGeminiReportsTable extends Migration
             $table->string('external_site_name')->nullable();
             $table->string('external_site_group_name')->nullable();
             $table->string('device_type')->nullable();
-            $table->string('bid_modifier')->nullable();
+            $table->double('bid_modifier')->nullable();
             $table->double('average_bid')->nullable();
             $table->double('modified_bid')->nullable();
             $table->double('spend')->nullable();
@@ -118,6 +122,8 @@ class CreateGeminiReportsTable extends Migration
             $table->double('average_cpm')->nullable();
             $table->string('fact_conversion_counting')->nullable();
             $table->timestamps();
+
+            $table->unique(['advertiser_id', 'campaign_id', 'ad_group_id', 'day', 'external_site_name', 'external_site_group_name', 'device_type'], 'site_performance_stats_unique');
         });
 
         Schema::create('gemini_campaign_bid_performance_stats', function (Blueprint $table) {
@@ -130,7 +136,7 @@ class CreateGeminiReportsTable extends Migration
             $table->string('supply_type')->nullable();
             $table->string('group_or_site')->nullable();
             $table->string('group')->nullable();
-            $table->string('bid_modifier')->nullable();
+            $table->double('bid_modifier')->nullable();
             $table->double('average_bid')->nullable();
             $table->double('modified_bid')->nullable();
             $table->double('impressions')->nullable();
@@ -143,6 +149,8 @@ class CreateGeminiReportsTable extends Migration
             $table->double('average_cpc')->nullable();
             $table->string('fact_conversion_counting')->nullable();
             $table->timestamps();
+
+            $table->unique(['advertiser_id', 'campaign_id', 'section_id', 'ad_group_id', 'day', 'supply_type', 'group_or_site', 'group', 'bid_modifier', 'average_bid', 'modified_bid'], 'bid_performance_stats_unique');
         });
 
         Schema::create('gemini_structured_snippet_extension_stats', function (Blueprint $table) {
@@ -170,6 +178,8 @@ class CreateGeminiReportsTable extends Migration
             $table->double('average_cpm')->nullable();
             $table->double('ctr')->nullable();
             $table->timestamps();
+
+            $table->unique(['advertiser_id', 'campaign_id', 'ad_group_id', 'ad_id', 'keyword_id', 'structured_snippet_extn_id', 'month', 'week', 'day', 'pricing_type', 'source', 'destination_url'], 'structured_performance_stats_unique');
         });
 
         Schema::create('gemini_product_ad_performance_stats', function (Blueprint $table) {
@@ -223,6 +233,8 @@ class CreateGeminiReportsTable extends Migration
             $table->double('click_out_rate')->nullable();
             $table->string('fact_conversion_counting')->nullable();
             $table->timestamps();
+
+            $table->unique(['advertiser_id', 'campaign_id', 'ad_group_id', 'product_ad_id', 'month', 'week', 'day', 'pricing_type', 'device_type', 'source_name'], 'product_ad_performance_stats_unique');
         });
 
         Schema::create('gemini_adjustment_stats', function (Blueprint $table) {
@@ -240,6 +252,8 @@ class CreateGeminiReportsTable extends Migration
             $table->double('spend')->nullable();
             $table->double('average_position')->nullable();
             $table->timestamps();
+
+            $table->unique(['advertiser_id', 'campaign_id', 'day', 'pricing_type', 'source_name', 'is_adjustment', 'adjustment_type'], 'adjustment_stats_unique');
         });
 
         Schema::create('gemini_keyword_stats', function (Blueprint $table) {
@@ -266,6 +280,8 @@ class CreateGeminiReportsTable extends Migration
             $table->double('average_cpm')->nullable();
             $table->double('ctr')->nullable();
             $table->timestamps();
+
+            $table->unique(['advertiser_id', 'campaign_id', 'ad_group_id', 'ad_id', 'keyword_id', 'destination_url', 'day', 'device_type', 'source_name'], 'keyword_stats_unique');
         });
 
         Schema::create('gemini_search_stats', function (Blueprint $table) {
@@ -294,6 +310,8 @@ class CreateGeminiReportsTable extends Migration
             $table->double('click_share')->nullable();
             $table->double('conversion_share')->nullable();
             $table->timestamps();
+
+            $table->unique(['advertiser_id', 'campaign_id', 'ad_group_id', 'ad_id', 'keyword_id', 'search_term', 'device_type', 'destination_url', 'day'], 'search_stats_unique');
         });
 
         Schema::create('gemini_ad_extension_details', function (Blueprint $table) {
@@ -323,6 +341,8 @@ class CreateGeminiReportsTable extends Migration
             $table->double('ctr')->nullable();
             $table->double('average_call_duration')->nullable();
             $table->timestamps();
+
+            $table->unique(['advertiser_id', 'campaign_id', 'ad_group_id', 'ad_id', 'keyword_id', 'ad_extn_id', 'device_type', 'month', 'week', 'day', 'pricing_type', 'destination_url'], 'ad_extensions_unique');
         });
 
         Schema::create('gemini_call_extension_stats', function (Blueprint $table) {
@@ -341,6 +361,8 @@ class CreateGeminiReportsTable extends Migration
             $table->string('call_status')->nullable();
             $table->double('call_duration')->nullable();
             $table->timestamps();
+
+            $table->unique(['advertiser_id', 'campaign_id', 'ad_group_id', 'month', 'week', 'day'], 'call_extensions_unique');
         });
 
         Schema::create('gemini_user_stats', function (Blueprint $table) {
@@ -437,6 +459,8 @@ class CreateGeminiReportsTable extends Migration
             $table->double('average_cpc')->nullable();
             $table->double('ctr')->nullable();
             $table->timestamps();
+
+            $table->unique(['advertiser_id', 'campaign_id', 'ad_group_id', 'offer_id', 'category_id', 'device', 'offer_group_id', 'product_id', 'source', 'device_type', 'month', 'week', 'day'], 'product_ads_unique');
         });
 
         Schema::create('gemini_conversion_rules_stats', function (Blueprint $table) {
@@ -464,6 +488,8 @@ class CreateGeminiReportsTable extends Migration
             $table->string('landing_page_type')->nullable();
             $table->string('fact_conversion_counting')->nullable();
             $table->timestamps();
+
+            $table->unique(['advertiser_id', 'campaign_id', 'ad_group_id', 'rule_id', 'conversion_device', 'keyword_id', 'source_name', 'price_type', 'day'], 'conversion_rule_stats_unique');
         });
 
         Schema::create('gemini_domain_performance_stats', function (Blueprint $table) {
@@ -478,6 +504,8 @@ class CreateGeminiReportsTable extends Migration
             $table->string('top_domain')->nullable();
             $table->string('package_name')->nullable();
             $table->timestamps();
+
+            $table->unique(['advertiser_id', 'campaign_id', 'ad_group_id', 'top_domain', 'package_name', 'day'], 'domain_stats_unique');
         });
     }
 
