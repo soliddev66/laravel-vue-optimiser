@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Vngodev\Gemini;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CrawlGeminiReportData extends Command
@@ -12,7 +13,7 @@ class CrawlGeminiReportData extends Command
      *
      * @var string
      */
-    protected $signature = 'gemini:crawl';
+    protected $signature = 'gemini:crawl {today?}';
 
     /**
      * The console command description.
@@ -38,6 +39,10 @@ class CrawlGeminiReportData extends Command
      */
     public function handle()
     {
-        Gemini::crawl();
+        if ($this->argument('today')) {
+            Gemini::crawlRange(Carbon::now()->format('Y-m-d'), Carbon::now()->format('Y-m-d'));
+        } else {
+            Gemini::crawl();
+        }
     }
 }
