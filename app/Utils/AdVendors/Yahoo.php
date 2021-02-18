@@ -687,6 +687,7 @@ class Yahoo extends Root implements AdVendorInterface
         $summary_data_query->leftJoin('gemini_performance_stats', function ($join) use ($data) {
             $join->on('gemini_performance_stats.campaign_id', '=', 'campaigns.campaign_id');
             $join->whereBetween('gemini_performance_stats.day', [$data['start'], $data['end']]);
+            $join->whereNotNull('fact_conversion_counting');
         });
         if ($data['provider']) {
             $summary_data_query->where('campaigns.provider_id', $data['provider']);
@@ -714,7 +715,7 @@ class Yahoo extends Root implements AdVendorInterface
             DB::raw('SUM(impressions) as impressions')
         ]);
         $campaigns_query->leftJoin('gemini_performance_stats', function ($join) use ($data) {
-            $join->on('gemini_performance_stats.campaign_id', '=', 'campaigns.campaign_id')->whereBetween('gemini_performance_stats.day', [$data['start'], $data['end']]);
+            $join->on('gemini_performance_stats.campaign_id', '=', 'campaigns.campaign_id')->whereBetween('gemini_performance_stats.day', [$data['start'], $data['end']])->whereNotNull('fact_conversion_counting');
         });
         if ($data['provider']) {
             $campaigns_query->where('campaigns.provider_id', $data['provider']);
