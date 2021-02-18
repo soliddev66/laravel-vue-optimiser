@@ -831,7 +831,7 @@ class Yahoojp extends Root implements AdVendorInterface
             DB::raw('"N/A" as avg_roi')
         );
         $summary_data_query->leftJoin('campaigns', function ($join) use ($data) {
-            $join->on('campaigns.campaign_id', '=', 'gemini_performance_stats.campaign_id');
+            $join->on('campaigns.campaign_id', '=', 'yahoo_japan_reports.campaign_id');
             if ($data['provider']) {
                 $join->where('campaigns.provider_id', $data['provider']);
             }
