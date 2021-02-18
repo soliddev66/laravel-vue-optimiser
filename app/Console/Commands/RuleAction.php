@@ -73,14 +73,14 @@ class RuleAction extends Command
                         echo 'PASSED', "\n";
                         $this->log->passed = true;
 
-                        if ($rule->run_type == 1 || $rule->run_type == 3) {
-                            $this->sendNotify();
-                        }
+                        $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
+                        if (class_exists($rule_action_class)) {
+                            if ($rule->run_type == 1 || $rule->run_type == 3) {
+                                (new $rule_action_class)->visual($campaign);
+                                $this->sendNotify();
+                            }
 
-                        if ($rule->run_type == 2 || $rule->run_type == 3) {
-                            $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
-
-                            if (class_exists($rule_action_class)) {
+                            if ($rule->run_type == 2 || $rule->run_type == 3) {
                                 (new $rule_action_class)->process($campaign);
                             }
                         }
@@ -155,10 +155,11 @@ class RuleAction extends Command
                             }
 
                             if ($rule->run_type == 2 || $rule->run_type == 3) {
+                                // PauseContents
                                 $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
 
                                 if (class_exists($rule_action_class)) {
-                                    (new $rule_action_class)->process($campaign, $ad);
+                                    (new $rule_action_class)->process($campaign, $ad, $this->log->data_text);
                                 }
                             }
                         } else {
