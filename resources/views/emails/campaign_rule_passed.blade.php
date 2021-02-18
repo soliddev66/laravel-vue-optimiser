@@ -1,9 +1,9 @@
-Rule ID: {{ $data['rule_id'] }}<br/>
-Start Date: {{ $data['start_date'] }}<br/>
-End Date: {{ $data['end_date'] }}<br/>
-Passed: {{ $data['passed'] }}<br/>
+Rule ID: {{ $rule_id }}<br/>
+Start Date: {{ $start_date }}<br/>
+End Date: {{ $end_date }}<br/>
+Passed: {{ $passed }}<br/>
 DATA:<br/>
-@foreach($data['data'] as $group)
+@foreach($data as $group)
 &nbsp;&nbsp;&nbsp;&nbsp;Group: {{ $group['group'] }}<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;Items:<br/>
 @foreach($group['items'] as $item)

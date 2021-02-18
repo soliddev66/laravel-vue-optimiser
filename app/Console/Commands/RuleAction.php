@@ -4,12 +4,12 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
+use Mail;
+
 use App\Models\User;
 use App\Models\Rule;
 use App\Models\RuleLog;
 use App\Models\Campaign;
-
-use App\Notifications\CampaignRulePassed;
 
 class RuleAction extends Command
 {
@@ -246,8 +246,13 @@ class RuleAction extends Command
 
     private function sendNotify()
     {
-        $user = User::where('email', 'admin@optimiser.test')->first();
         $this->log->data = $this->log->data_text;
-        $user->notify(new CampaignRulePassed($this->log->toArray()));
+
+        Mail::send('emails.campaign_rule_passed', $this->log->toArray(), function ($message) {
+            $message->to([
+                env('MAIL_CAMPAIGN_RULE_PASSED_TO')
+            ])->subject('Campaign Rule Passed');
+            $message->from(env('MAIL_CAMPAIGN_RULE_PASSED_FROM'));
+        });
     }
 }
