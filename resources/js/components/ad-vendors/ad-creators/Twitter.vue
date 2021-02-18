@@ -54,6 +54,11 @@
                   <div class="col-sm-8 offset-sm-2">
                     <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('cardMedia', index)">Choose File</button>
                   </div>
+                  <div class="col-sm-8 offset-sm-2">
+                    <small class="text-danger" v-for="(image, indexImage) in card.media" :key="indexImage">
+                      <span class="d-inline-block" v-if="image.image && !image.state">Image {{ image.image }} is invalid. A minimum image width of 800px and a width:height aspect ratio of either 1:1 or 1.91:1 is required.</span>
+                    </small>
+                  </div>
                 </div>
                 <div class="form-group row">
                   <label for="card_website_title" class="col-sm-2 control-label mt-2">Card Website Title</label>
@@ -140,12 +145,19 @@ export default {
     console.log('Component mounted.')
     let vm = this
     this.$root.$on('fm-selected-items', (values) => {
-      this.cards[this.fileSelectorIndex].media = [];
-      for (let i = 0; i < values.length; i++) {
-        this.cards[this.fileSelectorIndex].media.push(values[i].path)
-      }
       if (this.openingFileSelector === 'cardMedia') {
-        this.cards[this.fileSelectorIndex].mediaPath = this.cards[this.fileSelectorIndex].media.join(';')
+        let paths = []
+        this.cards[this.fileSelectorIndex].media = []
+
+        for (let i = 0; i < values.length; i++) {
+          this.cards[this.fileSelectorIndex].media.push({
+            image: values[i].path,
+            state: this.validImage(values[i].width, values[i].height)
+          })
+
+          paths.push(values[i].path)
+        }
+        this.cards[this.fileSelectorIndex].mediaPath = paths.join(';')
       }
       vm.$modal.hide(this.openingFileSelector)
     });
@@ -182,6 +194,9 @@ export default {
     }
   },
   methods: {
+    validImage(width, height)  {
+      return width >= 800 && (width / height == 1 || width / height == 1.91)
+    },
     openChooseFile(name, index = 0) {
       this.openingFileSelector = name
       this.fileSelectorIndex = index
