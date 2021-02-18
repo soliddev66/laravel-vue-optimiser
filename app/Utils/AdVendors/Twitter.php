@@ -570,8 +570,8 @@ class Twitter extends Root implements AdVendorInterface
             DB::raw('MAX(campaigns.name) AS name'),
             DB::raw('MAX(campaigns.status) AS status'),
             DB::raw('MAX(campaigns.budget) AS budget'),
-            DB::raw('SUM(JSON_EXTRACT(data, "$[0].metrics.impressions)) as impressions'),
-            DB::raw('SUM(JSON_EXTRACT(data, "$[0].metrics.clicks)) as clicks'),
+            DB::raw('SUM(JSON_EXTRACT(data, "$[0].metrics.impressions")) as impressions'),
+            DB::raw('SUM(JSON_EXTRACT(data, "$[0].metrics.clicks")) as clicks'),
             DB::raw('ROUND(SUM(JSON_EXTRACT(data, "$[0].metrics.billed_charge_local_micro[0]") / 1000000), 2) as cost'),
         ]);
         $campaigns_query->leftJoin('twitter_reports', function ($join) use ($data) {
