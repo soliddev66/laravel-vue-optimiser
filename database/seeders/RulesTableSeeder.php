@@ -407,11 +407,6 @@ class RulesTableSeeder extends Seeder
             'calculation_type' => 1,
             'created_at' => Carbon::now()
         ], [
-            'name' => 'Change Site Bid',
-            'provider' => 'ChangeSiteBid',
-            'calculation_type' => 1,
-            'created_at' => Carbon::now()
-        ], [
             'name' => 'Change Exchange Bid',
             'provider' => 'ChangeExchangeBid',
             'calculation_type' => 1,

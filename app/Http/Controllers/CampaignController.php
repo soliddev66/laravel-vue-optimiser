@@ -192,6 +192,9 @@ class CampaignController extends Controller
             if (request('account')) {
                 $campaigns_query->where('campaigns.open_id', request('account'));
             }
+            if (request('advertiser')) {
+                $campaigns_query->where('campaigns.advertiser_id', request('advertiser'));
+            }
             if (request('search')) {
                 $campaigns_query->where('name', 'LIKE', '%' . request('search') . '%');
             }
@@ -220,6 +223,9 @@ class CampaignController extends Controller
             if (request('account')) {
                 $summary_data_query->where('open_id', request('account'));
             }
+            if (request('advertiser')) {
+                $summary_data_query->where('advertiser_id', request('advertiser'));
+            }
         } else {
             $provider = Provider::where('id', request('provider'))->first();
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
@@ -228,12 +234,20 @@ class CampaignController extends Controller
         }
 
         $accounts = [];
+        $advertisers = [];
         if (request('provider')) {
             $accounts = auth()->user()->providers()->where('provider_id', request('provider'))->get();
+
+            if (request('account')) {
+                $provider = Provider::where('id', request('provider'))->first();
+                $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
+                $advertisers = (new $adVendorClass())->advertisers();
+            }
         }
 
         return [
             'accounts' => $accounts,
+            'advertisers' => $advertisers,
             'summary_data' => $summary_data_query->first()
         ];
     }

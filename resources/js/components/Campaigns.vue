@@ -9,22 +9,28 @@
         <div class="card">
           <div class="card-header">
             <div class="row">
-              <div class="col-md-3 col-12">
+              <div class="col-md-4 col-12">
                 <VueCtkDateTimePicker position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData()"></VueCtkDateTimePicker>
               </div>
-              <div class="col-md-3 col-12">
+              <div class="col-md-4 col-12">
                 <select class="form-control" v-model="selectedProvider" @change="getData()">
                   <option value="">-</option>
                   <option v-for="provider in providers" :value="provider.id" :key="provider.id">{{ provider.label }}</option>
                 </select>
               </div>
-              <div class="col-md-3 col-12">
+              <div class="col-md-4 col-12">
                 <select class="form-control" v-model="selectedAccount" @change="getData()">
                   <option value="">-</option>
                   <option v-for="account in accounts" :value="account.open_id" :key="account.open_id">{{ account.open_id }}</option>
                 </select>
               </div>
-              <div class="col-md-3 col-12">
+              <div class="col-md-6 col-12">
+                <select class="form-control" v-model="selectedAdvertiser" @change="getData()">
+                  <option value="">-</option>
+                  <option v-for="advertiser in advertisers" :value="advertiser.id" :key="advertiser.id">{{ advertiser.advertiserName }}</option>
+                </select>
+              </div>
+              <div class="col-md-6 col-12">
                 <select class="form-control" v-model="selectedTracker" @change="getData()">
                   <option value="">-</option>
                   <option v-for="tracker in trackers" :value="tracker.slug" :key="tracker.slug">{{ tracker.label }}</option>
@@ -140,6 +146,7 @@ export default {
 
     return {
       accounts: [],
+      advertisers: [],
       campaigns: {},
       tableProps: {
         page: params.get('page') || 1,
@@ -261,6 +268,7 @@ export default {
       },
       selectedProvider: params.get('provider') || '',
       selectedAccount: params.get('account') || '',
+      selectedAdvertiser: params.get('advertiser') || '',
       selectedTracker: params.get('provider') ? params.get('tracker') : 'redtrack',
       targetDate: {
         start: params.get('start') || this.$moment().subtract(30, 'days').format('YYYY-MM-DD'),
@@ -303,11 +311,12 @@ export default {
         return;
       }
       this.isLoading = true;
-      const filters = { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount };
+      const filters = { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount, advertiser: this.selectedAdvertiser };
       const params = {...this.targetDate, ...filters, ...options };
       axios.post('/campaigns/search', params)
         .then((response) => {
           this.accounts = response.data.accounts;
+          this.advertisers = response.data.advertisers;
           this.summaryData = response.data.summary_data;
         })
         .catch((err) => {
@@ -316,7 +325,10 @@ export default {
           if (_.find(this.accounts, (account) => account.open_id === this.selectedAccount) === undefined) {
             this.selectedAccount = '';
           }
-          const filters = { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount };
+          if (_.find(this.advertisers, (advertiser) => advertiser.id == this.selectedAdvertiser) === undefined) {
+            this.selectedAdvertiser = '';
+          }
+          const filters = { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount, advertiser: this.selectedAdvertiser };
           const params = {...this.targetDate, ...filters, ...options };
           axios.post('/campaigns/data', params)
             .then((response) => {

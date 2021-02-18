@@ -30,7 +30,7 @@ class Yahoo extends Root implements AdVendorInterface
 {
     private function api()
     {
-        $provider = Provider::where('slug', request('provider'))->first();
+        $provider = Provider::where('slug', request('provider'))->orWhere('id', request('provider'))->first();
 
         return new GeminiAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first());
     }
@@ -687,12 +687,16 @@ class Yahoo extends Root implements AdVendorInterface
         $summary_data_query->leftJoin('gemini_performance_stats', function ($join) use ($data) {
             $join->on('gemini_performance_stats.campaign_id', '=', 'campaigns.campaign_id');
             $join->whereBetween('gemini_performance_stats.day', [$data['start'], $data['end']]);
+            $join->whereNotNull('fact_conversion_counting');
         });
         if ($data['provider']) {
             $summary_data_query->where('campaigns.provider_id', $data['provider']);
         }
         if ($data['account']) {
             $summary_data_query->where('campaigns.open_id', $data['account']);
+        }
+        if ($data['advertiser']) {
+            $summary_data_query->where('campaigns.advertiser_id', $data['advertiser']);
         }
 
         return $summary_data_query;
@@ -711,16 +715,19 @@ class Yahoo extends Root implements AdVendorInterface
             DB::raw('SUM(impressions) as impressions')
         ]);
         $campaigns_query->leftJoin('gemini_performance_stats', function ($join) use ($data) {
-            $join->on('gemini_performance_stats.campaign_id', '=', 'campaigns.campaign_id')->whereBetween('gemini_performance_stats.day', [$data['start'], $data['end']]);
+            $join->on('gemini_performance_stats.campaign_id', '=', 'campaigns.campaign_id')->whereBetween('gemini_performance_stats.day', [$data['start'], $data['end']])->whereNotNull('fact_conversion_counting');
         });
         if ($data['provider']) {
-            $campaigns_query->where('provider_id', $data['provider']);
+            $campaigns_query->where('campaigns.provider_id', $data['provider']);
         }
         if ($data['account']) {
-            $campaigns_query->where('open_id', $data['account']);
+            $campaigns_query->where('campaigns.open_id', $data['account']);
+        }
+        if ($data['advertiser']) {
+            $campaigns_query->where('campaigns.advertiser_id', $data['advertiser']);
         }
         if ($data['search']) {
-            $campaigns_query->where('name', 'LIKE', '%' . $data['search'] . '%');
+            $campaigns_query->where('campaigns.name', 'LIKE', '%' . $data['search'] . '%');
         }
         $campaigns_query->groupBy('campaigns.campaign_id');
 

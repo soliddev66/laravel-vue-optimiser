@@ -12,101 +12,103 @@
             <div class="card-body">
               <errors :errors="errors" v-if="errors.errors"></errors>
               <form class="form-horizontal">
-                <div class="form-group row">
-                  <label for="name" class="col-sm-2 control-label mt-2">Rule Name</label>
-                  <div class="col-sm-10">
-                    <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="ruleName" />
-                  </div>
-                </div>
-
-                <div class="form-group row">
-                  <label for="rule_group" class="col-sm-2 control-label mt-2">Rule Group</label>
-                  <div class="col-sm-4">
-                    <select name="rule_group" class="form-control" v-model="selectedRuleGroup">
-                      <option value="">Select Group</option>
-                      <option :value="ruleGroup.id" v-for="ruleGroup in ruleGroupData" :key="ruleGroup.id">{{ ruleGroup.name }}</option>
-                    </select>
-                  </div>
-                  <div class="col-sm-2" v-if="!saveRuleGroup">
-                    <input type="text" name="rule_group_name" v-model="ruleGroupName" class="form-control" placeholder="Enter rule group name...">
-                  </div>
-                  <div class="col-sm-2" v-if="saveRuleGroup">
-                    <button type="button" class="btn btn-primary" @click.prevent="saveRuleGroup = !saveRuleGroup">Create New</button>
-                  </div>
-                  <div class="col-sm-1" v-if="!saveRuleGroup && ruleGroupName">
-                    <button type="button" class="btn btn-success" @click.prevent="createRuleGroup()">Save</button>
-                  </div>
-                  <div class="col-sm-1" v-if="!saveRuleGroup">
-                    <button type="button" class="btn btn-warning" @click.prevent="saveRuleGroup = !saveRuleGroup">Cancel</button>
-                  </div>
-                </div>
-
-                <div class="form-group row">
-                  <div class="col">
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="alert" id="runType1" value="1" v-model="ruleRunType">
-                      <label class="form-check-label" for="runType1">Alert</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="alert" id="runType2" value="2" v-model="ruleRunType">
-                      <label class="form-check-label" for="runType2">Execute</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="alert" id="runType3" value="3" v-model="ruleRunType">
-                      <label class="form-check-label" for="runType3">Execute & Alert</label>
+                <fieldset class="mb-4 p-3 rounded border bg-dark">
+                  <div class="form-group row">
+                    <label for="name" class="col-sm-2 control-label mt-2">Rule Name</label>
+                    <div class="col-sm-10">
+                      <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="ruleName" />
                     </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="group" class="col-sm-2 control-label mt-2">Every</label>
-                  <div class="col-sm-5">
-                    <input type="number" name="interval_amount" class="form-control" v-model="ruleIntervalAmount" />
+                  <div class="form-group row">
+                    <label for="rule_group" class="col-sm-2 control-label mt-2">Rule Group</label>
+                    <div class="col-sm-4">
+                      <select name="rule_group" class="form-control" v-model="selectedRuleGroup">
+                        <option value="">Select Group</option>
+                        <option :value="ruleGroup.id" v-for="ruleGroup in ruleGroupData" :key="ruleGroup.id">{{ ruleGroup.name }}</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-2" v-if="!saveRuleGroup">
+                      <input type="text" name="rule_group_name" v-model="ruleGroupName" class="form-control" placeholder="Enter rule group name...">
+                    </div>
+                    <div class="col-sm-2" v-if="saveRuleGroup">
+                      <button type="button" class="btn btn-primary" @click.prevent="saveRuleGroup = !saveRuleGroup">Create New</button>
+                    </div>
+                    <div class="col-sm-1" v-if="!saveRuleGroup && ruleGroupName">
+                      <button type="button" class="btn btn-success" @click.prevent="createRuleGroup()">Save</button>
+                    </div>
+                    <div class="col-sm-1" v-if="!saveRuleGroup">
+                      <button type="button" class="btn btn-warning" @click.prevent="saveRuleGroup = !saveRuleGroup">Cancel</button>
+                    </div>
                   </div>
-                  <div class="col-sm-5">
-                    <select name="interval_unit" class="form-control" v-model="ruleIntervalUnit">
-                      <option value="1">Minutes</option>
-                      <option value="2">Hours</option>
-                      <option value="3">Days</option>
-                      <option value="4">Weeks</option>
-                      <option value="5">Months</option>
-                      <option value="6">Years</option>
-                    </select>
-                  </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="" class="col-sm-2 control-label mt-2">Do</label>
-                  <div class="col-sm-10">
-                    <select name="rule_action" class="form-control" v-model="selectedRuleAction" @change="selectedRuleActionChanged">
-                      <option :value="ruleAction.id" v-for="ruleAction in ruleActions" :key="ruleAction.id" :data-provider="ruleAction.provider">{{ ruleAction.name }}</option>
-                    </select>
+                  <div class="form-group row">
+                    <div class="col">
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="alert" id="runType1" value="1" v-model="ruleRunType">
+                        <label class="form-check-label" for="runType1">Alert</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="alert" id="runType2" value="2" v-model="ruleRunType">
+                        <label class="form-check-label" for="runType2">Execute</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="alert" id="runType3" value="3" v-model="ruleRunType">
+                        <label class="form-check-label" for="runType3">Execute & Alert</label>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="dataFrom" class="col-sm-2 control-label mt-2">Considering data from</label>
-                  <div class="col-sm-3">
-                    <select name="data_from" class="form-control" v-model="selectedDataFrom" @change="selectedDataFromChanged">
-                      <option value="">Select</option>
-                      <option :value="ruleDataFromOption.id" v-for="ruleDataFromOption in ruleDataFromOptions" :key="ruleDataFromOption.id" :data-excluded-day="ruleDataFromOption.excluded_day_type">{{ ruleDataFromOption.name }}</option>
-                    </select>
+                  <div class="form-group row">
+                    <label for="group" class="col-sm-2 control-label mt-2">Every</label>
+                    <div class="col-sm-5">
+                      <input type="number" name="interval_amount" class="form-control" v-model="ruleIntervalAmount" />
+                    </div>
+                    <div class="col-sm-5">
+                      <select name="interval_unit" class="form-control" v-model="ruleIntervalUnit">
+                        <option value="1">Minutes</option>
+                        <option value="2">Hours</option>
+                        <option value="3">Days</option>
+                        <option value="4">Weeks</option>
+                        <option value="5">Months</option>
+                        <option value="6">Years</option>
+                      </select>
+                    </div>
                   </div>
-                  <label for="exclude" class="col-sm-2 control-label">Exclude days from interval</label>
-                  <div class="col-sm-3">
-                    <select name="excluded_days" class="form-control" v-model="selectedExcludedDay">
-                      <option :value="excludedDayOption.id" v-for="excludedDayOption in excludedDayOptions" :key="excludedDayOption.id">{{ excludedDayOption.name }}</option>
-                    </select>
-                  </div>
-                </div>
 
-                <h3 class="pb-2">On</h3>
-                <fieldset class="mb-4 p-3 rounded border">
-                  <component :is="ruleActionProvider" :submitData="ruleActionData" />
+                  <div class="form-group row">
+                    <label for="" class="col-sm-2 control-label mt-2">Do</label>
+                    <div class="col-sm-10">
+                      <select name="rule_action" class="form-control" v-model="selectedRuleAction" @change="selectedRuleActionChanged">
+                        <option :value="ruleAction.id" v-for="ruleAction in ruleActions" :key="ruleAction.id" :data-provider="ruleAction.provider">{{ ruleAction.name }}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="dataFrom" class="col-sm-2 control-label mt-2">Considering data from</label>
+                    <div class="col-sm-3">
+                      <select name="data_from" class="form-control" v-model="selectedDataFrom" @change="selectedDataFromChanged">
+                        <option value="">Select</option>
+                        <option :value="ruleDataFromOption.id" v-for="ruleDataFromOption in ruleDataFromOptions" :key="ruleDataFromOption.id" :data-excluded-day="ruleDataFromOption.excluded_day_type">{{ ruleDataFromOption.name }}</option>
+                      </select>
+                    </div>
+                    <label for="exclude" class="col-sm-2 control-label">Exclude days from interval</label>
+                    <div class="col-sm-3">
+                      <select name="excluded_days" class="form-control" v-model="selectedExcludedDay">
+                        <option :value="excludedDayOption.id" v-for="excludedDayOption in excludedDayOptions" :key="excludedDayOption.id">{{ excludedDayOption.name }}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <h3 class="pb-2">On</h3>
+                  <fieldset class="mb-4 p-3 rounded border">
+                    <component :is="ruleActionProvider" :submitData="ruleActionData" />
+                  </fieldset>
                 </fieldset>
 
-                <fieldset class="mb-4 p-3 rounded border">
-                  <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCondition, index) in ruleConditionData" :key="index">
+                <fieldset class="mb-4 p-3 rounded border bg-dark">
+                  <fieldset class="mb-3 p-3 rounded border bg-secondary" v-for="(ruleCondition, index) in ruleConditionData" :key="index">
                     <div class="form-group row" v-for="(condition, indexY) in ruleCondition" :key="indexY">
                       <div class="col-sm-4">
                         <div class="input-group">
@@ -153,7 +155,7 @@
 
                     <div class="form-group row mb-0">
                       <div class="col">
-                        <button type="button" class="btn btn-primary" @click="addAndRuleConditon(index)">AND</button>
+                        <button type="button" class="btn btn-success" @click="addAndRuleConditon(index)">AND</button>
                       </div>
                     </div>
                     <div class="row" v-if="index > 0">
@@ -282,7 +284,7 @@ export default {
   watch: {
   },
   data() {
-    let tempRuleCondition = {rule_condition_type_id: '', operation: '', amount: '', unit: '1'},
+    let tempRuleCondition = {rule_condition_type_id: '', operation: 1, amount: '', unit: '1'},
       excludedDayOptionType = this.rule.excluded_day_type ? this.rule.excluded_day_type : null;
 
     return {
@@ -300,8 +302,8 @@ export default {
       selectedExcludedDay: this.rule.exclude_day ? this.rule.exclude_day : 1,
       excludedDayOptionType: excludedDayOptionType,
       excludedDayOptions: this.generateExcludeDayOptions(excludedDayOptionType),
-      ruleIntervalAmount: this.rule.interval_amount ? this.rule.interval_amount : '',
-      ruleIntervalUnit: this.rule.interval_unit ? this.rule.interval_unit : '',
+      ruleIntervalAmount: this.rule.interval_amount ? this.rule.interval_amount : 1,
+      ruleIntervalUnit: this.rule.interval_unit ? this.rule.interval_unit : 1,
       ruleRunType: this.rule.run_type ? this.rule.run_type : 1,
       selectedRuleAction: this.rule.rule_action_id ? this.rule.rule_action_id : 1,
       selectedWidgetIncluded: this.rule.is_widget_included ? this.rule.is_widget_included : 1,
