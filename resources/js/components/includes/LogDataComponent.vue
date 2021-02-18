@@ -13,7 +13,13 @@
                   <span>{{ tt == 0 ? 'info' : tt }}: </span>
                   <ul v-if="typeof ii == 'object'">
                     <li v-for="(iii, ttt) in ii">
-                      <span>{{ ttt }}: {{ iii }}</span>
+                      <span>{{ ttt == 0 ? 'info' : ttt }}: </span>
+                      <ul v-if="typeof iii == 'object'">
+                        <li v-for="(iiii, tttt) in iii">
+                          <span>{{ tttt }}: {{ iiii }}</span>
+                        </li>
+                      </ul>
+                      <span v-else>{{ ttt }}: {{ iii }}</span>
                     </li>
                   </ul>
                   <span v-else>{{ ii }}</span>
