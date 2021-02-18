@@ -4,9 +4,12 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
+use App\Models\User;
 use App\Models\Rule;
 use App\Models\RuleLog;
 use App\Models\Campaign;
+
+use App\Notifications\CampaignRulePassed;
 
 class RuleAction extends Command
 {
@@ -69,10 +72,17 @@ class RuleAction extends Command
                     if ($this->checkConditions($rule, $redtrack_data, $performance_data)) {
                         echo 'PASSED', "\n";
                         $this->log->passed = true;
-                        $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
 
-                        if (class_exists($rule_action_class)) {
-                            (new $rule_action_class)->process($campaign);
+                        if ($rule->run_type == 1 || $rule->run_type == 3) {
+                            $this->sendNotify();
+                        }
+
+                        if ($rule->run_type == 2 || $rule->run_type == 3) {
+                            $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
+
+                            if (class_exists($rule_action_class)) {
+                                (new $rule_action_class)->process($campaign);
+                            }
                         }
                     } else {
                         echo 'NOPASSED', "\n";
@@ -98,10 +108,16 @@ class RuleAction extends Command
                             echo 'PASSED', "\n";
                             $this->log->passed = true;
 
-                            $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
+                            if ($rule->run_type == 1 || $rule->run_type == 3) {
+                                $this->sendNotify();
+                            }
 
-                            if (class_exists($rule_action_class)) {
-                                (new $rule_action_class)->process($campaign, $data, $this->log->data_text);
+                            if ($rule->run_type == 2 || $rule->run_type == 3) {
+                                $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
+
+                                if (class_exists($rule_action_class)) {
+                                    (new $rule_action_class)->process($campaign, $data, $this->log->data_text);
+                                }
                             }
                         } else {
                             echo 'NOPASSED', "\n";
@@ -133,10 +149,17 @@ class RuleAction extends Command
                         if ($this->checkConditions($rule, $redtrack_content_stats, $redtrack_content_stats)) {
                             echo 'PASSED', "\n";
                             $this->log->passed = true;
-                            $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
 
-                            if (class_exists($rule_action_class)) {
-                                (new $rule_action_class)->process($campaign, $ad);
+                            if ($rule->run_type == 1 || $rule->run_type == 3) {
+                                $this->sendNotify();
+                            }
+
+                            if ($rule->run_type == 2 || $rule->run_type == 3) {
+                                $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
+
+                                if (class_exists($rule_action_class)) {
+                                    (new $rule_action_class)->process($campaign, $ad);
+                                }
                             }
                         } else {
                             echo 'NOPASSED', "\n";
@@ -219,5 +242,12 @@ class RuleAction extends Command
 
         $data[] = $data_items;
         return false;
+    }
+
+    private function sendNotify()
+    {
+        $user = User::where('email', 'admin@optimiser.test')->first();
+        $this->log->data = $this->log->data_text;
+        $user->notify(new CampaignRulePassed($this->log->toArray()));
     }
 }
