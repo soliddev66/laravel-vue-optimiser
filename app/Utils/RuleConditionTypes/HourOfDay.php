@@ -8,8 +8,8 @@ class HourOfDay extends Root
 {
     public function check($redtrack_data, $rule_condition)
     {
-        $sum_hour_of_days = ReportData::sum($redtrack_data, 'hour_of_day');
+        $hour_of_day = date('H');
 
-        return parent::compare($sum_hour_of_days, $rule_condition->amount, $rule_condition->operation);
+        return parent::compare($hour_of_day, $rule_condition->amount, $rule_condition->operation);
     }
 }
