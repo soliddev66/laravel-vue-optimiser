@@ -25,4 +25,12 @@ class BlockSite extends Root
             echo "Campaign wasn't being added site block\n";
         }
     }
+
+    public function visual($campaign, $data, &$log)
+    {
+        $log['effect'] = [
+            'campaign' => $campaign->name,
+            'site' => $data['sub1']
+        ];
+    }
 }

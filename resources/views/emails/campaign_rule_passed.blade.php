@@ -3,7 +3,7 @@ Start Date: {{ $start_date }}<br/>
 End Date: {{ $end_date }}<br/>
 Passed: {{ $passed }}<br/>
 DATA:<br/>
-@foreach($data as $group)
+@foreach($data['info'] as $group)
 &nbsp;&nbsp;&nbsp;&nbsp;Group: {{ $group['group'] }}<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;Items:<br/>
 @foreach($group['items'] as $item)

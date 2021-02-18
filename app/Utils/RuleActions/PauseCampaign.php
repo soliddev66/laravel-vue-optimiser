@@ -9,14 +9,26 @@ use App\Endpoints\GeminiAPI;
 
 class PauseCampaign extends Root
 {
-    public function process($campaign)
+    public function process($campaign, &$log)
     {
+        $log['effect'] = [
+            'campaign' => $campaign->name
+        ];
+
         try {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
             (new $adVendorClass)->status($campaign);
+            $log['effect']['paused'] = true;
             echo 'Campaign was being paused', "\n";
         } catch (Exception $e) {
             echo "Campaign wasn't being paused\n";
         }
+    }
+
+    public function visual($campaign, &$log)
+    {
+        $log['effect'] = [
+            'campaign' => $campaign->name
+        ];
     }
 }
