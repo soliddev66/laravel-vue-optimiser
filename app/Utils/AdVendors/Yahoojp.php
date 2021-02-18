@@ -853,11 +853,17 @@ class Yahoojp extends Root implements AdVendorInterface
             DB::raw('MAX(campaigns.budget) AS budget'),
             DB::raw('null as clicks')
         ]);
+        $campaigns_query->leftJoin('yahoo_japan_reports', function ($join) use ($data) {
+            $join->on('yahoo_japan_reports.campaign_id', '=', 'campaigns.id')->whereBetween('yahoo_japan_reports.date', [$data['start'], $data['end']]);
+        });
         if ($data['provider']) {
-            $campaigns_query->where('provider_id', $data['provider']);
+            $campaigns_query->where('campaigns.provider_id', $data['provider']);
         }
         if ($data['account']) {
-            $campaigns_query->where('open_id', $data['account']);
+            $campaigns_query->where('campaigns.open_id', $data['account']);
+        }
+        if ($data['advertiser']) {
+            $campaigns_query->where('campaigns.advertiser_id', $data['advertiser']);
         }
         if ($data['search']) {
             $campaigns_query->where('name', 'LIKE', '%' . $data['search'] . '%');

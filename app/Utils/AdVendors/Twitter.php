@@ -571,13 +571,16 @@ class Twitter extends Root implements AdVendorInterface
             DB::raw('ROUND(SUM(JSON_EXTRACT(data, "$[0].metrics.billed_charge_local_micro[0]") / 1000000), 2) as cost'),
         ]);
         $campaigns_query->leftJoin('twitter_reports', function ($join) use ($data) {
-            $join->on('twitter_reports.campaign_id', '=', 'campaigns.campaign_id')->whereBetween('twitter_reports.end_time', [$data['start'], $data['end']]);
+            $join->on('twitter_reports.campaign_id', '=', 'campaigns.id')->whereBetween('twitter_reports.end_time', [$data['start'], $data['end']]);
         });
         if ($data['provider']) {
-            $campaigns_query->where('provider_id', $data['provider']);
+            $campaigns_query->where('campaigns.provider_id', $data['provider']);
         }
         if ($data['account']) {
-            $campaigns_query->where('open_id', $data['account']);
+            $campaigns_query->where('campaigns.open_id', $data['account']);
+        }
+        if ($data['advertiser']) {
+            $campaigns_query->where('campaigns.advertiser_id', $data['advertiser']);
         }
         if ($data['search']) {
             $campaigns_query->where('name', 'LIKE', '%' . $data['search'] . '%');
