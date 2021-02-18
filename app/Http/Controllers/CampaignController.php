@@ -30,7 +30,7 @@ class CampaignController extends Controller
     public function userCampaigns()
     {
         return response()->json([
-            'campaigns' => auth()->user()->campaigns
+            'campaigns' => auth()->user()->campaigns()->select(DB::raw('MAX(id) as id'), 'campaign_id', DB::raw('MAX(name) as name'))->groupBy('campaign_id')->get()
         ]);
     }
 
@@ -208,6 +208,38 @@ class CampaignController extends Controller
         return new DataTableCollectionResource($campaigns_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
 
+    public function filters()
+    {
+        $accounts = [];
+        $advertisers = [];
+        if (request('provider')) {
+            $accounts = auth()->user()->providers()->where('provider_id', request('provider'))->get();
+
+            if (request('account')) {
+                $provider = Provider::where('id', request('provider'))->first();
+                $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
+                $advertisers = (new $adVendorClass())->advertisers();
+                if ($provider->id === 2) {
+                    $advertisers = $advertisers['marketers'];
+                }
+            }
+        }
+
+        return [
+            'accounts' => $accounts,
+            'advertisers' => array_map(function ($value) {
+                if (isset($value['advertiserName'])) {
+                    $value['name'] = $value['advertiserName'];
+                }
+                if (request('provider') == 4 && isset($value['account_id'])) {
+                    $value['id'] = $value['account_id'];
+                }
+
+                return $value;
+            }, $advertisers)
+        ];
+    }
+
     public function search()
     {
         if (request('tracker')) {
@@ -233,21 +265,7 @@ class CampaignController extends Controller
             $summary_data_query = (new $adVendorClass())->getSummaryDataQuery(request()->all());
         }
 
-        $accounts = [];
-        $advertisers = [];
-        if (request('provider')) {
-            $accounts = auth()->user()->providers()->where('provider_id', request('provider'))->get();
-
-            if (request('account')) {
-                $provider = Provider::where('id', request('provider'))->first();
-                $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
-                $advertisers = (new $adVendorClass())->advertisers();
-            }
-        }
-
         return [
-            'accounts' => $accounts,
-            'advertisers' => $advertisers,
             'summary_data' => $summary_data_query->first()
         ];
     }

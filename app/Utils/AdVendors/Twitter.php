@@ -30,7 +30,7 @@ class Twitter extends Root implements AdVendorInterface
 {
     private function api()
     {
-        $provider = Provider::where('slug', request('provider'))->first();
+        $provider = Provider::where('slug', request('provider'))->orWhere('id', request('provider'))->first();
 
         return new TwitterAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first(), request('advertiser') ?? null);
     }
@@ -523,6 +523,7 @@ class Twitter extends Root implements AdVendorInterface
                 $value['campaign_id'] = $campaign->id;
                 $value['provider_id'] = $campaign->provider_id;
                 $value['open_id'] = $campaign->open_id;
+                $value['advertiser_id'] = $campaign->advertiser_id;
                 $redtrack_report = RedtrackReport::firstOrNew([
                     'date' => $date,
                     'sub3' => $campaign->campaign_id,
@@ -552,6 +553,9 @@ class Twitter extends Root implements AdVendorInterface
             if ($data['account']) {
                 $join->where('campaigns.open_id', $data['account']);
             }
+            if ($data['advertiser']) {
+                $join->where('campaigns.advertiser_id', $data['advertiser']);
+            }
         });
         $summary_data_query->whereBetween('end_time', [request('start'), request('end')]);
 
@@ -566,17 +570,21 @@ class Twitter extends Root implements AdVendorInterface
             DB::raw('MAX(campaigns.name) AS name'),
             DB::raw('MAX(campaigns.status) AS status'),
             DB::raw('MAX(campaigns.budget) AS budget'),
-            DB::raw('null as clicks'),
+            DB::raw('SUM(JSON_EXTRACT(data, "$[0].metrics.impressions")) as impressions'),
+            DB::raw('SUM(JSON_EXTRACT(data, "$[0].metrics.clicks")) as clicks'),
             DB::raw('ROUND(SUM(JSON_EXTRACT(data, "$[0].metrics.billed_charge_local_micro[0]") / 1000000), 2) as cost'),
         ]);
         $campaigns_query->leftJoin('twitter_reports', function ($join) use ($data) {
-            $join->on('twitter_reports.campaign_id', '=', 'campaigns.campaign_id')->whereBetween('twitter_reports.end_time', [$data['start'], $data['end']]);
+            $join->on('twitter_reports.campaign_id', '=', 'campaigns.id')->whereBetween('twitter_reports.end_time', [$data['start'], $data['end']]);
         });
         if ($data['provider']) {
-            $campaigns_query->where('provider_id', $data['provider']);
+            $campaigns_query->where('campaigns.provider_id', $data['provider']);
         }
         if ($data['account']) {
-            $campaigns_query->where('open_id', $data['account']);
+            $campaigns_query->where('campaigns.open_id', $data['account']);
+        }
+        if ($data['advertiser']) {
+            $campaigns_query->where('campaigns.advertiser_id', $data['advertiser']);
         }
         if ($data['search']) {
             $campaigns_query->where('name', 'LIKE', '%' . $data['search'] . '%');

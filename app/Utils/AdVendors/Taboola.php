@@ -24,7 +24,7 @@ class Taboola extends Root implements AdVendorInterface
 {
     private function api()
     {
-        $provider = Provider::where('slug', request('provider'))->first();
+        $provider = Provider::where('slug', request('provider'))->orWhere('id', request('provider'))->first();
 
         return new TaboolaAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first());
     }
@@ -525,6 +525,7 @@ class Taboola extends Root implements AdVendorInterface
                     $value['campaign_id'] = $campaign->id;
                     $value['provider_id'] = $campaign->provider_id;
                     $value['open_id'] = $campaign->open_id;
+                    $value['advertiser_id'] = $campaign->advertiser_id;
                     $redtrack_report = RedtrackReport::firstOrNew([
                         'date' => $date,
                         'sub6' => $campaign->campaign_id,
@@ -547,6 +548,7 @@ class Taboola extends Root implements AdVendorInterface
                     $value['user_id'] = $campaign->user_id;
                     $value['provider_id'] = $campaign->provider_id;
                     $value['open_id'] = $campaign->open_id;
+                    $value['advertiser_id'] = $campaign->advertiser_id;
                     $redtrack_report = RedtrackDomainStat::firstOrNew([
                         'date' => $date,
                         'campaign_id' => $campaign->id,
@@ -570,6 +572,7 @@ class Taboola extends Root implements AdVendorInterface
                     $value['campaign_id'] = $campaign->id;
                     $value['provider_id'] = $campaign->provider_id;
                     $value['open_id'] = $campaign->open_id;
+                    $value['advertiser_id'] = $campaign->advertiser_id;
                     $redtrack_report = RedtrackContentStat::firstOrNew([
                         'date' => $date,
                         'sub7' => $value['sub7']
@@ -599,6 +602,9 @@ class Taboola extends Root implements AdVendorInterface
             if ($data['account']) {
                 $join->where('campaigns.open_id', $data['account']);
             }
+            if ($data['advertiser']) {
+                $join->where('campaigns.advertiser_id', $data['advertiser']);
+            }
         });
         $summary_data_query->whereBetween('date', [request('start'), request('end')]);
 
@@ -613,20 +619,24 @@ class Taboola extends Root implements AdVendorInterface
             DB::raw('MAX(campaigns.name) AS name'),
             DB::raw('MAX(campaigns.status) AS status'),
             DB::raw('MAX(campaigns.budget) AS budget'),
+            DB::raw('SUM(impressions) as impressions'),
             DB::raw('SUM(clicks) as clicks'),
-            DB::raw('SUM(spent) as cost'),
-            DB::raw('SUM(conversions_value) as total_revenue'),
-            DB::raw('SUM(conversions_value) - SUM(spent) as profit'),
-            DB::raw('(SUM(conversions_value)/SUM(spent)) * 100 as ROI')
+            DB::raw('ROUND(SUM(spent), 2) as cost'),
+            DB::raw('ROUND(SUM(conversions_value), 2) as total_revenue'),
+            DB::raw('ROUND(SUM(conversions_value) - SUM(spent), 2) as profit'),
+            DB::raw('ROUND((SUM(conversions_value)/SUM(spent)) * 100, 2) as ROI')
         ]);
         $campaigns_query->leftJoin('taboola_reports', function ($join) use ($data) {
-            $join->on('taboola_reports.campaign_id', '=', 'campaigns.campaign_id')->whereBetween('taboola_reports.date', [$data['start'], $data['end']]);
+            $join->on('taboola_reports.campaign_id', '=', 'campaigns.id')->whereBetween('taboola_reports.date', [$data['start'], $data['end']]);
         });
         if ($data['provider']) {
-            $campaigns_query->where('provider_id', $data['provider']);
+            $campaigns_query->where('campaigns.provider_id', $data['provider']);
         }
         if ($data['account']) {
-            $campaigns_query->where('open_id', $data['account']);
+            $campaigns_query->where('campaigns.open_id', $data['account']);
+        }
+        if ($data['advertiser']) {
+            $campaigns_query->where('campaigns.advertiser_id', $data['advertiser']);
         }
         if ($data['search']) {
             $campaigns_query->where('name', 'LIKE', '%' . $data['search'] . '%');

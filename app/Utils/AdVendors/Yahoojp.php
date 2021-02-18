@@ -17,6 +17,7 @@ use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
+use App\Models\YahooJapanReport;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use Carbon\Carbon;
@@ -30,7 +31,7 @@ class Yahoojp extends Root implements AdVendorInterface
 {
     private function api()
     {
-        $provider = Provider::where('slug', request('provider'))->first();
+        $provider = Provider::where('slug', request('provider'))->orWhere('id', request('provider'))->first();
 
         return new YahooJPAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first());
     }
@@ -783,6 +784,7 @@ class Yahoojp extends Root implements AdVendorInterface
                     $value['campaign_id'] = $campaign->id;
                     $value['provider_id'] = $campaign->provider_id;
                     $value['open_id'] = $campaign->open_id;
+                    $value['advertiser_id'] = $campaign->advertiser_id;
                     $redtrack_report = RedtrackReport::firstOrNew([
                         'date' => $date,
                         'sub6' => $campaign->campaign_id,
@@ -806,6 +808,7 @@ class Yahoojp extends Root implements AdVendorInterface
                     $value['campaign_id'] = $campaign->id;
                     $value['provider_id'] = $campaign->provider_id;
                     $value['open_id'] = $campaign->open_id;
+                    $value['advertiser_id'] = $campaign->advertiser_id;
                     $redtrack_report = RedtrackContentStat::firstOrNew([
                         'date' => $date,
                         'sub5' => $value['sub5']
@@ -821,22 +824,25 @@ class Yahoojp extends Root implements AdVendorInterface
 
     public function getSummaryDataQuery($data)
     {
-        $summary_data_query = GeminiPerformanceStat::select(
-            DB::raw('SUM(spend) as total_cost'),
+        $summary_data_query = YahooJapanReport::select(
+            DB::raw('SUM(cost) as total_cost'),
             DB::raw('"N/A" as total_revenue'),
             DB::raw('"N/A" as total_net'),
             DB::raw('"N/A" as avg_roi')
         );
         $summary_data_query->leftJoin('campaigns', function ($join) use ($data) {
-            $join->on('campaigns.campaign_id', '=', 'gemini_performance_stats.campaign_id');
+            $join->on('campaigns.campaign_id', '=', 'yahoo_japan_reports.campaign_id');
             if ($data['provider']) {
                 $join->where('campaigns.provider_id', $data['provider']);
             }
             if ($data['account']) {
                 $join->where('campaigns.open_id', $data['account']);
             }
+            if ($data['advertiser']) {
+                $join->where('campaigns.advertiser_id', $data['advertiser']);
+            }
         });
-        $summary_data_query->whereBetween('day', [request('start'), request('end')]);
+        $summary_data_query->whereBetween('date', [request('start'), request('end')]);
 
         return $summary_data_query;
     }
@@ -849,13 +855,20 @@ class Yahoojp extends Root implements AdVendorInterface
             DB::raw('MAX(campaigns.name) AS name'),
             DB::raw('MAX(campaigns.status) AS status'),
             DB::raw('MAX(campaigns.budget) AS budget'),
-            DB::raw('null as clicks')
+            DB::raw('SUM(click_cnt) as clicks'),
+            DB::raw('ROUND(SUM(cost), 2) as cost')
         ]);
+        $campaigns_query->leftJoin('yahoo_japan_reports', function ($join) use ($data) {
+            $join->on('yahoo_japan_reports.campaign_id', '=', 'campaigns.id')->whereBetween('yahoo_japan_reports.date', [$data['start'], $data['end']]);
+        });
         if ($data['provider']) {
-            $campaigns_query->where('provider_id', $data['provider']);
+            $campaigns_query->where('campaigns.provider_id', $data['provider']);
         }
         if ($data['account']) {
-            $campaigns_query->where('open_id', $data['account']);
+            $campaigns_query->where('campaigns.open_id', $data['account']);
+        }
+        if ($data['advertiser']) {
+            $campaigns_query->where('campaigns.advertiser_id', $data['advertiser']);
         }
         if ($data['search']) {
             $campaigns_query->where('name', 'LIKE', '%' . $data['search'] . '%');

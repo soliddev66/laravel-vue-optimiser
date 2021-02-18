@@ -618,6 +618,7 @@ class Yahoo extends Root implements AdVendorInterface
                     $value['campaign_id'] = $campaign->id;
                     $value['provider_id'] = $campaign->provider_id;
                     $value['open_id'] = $campaign->open_id;
+                    $value['advertiser_id'] = $campaign->advertiser_id;
                     $redtrack_report = RedtrackReport::firstOrNew([
                         'date' => $date,
                         'sub6' => $campaign->campaign_id,
@@ -640,6 +641,7 @@ class Yahoo extends Root implements AdVendorInterface
                     $value['user_id'] = $campaign->user_id;
                     $value['provider_id'] = $campaign->provider_id;
                     $value['open_id'] = $campaign->open_id;
+                    $value['advertiser_id'] = $campaign->advertiser_id;
                     $redtrack_report = RedtrackDomainStat::firstOrNew([
                         'date' => $date,
                         'campaign_id' => $campaign->id,
@@ -663,6 +665,7 @@ class Yahoo extends Root implements AdVendorInterface
                     $value['campaign_id'] = $campaign->id;
                     $value['provider_id'] = $campaign->provider_id;
                     $value['open_id'] = $campaign->open_id;
+                    $value['advertiser_id'] = $campaign->advertiser_id;
                     $redtrack_report = RedtrackContentStat::firstOrNew([
                         'date' => $date,
                         'sub5' => $value['sub5']
