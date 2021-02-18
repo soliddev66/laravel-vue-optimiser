@@ -228,6 +228,9 @@ class CampaignController extends Controller
                 if (isset($value['advertiserName'])) {
                     $value['name'] = $value['advertiserName'];
                 }
+                if (isset($value['marketers'])) {
+                    return $value['marketers'];
+                }
 
                 return $value;
             }, $advertisers)
