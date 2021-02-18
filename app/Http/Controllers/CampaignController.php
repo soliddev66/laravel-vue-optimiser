@@ -219,6 +219,9 @@ class CampaignController extends Controller
                 $provider = Provider::where('id', request('provider'))->first();
                 $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
                 $advertisers = (new $adVendorClass())->advertisers();
+                if ($provider->id === 2) {
+                    $advertisers = $advertisers['marketers'];
+                }
             }
         }
 
@@ -227,9 +230,6 @@ class CampaignController extends Controller
             'advertisers' => array_map(function ($value) {
                 if (isset($value['advertiserName'])) {
                     $value['name'] = $value['advertiserName'];
-                }
-                if (isset($value['marketers'])) {
-                    return $value['marketers'];
                 }
 
                 return $value;
