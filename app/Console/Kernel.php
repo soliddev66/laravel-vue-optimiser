@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Models\GeminiJob;
 use App\Models\Rule;
 use App\Vngodev\Outbrain;
 use App\Vngodev\Taboola;
@@ -68,24 +67,13 @@ class Kernel extends ConsoleKernel
         $schedule->command('queue:retry all')->hourly();
 
         // Delete unuse gemini jobs
-        $schedule->call(function () {
-            GeminiJob::where('status', 'completed')->delete();
-        })->monthly();
+        $schedule->command('gemini-jobs:clean')->dailyAt('23:00');
 
         // Delete duplicates
         // $schedule->command('duplicates:remove')->daily();
 
         // Delete unuse gemini files
-        $schedule->call(function () {
-            $folder_path = public_path('/reports');
-            $files = glob($folder_path . '/*');
-
-            foreach ($files as $file) {
-                if (is_file($file)) {
-                    unlink($file);
-                }
-            }
-        })->monthly();
+        $schedule->command('gemini:clean')->dailyAt('23:00');
 
         // Failed jobs clear
         // $schedule->command('queue:flush')->hourly();
