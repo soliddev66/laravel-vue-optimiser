@@ -26,7 +26,7 @@ class ActivateCampaign extends Root
 
     public function visual($campaign, &$log)
     {
-        $log['effect'] = [
+        $log['visual-effect'] = [
             'campaign' => $campaign->name
         ];
     }

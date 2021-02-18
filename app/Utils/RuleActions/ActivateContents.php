@@ -29,7 +29,7 @@ class ActivateContents extends Root
 
     public function visual($campaign, $ad, &$log)
     {
-        $log['effect'] = [
+        $log['visual-effect'] = [
             'campaign' => $campaign->name,
             'ad_group_id' => $ad->ad_group_id,
             'ad_id' => $ad->ad_id
