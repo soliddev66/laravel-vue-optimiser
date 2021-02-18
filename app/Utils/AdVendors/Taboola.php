@@ -24,7 +24,7 @@ class Taboola extends Root implements AdVendorInterface
 {
     private function api()
     {
-        $provider = Provider::where('slug', request('provider'))->first();
+        $provider = Provider::where('slug', request('provider'))->orWhere('id', request('provider'))->first();
 
         return new TaboolaAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first());
     }
@@ -525,6 +525,7 @@ class Taboola extends Root implements AdVendorInterface
                     $value['campaign_id'] = $campaign->id;
                     $value['provider_id'] = $campaign->provider_id;
                     $value['open_id'] = $campaign->open_id;
+                    $value['advertiser_id'] = $campaign->advertiser_id;
                     $redtrack_report = RedtrackReport::firstOrNew([
                         'date' => $date,
                         'sub6' => $campaign->campaign_id,
@@ -547,6 +548,7 @@ class Taboola extends Root implements AdVendorInterface
                     $value['user_id'] = $campaign->user_id;
                     $value['provider_id'] = $campaign->provider_id;
                     $value['open_id'] = $campaign->open_id;
+                    $value['advertiser_id'] = $campaign->advertiser_id;
                     $redtrack_report = RedtrackDomainStat::firstOrNew([
                         'date' => $date,
                         'campaign_id' => $campaign->id,
@@ -570,6 +572,7 @@ class Taboola extends Root implements AdVendorInterface
                     $value['campaign_id'] = $campaign->id;
                     $value['provider_id'] = $campaign->provider_id;
                     $value['open_id'] = $campaign->open_id;
+                    $value['advertiser_id'] = $campaign->advertiser_id;
                     $redtrack_report = RedtrackContentStat::firstOrNew([
                         'date' => $date,
                         'sub7' => $value['sub7']

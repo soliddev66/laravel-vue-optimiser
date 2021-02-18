@@ -30,7 +30,7 @@ class Twitter extends Root implements AdVendorInterface
 {
     private function api()
     {
-        $provider = Provider::where('slug', request('provider'))->first();
+        $provider = Provider::where('slug', request('provider'))->orWhere('id', request('provider'))->first();
 
         return new TwitterAPI(auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first(), request('advertiser') ?? null);
     }
@@ -523,6 +523,7 @@ class Twitter extends Root implements AdVendorInterface
                 $value['campaign_id'] = $campaign->id;
                 $value['provider_id'] = $campaign->provider_id;
                 $value['open_id'] = $campaign->open_id;
+                $value['advertiser_id'] = $campaign->advertiser_id;
                 $redtrack_report = RedtrackReport::firstOrNew([
                     'date' => $date,
                     'sub3' => $campaign->campaign_id,

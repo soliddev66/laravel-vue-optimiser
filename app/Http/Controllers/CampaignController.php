@@ -208,6 +208,32 @@ class CampaignController extends Controller
         return new DataTableCollectionResource($campaigns_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
 
+    public function filters()
+    {
+        $accounts = [];
+        $advertisers = [];
+        if (request('provider')) {
+            $accounts = auth()->user()->providers()->where('provider_id', request('provider'))->get();
+
+            if (request('account')) {
+                $provider = Provider::where('id', request('provider'))->first();
+                $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
+                $advertisers = (new $adVendorClass())->advertisers();
+            }
+        }
+
+        return [
+            'accounts' => $accounts,
+            'advertisers' => array_map(function ($value) {
+                if (isset($value['advertiserName'])) {
+                    $value['name'] = $value['advertiserName'];
+                }
+
+                return $value;
+            }, $advertisers)
+        ];
+    }
+
     public function search()
     {
         if (request('tracker')) {
@@ -233,21 +259,7 @@ class CampaignController extends Controller
             $summary_data_query = (new $adVendorClass())->getSummaryDataQuery(request()->all());
         }
 
-        $accounts = [];
-        $advertisers = [];
-        if (request('provider')) {
-            $accounts = auth()->user()->providers()->where('provider_id', request('provider'))->get();
-
-            if (request('account')) {
-                $provider = Provider::where('id', request('provider'))->first();
-                $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
-                $advertisers = (new $adVendorClass())->advertisers();
-            }
-        }
-
         return [
-            'accounts' => $accounts,
-            'advertisers' => $advertisers,
             'summary_data' => $summary_data_query->first()
         ];
     }

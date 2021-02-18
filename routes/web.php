@@ -38,6 +38,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'general'], function() {
 Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/', [App\Http\Controllers\CampaignController::class, 'index'])->name('campaigns.index');
     Route::post('/', [App\Http\Controllers\CampaignController::class, 'store'])->name('campaigns.store');
+    Route::post('/filters', [App\Http\Controllers\CampaignController::class, 'filters'])->name('campaigns.filters');
     Route::post('/data', [App\Http\Controllers\CampaignController::class, 'data'])->name('campaigns.data');
     Route::post('/search', [App\Http\Controllers\CampaignController::class, 'search'])->name('campaigns.search');
     Route::get('/media', [App\Http\Controllers\CampaignController::class, 'media'])->name('campaigns.media');

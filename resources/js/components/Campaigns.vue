@@ -13,13 +13,13 @@
                 <VueCtkDateTimePicker position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData()"></VueCtkDateTimePicker>
               </div>
               <div class="col-md-4 col-12">
-                <select class="form-control" v-model="selectedProvider" @change="getData()">
+                <select class="form-control" v-model="selectedProvider" @change="resetAccountAndGetData()">
                   <option value="">-</option>
                   <option v-for="provider in providers" :value="provider.id" :key="provider.id">{{ provider.label }}</option>
                 </select>
               </div>
               <div class="col-md-4 col-12">
-                <select class="form-control" v-model="selectedAccount" @change="getData()">
+                <select class="form-control" v-model="selectedAccount" @change="resetAdvertiserAndGetData()">
                   <option value="">-</option>
                   <option v-for="account in accounts" :value="account.open_id" :key="account.open_id">{{ account.open_id }}</option>
                 </select>
@@ -27,7 +27,7 @@
               <div class="col-md-6 col-12">
                 <select class="form-control" v-model="selectedAdvertiser" @change="getData()">
                   <option value="">-</option>
-                  <option v-for="advertiser in advertisers" :value="advertiser.id" :key="advertiser.id">{{ advertiser.advertiserName }}</option>
+                  <option v-for="advertiser in advertisers" :value="advertiser.id" :key="advertiser.id">{{ advertiser.name }}</option>
                 </select>
               </div>
               <div class="col-md-6 col-12">
@@ -305,6 +305,15 @@ export default {
       }
       return 0
     },
+    resetAccountAndGetData(options = this.tableProps, state = false) {
+      this.selectedAccount = '';
+      this.selectedAdvertiser = '';
+      this.getData(options, state);
+    },
+    resetAdvertiserAndGetData(options = this.tableProps, state = false) {
+      this.selectedAdvertiser = '';
+      this.getData(options, state);
+    },
     getData(options = this.tableProps, state = false) {
       if (!this.selectedTracker && !this.selectedProvider) {
         alert('You need to filter provider along with the tracker or use Redtrack by default!');
@@ -313,15 +322,15 @@ export default {
       this.isLoading = true;
       const filters = { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount, advertiser: this.selectedAdvertiser };
       const params = {...this.targetDate, ...filters, ...options };
-      axios.post('/campaigns/search', params)
+      axios.post('/campaigns/filters', params)
         .then((response) => {
           this.accounts = response.data.accounts;
           this.advertisers = response.data.advertisers;
-          this.summaryData = response.data.summary_data;
         })
         .catch((err) => {
           alert(err);
         }).finally(() => {
+          this.isLoading = false;
           if (_.find(this.accounts, (account) => account.open_id === this.selectedAccount) === undefined) {
             this.selectedAccount = '';
           }
@@ -330,6 +339,17 @@ export default {
           }
           const filters = { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount, advertiser: this.selectedAdvertiser };
           const params = {...this.targetDate, ...filters, ...options };
+          this.isLoading = true;
+          axios.post('/campaigns/search', params)
+            .then((response) => {
+              this.summaryData = response.data.summary_data;
+            })
+            .catch((err) => {
+              alert(err);
+            }).finally(() => {
+              this.isLoading = false;
+            })
+          this.isLoading = true;
           axios.post('/campaigns/data', params)
             .then((response) => {
               this.campaigns = response.data;
