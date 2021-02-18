@@ -28,7 +28,7 @@ class BlockSite extends Root
 
     public function visual($campaign, $data, &$log)
     {
-        $log['effect'] = [
+        $log['visual-effect'] = [
             'campaign' => $campaign->name,
             'site' => $data['sub1']
         ];
