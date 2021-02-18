@@ -855,7 +855,8 @@ class Yahoojp extends Root implements AdVendorInterface
             DB::raw('MAX(campaigns.name) AS name'),
             DB::raw('MAX(campaigns.status) AS status'),
             DB::raw('MAX(campaigns.budget) AS budget'),
-            DB::raw('null as clicks')
+            DB::raw('SUM(click_cnt) as clicks'),
+            DB::raw('ROUND(SUM(cost), 2) as cost')
         ]);
         $campaigns_query->leftJoin('yahoo_japan_reports', function ($join) use ($data) {
             $join->on('yahoo_japan_reports.campaign_id', '=', 'campaigns.id')->whereBetween('yahoo_japan_reports.date', [$data['start'], $data['end']]);

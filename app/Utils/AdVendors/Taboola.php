@@ -619,11 +619,12 @@ class Taboola extends Root implements AdVendorInterface
             DB::raw('MAX(campaigns.name) AS name'),
             DB::raw('MAX(campaigns.status) AS status'),
             DB::raw('MAX(campaigns.budget) AS budget'),
+            DB::raw('SUM(impressions) as impressions'),
             DB::raw('SUM(clicks) as clicks'),
-            DB::raw('SUM(spent) as cost'),
-            DB::raw('SUM(conversions_value) as total_revenue'),
-            DB::raw('SUM(conversions_value) - SUM(spent) as profit'),
-            DB::raw('(SUM(conversions_value)/SUM(spent)) * 100 as ROI')
+            DB::raw('ROUND(SUM(spent), 2) as cost'),
+            DB::raw('ROUND(SUM(conversions_value), 2) as total_revenue'),
+            DB::raw('ROUND(SUM(conversions_value) - SUM(spent), 2) as profit'),
+            DB::raw('ROUND((SUM(conversions_value)/SUM(spent)) * 100, 2) as ROI')
         ]);
         $campaigns_query->leftJoin('taboola_reports', function ($join) use ($data) {
             $join->on('taboola_reports.campaign_id', '=', 'campaigns.id')->whereBetween('taboola_reports.date', [$data['start'], $data['end']]);

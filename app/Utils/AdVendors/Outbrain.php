@@ -487,8 +487,9 @@ class Outbrain extends Root implements AdVendorInterface
             DB::raw('MAX(campaigns.name) AS name'),
             DB::raw('MAX(campaigns.status) AS status'),
             DB::raw('MAX(campaigns.budget) AS budget'),
-            DB::raw('null as clicks'),
-            DB::raw('SUM(JSON_EXTRACT(outbrain_reports.data, "$.summary.spend")) as cost')
+            DB::raw('SUM(JSON_EXTRACT(outbrain_reports.data, "$.summary.impressions")) as impressions'),
+            DB::raw('SUM(JSON_EXTRACT(outbrain_reports.data, "$.summary.clicks")) as clicks'),
+            DB::raw('ROUND(SUM(JSON_EXTRACT(outbrain_reports.data, "$.summary.spend")), 2) as cost')
         ]);
         $campaigns_query->leftJoin('outbrain_reports', function ($join) use ($data) {
             $join->on('outbrain_reports.campaign_id', '=', 'campaigns.id')->whereBetween('outbrain_reports.date', [$data['start'], $data['end']]);
