@@ -553,6 +553,9 @@ class Twitter extends Root implements AdVendorInterface
             if ($data['account']) {
                 $join->where('campaigns.open_id', $data['account']);
             }
+            if ($data['advertiser']) {
+                $join->where('campaigns.advertiser_id', $data['advertiser']);
+            }
         });
         $summary_data_query->whereBetween('end_time', [request('start'), request('end')]);
 

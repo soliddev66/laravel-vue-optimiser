@@ -17,6 +17,7 @@ use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
+use App\Models\YahooJapanReport;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use Carbon\Carbon;
@@ -823,8 +824,8 @@ class Yahoojp extends Root implements AdVendorInterface
 
     public function getSummaryDataQuery($data)
     {
-        $summary_data_query = GeminiPerformanceStat::select(
-            DB::raw('SUM(spend) as total_cost'),
+        $summary_data_query = YahooJapanReport::select(
+            DB::raw('SUM(cost) as total_cost'),
             DB::raw('"N/A" as total_revenue'),
             DB::raw('"N/A" as total_net'),
             DB::raw('"N/A" as avg_roi')
@@ -837,8 +838,11 @@ class Yahoojp extends Root implements AdVendorInterface
             if ($data['account']) {
                 $join->where('campaigns.open_id', $data['account']);
             }
+            if ($data['advertiser']) {
+                $join->where('campaigns.advertiser_id', $data['advertiser']);
+            }
         });
-        $summary_data_query->whereBetween('day', [request('start'), request('end')]);
+        $summary_data_query->whereBetween('date', [request('start'), request('end')]);
 
         return $summary_data_query;
     }
