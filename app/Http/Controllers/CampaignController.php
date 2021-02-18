@@ -30,7 +30,7 @@ class CampaignController extends Controller
     public function userCampaigns()
     {
         return response()->json([
-            'campaigns' => auth()->user()->campaigns
+            'campaigns' => auth()->user()->campaigns()->get()->unique('campaign_id')
         ]);
     }
 
