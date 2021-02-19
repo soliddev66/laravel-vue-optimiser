@@ -2,7 +2,7 @@
 
 namespace App\Utils\RuleActions;
 
-class BlockWidgetsPushlisher extends Root
+class UnBlockWidgetsPushlisher extends Root
 {
     public function process($campaign, &$log, $rule_data = null)
     {
@@ -13,11 +13,11 @@ class BlockWidgetsPushlisher extends Root
 
         try {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            (new $adVendorClass)->blockWidgets($campaign, $rule_data);
+            (new $adVendorClass)->unblockWidgets($campaign, $rule_data);
             $log['effect']['blocked'] = true;
-            echo "Campaign's widgets were being blocked\n";
+            echo "Campaign's widgets were being unblocked\n";
         } catch (Exception $e) {
-            echo "Campaign's widgets weren't being blocked\n";
+            echo "Campaign's widgets weren't being unblocked\n";
         }
     }
 

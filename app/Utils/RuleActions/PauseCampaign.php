@@ -9,7 +9,7 @@ use App\Endpoints\GeminiAPI;
 
 class PauseCampaign extends Root
 {
-    public function process($campaign, &$log)
+    public function process($campaign, &$log, $rule_data = null)
     {
         $log['effect'] = [
             'campaign' => $campaign->name
@@ -25,7 +25,7 @@ class PauseCampaign extends Root
         }
     }
 
-    public function visual($campaign, &$log)
+    public function visual($campaign, &$log, $rule_data = null)
     {
         $log['visual-effect'] = [
             'campaign' => $campaign->name
