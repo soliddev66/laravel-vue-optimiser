@@ -32,7 +32,8 @@ class ActivateContents extends Root
         $log['visual-effect'] = [
             'campaign' => $campaign->name,
             'ad_group_id' => $ad->ad_group_id,
-            'ad_id' => $ad->ad_id
+            'ad_id' => $ad->ad_id,
+            'activated' => true
         ];
     }
 }

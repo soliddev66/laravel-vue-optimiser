@@ -32,7 +32,8 @@ class PauseContents extends Root
         $log['visual-effect'] = [
             'campaign' => $campaign->name,
             'ad_group_id' => $ad->ad_group_id,
-            'ad_id' => $ad->ad_id
+            'ad_id' => $ad->ad_id,
+            'paused' => true
         ];
     }
 }

@@ -10,8 +10,6 @@ class Root
 
     public function compare($first_value, $second_value, $operation)
     {
-        echo ' | ', $first_value, ' | ', $second_value, ' | ', RuleCondition::OPERATIONS[$operation];
-
         $this->data_log['first_value'] = $first_value;
         $this->data_log['second_value'] = $second_value;
         $this->data_log['operation'] = RuleCondition::OPERATIONS[$operation];
