@@ -157,7 +157,6 @@ class Yahoo extends Root implements AdVendorInterface
             $instance['open_id'] = $campaign['open_id'];
             $instance['instance_id'] = $campaign['id'];
             $instance['attributes'] = $api->getCampaignAttribute($campaign->campaign_id);
-            var_dump($instance['attributes']);exit;
             $instance['adGroups'] = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
 
             if (count($instance['adGroups']) > 0) {
