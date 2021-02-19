@@ -30,7 +30,8 @@ class BlockSite extends Root
     {
         $log['visual-effect'] = [
             'campaign' => $campaign->name,
-            'site' => $data['sub1']
+            'site' => $data['sub1'],
+            'blocked' => true
         ];
     }
 }

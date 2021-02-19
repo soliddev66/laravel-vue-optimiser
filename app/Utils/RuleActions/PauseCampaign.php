@@ -28,7 +28,8 @@ class PauseCampaign extends Root
     public function visual($campaign, &$log)
     {
         $log['visual-effect'] = [
-            'campaign' => $campaign->name
+            'campaign' => $campaign->name,
+            'paused' => true
         ];
     }
 }

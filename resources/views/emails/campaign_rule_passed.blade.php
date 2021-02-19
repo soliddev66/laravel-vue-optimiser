@@ -14,3 +14,14 @@ DATA:<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Passed: {{ $item['passed'] }}<br/>
 @endforeach
 @endforeach
+EFFECT IF EXECUTE:<br/>
+@if (isset($data['visual-effect']))
+    @foreach($data['visual-effect'] as $key => $effect)
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $key }}: {{ $effect }}<br/>
+    @endforeach
+@endif
+@if (isset($data['effect']))
+    @foreach($data['effect'] as $key => $effect)
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $key }}: {{ $effect }}<br/>
+    @endforeach
+@endif
