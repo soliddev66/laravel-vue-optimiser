@@ -79,7 +79,7 @@ class RuleAction extends Command
                         echo 'PASSED', "\n";
                         $this->log->passed = true;
 
-                        // ActivateCampaign, PauseCampaign, BlockWidgetsPushlisher, ChangeCampaignBudget
+                        // ActivateCampaign, PauseCampaign, BlockWidgetsPushlisher, UnBlockWidgetsPushlisher, ChangeCampaignBudget
                         $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
 
                         if (class_exists($rule_action_class)) {
