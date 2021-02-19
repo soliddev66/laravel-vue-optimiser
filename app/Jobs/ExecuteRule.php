@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Mail\CampaignRulePassed;
 use App\Models\Campaign;
 use App\Models\Rule;
 use App\Models\RuleLog;
@@ -245,12 +246,6 @@ class ExecuteRule implements ShouldQueue
     private function sendNotify()
     {
         $this->log->data = $this->log->data_text;
-
-        Mail::send('emails.campaign_rule_passed', $this->log->toArray(), function ($message) {
-            $message->to([
-                env('MAIL_CAMPAIGN_RULE_PASSED_TO')
-            ])->subject('Campaign Rule Passed');
-            $message->from(env('MAIL_CAMPAIGN_RULE_PASSED_FROM'));
-        });
+        Mail::to(env('MAIL_CAMPAIGN_RULE_PASSED_TO'))->queue(new CampaignRulePassed($this->log->toArray()));
     }
 }
