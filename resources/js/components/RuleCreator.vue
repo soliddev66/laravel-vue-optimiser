@@ -197,6 +197,7 @@ import {
   PauseCampaign,
   PauseContents,
   BlockSite,
+  BlockWidgetsPushlisher,
 } from './rule-actions'
 
 export default {
@@ -237,7 +238,8 @@ export default {
     ActivateCampaign,
     PauseCampaign,
     PauseContents,
-    BlockSite
+    BlockSite,
+    BlockWidgetsPushlisher,
   },
   computed: {
     ruleNameState() {
