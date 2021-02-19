@@ -13,7 +13,7 @@ class BlockWidgetsPushlisher extends Root
 
         try {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            (new $adVendorClass)->blockWidgets($campaign, $rule_data);
+            (new $adVendorClass)->blockWidgets($campaign, $rule_data->widgets);
             $log['effect']['blocked'] = true;
             echo "Campaign's widgets were being blocked\n";
         } catch (Exception $e) {

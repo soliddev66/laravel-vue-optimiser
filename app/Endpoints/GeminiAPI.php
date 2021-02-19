@@ -330,4 +330,8 @@ class GeminiAPI
     {
         return $this->client->call('POST', 'targetingattribute', $body);
     }
+
+    public function updateAttributes($body) {
+        return $this->client->call('PUT', 'targetingattribute', $body);
+    }
 }
