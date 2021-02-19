@@ -4,16 +4,19 @@
       <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCampaign, index) in ruleCampaigns" :key="index">
         <div class="row">
           <div class="col-sm-11">
+            <div class="vld-parent">
+              <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+            </div>
             <div class="form-group row">
               <label for="" class="col-sm-2 control-label">Campaign</label>
               <div class="col-sm-10">
-                <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" @change="ruleCampaignSelected(index, ruleCampaign.id)" />
+                <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" @change="ruleCampaignSelected(ruleCampaign.id)" />
               </div>
             </div>
             <div class="form-group row">
               <label for="" class="col-sm-2 control-label">Widgets</label>
               <div class="col-sm-10">
-                <select2 name="widgets" v-model="ruleCampaign.widgets" :options="ruleCampaign.widgetSelections" />
+                <select2 name="widgets" v-model="ruleCampaign.data.widgets" :options="widgetSelections[ruleCampaign.id]" :settings="{ multiple: true }" />
               </div>
             </div>
           </div>
@@ -73,7 +76,8 @@ export default {
       fullPage: true,
       campaignSelections: null,
       postData: postData,
-      ruleCampaigns: postData.ruleCampaigns
+      ruleCampaigns: postData.ruleCampaigns,
+      widgetSelections: []
     }
   },
   methods: {
@@ -99,10 +103,13 @@ export default {
     removeRuleCampaign(index) {
       this.ruleCampaigns.splice(index, 1);
     },
-    ruleCampaignSelected(index, campaignId) {
+    ruleCampaignSelected(campaignId) {
+      if (this.widgetSelections[campaignId]) {
+        return
+      }
       this.isLoading = true
-      axios.get(`/campaigns/${campaignId}/widgets`).then(response => {
-        console.log(response.data)
+      axios.get(`/campaigns/${campaignId}/targets?status=active`).then(response => {
+        this.widgetSelections[campaignId] = response.data
       }).catch(err => {
         console.log(err)
       }).finally(() => {

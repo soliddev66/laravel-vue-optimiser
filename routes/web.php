@@ -57,6 +57,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::post('item-status', [App\Http\Controllers\CampaignController::class, 'itemStatus'])->name('campaigns.itemStatus');
     Route::get('/{campaign}/summary', [App\Http\Controllers\CampaignController::class, 'summary'])->name('campaigns.summary');
     Route::get('/{campaign}/widgets', [App\Http\Controllers\CampaignController::class, 'widgets'])->name('campaigns.widgets');
+    Route::get('/{campaign}/targets', [App\Http\Controllers\CampaignController::class, 'targets'])->name('campaigns.targets');
     Route::get('/{campaign}/publishers', [App\Http\Controllers\CampaignController::class, 'publishers'])->name('campaigns.publishers');
     Route::get('/{campaign}/contents', [App\Http\Controllers\CampaignController::class, 'contents'])->name('campaigns.contents');
     Route::get('/{campaign}/domains', [App\Http\Controllers\CampaignController::class, 'domains'])->name('campaigns.domains');

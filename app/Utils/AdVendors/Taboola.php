@@ -722,4 +722,9 @@ class Taboola extends Root implements AdVendorInterface
 
         return $domains_query;
     }
+
+    public function targets(Campaign $campaign)
+    {
+
+    }
 }

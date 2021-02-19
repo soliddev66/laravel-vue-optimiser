@@ -157,6 +157,7 @@ class Yahoo extends Root implements AdVendorInterface
             $instance['open_id'] = $campaign['open_id'];
             $instance['instance_id'] = $campaign['id'];
             $instance['attributes'] = $api->getCampaignAttribute($campaign->campaign_id);
+            var_dump($instance['attributes']);exit;
             $instance['adGroups'] = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
 
             if (count($instance['adGroups']) > 0) {
@@ -837,5 +838,46 @@ class Yahoo extends Root implements AdVendorInterface
             'value' => $data['sub1'],
             'status' => 'ACTIVE'
         ]);
+    }
+
+    public function targets(Campaign $campaign, $status)
+    {
+        $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+
+        $attributes = $api->getCampaignAttribute($campaign->campaign_id);
+
+        $result = [];
+
+        $countries = $api->getCountries();
+
+        foreach ($attributes as $attribute) {
+            if (($status == 'active' && $attribute['status'] == Campaign::STATUS_ACTIVE)
+            || ($status == 'paused' && $attribute['status'] == Campaign::STATUS_PAUSED)) {
+                $text = $attribute['type']. ' | ';
+
+                if ($attribute['type'] == 'WOEID') {
+                    $text .= $this->getCountryName($countries, $attribute['value']);
+                } else {
+                    $text .= $attribute['value'];
+                }
+                $result[] = [
+                    'id' => $attribute['id'],
+                    'text' => $text
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    public function getCountryName($countries, $id)
+    {
+        foreach ($countries as $item) {
+            if ($id == $item['woeid']) {
+                return $item['name'];
+            }
+        }
+
+        return $id;
     }
 }

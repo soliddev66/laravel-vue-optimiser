@@ -599,4 +599,9 @@ class Outbrain extends Root implements AdVendorInterface
     {
         //
     }
+
+    public function targets(Campaign $campaign)
+    {
+
+    }
 }

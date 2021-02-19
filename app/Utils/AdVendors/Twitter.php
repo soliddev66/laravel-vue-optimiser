@@ -659,4 +659,9 @@ class Twitter extends Root implements AdVendorInterface
     {
         //
     }
+
+    public function targets(Campaign $campaign)
+    {
+
+    }
 }
