@@ -20,7 +20,7 @@ class RuleController extends Controller
 {
     public function index()
     {
-        $rules = auth()->user()->rules;
+        $rules = auth()->user()->rules()->with('ruleAction')->get();
 
         $rule_actions = RuleAction::all();
 
