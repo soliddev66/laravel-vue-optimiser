@@ -198,6 +198,7 @@ import {
   PauseContents,
   BlockSite,
   BlockWidgetsPushlisher,
+  UnBlockWidgetsPushlisher,
 } from './rule-actions'
 
 export default {
@@ -240,6 +241,7 @@ export default {
     PauseContents,
     BlockSite,
     BlockWidgetsPushlisher,
+    UnBlockWidgetsPushlisher,
   },
   computed: {
     ruleNameState() {

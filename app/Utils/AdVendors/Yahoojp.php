@@ -973,4 +973,9 @@ class Yahoojp extends Root implements AdVendorInterface
     {
         //
     }
+
+    public function unblockWidgets(Campaign $campaign, $widgets)
+    {
+        //
+    }
 }

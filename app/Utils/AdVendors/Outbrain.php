@@ -609,4 +609,9 @@ class Outbrain extends Root implements AdVendorInterface
     {
         //
     }
+
+    public function unblockWidgets(Campaign $campaign, $widgets)
+    {
+        //
+    }
 }

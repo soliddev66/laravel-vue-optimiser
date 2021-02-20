@@ -899,4 +899,24 @@ class Yahoo extends Root implements AdVendorInterface
 
         $api->updateAttributes($request_body);
     }
+
+    public function unblockWidgets(Campaign $campaign, $widgets)
+    {
+        $api = new GeminiAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
+
+        $request_body = [];
+
+        $body = [
+            'advertiserId' => $campaign->advertiser_id,
+            'parentType' => 'CAMPAIGN',
+            'parentId' => $campaign->campaign_id,
+            'status' => 'ACTIVE'
+        ];
+
+        foreach ($widgets as $widget) {
+            $request_body[] = $body + ['id' => $widget];
+        }
+
+        $api->updateAttributes($request_body);
+    }
 }
