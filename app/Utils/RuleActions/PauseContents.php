@@ -24,6 +24,8 @@ class PauseContents extends Root
             echo 'Ad was being paused', "\n";
         } catch (Exception $e) {
             echo "Ad wasn't being paused\n";
+            $log['effect']['paused'] = false;
+            $log['effect']['message'] = $e->getMessage();
         }
     }
 

@@ -17,11 +17,11 @@ DATA:<br/>
 EFFECT IF EXECUTE:<br/>
 @if (isset($data['visual-effect']))
     @foreach($data['visual-effect'] as $key => $effect)
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $key }}: {{ $effect }}<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $key }}: {{ is_array($effect) || is_object($effect) ? json_encode($effect) : $effect }}<br/>
     @endforeach
 @endif
 @if (isset($data['effect']))
     @foreach($data['effect'] as $key => $effect)
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $key }}: {{ $effect }}<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $key }}: {{ is_array($effect) || is_object($effect) ? json_encode($effect) : $effect }}<br/>
     @endforeach
 @endif
