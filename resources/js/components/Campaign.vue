@@ -38,7 +38,7 @@
                 <a class="nav-link" :class="{ 'active': show === 3 }" id="domains-tab" data-toggle="pill" href="#domains" role="tab" aria-controls="domains" aria-selected="false" @click.prevent="getDomainData()">Domains</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" :class="{ 'active': show === 4 }" id="rules-tab" data-toggle="pill" href="#rules" role="tab" aria-controls="rules" aria-selected="false">Rules</a>
+                <a class="nav-link" :class="{ 'active': show === 4 }" id="rules-tab" data-toggle="pill" href="#rules" role="tab" aria-controls="rules" aria-selected="false" @click.prevent="getRuleData()">Rules</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" :class="{ 'active': show === 5 }" id="performance-tab" data-toggle="pill" href="#performance" role="tab" aria-controls="performance" aria-selected="false">Performance</a>
@@ -62,7 +62,7 @@
                 <data-table :data="domains" :columns="domainColumns" @on-table-props-changed="reloadDomainData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 4 }" id="rules" role="tabpanel" aria-labelledby="rules-tab">
-                Rules
+                <data-table :data="rules" :columns="ruleColumns" @on-table-props-changed="reloadRuleData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 5 }" id="performance" role="tabpanel" aria-labelledby="performance-tab">
                 Performance
@@ -112,6 +112,7 @@ export default {
       adGroups: {},
       publishers: {},
       domains: {},
+      rules: {},
       widgetColumns: [
         { label: 'ID', name: 'id', orderable: true },
         { label: 'Widget ID', name: 'widget_id', orderable: true },
@@ -238,6 +239,23 @@ export default {
         { label: 'CPA', name: 'cpa', orderable: true },
         { label: 'EPC', name: 'epc', orderable: true }
       ],
+      ruleColumns: [
+        { label: 'ID', name: 'id', orderable: true }, {
+          label: 'Actions',
+          name: 'actions',
+          orderable: false,
+          classes: {
+            'btn': true,
+            'btn-primary': false,
+            'btn-sm': true,
+            'is-rule': true
+          },
+          component: ActionsComponent
+        },
+        { label: 'Name', name: 'name', orderable: true },
+        { label: 'Action Name', name: 'action_name', orderable: true },
+        { label: 'Status', name: 'status', orderable: true }
+      ],
       summaryData: {
         total_cost: 0,
         total_revenue: 0,
@@ -281,6 +299,7 @@ export default {
           this.getDomainData();
           break;
         case '#rules':
+          this.getRuleData();
           break;
         case '#performance':
           break;
@@ -307,6 +326,9 @@ export default {
     },
     reloadDomainData(tableProps) {
       this.getDomainData(tableProps);
+    },
+    reloadRuleData(tableProps) {
+      this.getRuleData(tableProps);
     },
     getSummaryData() {
       this.isLoading = true;
@@ -400,6 +422,22 @@ export default {
           this.isLoading = false;
           history.replaceState(undefined, undefined, "#domains");
           this.show = 3;
+        });
+    },
+    getRuleData(options = this.tableProps) {
+      this.isLoading = true;
+      axios.get(`/campaigns/${this.campaign.id}/rules`, {
+          params: {...this.targetDate, ... { tracker: this.selectedTracker }, ...options }
+        })
+        .then((response) => {
+          this.rules = response.data;
+        })
+        .catch((err) => {
+          alert(err);
+        }).finally(() => {
+          this.isLoading = false;
+          history.replaceState(undefined, undefined, "#rules");
+          this.show = 4;
         });
     },
     updateAdGroupStatus(data) {
