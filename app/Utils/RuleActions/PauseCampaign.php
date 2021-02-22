@@ -22,6 +22,8 @@ class PauseCampaign extends Root
             echo 'Campaign was being paused', "\n";
         } catch (Exception $e) {
             echo "Campaign wasn't being paused\n";
+            $log['effect']['paused'] = false;
+            $log['effect']['message'] = $e->getMessage();
         }
     }
 

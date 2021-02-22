@@ -23,6 +23,8 @@ class ActivateContents extends Root
             $log['effect']['activated'] = true;
             echo 'Ad was being activated', "\n";
         } catch (Exception $e) {
+            $log['effect']['activated'] = false;
+            $log['effect']['message'] = $e->getMessage();
             echo "Ad wasn't being activated\n";
         }
     }

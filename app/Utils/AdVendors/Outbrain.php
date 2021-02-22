@@ -614,4 +614,9 @@ class Outbrain extends Root implements AdVendorInterface
     {
         //
     }
+
+    public function changeBugget(Campaign $campaign, $budget)
+    {
+        //
+    }
 }

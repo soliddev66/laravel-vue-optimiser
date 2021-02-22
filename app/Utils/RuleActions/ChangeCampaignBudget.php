@@ -9,12 +9,30 @@ use App\Endpoints\GeminiAPI;
 
 class ChangeCampaignBudget extends Root
 {
-    public function process($campaign)
+    public function process($campaign, &$log, $rule_data = null)
     {
+        $log['effect'] = [
+            'campaign' => $campaign->name,
+            'bugget' => $rule_data
+        ];
+
         try {
+            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            (new $adVendorClass)->changeBugget($campaign, $rule_data->budget);
             echo "Campaign's budget was being changed\n";
+            $log['effect']['changed'] = true;
         } catch (Exception $e) {
             echo "Error happened. Campaign's budget wasn't being changed\n";
+            $log['effect']['changed'] = false;
+            $log['effect']['message'] = $e->getMessage();
         }
+    }
+
+    public function visual($campaign, &$log, $rule_data = null)
+    {
+        $log['visual-effect'] = [
+            'campaign' => $campaign->name,
+            'bugget' => $rule_data
+        ];
     }
 }

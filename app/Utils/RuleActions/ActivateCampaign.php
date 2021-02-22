@@ -20,6 +20,8 @@ class ActivateCampaign extends Root
             $log['effect']['activated'] = true;
             echo 'Campaign hasn\'t been activated', "\n";
         } catch (Exception $e) {
+            $log['effect']['activated'] = false;
+            $log['effect']['message'] = $e->getMessage();
             echo "Error happened. Campaign wasn't being activated\n";
         }
     }

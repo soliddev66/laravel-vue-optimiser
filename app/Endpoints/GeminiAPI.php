@@ -151,6 +151,14 @@ class GeminiAPI
         ]);
     }
 
+    public function updateCampaignBudget($campaign_id, $budget)
+    {
+        return $this->client->call('PUT', 'campaign', [
+            'id' => $campaign_id,
+            'budget' => $budget
+        ]);
+    }
+
     private function getBids()
     {
         if (request('campaignType') === 'SEARCH_AND_NATIVE') {
