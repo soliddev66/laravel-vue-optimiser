@@ -61,6 +61,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/{campaign}/publishers', [App\Http\Controllers\CampaignController::class, 'publishers'])->name('campaigns.publishers');
     Route::get('/{campaign}/contents', [App\Http\Controllers\CampaignController::class, 'contents'])->name('campaigns.contents');
     Route::get('/{campaign}/domains', [App\Http\Controllers\CampaignController::class, 'domains'])->name('campaigns.domains');
+    Route::get('/{campaign}/rules', [App\Http\Controllers\CampaignController::class, 'rules'])->name('campaigns.rules');
     Route::get('/{campaign}/ad-groups', [App\Http\Controllers\CampaignController::class, 'adGroups'])->name('campaigns.ad_groups');
     Route::get('/{campaign}/ad-groups/{ad_group_id}/ads/create', [App\Http\Controllers\CampaignController::class, 'createCampaignAd'])->name('campaigns.createCampaignAd');
     Route::post('/{campaign}/ad-groups/{ad_group_id}/ads/store-ad', [App\Http\Controllers\CampaignController::class, 'storeAd'])->name('campaigns.storeAd');

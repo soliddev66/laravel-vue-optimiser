@@ -11,10 +11,11 @@ use App\Models\FailedJob;
 use App\Models\Provider;
 use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
+use App\Models\Rule;
 use App\Vngodev\Helper;
 use Carbon\Carbon;
-use DataTables;
 use DB;
+use DataTables;
 use Illuminate\Support\Facades\Queue;
 use JamesDordoy\LaravelVueDatatable\Http\Resources\DataTableCollectionResource;
 use Maatwebsite\Excel\Facades\Excel;
@@ -154,6 +155,24 @@ class CampaignController extends Controller
         } else {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
             $domains_query = (new $adVendorClass())->getDomainQuery($campaign, request()->all());
+        }
+
+        return new DataTableCollectionResource($domains_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
+    }
+
+    public function rules(Campaign $campaign)
+    {
+        $domains_query = Rule::select(
+            DB::raw('rules.id as id'),
+            DB::raw('rules.name as name'),
+            DB::raw('rules.rule_action_id as rule_action_id'),
+            DB::raw('rule_actions.name as action_name'),
+            DB::raw('rules.id as clicks'),
+            DB::raw('rules.status as status')
+        )->join('rule_actions', 'rules.rule_action_id', 'rule_actions.id');
+        $domains_query->where(DB::raw('JSON_EXTRACT(rules.action_data, "$.ruleCampaigns")'), 'REGEXP', '\\b' . $campaign->id . '\\b');
+        if (request('search')) {
+            $domains_query->where('rules.name', 'LIKE', '%' . request('search') . '%')->orWhere('rule_actions.name', 'LIKE', '%' . request('search') . '%');
         }
 
         return new DataTableCollectionResource($domains_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
