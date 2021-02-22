@@ -722,6 +722,7 @@ class Taboola extends Root implements AdVendorInterface
 
         return $domains_query;
     }
+
     public function getPerformanceQuery($campaign, $data)
     {
         //
