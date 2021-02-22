@@ -41,7 +41,7 @@
                 <a class="nav-link" :class="{ 'active': show === 4 }" id="rules-tab" data-toggle="pill" href="#rules" role="tab" aria-controls="rules" aria-selected="false" @click.prevent="getRuleData()">Rules</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" :class="{ 'active': show === 5 }" id="performance-tab" data-toggle="pill" href="#performance" role="tab" aria-controls="performance" aria-selected="false">Performance</a>
+                <a class="nav-link" :class="{ 'active': show === 5 }" id="performance-tab" data-toggle="pill" href="#performance" role="tab" aria-controls="performance" aria-selected="false" @click.prevent="getPerformanceData()">Performance</a>
               </li>
             </ul>
             <div class="tab-content">
@@ -65,7 +65,7 @@
                 <data-table :data="rules" :columns="ruleColumns" @on-table-props-changed="reloadRuleData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 5 }" id="performance" role="tabpanel" aria-labelledby="performance-tab">
-                Performance
+                <line-chart v-if="performance" :chart-data="performance"></line-chart>
               </div>
             </div>
           </div>
@@ -80,6 +80,7 @@ import _ from 'lodash';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import Loading from 'vue-loading-overlay';
 import ActionsComponent from './includes/ActionsComponent.vue';
+import LineChart from '../plugins/LineChart.js';
 
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
 import 'vue-loading-overlay/dist/vue-loading.css';
@@ -97,6 +98,7 @@ export default {
   },
   components: {
     VueCtkDateTimePicker,
+    LineChart,
     Loading
   },
   mounted() {
@@ -113,6 +115,7 @@ export default {
       publishers: {},
       domains: {},
       rules: {},
+      performance: null,
       widgetColumns: [
         { label: 'ID', name: 'id', orderable: true },
         { label: 'Widget ID', name: 'widget_id', orderable: true },
@@ -302,6 +305,7 @@ export default {
           this.getRuleData();
           break;
         case '#performance':
+          this.getPerformanceData();
           break;
         default:
           if ([2, 3, 4, 5].includes(this.campaign.provider_id)) {
@@ -439,6 +443,104 @@ export default {
           history.replaceState(undefined, undefined, "#rules");
           this.show = 4;
         });
+    },
+    getPerformanceData() {
+      this.isLoading = true;
+      axios.get(`/campaigns/${this.campaign.id}/performance`, {
+          params: {...this.targetDate, ... { tracker: this.selectedTracker } }
+        })
+        .then((response) => {
+          this.fillData(response.data);
+        })
+        .catch((err) => {
+          alert(err);
+        }).finally(() => {
+          this.isLoading = false;
+          history.replaceState(undefined, undefined, "#performance");
+          this.show = 5;
+        });
+    },
+    fillData(dataByDate) {
+      let dates = []
+      let currDate = this.$moment.utc(new Date(this.targetDate.start)).startOf('day')
+      let lastDate = this.$moment.utc(new Date(this.targetDate.end)).startOf('day')
+      do {
+        dates.push(currDate.clone().format('YYYY-MM-DD'))
+      } while (currDate.add(1, 'days').diff(lastDate) < 0)
+      dates.push(currDate.clone().format('YYYY-MM-DD'))
+
+      let datasets = []
+
+      if (this.selectedTracker) {
+        datasets = [{
+          label: 'Profit',
+          backgroundColor: 'rgb(32, 168, 216)',
+          data: []
+        }, {
+          label: 'Clicks',
+          backgroundColor: 'rgb(248, 185, 76)',
+          data: []
+        }, {
+          label: 'Roi',
+          backgroundColor: 'rgb(122, 193, 81)',
+          data: []
+        }, {
+          label: 'Revenue',
+          backgroundColor: 'rgb(252, 87, 89)',
+          data: []
+        }, {
+          label: 'Cost',
+          backgroundColor: 'rgb(229, 84, 193)',
+          data: []
+        }]
+        _.each(dates, (date, index) => {
+          datasets[0].data.push(0)
+          datasets[1].data.push(0)
+          datasets[2].data.push(0)
+          datasets[3].data.push(0)
+          datasets[4].data.push(0)
+          _.each(dataByDate, (data, i) => {
+            if (data.date === date) {
+              datasets[0].data[index] = data.total_net
+              datasets[1].data[index] = data.total_clicks
+              datasets[2].data[index] = data.roi
+              datasets[3].data[index] = data.total_revenue
+              datasets[4].data[index] = data.total_cost
+            }
+          })
+        })
+      } else {
+        datasets = [{
+          label: 'Impressions',
+          backgroundColor: 'rgb(32, 168, 216)',
+          data: []
+        }, {
+          label: 'Clicks',
+          backgroundColor: 'rgb(248, 185, 76)',
+          data: []
+        }, {
+          label: 'Cost',
+          backgroundColor: 'rgb(122, 193, 81)',
+          data: []
+        }]
+        _.each(dates, (date, index) => {
+          datasets[0].data.push(0)
+          datasets[1].data.push(0)
+          datasets[2].data.push(0)
+          _.each(dataByDate, (data, i) => {
+            if (data.day === date) {
+              datasets[0].data[index] = data.total_impressions
+              datasets[1].data[index] = data.total_clicks
+              datasets[2].data[index] = data.total_cost
+            }
+          })
+        })
+      }
+
+      this.performance = {
+        labels: dates,
+        datasets: datasets
+      }
     },
     updateAdGroupStatus(data) {
       this.isLoading = true;
