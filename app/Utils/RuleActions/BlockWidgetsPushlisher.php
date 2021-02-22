@@ -17,6 +17,7 @@ class BlockWidgetsPushlisher extends Root
             $log['effect']['blocked'] = true;
             echo "Campaign's widgets were being blocked\n";
         } catch (Exception $e) {
+            $log['effect']['blocked'] = false;
             echo "Campaign's widgets weren't being blocked\n";
         }
     }
