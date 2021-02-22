@@ -600,6 +600,11 @@ class Outbrain extends Root implements AdVendorInterface
         //
     }
 
+    public function getPerformanceQuery($campaign, $data)
+    {
+        //
+    }
+
     public function targets(Campaign $campaign)
     {
         //

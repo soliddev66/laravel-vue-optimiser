@@ -178,6 +178,31 @@ class CampaignController extends Controller
         return new DataTableCollectionResource($domains_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
 
+    public function performance(Campaign $campaign)
+    {
+        if (request('tracker')) {
+            $performance_query = RedtrackReport::select(
+                'date',
+                DB::raw('ROUND(SUM(cost), 2) as total_cost'),
+                DB::raw('ROUND(SUM(profit), 2) as total_net'),
+                DB::raw('SUM(clicks) as total_clicks'),
+                DB::raw('ROUND(SUM(cost)/SUM(total_conversions), 2) as cpa'),
+                DB::raw('ROUND(SUM(total_revenue), 2) as total_revenue'),
+                DB::raw('ROUND((SUM(profit)/SUM(cost)) * 100, 2) as roi'),
+                DB::raw('ROUND(SUM(total_conversions), 2) as total_conversions'),
+                DB::raw('ROUND(SUM(total_revenue)/SUM(clicks), 2) as epc')
+            )
+            ->where('campaign_id', $campaign->id)
+            ->whereBetween('date', [request('start'), request('end')]);
+            $performance_query->groupBy('date');
+        } else {
+            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            $performance_query = (new $adVendorClass())->getPerformanceQuery($campaign, request()->all());
+        }
+
+        return $performance_query->get();
+    }
+
     public function data()
     {
         if (request('tracker')) {
