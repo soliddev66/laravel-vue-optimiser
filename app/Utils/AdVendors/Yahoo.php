@@ -826,7 +826,17 @@ class Yahoo extends Root implements AdVendorInterface
 
     public function getPerformanceQuery($campaign, $data)
     {
-        //
+        $performance_query = GeminiPerformanceStat::select(
+            'day',
+            DB::raw('ROUND(SUM(impressions), 2) as total_impressions'),
+            DB::raw('ROUND(SUM(clicks), 2) as total_clicks'),
+            DB::raw('ROUND(SUM(spend), 2) as total_cost')
+        );
+        $performance_query->where('campaign_id', $campaign->campaign_id);
+        $performance_query->whereBetween('day', [$data['start'], $data['end']]);
+        $performance_query->groupBy('day');
+
+        return $performance_query;
     }
 
     public function addSiteBlock($campaign, $data)

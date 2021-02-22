@@ -71,6 +71,9 @@ class CampaignController extends Controller
             $summary_data_query->where('provider_id', $campaign->provider_id);
             $summary_data_query->where('open_id', $campaign->open_id);
             $summary_data_query->whereBetween('date', [request('start'), request('end')]);
+        } else {
+            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            $summary_data_query = (new $adVendorClass())->getSummaryDataQuery($campaign, request()->all());
         }
 
         return [

@@ -457,7 +457,7 @@ export default {
         }).finally(() => {
           this.isLoading = false;
           history.replaceState(undefined, undefined, "#performance");
-          this.show = 4;
+          this.show = 5;
         });
     },
     fillData(dataByDate) {
@@ -469,43 +469,73 @@ export default {
       } while (currDate.add(1, 'days').diff(lastDate) < 0)
       dates.push(currDate.clone().format('YYYY-MM-DD'))
 
-      let datasets = [{
-        label: 'Profit',
-        backgroundColor: 'rgb(32, 168, 216)',
-        data: []
-      }, {
-        label: 'Clicks',
-        backgroundColor: 'rgb(248, 185, 76)',
-        data: []
-      }, {
-        label: 'Roi',
-        backgroundColor: 'rgb(122, 193, 81)',
-        data: []
-      }, {
-        label: 'Revenue',
-        backgroundColor: 'rgb(252, 87, 89)',
-        data: []
-      }, {
-        label: 'Cost',
-        backgroundColor: 'rgb(229, 84, 193)',
-        data: []
-      }]
-      _.each(dates, (date, index) => {
-        datasets[0].data.push(0)
-        datasets[1].data.push(0)
-        datasets[2].data.push(0)
-        datasets[3].data.push(0)
-        datasets[4].data.push(0)
-        _.each(dataByDate, (data, i) => {
-          if (data.date === date) {
-            datasets[0].data[index] = data.total_net
-            datasets[1].data[index] = data.total_clicks
-            datasets[2].data[index] = data.roi
-            datasets[3].data[index] = data.total_revenue
-            datasets[4].data[index] = data.total_cost
-          }
+      let datasets = []
+
+      if (this.selectedTracker) {
+        datasets = [{
+          label: 'Profit',
+          backgroundColor: 'rgb(32, 168, 216)',
+          data: []
+        }, {
+          label: 'Clicks',
+          backgroundColor: 'rgb(248, 185, 76)',
+          data: []
+        }, {
+          label: 'Roi',
+          backgroundColor: 'rgb(122, 193, 81)',
+          data: []
+        }, {
+          label: 'Revenue',
+          backgroundColor: 'rgb(252, 87, 89)',
+          data: []
+        }, {
+          label: 'Cost',
+          backgroundColor: 'rgb(229, 84, 193)',
+          data: []
+        }]
+        _.each(dates, (date, index) => {
+          datasets[0].data.push(0)
+          datasets[1].data.push(0)
+          datasets[2].data.push(0)
+          datasets[3].data.push(0)
+          datasets[4].data.push(0)
+          _.each(dataByDate, (data, i) => {
+            if (data.date === date) {
+              datasets[0].data[index] = data.total_net
+              datasets[1].data[index] = data.total_clicks
+              datasets[2].data[index] = data.roi
+              datasets[3].data[index] = data.total_revenue
+              datasets[4].data[index] = data.total_cost
+            }
+          })
         })
-      })
+      } else {
+        datasets = [{
+          label: 'Impressions',
+          backgroundColor: 'rgb(32, 168, 216)',
+          data: []
+        }, {
+          label: 'Clicks',
+          backgroundColor: 'rgb(248, 185, 76)',
+          data: []
+        }, {
+          label: 'Cost',
+          backgroundColor: 'rgb(122, 193, 81)',
+          data: []
+        }]
+        _.each(dates, (date, index) => {
+          datasets[0].data.push(0)
+          datasets[1].data.push(0)
+          datasets[2].data.push(0)
+          _.each(dataByDate, (data, i) => {
+            if (data.day === date) {
+              datasets[0].data[index] = data.total_impressions
+              datasets[1].data[index] = data.total_clicks
+              datasets[2].data[index] = data.total_cost
+            }
+          })
+        })
+      }
 
       this.performance = {
         labels: dates,
