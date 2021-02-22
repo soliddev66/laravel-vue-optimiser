@@ -18,6 +18,8 @@ class UnBlockWidgetsPushlisher extends Root
             echo "Campaign's widgets were being unblocked\n";
         } catch (Exception $e) {
             echo "Campaign's widgets weren't being unblocked\n";
+            $log['effect']['unblocked'] = false;
+            $log['effect']['message'] = $e->getMessage();
         }
     }
 

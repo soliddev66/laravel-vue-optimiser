@@ -24,6 +24,7 @@ class ChangeCampaignBudget extends Root
         } catch (Exception $e) {
             echo "Error happened. Campaign's budget wasn't being changed\n";
             $log['effect']['changed'] = false;
+            $log['effect']['message'] = $e->getMessage();
         }
     }
 
