@@ -172,7 +172,7 @@ class CampaignController extends Controller
         )->join('rule_actions', 'rules.rule_action_id', 'rule_actions.id');
         $domains_query->where(DB::raw('JSON_EXTRACT(rules.action_data, "$.ruleCampaigns")'), 'REGEXP', '\\b' . $campaign->id . '\\b');
         if (request('search')) {
-            $domains_query->where('name', 'LIKE', '%' . request('search') . '%');
+            $domains_query->where('rules.name', 'LIKE', '%' . request('search') . '%')->orWhere('rule_actions.name', 'LIKE', '%' . request('search') . '%');
         }
 
         return new DataTableCollectionResource($domains_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
