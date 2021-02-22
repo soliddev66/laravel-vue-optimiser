@@ -838,4 +838,85 @@ class Yahoo extends Root implements AdVendorInterface
             'status' => 'ACTIVE'
         ]);
     }
+
+    public function targets(Campaign $campaign, $status)
+    {
+        $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
+
+        $attributes = $api->getCampaignAttribute($campaign->campaign_id);
+
+        $result = [];
+
+        $countries = $api->getCountries();
+
+        foreach ($attributes as $attribute) {
+            if (($status == 'active' && $attribute['status'] == Campaign::STATUS_ACTIVE)
+            || ($status == 'paused' && $attribute['status'] == Campaign::STATUS_PAUSED)) {
+                $text = $attribute['type']. ' | ';
+
+                if ($attribute['type'] == 'WOEID') {
+                    $text .= $this->getCountryName($countries, $attribute['value']);
+                } else {
+                    $text .= $attribute['value'];
+                }
+                $result[] = [
+                    'id' => $attribute['id'],
+                    'text' => $text
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    public function getCountryName($countries, $id)
+    {
+        foreach ($countries as $item) {
+            if ($id == $item['woeid']) {
+                return $item['name'];
+            }
+        }
+
+        return $id;
+    }
+
+    public function blockWidgets(Campaign $campaign, $widgets)
+    {
+        $api = new GeminiAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
+
+        $request_body = [];
+
+        $body = [
+            'advertiserId' => $campaign->advertiser_id,
+            'parentType' => 'CAMPAIGN',
+            'parentId' => $campaign->campaign_id,
+            'status' => 'PAUSED'
+        ];
+
+        foreach ($widgets as $widget) {
+            $request_body[] = $body + ['id' => $widget];
+        }
+
+        $api->updateAttributes($request_body);
+    }
+
+    public function unblockWidgets(Campaign $campaign, $widgets)
+    {
+        $api = new GeminiAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
+
+        $request_body = [];
+
+        $body = [
+            'advertiserId' => $campaign->advertiser_id,
+            'parentType' => 'CAMPAIGN',
+            'parentId' => $campaign->campaign_id,
+            'status' => 'ACTIVE'
+        ];
+
+        foreach ($widgets as $widget) {
+            $request_body[] = $body + ['id' => $widget];
+        }
+
+        $api->updateAttributes($request_body);
+    }
 }

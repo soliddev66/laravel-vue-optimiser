@@ -77,6 +77,13 @@ class CampaignController extends Controller
         ];
     }
 
+    public function targets(Campaign $campaign)
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+
+        return (new $adVendorClass)->targets($campaign, request('status'));
+    }
+
     public function widgets(Campaign $campaign)
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);

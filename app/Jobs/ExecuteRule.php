@@ -43,9 +43,16 @@ class ExecuteRule implements ShouldQueue
 
         $time_range = (new $time_range_class())->get();
 
-        $campaigns = Campaign::find(json_decode($rule->action_data)->ruleCampaigns);
+        $rule_campaigns = json_decode($rule->action_data)->ruleCampaigns;
 
-        foreach ($campaigns as $campaign) {
+
+        foreach ($rule_campaigns as $rule_campaign) {
+            if (is_object($rule_campaign)) {
+                $campaign = Campaign::find($rule_campaign->id);
+            } else {
+                $campaign = Campaign::find($rule_campaign);
+            }
+
             switch ($rule->ruleAction->calculation_type) {
                 case 1:
                     $this->log = new RuleLog();
@@ -61,16 +68,16 @@ class ExecuteRule implements ShouldQueue
                     if ($this->checkConditions($rule, $redtrack_data, $performance_data)) {
                         $this->log->passed = true;
 
-                        // ActivateCampaign, PauseCampaign
+                        // ActivateCampaign, PauseCampaign, BlockWidgetsPushlisher, UnBlockWidgetsPushlisher, ChangeCampaignBudget
                         $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
 
                         if (class_exists($rule_action_class)) {
                             if ($rule->run_type == 1) {
-                                (new $rule_action_class())->visual($campaign, $this->log->data_text);
+                                (new $rule_action_class())->visual($campaign, $this->log->data_text, $rule_campaign->data);
                             }
 
                             if ($rule->run_type == 2 || $rule->run_type == 3) {
-                                (new $rule_action_class())->process($campaign, $this->log->data_text);
+                                (new $rule_action_class())->process($campaign, $this->log->data_text, $rule_campaign->data);
                             }
 
                             if ($rule->run_type == 1 || $rule->run_type == 3) {

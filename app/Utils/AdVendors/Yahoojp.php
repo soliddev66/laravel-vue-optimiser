@@ -963,4 +963,19 @@ class Yahoojp extends Root implements AdVendorInterface
 
         return $domains_query;
     }
+
+    public function targets(Campaign $campaign)
+    {
+        //
+    }
+
+    public function blockWidgets(Campaign $campaign, $widgets)
+    {
+        //
+    }
+
+    public function unblockWidgets(Campaign $campaign, $widgets)
+    {
+        //
+    }
 }

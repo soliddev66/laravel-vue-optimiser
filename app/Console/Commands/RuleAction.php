@@ -21,8 +21,6 @@ class RuleAction extends Command
      */
     protected $description = 'Command description';
 
-    private $log;
-
     /**
      * Create a new command instance.
      *

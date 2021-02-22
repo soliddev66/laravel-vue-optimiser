@@ -197,6 +197,8 @@ import {
   PauseCampaign,
   PauseContents,
   BlockSite,
+  BlockWidgetsPushlisher,
+  UnBlockWidgetsPushlisher,
 } from './rule-actions'
 
 export default {
@@ -237,7 +239,9 @@ export default {
     ActivateCampaign,
     PauseCampaign,
     PauseContents,
-    BlockSite
+    BlockSite,
+    BlockWidgetsPushlisher,
+    UnBlockWidgetsPushlisher,
   },
   computed: {
     ruleNameState() {
@@ -383,6 +387,8 @@ export default {
       this.ruleActionData = this.rule && this.rule.rule_action_id && this.rule.rule_action_data && this.rule.rule_action_id == this.selectedRuleAction ? JSON.parse(this.rule.rule_action_data) : {}
     },
     saveRule () {
+      this.isLoading = true
+
       this.postData = {
         ruleName: this.ruleName,
         ruleAction: this.selectedRuleAction,

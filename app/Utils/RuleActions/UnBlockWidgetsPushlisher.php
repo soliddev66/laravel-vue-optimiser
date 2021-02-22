@@ -2,26 +2,22 @@
 
 namespace App\Utils\RuleActions;
 
-use Exception;
-
-use App\Models\Campaign;
-use App\Endpoints\GeminiAPI;
-
-class PauseCampaign extends Root
+class UnBlockWidgetsPushlisher extends Root
 {
     public function process($campaign, &$log, $rule_data = null)
     {
         $log['effect'] = [
-            'campaign' => $campaign->name
+            'campaign' => $campaign->name,
+            'widgets' => $rule_data
         ];
 
         try {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            (new $adVendorClass)->status($campaign);
-            $log['effect']['paused'] = true;
-            echo 'Campaign was being paused', "\n";
+            (new $adVendorClass)->unblockWidgets($campaign, $rule_data);
+            $log['effect']['unblocked'] = true;
+            echo "Campaign's widgets were being unblocked\n";
         } catch (Exception $e) {
-            echo "Campaign wasn't being paused\n";
+            echo "Campaign's widgets weren't being unblocked\n";
         }
     }
 
@@ -29,7 +25,7 @@ class PauseCampaign extends Root
     {
         $log['visual-effect'] = [
             'campaign' => $campaign->name,
-            'paused' => true
+            'widgets' => $rule_data
         ];
     }
 }
