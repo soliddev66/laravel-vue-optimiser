@@ -595,6 +595,11 @@ class Outbrain extends Root implements AdVendorInterface
         return $publishers_query;
     }
 
+    public function getAdGroupQuery($campaign, $data)
+    {
+        //
+    }
+
     public function getDomainQuery($campaign, $data)
     {
         //

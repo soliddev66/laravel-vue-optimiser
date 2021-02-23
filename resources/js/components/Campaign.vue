@@ -197,7 +197,10 @@ export default {
           handler: this.updateAdGroupStatus,
           component: ActionsComponent
         },
-        { label: 'Status', name: 'status', orderable: true }
+        { label: 'Status', name: 'status', orderable: true },
+        { label: 'Impressions', name: 'impressions', orderable: true },
+        { label: 'Clicks', name: 'clicks', orderable: true },
+        { label: 'Cost', name: 'cost', orderable: true }
       ],
       publisherColumns: [
         { label: 'ID', name: 'id', orderable: true },

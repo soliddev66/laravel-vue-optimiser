@@ -807,6 +807,29 @@ class Yahoo extends Root implements AdVendorInterface
         return $contents_query;
     }
 
+    public function getAdGroupQuery($campaign, $data)
+    {
+        $ad_groups_query = AdGroup::select([
+            DB::raw('MAX(ad_groups.id) as id'),
+            DB::raw('MAX(ad_groups.campaign_id) as campaign_id'),
+            DB::raw('MAX(ad_groups.ad_group_id) as ad_group_id'),
+            DB::raw('MAX(name) as name'),
+            DB::raw('MAX(status) as status'),
+            DB::raw('SUM(impressions) as impressions'),
+            DB::raw('SUM(clicks) as clicks'),
+            DB::raw('ROUND(SUM(spend), 2) as cost')
+        ]);
+        $ad_groups_query->leftJoin('gemini_performance_stats', function ($join) use ($data) {
+            $join->on('gemini_performance_stats.ad_group_id', '=', 'ad_groups.ad_group_id')->whereBetween('gemini_performance_stats.day', [$data['start'], $data['end']])->whereNotNull('fact_conversion_counting');
+        });
+
+        $ad_groups_query->where('ad_groups.campaign_id', $campaign->campaign_id);
+        $ad_groups_query->where('ad_groups.name', 'LIKE', '%' . $data['search'] . '%');
+        $ad_groups_query->groupBy('ad_groups.ad_group_id');
+
+        return $ad_groups_query;
+    }
+
     public function getDomainQuery($campaign, $data)
     {
         $domains_query = GeminiDomainPerformanceStat::select(

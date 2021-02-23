@@ -690,6 +690,11 @@ class Taboola extends Root implements AdVendorInterface
         return $contents_query;
     }
 
+    public function getAdGroupQuery($campaign, $data)
+    {
+        //
+    }
+
     public function getDomainQuery($campaign, $data)
     {
         $domains_query = RedtrackDomainStat::select(

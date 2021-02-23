@@ -114,13 +114,20 @@ class CampaignController extends Controller
 
     public function adGroups(Campaign $campaign)
     {
-        $ad_groups_query = AdGroup::select(
-            '*',
-            DB::raw('0 as clicks')
-        );
-        $ad_groups_query->where('campaign_id', $campaign->campaign_id);
-        $ad_groups_query->where('open_id', $campaign->open_id);
-        $ad_groups_query->where('name', 'LIKE', '%' . request('search') . '%');
+        if (request('tracker')) {
+            $ad_groups_query = AdGroup::select(
+                '*',
+                DB::raw('NULL as impressions'),
+                DB::raw('NULL as clicks'),
+                DB::raw('NULL as cost')
+            );
+            $ad_groups_query->where('campaign_id', $campaign->campaign_id);
+            $ad_groups_query->where('open_id', $campaign->open_id);
+            $ad_groups_query->where('name', 'LIKE', '%' . request('search') . '%');
+        } else {
+            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            $ad_groups_query = (new $adVendorClass())->getAdGroupQuery($campaign, request()->all());
+        }
 
         return new DataTableCollectionResource($ad_groups_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
