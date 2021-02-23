@@ -465,7 +465,19 @@ class Taboola extends Root implements AdVendorInterface
 
     public function adStatus(Campaign $campaign, $ad_group_id, $ad_id, $status = null)
     {
-        //
+        // $api = new TaboolaAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
+
+        // if ($status == null) {
+        //     $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
+        // }
+
+        // if ($status == Campaign::STATUS_ACTIVE) {
+        //     $status = 'RUNNING';
+        // }
+
+        // $result = $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $ad_id, [
+        //     'status' => $status
+        // ]);
     }
 
     public function pullAd($user_provider)
