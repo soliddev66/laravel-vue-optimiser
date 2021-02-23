@@ -65,7 +65,7 @@
                 <data-table :data="rules" :columns="ruleColumns" @on-table-props-changed="reloadRuleData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 5 }" id="performance" role="tabpanel" aria-labelledby="performance-tab">
-                <line-chart v-if="performance" :chart-data="performance"></line-chart>
+                <bar-chart v-if="performance" :chart-data="performance"></bar-chart>
               </div>
             </div>
           </div>
@@ -80,7 +80,7 @@ import _ from 'lodash';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import Loading from 'vue-loading-overlay';
 import ActionsComponent from './includes/ActionsComponent.vue';
-import LineChart from '../plugins/LineChart.js';
+import BarChart from '../plugins/BarChart.js';
 
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
 import 'vue-loading-overlay/dist/vue-loading.css';
@@ -98,7 +98,7 @@ export default {
   },
   components: {
     VueCtkDateTimePicker,
-    LineChart,
+    BarChart,
     Loading
   },
   mounted() {
