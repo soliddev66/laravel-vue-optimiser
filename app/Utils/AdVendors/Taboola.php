@@ -733,6 +733,18 @@ class Taboola extends Root implements AdVendorInterface
         //
     }
 
+    public function addSiteBlock($campaign, $data)
+    {
+        $api = new TaboolaAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
+
+        $api->blockPublisher($campaign->advertiser_id, [
+            'sites' => [
+                $data['sub1']
+            ],
+            'patch_operation' => 'ADD'
+        ]);
+    }
+
     public function targets(Campaign $campaign)
     {
         //

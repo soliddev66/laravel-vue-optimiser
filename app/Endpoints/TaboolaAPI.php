@@ -79,4 +79,14 @@ class TaboolaAPI
     {
         return $this->client->call('GET', $advertiser_id . '/reports/campaign-summary/dimensions/day?campaign=' . $campaign_id . '&start_date=' . $start_date . '&end_date=' . $end_date);
     }
+
+    public function getBlockPublisher($advertiser_id)
+    {
+        return $this->client->call('GET', $advertiser_id . '/block-publisher');
+    }
+
+    public function blockPublisher($advertiser_id, $data)
+    {
+        return $this->client->call('PATCH', $advertiser_id . '/block-publisher', $data);
+    }
 }
