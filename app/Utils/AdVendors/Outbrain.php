@@ -337,8 +337,11 @@ class Outbrain extends Root implements AdVendorInterface
             $status = request('status') == Campaign::STATUS_ACTIVE ? Campaign::STATUS_PAUSED : Campaign::STATUS_ACTIVE;
         }
 
-        $api->updatePromotedLinkStatus($ad_id, $status == Campaign::STATUS_ACTIVE);
+        $ad = Ad::where('ad_id', $ad_id)->first();
+        $ad->status = $status;
+        $ad->save();
 
+        $api->updatePromotedLinkStatus($ad_id, $status == Campaign::STATUS_ACTIVE);
     }
 
     public function pullAd($user_provider)
