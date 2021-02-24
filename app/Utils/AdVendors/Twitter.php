@@ -537,7 +537,7 @@ class Twitter extends Root implements AdVendorInterface
         }
     }
 
-    public function getSummaryDataQuery($data)
+    public function getSummaryDataQuery($data, $campaign = null)
     {
         $summary_data_query = TwitterReport::select(
             DB::raw('ROUND(SUM(JSON_EXTRACT(data, "$[0].metrics.billed_charge_local_micro[0]") / 1000000), 2) as total_cost'),

@@ -464,7 +464,7 @@ class Outbrain extends Root implements AdVendorInterface
         }
     }
 
-    public function getSummaryDataQuery($data)
+    public function getSummaryDataQuery($data, $campaign = null)
     {
         $summary_data_query = OutbrainReport::select(
             DB::raw('SUM(JSON_EXTRACT(data, "$.summary.spend")) as total_cost'),

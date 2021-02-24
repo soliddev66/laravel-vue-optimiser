@@ -679,10 +679,10 @@ class Yahoo extends Root implements AdVendorInterface
         }
     }
 
-    public function getSummaryDataQuery($data)
+    public function getSummaryDataQuery($data, $campaign = null)
     {
         $summary_data_query = Campaign::select(
-            DB::raw('SUM(spend) as total_cost'),
+            DB::raw('ROUND(SUM(spend), 2) as total_cost'),
             DB::raw('"N/A" as total_revenue'),
             DB::raw('"N/A" as total_net'),
             DB::raw('"N/A" as avg_roi')
@@ -692,14 +692,17 @@ class Yahoo extends Root implements AdVendorInterface
             $join->whereBetween('gemini_performance_stats.day', [$data['start'], $data['end']]);
             $join->whereNotNull('fact_conversion_counting');
         });
-        if ($data['provider']) {
+        if (isset($data['provider']) && $data['provider']) {
             $summary_data_query->where('campaigns.provider_id', $data['provider']);
         }
-        if ($data['account']) {
+        if (isset($data['account']) && $data['account']) {
             $summary_data_query->where('campaigns.open_id', $data['account']);
         }
-        if ($data['advertiser']) {
+        if (isset($data['advertiser']) && $data['advertiser']) {
             $summary_data_query->where('campaigns.advertiser_id', $data['advertiser']);
+        }
+        if ($campaign) {
+            $summary_data_query->where('campaigns.id', $campaign->id);
         }
 
         return $summary_data_query;

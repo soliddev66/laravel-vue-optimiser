@@ -822,7 +822,7 @@ class Yahoojp extends Root implements AdVendorInterface
         }
     }
 
-    public function getSummaryDataQuery($data)
+    public function getSummaryDataQuery($data, $campaign = null)
     {
         $summary_data_query = YahooJapanReport::select(
             DB::raw('SUM(cost) as total_cost'),

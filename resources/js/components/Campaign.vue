@@ -103,7 +103,6 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
-    this.getSummaryData();
     this.getData();
   },
   data() {
@@ -286,6 +285,7 @@ export default {
   },
   methods: {
     getData() {
+      this.getSummaryData();
       if (this.selectedTracker) {
         this.domainColumns[1].name = 'sub1';
       } else {

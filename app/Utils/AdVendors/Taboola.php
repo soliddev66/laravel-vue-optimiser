@@ -586,7 +586,7 @@ class Taboola extends Root implements AdVendorInterface
         }
     }
 
-    public function getSummaryDataQuery($data)
+    public function getSummaryDataQuery($data, $campaign = null)
     {
         $summary_data_query = TaboolaReport::select(
             DB::raw('SUM(spent) as total_cost'),

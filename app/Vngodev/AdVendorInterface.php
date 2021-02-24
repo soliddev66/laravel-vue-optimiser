@@ -5,7 +5,7 @@ use App\Models\Campaign;
 
 interface AdVendorInterface
 {
-    public function getSummaryDataQuery(array $data);
+    public function getSummaryDataQuery(array $data, $campaign = null);
 
     public function getCampaignQuery(array $data);
 

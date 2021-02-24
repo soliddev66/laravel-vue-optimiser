@@ -62,10 +62,10 @@ class CampaignController extends Controller
     {
         if (request('tracker')) {
             $summary_data_query = RedtrackReport::select(
-                DB::raw('SUM(cost) as total_cost'),
-                DB::raw('SUM(total_revenue) as total_revenue'),
-                DB::raw('SUM(profit) as total_net'),
-                DB::raw('(SUM(profit)/SUM(cost)) * 100 as avg_roi'),
+                DB::raw('ROUND(SUM(cost), 2) as total_cost'),
+                DB::raw('ROUND(SUM(total_revenue), 2) as total_revenue'),
+                DB::raw('ROUND(SUM(profit), 2) as total_net'),
+                DB::raw('ROUND((SUM(profit)/SUM(cost)) * 100, 2) as avg_roi'),
             );
             $summary_data_query->where('campaign_id', $campaign->id);
             $summary_data_query->where('provider_id', $campaign->provider_id);
@@ -73,7 +73,7 @@ class CampaignController extends Controller
             $summary_data_query->whereBetween('date', [request('start'), request('end')]);
         } else {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            $summary_data_query = (new $adVendorClass())->getSummaryDataQuery($campaign, request()->all());
+            $summary_data_query = (new $adVendorClass())->getSummaryDataQuery(request()->all(), $campaign);
         }
 
         return [
@@ -305,10 +305,10 @@ class CampaignController extends Controller
     {
         if (request('tracker')) {
             $summary_data_query = RedtrackReport::with('campaign')->select(
-                DB::raw('SUM(cost) as total_cost'),
-                DB::raw('SUM(total_revenue) as total_revenue'),
-                DB::raw('SUM(profit) as total_net'),
-                DB::raw('(SUM(profit)/SUM(cost)) * 100 as avg_roi'),
+                DB::raw('ROUND(SUM(cost), 2) as total_cost'),
+                DB::raw('ROUND(SUM(total_revenue), 2) as total_revenue'),
+                DB::raw('ROUND(SUM(profit), 2) as total_net'),
+                DB::raw('ROUND((SUM(profit)/SUM(cost)) * 100, 2) as avg_roi'),
             )->whereBetween('date', [request('start'), request('end')]);
             if (request('provider')) {
                 $summary_data_query->where('provider_id', request('provider'));
