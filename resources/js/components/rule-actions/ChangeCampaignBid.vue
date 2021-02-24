@@ -10,13 +10,30 @@
             <div class="form-group row">
               <label for="" class="col-sm-2 control-label">Campaign</label>
               <div class="col-sm-10">
-                <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" @change="ruleCampaignSelected(ruleCampaign.id)" />
+                <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" @change="campaignSelected(index, ruleCampaign.id)" />
               </div>
             </div>
-            <div class="form-group row">
-              <label for="" class="col-sm-2 control-label">Widgets</label>
+
+            <div class="row" v-if="ruleCampaign.provider_id == 1">
+              <div class="col">
+                <fieldset class="mb-3 p-3 rounded border" v-for="(campaignAdGroup, indexAdGroup) in ruleCampaign.campaignAdGroups" :key="indexAdGroup">
+                  <div class="form-group row">
+                    <select2 name="campaign_ad_group" v-model="campaignAdGroup.id" :options="adGroupSelections[ruleCampaign.id]" />
+                  </div>
+                  <div class="form-group row">
+                    <label for="rule_campaign_bid" class="col-sm-2 control-label">Bid</label>
+                    <div class="col-sm-10">
+                      <input type="text" name="rule_campaign_bid" v-model="campaignAdGroup.bid" class="form-control" placeholder="Enter bid">
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+
+            <div class="form-group row" v-if="ruleCampaign.provider_id != 1">
+              <label for="rule_campaign_bid" class="col-sm-2 control-label">Bid</label>
               <div class="col-sm-10">
-                <select2 name="widgets" v-model="ruleCampaign.data.widgets" :options="widgetSelections[ruleCampaign.id]" :settings="{ multiple: true }" />
+                <input type="text" name="rule_campaign_bid" v-model="ruleCampaign.data.bid" class="form-control" placeholder="Enter bid">
               </div>
             </div>
           </div>
@@ -68,16 +85,16 @@ export default {
     let postData = this.submitData
 
     if (!postData.ruleCampaigns) {
-      postData.ruleCampaigns = [{id: null, data: {widgets: []}}]
+      postData.ruleCampaigns = [{id: null, data: {bid: ''}}]
     }
 
     return {
       isLoading: false,
       fullPage: true,
       campaignSelections: null,
+      adGroupSelections: [],
       postData: postData,
-      ruleCampaigns: postData.ruleCampaigns,
-      widgetSelections: []
+      ruleCampaigns: postData.ruleCampaigns
     }
   },
   methods: {
@@ -88,7 +105,8 @@ export default {
         .map(function (campaign) {
           return {
             id: campaign.id,
-            text: campaign.name
+            text: campaign.name,
+            provider_id: campaign.provider_id
           };
         })
       }).catch(err => {
@@ -98,23 +116,33 @@ export default {
       })
     },
     addRuleCampaign() {
-      this.ruleCampaigns.push({id: null, data: {widgets: []}})
+      this.ruleCampaigns.push({id: null, data: {bid: ''}})
     },
     removeRuleCampaign(index) {
       this.ruleCampaigns.splice(index, 1);
     },
-    ruleCampaignSelected(campaignId) {
-      if (this.widgetSelections[campaignId]) {
-        return
+    campaignSelected(index, campaignId) {
+      for (let i = 0; i < this.campaignSelections.length; i++) {
+        if (this.campaignSelections[i].id == campaignId) {
+          if (this.campaignSelections[i].provider_id == 1) {
+            this.ruleCampaigns[index].provider_id = 1
+            this.loadAdGroups(campaignId, index)
+            break
+          }
+        }
       }
+    },
+    loadAdGroups(campaignId, index) {
       this.isLoading = true
-      axios.get(`/campaigns/${campaignId}/targets?status=active`).then(response => {
-        this.widgetSelections[campaignId] = response.data
-      }).catch(err => {
-        console.log(err)
-      }).finally(() => {
-        this.isLoading = false
-      })
+      axios.get('/campaigns/' + campaignId + '/ad-groups/selection')
+        .then((response) => {
+          this.adGroupSelections[index] = response.data
+        })
+        .catch((err) => {
+          alert(err)
+        }).finally(() => {
+          this.isLoading = false
+        });
     }
   }
 }

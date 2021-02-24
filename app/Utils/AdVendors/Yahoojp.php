@@ -993,4 +993,11 @@ class Yahoojp extends Root implements AdVendorInterface
     {
         //
     }
+
+    public function changeCampaignBid(Campaign $campaign, $bid)
+    {
+        $api = new YahooJPAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
+
+
+    }
 }

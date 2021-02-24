@@ -72,6 +72,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::post('/{campaign}/ad-groups/{ad_group_id}/ads/status/{ad_id}', [App\Http\Controllers\CampaignController::class, 'adStatus'])->name('campaigns.adStatus');
     Route::post('/{campaign}/ad-groups/{ad_group_id}/status', [App\Http\Controllers\CampaignController::class, 'adGroupStatus'])->name('campaigns.adGroupStatus');
     Route::post('/{campaign}/ad-groups/data', [App\Http\Controllers\CampaignController::class, 'adGroupData'])->name('campaigns.adGroupData');
+    Route::get('/{campaign}/ad-groups/selection', [App\Http\Controllers\CampaignController::class, 'adGroupSelection'])->name('campaigns.adGroupSelection');
 });
 
 Route::post('user-providers', [\App\Http\Controllers\UserProviderController::class, 'store'])->name('userProviders.store');

@@ -446,6 +446,26 @@ class Yahoo extends Root implements AdVendorInterface
         ]);
     }
 
+    public function adGroupSelection(Campaign $campaign)
+    {
+        $api = new GeminiAPI(auth()->user()->providers()->where([
+            'provider_id' => $campaign->provider_id,
+            'open_id' => $campaign->open_id
+        ])->first());
+
+        $ad_groups = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
+
+        $result = [];
+
+        if (is_array($ad_groups)) {
+            foreach ($ad_groups as $ad_group) {
+                $result[] = ['id' => $ad_group['id'], 'text' => $ad_group['adGroupName']];
+            }
+        }
+
+        return $result;
+    }
+
     public function adStatus(Campaign $campaign, $ad_group_id, $ad_id, $status = null)
     {
         $api = new GeminiAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
@@ -963,5 +983,12 @@ class Yahoo extends Root implements AdVendorInterface
         $api = new GeminiAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
 
         $api->updateCampaignBudget($campaign->campaign_id, $budget);
+    }
+
+    public function changeCampaignBid(Campaign $campaign, $bid)
+    {
+        $api = new GeminiAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
+
+
     }
 }
