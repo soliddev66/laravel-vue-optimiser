@@ -16,17 +16,28 @@
 
             <div class="row" v-if="ruleCampaign.provider_id == 1">
               <div class="col">
-                <fieldset class="mb-3 p-3 rounded border" v-for="(campaignAdGroup, indexAdGroup) in ruleCampaign.campaignAdGroups" :key="indexAdGroup">
+                <fieldset class="mb-3 p-3 rounded border" v-for="(campaignAdGroup, indexAdGroup) in ruleCampaign.adGroups" :key="indexAdGroup">
                   <div class="form-group row">
-                    <select2 name="campaign_ad_group" v-model="campaignAdGroup.id" :options="adGroupSelections[ruleCampaign.id]" />
+                    <label for="rule_campaign_bid" class="col-sm-2 control-label">Ad Group</label>
+                    <div class="col-sm-10">
+                      <select2 name="campaign_ad_group" v-model="campaignAdGroup.id" :options="ruleCampaign.adGroupSelections" />
+                    </div>
                   </div>
                   <div class="form-group row">
                     <label for="rule_campaign_bid" class="col-sm-2 control-label">Bid</label>
                     <div class="col-sm-10">
-                      <input type="text" name="rule_campaign_bid" v-model="campaignAdGroup.bid" class="form-control" placeholder="Enter bid">
+                      <input type="text" name="rule_campaign_bid" v-model="campaignAdGroup.data.bid" class="form-control" placeholder="Enter bid">
+                    </div>
+                    <div class="col-sm-1">
+                      <button type="button" class="btn btn-light" @click.prevent="removeAdGroup(index, indexAdGroup)" v-if="indexAdGroup > 0"><i class="fa fa-minus"></i></button>
                     </div>
                   </div>
                 </fieldset>
+                <div class="form-group row">
+                  <div class="col">
+                    <button type="button" class="btn btn-primary" @click="addAdGroup(index)">ADD</button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -92,7 +103,6 @@ export default {
       isLoading: false,
       fullPage: true,
       campaignSelections: null,
-      adGroupSelections: [],
       postData: postData,
       ruleCampaigns: postData.ruleCampaigns
     }
@@ -121,11 +131,21 @@ export default {
     removeRuleCampaign(index) {
       this.ruleCampaigns.splice(index, 1);
     },
+    addAdGroup(index) {
+      const campaign = this.ruleCampaigns[index];
+      const groups = campaign.adGroups;
+      groups.push({id: null, data: {bid: ''}});
+    },
+    removeAdGroup(index, indexAdGroup) {
+      this.ruleCampaigns[index].splice(indexAdGroup, 1)
+    },
     campaignSelected(index, campaignId) {
       for (let i = 0; i < this.campaignSelections.length; i++) {
         if (this.campaignSelections[i].id == campaignId) {
           if (this.campaignSelections[i].provider_id == 1) {
             this.ruleCampaigns[index].provider_id = 1
+            this.ruleCampaigns[index].adGroups = []
+            this.ruleCampaigns[index].adGroups.push({id: null, data: {bid: ''}})
             this.loadAdGroups(campaignId, index)
             break
           }
@@ -136,7 +156,7 @@ export default {
       this.isLoading = true
       axios.get('/campaigns/' + campaignId + '/ad-groups/selection')
         .then((response) => {
-          this.adGroupSelections[index] = response.data
+          this.ruleCampaigns[index].adGroupSelections = response.data
         })
         .catch((err) => {
           alert(err)
