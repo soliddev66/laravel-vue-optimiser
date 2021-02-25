@@ -10,7 +10,7 @@
           <div class="card-header">
             <div class="row">
               <div class="col-md-6 col-12">
-                <VueCtkDateTimePicker id="targetDate" position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData"></VueCtkDateTimePicker>
+                <VueCtkDateTimePicker :shortcuts="getShortcut()" :customShortcuts="shortcuts" id="targetDate" position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData"></VueCtkDateTimePicker>
               </div>
               <div class="col-md-6 col-12">
                 <select id="tracker" class="form-control" v-model="selectedTracker" @change="getData">
@@ -108,6 +108,18 @@ export default {
   data() {
     let params = (new URL(document.location)).searchParams;
     return {
+      shortcuts: [
+        { key: 'today', label: 'Today', value: 'day' },
+        { key: 'yesterday', label: 'Yesterday', value: '-day' },
+        { key: 'thisWeek', label: 'This week', value: 'isoWeek' },
+        { key: 'lastWeek', label: 'Last week', value: '-isoWeek' },
+        { key: 'last7Days', label: 'Last 7 days', value: 7 },
+        { key: 'last30Days', label: 'Last 30 days', value: 30 },
+        { key: 'thisMonth', label: 'This month', value: 'month' },
+        { key: 'lastMonth', label: 'Last month', value: '-month' },
+        { key: 'thisYear', label: 'This year', value: 'year' },
+        { key: 'lastYear', label: 'Last year', value: '-year' }
+      ],
       widgets: {},
       contents: {},
       adGroups: {},
@@ -269,7 +281,7 @@ export default {
       },
       selectedTracker: 'redtrack',
       targetDate: {
-        start: this.$moment().subtract(30, 'days').format('YYYY-MM-DD'),
+        start: this.$moment().format('YYYY-MM-DD'),
         end: this.$moment().format('YYYY-MM-DD')
       },
       show: 0,
@@ -284,6 +296,14 @@ export default {
     }
   },
   methods: {
+    getShortcut() {
+      const params = (new URL(document.location)).searchParams;
+      const selectedShortcut = this.shortcuts.find(shortcut => shortcut.value === params.get('shortcut'));
+      if (selectedShortcut) {
+        return selectedShortcut.key
+      }
+      return 'today'
+    },
     getData() {
       this.getSummaryData();
       if (this.selectedTracker) {

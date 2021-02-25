@@ -10,7 +10,7 @@
           <div class="card-header">
             <div class="row">
               <div class="col-md-4 col-12">
-                <VueCtkDateTimePicker position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData()"></VueCtkDateTimePicker>
+                <VueCtkDateTimePicker :shortcut="getShortcut()" :customShortcuts="shortcuts" position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData()"></VueCtkDateTimePicker>
               </div>
               <div class="col-md-4 col-12">
                 <select class="form-control" v-model="selectedProvider" @change="resetAccountAndGetData()">
@@ -147,6 +147,18 @@ export default {
     return {
       accounts: [],
       advertisers: [],
+      shortcuts: [
+        { key: 'today', label: 'Today', value: 'day' },
+        { key: 'yesterday', label: 'Yesterday', value: '-day' },
+        { key: 'thisWeek', label: 'This week', value: 'isoWeek' },
+        { key: 'lastWeek', label: 'Last week', value: '-isoWeek' },
+        { key: 'last7Days', label: 'Last 7 days', value: 7 },
+        { key: 'last30Days', label: 'Last 30 days', value: 30 },
+        { key: 'thisMonth', label: 'This month', value: 'month' },
+        { key: 'lastMonth', label: 'Last month', value: '-month' },
+        { key: 'thisYear', label: 'This year', value: 'year' },
+        { key: 'lastYear', label: 'Last year', value: '-year' }
+      ],
       campaigns: {},
       tableProps: {
         page: params.get('page') || 1,
@@ -271,7 +283,7 @@ export default {
       selectedAdvertiser: params.get('advertiser') || '',
       selectedTracker: params.get('provider') ? params.get('tracker') : 'redtrack',
       targetDate: {
-        start: params.get('start') || this.$moment().subtract(30, 'days').format('YYYY-MM-DD'),
+        start: params.get('start') || this.$moment().format('YYYY-MM-DD'),
         end: params.get('end') || this.$moment().format('YYYY-MM-DD')
       },
       isLoading: false,
@@ -280,6 +292,15 @@ export default {
     }
   },
   methods: {
+    getShortcut() {
+      const params = (new URL(document.location)).searchParams;
+      const selectedShortcut = this.shortcuts.find(shortcut => shortcut.value === params.get('shortcut'));
+      if (selectedShortcut) {
+        return selectedShortcut.key
+      } else {
+        return 'today'
+      }
+    },
     showQuickAct(campaignId) {
       if (this.showQuickActions === campaignId) {
         this.showQuickActions = ''
