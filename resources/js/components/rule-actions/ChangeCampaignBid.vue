@@ -19,13 +19,13 @@
                 <fieldset class="mb-3 p-3 rounded border" v-for="(campaignAdGroup, indexAdGroup) in ruleCampaign.adGroups" :key="indexAdGroup">
                   <div class="form-group row">
                     <label for="rule_campaign_bid" class="col-sm-2 control-label">Ad Group</label>
-                    <div class="col-sm-10">
+                    <div class="col-sm-9">
                       <select2 name="campaign_ad_group" v-model="campaignAdGroup.id" :options="ruleCampaign.adGroupSelections" />
                     </div>
                   </div>
                   <div class="form-group row">
                     <label for="rule_campaign_bid" class="col-sm-2 control-label">Bid</label>
-                    <div class="col-sm-10">
+                    <div class="col-sm-9">
                       <input type="text" name="rule_campaign_bid" v-model="campaignAdGroup.data.bid" class="form-control" placeholder="Enter bid">
                     </div>
                     <div class="col-sm-1">
@@ -96,7 +96,7 @@ export default {
     let postData = this.submitData
 
     if (!postData.ruleCampaigns) {
-      postData.ruleCampaigns = [{id: null, data: {bid: ''}}]
+      postData.ruleCampaigns = [{id: null, data: {bid: ''}, adGroups: []}]
     }
 
     return {
@@ -126,7 +126,7 @@ export default {
       })
     },
     addRuleCampaign() {
-      this.ruleCampaigns.push({id: null, data: {bid: ''}})
+      this.ruleCampaigns.push({id: null, data: {bid: ''}, adGroups: []})
     },
     removeRuleCampaign(index) {
       this.ruleCampaigns.splice(index, 1);
@@ -137,14 +137,13 @@ export default {
       groups.push({id: null, data: {bid: ''}});
     },
     removeAdGroup(index, indexAdGroup) {
-      this.ruleCampaigns[index].splice(indexAdGroup, 1)
+      this.ruleCampaigns[index].adGroups.splice(indexAdGroup, 1)
     },
     campaignSelected(index, campaignId) {
       for (let i = 0; i < this.campaignSelections.length; i++) {
         if (this.campaignSelections[i].id == campaignId) {
           if (this.campaignSelections[i].provider_id == 1) {
             this.ruleCampaigns[index].provider_id = 1
-            this.ruleCampaigns[index].adGroups = []
             this.ruleCampaigns[index].adGroups.push({id: null, data: {bid: ''}})
             this.loadAdGroups(campaignId, index)
             break
