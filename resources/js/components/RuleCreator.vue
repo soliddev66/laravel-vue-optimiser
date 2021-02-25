@@ -391,6 +391,8 @@ export default {
     saveRule () {
       this.isLoading = true
 
+      this.$emit('submit');
+
       this.postData = {
         ruleName: this.ruleName,
         ruleAction: this.selectedRuleAction,

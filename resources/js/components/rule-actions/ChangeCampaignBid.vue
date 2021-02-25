@@ -107,6 +107,9 @@ export default {
       ruleCampaigns: postData.ruleCampaigns
     }
   },
+  created: function() {
+    this.$parent.$on('submit', this.cleanSubmitData);
+  },
   methods: {
     loadCampaigns() {
       this.isLoading = true
@@ -162,6 +165,16 @@ export default {
         }).finally(() => {
           this.isLoading = false
         });
+    },
+    cleanSubmitData() {
+      for (let i = 0; i < this.ruleCampaigns.length; i++) {
+        if (this.ruleCampaigns[i].provider_id == 1) {
+          delete this.ruleCampaigns[i].data
+          delete this.ruleCampaigns[i].adGroupSelections
+        } else {
+          delete this.ruleCampaigns[i].adGroups
+        }
+      }
     }
   }
 }
