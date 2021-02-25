@@ -135,9 +135,7 @@ export default {
       this.ruleCampaigns.splice(index, 1);
     },
     addAdGroup(index) {
-      const campaign = this.ruleCampaigns[index];
-      const groups = campaign.adGroups;
-      groups.push({id: null, data: {bid: ''}});
+      this.ruleCampaigns[index].adGroups.push({id: null, data: {bid: ''}});
     },
     removeAdGroup(index, indexAdGroup) {
       this.ruleCampaigns[index].adGroups.splice(indexAdGroup, 1)
@@ -145,8 +143,9 @@ export default {
     campaignSelected(index, campaignId) {
       for (let i = 0; i < this.campaignSelections.length; i++) {
         if (this.campaignSelections[i].id == campaignId) {
+          this.ruleCampaigns[index].provider_id = this.campaignSelections[i].provider_id
           if (this.campaignSelections[i].provider_id == 1) {
-            this.ruleCampaigns[index].provider_id = 1
+            this.ruleCampaigns[index].adGroups = []
             this.ruleCampaigns[index].adGroups.push({id: null, data: {bid: ''}})
             this.loadAdGroups(campaignId, index)
             break
@@ -168,6 +167,7 @@ export default {
     },
     cleanSubmitData() {
       for (let i = 0; i < this.ruleCampaigns.length; i++) {
+        delete this.ruleCampaigns[i].provider_id
         if (this.ruleCampaigns[i].provider_id == 1) {
           delete this.ruleCampaigns[i].data
           delete this.ruleCampaigns[i].adGroupSelections
