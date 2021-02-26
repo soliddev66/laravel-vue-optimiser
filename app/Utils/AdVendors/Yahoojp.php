@@ -8,12 +8,9 @@ use App\Models\Ad;
 use App\Models\AdGroup;
 use App\Models\Campaign;
 use App\Models\GeminiDomainPerformanceStat;
-use App\Models\GeminiPerformanceStat;
 use App\Models\GeminiSitePerformanceStat;
-use App\Models\NetworkSetting;
 use App\Models\Provider;
 use App\Models\RedtrackContentStat;
-use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
@@ -972,6 +969,11 @@ class Yahoojp extends Root implements AdVendorInterface
     public function getPerformanceQuery($campaign, $data)
     {
         //
+    }
+
+    public function getPerformanceData($campaign, $time_range)
+    {
+        return [];
     }
 
     public function targets(Campaign $campaign)

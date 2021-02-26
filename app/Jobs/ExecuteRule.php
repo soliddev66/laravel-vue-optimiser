@@ -45,7 +45,6 @@ class ExecuteRule implements ShouldQueue
 
         $rule_campaigns = json_decode($rule->action_data)->ruleCampaigns;
 
-
         foreach ($rule_campaigns as $rule_campaign) {
             if (is_object($rule_campaign)) {
                 $campaign = Campaign::find($rule_campaign->id);
@@ -63,7 +62,11 @@ class ExecuteRule implements ShouldQueue
                     $this->log->end_date = $time_range[1]->format('Y-m-d');
 
                     $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
-                    $performance_data = $campaign->performanceStats()->whereBetween('day', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+
+                    $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+                    $performance_data = (new $adVendorClass)->getPerformanceData($campaign, $time_range);
+
+                    var_dump($performance_data);
 
                     if ($this->checkConditions($rule, $redtrack_data, $performance_data)) {
                         $this->log->passed = true;

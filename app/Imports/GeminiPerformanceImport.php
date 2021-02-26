@@ -2,7 +2,6 @@
 
 namespace App\Imports;
 
-use App\Models\GeminiPerformanceStat;
 use App\Vngodev\ResourceImporter;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;

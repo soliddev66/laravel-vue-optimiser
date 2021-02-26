@@ -733,6 +733,11 @@ class Taboola extends Root implements AdVendorInterface
         //
     }
 
+    public function getPerformanceData($campaign, $time_range)
+    {
+        return $campaign->taboolaReports()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+    }
+
     public function addSiteBlock($campaign, $data)
     {
         $api = new TaboolaAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
