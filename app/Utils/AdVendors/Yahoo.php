@@ -992,6 +992,7 @@ class Yahoo extends Root implements AdVendorInterface
 
     public function changeCampaignBid(Campaign $campaign, $data)
     {
+        return;
         $api = new GeminiAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
 
         $ad_group_body = [];
