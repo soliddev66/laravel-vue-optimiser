@@ -1,5 +1,8 @@
 <template>
-  <div class="container">
+  <div class="container-fluid">
+    <div class="vld-parent">
+      <loading :active.sync="isLoading" :can-cancel="false" :is-full-page="fullPage"></loading>
+    </div>
     <div class="row justify-content-center">
       <div class="col-md-12">
         <div class="card">
@@ -8,7 +11,9 @@
             <i class="fas fa-arrow-right"></i>
             <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">Tracker Setup</label>
             <i class="fas fa-arrow-right"></i>
-            <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Connect and Finish</label>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Choose Advertisers</label>
+            <i class="fas fa-arrow-right"></i>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Connect and Finish</label>
           </div>
           <div class="card-body" v-if="currentStep == 1">
             <p v-for="provider in providers" :key="provider.slug">
@@ -43,12 +48,18 @@
               <input type="text" name="api_key" v-model="redtrackKey" class="form-control">
             </div>
           </div>
-          <div class="card-body text-center" v-if="currentStep == 3">
+          <div class="card-body" v-if="currentStep == 3">
+            <div v-for="account in accounts" class="form-check">
+              <input class="form-check-input" type="checkbox" v-model="selectedAccounts" :value="account.id" :id="`account${account.id}`" />
+              <label class="form-check-label" :for="`account${account.id}`">{{ account.name }}</label>
+            </div>
+          </div>
+          <div class="card-body text-center" v-if="currentStep == 4">
             <p>Integration completed successfully</p>
             <p>System is syncing your stats.</p>
           </div>
           <div class="card-footer d-flex justify-content-end">
-            <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 3 && currentStep > 1">
+            <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 4 && currentStep > 1">
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 1">
@@ -56,9 +67,12 @@
               <button type="button" class="btn btn-primary" @click.prevent="submitStep1(1)">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
-              <button type="button" class="btn btn-primary" v-if="redtrackKey" @click.prevent="submitStep2(1)">Next</button>
+              <button type="button" class="btn btn-primary" v-if="redtrackKey" @click.prevent="submitStep3(1)">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 3">
+              <button type="button" class="btn btn-primary" v-if="selectedAccounts" @click.prevent="submitStep2(1)">Next</button>
+            </div>
+            <div class="d-flex justify-content-end" v-if="currentStep === 4">
               <button type="button" class="btn btn-primary mr-2" @click.prevent="currentStep = 1">Add another integration</button>
               <a href="/home" class="btn btn-success">Take me to Dashboard</a>
             </div>
@@ -70,8 +84,10 @@
 </template>
 
 <script>
-import axios from 'axios'
-import Loading from 'vue-loading-overlay'
+import axios from 'axios';
+import Loading from 'vue-loading-overlay';
+
+import 'vue-loading-overlay/dist/vue-loading.css';
 
 export default {
   props: {
@@ -92,16 +108,28 @@ export default {
       required: false,
     }
   },
+  components: {
+    Loading
+  },
   mounted() {
-    console.log('Component mounted.')
     this.currentStep = this.step
-    console.log(this.providers)
+  },
+  watch: {
+    currentStep(newValue, oldValue) {
+      if (newValue == 3) {
+        this.getAccounts()
+      }
+    }
   },
   data() {
     return {
       currentStep: 1,
       redtrackKey: '',
+      accounts: [],
+      isLoading: false,
+      fullPage: true,
       selectedProvider: 'yahoo',
+      selectedAccounts: [],
       selectedTracker: 'redtrack',
       credentials: {
         name: '',
@@ -111,6 +139,18 @@ export default {
     }
   },
   methods: {
+    getAccounts() {
+      const params = (new URL(document.location)).searchParams;
+      this.accounts = []
+      this.isLoading = true
+      axios.get(`/account/formated-advertisers?provider=${params.get('provider')}&account=${params.get('account')}`).then(response => {
+        this.accounts = response.data
+      }).catch(err => {
+        alert(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
+    },
     submitStep1(useTracker) {
       if (this.selectedProvider === 'outbrain' || this.selectedProvider === 'taboola') {
         const formData = new FormData()
@@ -118,6 +158,7 @@ export default {
         formData.append('provider', this.selectedProvider)
         formData.append('password', this.credentials.password)
 
+        this.isLoading = true
         axios
           .post(`/user-providers`, formData)
           .then((response) => {
@@ -126,11 +167,17 @@ export default {
           .catch((err) => {
             alert(err.response.data.message)
           })
+          .finally(() => {
+            this.isLoading = false
+          })
       } else {
         window.location = `/login/${this.selectedProvider}?user_tracker=${useTracker}`
       }
     },
     submitStep2(useTracker) {
+      window.location = `/login/${this.selectedTracker}?api_key=${this.redtrackKey}&token=${this.token}`
+    },
+    submitStep3(useTracker) {
       window.location = `/login/${this.selectedTracker}?api_key=${this.redtrackKey}&token=${this.token}`
     },
     toggleShowingPassword() {

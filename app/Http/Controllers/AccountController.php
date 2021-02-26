@@ -37,6 +37,28 @@ class AccountController extends Controller
         })->get();
     }
 
+    public function formatedAdvertisers()
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+
+        $advertisers = (new $adVendorClass())->advertisers();
+
+        if (request('provider') === 'outbrain') {
+            $advertisers = $advertisers['marketers'];
+        }
+
+        return array_map(function ($value) {
+            if (isset($value['advertiserName'])) {
+                $value['name'] = $value['advertiserName'];
+            }
+            if (request('provider') == 'taboola' && isset($value['account_id'])) {
+                $value['id'] = $value['account_id'];
+            }
+
+            return $value;
+        }, $advertisers);
+    }
+
     public function advertisers()
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
@@ -128,15 +150,14 @@ class AccountController extends Controller
             if (request('user_tracker')) {
                 session()->put('provider_open_id', request('open_id'));
                 session()->put('provider_id', $db_provider->id);
+                session()->put('provider_slug', $db_provider->slug);
 
                 // Redirect to Tracker setup
 
                 return redirect('account-wizard?step=2&provider=' . $param);
             }
 
-            Helper::pullCampaign();
-
-            return redirect('account-wizard?step=3');
+            return redirect('account-wizard?step=3&provider=' . session('provider_slug') . '&account=' . session('provider_open_id'));
         }
         if ($db_tracker) {
             $client = new Client();
@@ -156,9 +177,7 @@ class AccountController extends Controller
                 'name' => $tracker_user['firstname'] . ' ' . $tracker_user['lastname']
             ]);
 
-            Helper::pullCampaign();
-
-            return redirect('account-wizard?step=3');
+            return redirect('account-wizard?step=3&provider=' . session('provider_slug') . '&account=' . session('provider_open_id'));
         }
 
         abort(404);
@@ -219,12 +238,11 @@ class AccountController extends Controller
         if (session('use_tracker')) {
             session()->put('provider_id', $db_provider->id);
             session()->put('provider_open_id', $open_id);
+            session()->put('provider_slug', $db_provider->slug);
 
             return redirect('account-wizard?step=2');
         } else {
-            Helper::pullCampaign();
-
-            return redirect('account-wizard?step=3');
+            return redirect('account-wizard?step=3&provider=' . $db_provider->slug . '&account=' . $open_id);
         }
     }
 }
