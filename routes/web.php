@@ -75,6 +75,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
 });
 
 Route::post('user-providers', [\App\Http\Controllers\UserProviderController::class, 'store'])->name('userProviders.store');
+Route::patch('user-providers', [\App\Http\Controllers\UserProviderController::class, 'update'])->name('userProviders.update');
 
 Route::group(['middleware' => 'auth', 'prefix' => 'rules'], function() {
     Route::get('/', [App\Http\Controllers\RuleController::class, 'index'])->name('rules.index');

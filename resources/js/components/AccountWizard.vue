@@ -67,10 +67,10 @@
               <button type="button" class="btn btn-primary" @click.prevent="submitStep1(1)">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
-              <button type="button" class="btn btn-primary" v-if="redtrackKey" @click.prevent="submitStep3(1)">Next</button>
+              <button type="button" class="btn btn-primary" v-if="redtrackKey" @click.prevent="submitStep2(1)">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 3">
-              <button type="button" class="btn btn-primary" v-if="selectedAccounts" @click.prevent="submitStep2(1)">Next</button>
+              <button type="button" class="btn btn-primary" v-if="selectedAccounts" @click.prevent="submitStep3(1)">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 4">
               <button type="button" class="btn btn-primary mr-2" @click.prevent="currentStep = 1">Add another integration</button>
@@ -146,7 +146,7 @@ export default {
       axios.get(`/account/formated-advertisers?provider=${params.get('provider')}&account=${params.get('account')}`).then(response => {
         this.accounts = response.data
       }).catch(err => {
-        alert(err)
+        alert(err.response.data.message)
       }).finally(() => {
         this.isLoading = false
       })
@@ -178,7 +178,19 @@ export default {
       window.location = `/login/${this.selectedTracker}?api_key=${this.redtrackKey}&token=${this.token}`
     },
     submitStep3(useTracker) {
-      window.location = `/login/${this.selectedTracker}?api_key=${this.redtrackKey}&token=${this.token}`
+      const params = (new URL(document.location)).searchParams;
+      this.isLoading = true;
+      axios.patch(`/user-providers`, {
+        provider: params.get('provider'),
+        account: params.get('account'),
+        advertisers: this.selectedAccounts
+      }).then((response) => {
+        window.location = `/account-wizard?step=4`
+      }).catch((err) => {
+        alert(err.response.data.message)
+      }).finally(() => {
+        this.isLoading = false
+      })
     },
     toggleShowingPassword() {
       this.credentials.showPassword = !this.credentials.showPassword

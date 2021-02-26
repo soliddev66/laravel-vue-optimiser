@@ -193,10 +193,14 @@ class AccountController extends Controller
         $db_provider = Provider::where('slug', $provider)->first();
         $provider_user = Socialite::driver($provider)->user();
         $open_id = $provider_user->id;
+        $account_name = null;
         $token = null;
         $secret_token = null;
         $refresh_token = null;
         $expires_in = null;
+        if (property_exists($provider_user, 'name')) {
+            $account_name = $provider_user->name;
+        }
         if (property_exists($provider_user, 'token')) {
             $token = $provider_user->token;
         }
@@ -227,6 +231,7 @@ class AccountController extends Controller
             'provider_id' => $db_provider->id,
             'open_id' => $open_id
         ]);
+        $user_provider->account_name = $account_name;
         $user_provider->token = $token;
         $user_provider->secret_token = $secret_token;
         $user_provider->refresh_token = $refresh_token;
