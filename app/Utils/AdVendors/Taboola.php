@@ -769,4 +769,9 @@ class Taboola extends Root implements AdVendorInterface
     {
         //
     }
+
+    public function changeCampaignBid(Campaign $campaign, $data)
+    {
+        //
+    }
 }

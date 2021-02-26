@@ -66,8 +66,6 @@ class ExecuteRule implements ShouldQueue
                     $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
                     $performance_data = (new $adVendorClass)->getPerformanceData($campaign, $time_range);
 
-                    var_dump($performance_data);
-
                     if ($this->checkConditions($rule, $redtrack_data, $performance_data)) {
                         $this->log->passed = true;
 

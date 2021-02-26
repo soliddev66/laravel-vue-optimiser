@@ -990,10 +990,29 @@ class Yahoo extends Root implements AdVendorInterface
         $api->updateCampaignBudget($campaign->campaign_id, $budget);
     }
 
-    public function changeCampaignBid(Campaign $campaign, $bid)
+    public function changeCampaignBid(Campaign $campaign, $data)
     {
         $api = new GeminiAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
 
+        $ad_group_body = [];
 
+        foreach ($data->adGroups as $item) {
+            $ad_group = $api->getAdGroup($item->id);
+
+            $bids = $ad_group['bidSet']['bids'];
+
+            for ($i = 0; $i < count($bids); $i++) {
+                $bids[$i]['value'] = $item->data->bid;
+            }
+
+            $ad_group_body[] = [
+                'id' => $ad_group['id'],
+                'bidSet' => [
+                    'bids' => $bids
+                ]
+            ];
+        }
+
+        $api->updateAdGroups($ad_group_body);
     }
 }
