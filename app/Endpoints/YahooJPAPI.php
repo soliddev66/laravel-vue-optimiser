@@ -173,6 +173,18 @@ class YahooJPAPI
         ]);
     }
 
+    public function updateCampaignBid($advertiser_id, $campaign_id, $bid)
+    {
+        return $this->client->call('POST', 'CampaignService/set', [
+            'accountId' => $advertiser_id,
+            'operand' => [[
+                'accountId' => $advertiser_id,
+                'campaignBiddingStrategy' => $this->getCampaignBiddingStrategy(),
+                'campaignId' => $campaign_id,
+            ]]
+        ]);
+    }
+
     public function deleteCampaign($advertiser_id, $campaign_id)
     {
         return $this->client->call('POST', 'CampaignService/remove', [

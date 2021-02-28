@@ -68,6 +68,11 @@ class Campaign extends Model
         return $this->hasMany(RedtrackDomainStat::class);
     }
 
+    public function redtrackPublisherStats()
+    {
+        return $this->hasMany(RedtrackPublisherStat::class);
+    }
+
     public function performanceStats()
     {
         return $this->hasMany(GeminiPerformanceStat::class, 'campaign_id', 'campaign_id');
