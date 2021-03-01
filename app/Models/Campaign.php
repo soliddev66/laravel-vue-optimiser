@@ -78,6 +78,11 @@ class Campaign extends Model
         return $this->hasMany(GeminiPerformanceStat::class, 'campaign_id', 'campaign_id');
     }
 
+    public function geminiDomainPerformanceStats()
+    {
+        return $this->hasMany(GeminiDomainPerformanceStat::class);
+    }
+
     public function outbrainReports()
     {
         return $this->hasMany(OutbrainReport::class);

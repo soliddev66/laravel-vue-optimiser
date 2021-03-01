@@ -777,7 +777,6 @@ class Taboola extends Root implements AdVendorInterface
 
     public function changeCampaignBid(Campaign $campaign, $data)
     {
-        return;
         $api = new TaboolaAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
 
         $api->updateCampaign($campaign->advertiser_id, $campaign->campaign_id, [
