@@ -39,6 +39,9 @@ class AccountController extends Controller
 
     public function formatedAdvertisers()
     {
+        $provider = Provider::where('slug', request('provider'))->first();
+        $account = auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first();
+
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
         $advertisers = (new $adVendorClass())->advertisers();
@@ -47,16 +50,19 @@ class AccountController extends Controller
             $advertisers = $advertisers['marketers'];
         }
 
-        return array_map(function ($value) {
-            if (isset($value['advertiserName'])) {
-                $value['name'] = $value['advertiserName'];
-            }
-            if (request('provider') == 'taboola' && isset($value['account_id'])) {
-                $value['id'] = $value['account_id'];
-            }
+        return [
+            'accounts' => $account->advertisers,
+            'advertisers' => array_map(function ($value) {
+                if (isset($value['advertiserName'])) {
+                    $value['name'] = $value['advertiserName'];
+                }
+                if (request('provider') == 4 && isset($value['account_id'])) {
+                    $value['id'] = $value['account_id'];
+                }
 
-            return $value;
-        }, $advertisers);
+                return $value;
+            }, $advertisers)
+        ];
     }
 
     public function advertisers()

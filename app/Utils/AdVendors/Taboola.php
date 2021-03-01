@@ -346,12 +346,10 @@ class Taboola extends Root implements AdVendorInterface
     public function pullCampaign($user_provider)
     {
         $api = new TaboolaAPI($user_provider);
-        $advertisers = $api->getAdvertisers()['results'];
-
         $campaign_ids = [];
 
-        foreach ($advertisers as $advertiser) {
-            $campaigns = $api->getCampaigns($advertiser['account_id'])['results'];
+        foreach ($user_provider->advertisers as $advertiser) {
+            $campaigns = $api->getCampaigns($advertiser)['results'];
 
             foreach ($campaigns as $campaign) {
                 $db_campaign = Campaign::firstOrNew([
@@ -362,7 +360,7 @@ class Taboola extends Root implements AdVendorInterface
                 ]);
                 $db_campaign->name = $campaign['name'];
                 $db_campaign->status = $campaign['status'] === 'RUNNING' ? 'ACTIVE' : $campaign['status'];
-                $db_campaign->advertiser_id = $advertiser['account_id'];
+                $db_campaign->advertiser_id = $advertiser;
                 $db_campaign->budget = $campaign['spending_limit'];
 
                 $db_campaign->save();

@@ -144,7 +144,8 @@ export default {
       this.accounts = []
       this.isLoading = true
       axios.get(`/account/formated-advertisers?provider=${params.get('provider')}&account=${params.get('account')}`).then(response => {
-        this.accounts = response.data
+        this.accounts = response.data.advertisers
+        this.selectedAccounts = response.data.accounts || []
       }).catch(err => {
         alert(err.response.data.message)
       }).finally(() => {

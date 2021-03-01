@@ -10,9 +10,11 @@ use App\Vngodev\Helper;
 class GeminiAPI
 {
     private $client;
+    private $user_info;
 
     public function __construct($user_info)
     {
+        $this->user_info = $user_info;
         $this->client = new GeminiClient($user_info);
     }
 
@@ -45,7 +47,7 @@ class GeminiAPI
 
     public function getCampaigns()
     {
-        return $this->client->call('GET', 'campaign');
+        return $this->client->call('GET', 'campaign?advertiserId=' . implode('&advertiserId=', $this->user_info->advertisers));
     }
 
     public function getAdGroup($ad_group_id)

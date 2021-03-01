@@ -660,11 +660,8 @@ class Yahoojp extends Root implements AdVendorInterface
         $api = new YahooJPAPI($user_provider);
         $campaign_ids = [];
 
-        $accounts_response = $api->getAdvertisers();
-        $accounts = $accounts_response['rval']['values'];
-        foreach ($accounts as $key => $account) {
-            $account_id = $account['account']['accountId'];
-            $campaigns_by_account_response = $api->getCampaignsByAccountId($account_id);
+        foreach ($user_provider->advertisers as $key => $advertiser) {
+            $campaigns_by_account_response = $api->getCampaignsByAccountId($advertiser);
             $campaigns_by_account = $campaigns_by_account_response['rval']['values'];
             if (is_array($campaigns_by_account)) {
                 foreach ($campaigns_by_account as $campaign) {
@@ -679,7 +676,7 @@ class Yahoojp extends Root implements AdVendorInterface
                     $db_campaign->name = $campaign['campaignName'];
                     $db_campaign->status = $campaign['userStatus'];
                     $db_campaign->budget = $campaign['budget']['amount'];
-                    $db_campaign->advertiser_id = $account_id;
+                    $db_campaign->advertiser_id = $advertiser;
                     $db_campaign->save();
                     $campaign_ids[] = $db_campaign->id;
                 }

@@ -379,12 +379,10 @@ class Twitter extends Root implements AdVendorInterface
 
     public function pullCampaign($user_provider)
     {
-        $advertisers = (new TwitterAPI($user_provider))->getAdvertisers();
-
         $campaign_ids = [];
 
-        foreach ($advertisers as $advertiser) {
-            $campaigns = (new TwitterAPI($user_provider, $advertiser->getId()))->getCampaigns();
+        foreach ($user_provider->advertisers as $advertiser) {
+            $campaigns = (new TwitterAPI($user_provider, $advertiser))->getCampaigns();
 
             if (is_array($campaigns)) {
                 foreach ($campaigns as $item) {
@@ -395,7 +393,7 @@ class Twitter extends Root implements AdVendorInterface
                         'open_id' => $user_provider->open_id
                     ]);
 
-                    $campaign->advertiser_id = $advertiser->getId();
+                    $campaign->advertiser_id = $advertiser;
 
                     $campaign->name = $item->getName();
                     $campaign->status = $item->getEntityStatus();
