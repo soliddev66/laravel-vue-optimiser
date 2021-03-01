@@ -39,6 +39,7 @@ class UserProviderController extends Controller
                 'user_id' => Auth::id(),
                 'provider_id' => $outbrain_provider_id
             ]);
+            $user_provider->account_name = $request->name;
             $user_provider->basic_auth = base64_encode($request->name . ':' . $request->password);
             $user_provider->token = json_decode($response->getBody()->getContents(), true)['OB-TOKEN-V1'];
             $user_provider->expires_in = Carbon::now()->addDays(30);
@@ -69,11 +70,22 @@ class UserProviderController extends Controller
                 'provider_id' => Provider::where('slug', 'taboola')->first()->id,
                 'open_id' => $account_data['account_id']
             ]);
+            $user_provider->account_name = $request->name;
             $user_provider->token = $oauth_data['access_token'];
             $user_provider->refresh_token = $oauth_data['refresh_token'];
             $user_provider->expires_in = Carbon::now()->addSeconds($oauth_data['expires_in']);
             $user_provider->save();
         }
+
+        return response()->json(['user_provider' => $user_provider]);
+    }
+
+    public function update()
+    {
+        $provider = Provider::where('slug', request('provider'))->first();
+        $user_provider = UserProvider::where('user_id', auth()->id())->where('provider_id', $provider->id)->where('open_id', request('account'))->first();
+        $user_provider->advertisers = request('advertisers');
+        $user_provider->save();
 
         Helper::pullCampaign();
 

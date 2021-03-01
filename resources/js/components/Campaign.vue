@@ -10,7 +10,7 @@
           <div class="card-header">
             <div class="row">
               <div class="col-md-6 col-12">
-                <VueCtkDateTimePicker id="targetDate" position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData"></VueCtkDateTimePicker>
+                <VueCtkDateTimePicker :shortcuts="getShortcut()" :customShortcuts="shortcuts" id="targetDate" position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData"></VueCtkDateTimePicker>
               </div>
               <div class="col-md-6 col-12">
                 <select id="tracker" class="form-control" v-model="selectedTracker" @change="getData">
@@ -65,7 +65,7 @@
                 <data-table :data="rules" :columns="ruleColumns" @on-table-props-changed="reloadRuleData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 5 }" id="performance" role="tabpanel" aria-labelledby="performance-tab">
-                <line-chart v-if="performance" :chart-data="performance"></line-chart>
+                <bar-chart v-if="performance" :chart-data="performance"></bar-chart>
               </div>
             </div>
           </div>
@@ -80,7 +80,7 @@ import _ from 'lodash';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import Loading from 'vue-loading-overlay';
 import ActionsComponent from './includes/ActionsComponent.vue';
-import LineChart from '../plugins/LineChart.js';
+import BarChart from '../plugins/BarChart.js';
 
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
 import 'vue-loading-overlay/dist/vue-loading.css';
@@ -98,17 +98,28 @@ export default {
   },
   components: {
     VueCtkDateTimePicker,
-    LineChart,
+    BarChart,
     Loading
   },
   mounted() {
     console.log('Component mounted.')
-    this.getSummaryData();
     this.getData();
   },
   data() {
     let params = (new URL(document.location)).searchParams;
     return {
+      shortcuts: [
+        { key: 'today', label: 'Today', value: 'day' },
+        { key: 'yesterday', label: 'Yesterday', value: '-day' },
+        { key: 'thisWeek', label: 'This week', value: 'isoWeek' },
+        { key: 'lastWeek', label: 'Last week', value: '-isoWeek' },
+        { key: 'last7Days', label: 'Last 7 days', value: 7 },
+        { key: 'last30Days', label: 'Last 30 days', value: 30 },
+        { key: 'thisMonth', label: 'This month', value: 'month' },
+        { key: 'lastMonth', label: 'Last month', value: '-month' },
+        { key: 'thisYear', label: 'This year', value: 'year' },
+        { key: 'lastYear', label: 'Last year', value: '-year' }
+      ],
       widgets: {},
       contents: {},
       adGroups: {},
@@ -270,7 +281,7 @@ export default {
       },
       selectedTracker: 'redtrack',
       targetDate: {
-        start: this.$moment().subtract(30, 'days').format('YYYY-MM-DD'),
+        start: this.$moment().format('YYYY-MM-DD'),
         end: this.$moment().format('YYYY-MM-DD')
       },
       show: 0,
@@ -285,7 +296,16 @@ export default {
     }
   },
   methods: {
+    getShortcut() {
+      const params = (new URL(document.location)).searchParams;
+      const selectedShortcut = this.shortcuts.find(shortcut => shortcut.value === params.get('shortcut'));
+      if (selectedShortcut) {
+        return selectedShortcut.key
+      }
+      return 'today'
+    },
     getData() {
+      this.getSummaryData();
       if (this.selectedTracker) {
         this.domainColumns[1].name = 'sub1';
       } else {

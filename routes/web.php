@@ -76,6 +76,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
 });
 
 Route::post('user-providers', [\App\Http\Controllers\UserProviderController::class, 'store'])->name('userProviders.store');
+Route::patch('user-providers', [\App\Http\Controllers\UserProviderController::class, 'update'])->name('userProviders.update');
 
 Route::group(['middleware' => 'auth', 'prefix' => 'rules'], function() {
     Route::get('/', [App\Http\Controllers\RuleController::class, 'index'])->name('rules.index');
@@ -110,6 +111,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/get-data-by-provider', [App\Http\Controllers\HomeController::class, 'getDataByProvider'])->name('get_data_by_provider');
 Route::get('/account-wizard', [App\Http\Controllers\AccountController::class, 'wizard'])->name('account_wizard');
 Route::get('/account/accounts', [App\Http\Controllers\AccountController::class, 'accounts'])->name('accounts');
+Route::get('/account/formated-advertisers', [App\Http\Controllers\AccountController::class, 'formatedAdvertisers'])->name('formatedAdvertisers');
 Route::get('/account/advertisers', [App\Http\Controllers\AccountController::class, 'advertisers'])->name('advertisers');
 Route::get('/account/funding-instruments', [App\Http\Controllers\AccountController::class, 'fundingInstruments'])->name('account.fundingInstruments');
 Route::post('/account/create-funding-instrument', [App\Http\Controllers\AccountController::class, 'createFundingInstrument'])->name('account.createFundingInstrument');

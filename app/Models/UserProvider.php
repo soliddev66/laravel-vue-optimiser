@@ -20,6 +20,15 @@ class UserProvider extends Model
         'expires_in'
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'advertisers' => 'array',
+    ];
+
     public function provider()
     {
         return $this->belongsTo(Provider::class);

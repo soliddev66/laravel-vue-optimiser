@@ -291,28 +291,24 @@ class Outbrain extends Root implements AdVendorInterface
         $api = new OutbrainAPI($user_provider);
         $campaign_ids = [];
 
-        $marketers_response = $api->getMarketers();
-        if (array_key_exists('marketers', $marketers_response)) {
-            $marketers = $marketers_response['marketers'];
-            foreach ($marketers as $key => $marketer) {
-                $campaigns_by_marketer = $api->getCampaignsByMarketerId($marketer['id']);
-                if (array_key_exists('campaigns', $campaigns_by_marketer)) {
-                    $campaigns_by_marketer = $campaigns_by_marketer['campaigns'];
-                    foreach ($campaigns_by_marketer as $campaign) {
-                        $db_campaign = Campaign::firstOrNew([
-                            'campaign_id' => $campaign['id'],
-                            'provider_id' => $user_provider->provider_id,
-                            'open_id' => $user_provider->open_id,
-                            'user_id' => $user_provider->user_id
-                        ]);
+        foreach ($user_provider->advertisers as $key => $marketer) {
+            $campaigns_by_marketer = $api->getCampaignsByMarketerId($marketer);
+            if (array_key_exists('campaigns', $campaigns_by_marketer)) {
+                $campaigns_by_marketer = $campaigns_by_marketer['campaigns'];
+                foreach ($campaigns_by_marketer as $campaign) {
+                    $db_campaign = Campaign::firstOrNew([
+                        'campaign_id' => $campaign['id'],
+                        'provider_id' => $user_provider->provider_id,
+                        'open_id' => $user_provider->open_id,
+                        'user_id' => $user_provider->user_id
+                    ]);
 
-                        $db_campaign->name = $campaign['name'];
-                        $db_campaign->status = $campaign['enabled'] ? 'ACTIVE' : 'PAUSED';
-                        $db_campaign->budget = $campaign['budget']['amount'];
-                        $db_campaign->advertiser_id = $marketer['id'];
-                        $db_campaign->save();
-                        $campaign_ids[] = $db_campaign->id;
-                    }
+                    $db_campaign->name = $campaign['name'];
+                    $db_campaign->status = $campaign['enabled'] ? 'ACTIVE' : 'PAUSED';
+                    $db_campaign->budget = $campaign['budget']['amount'];
+                    $db_campaign->advertiser_id = $marketer;
+                    $db_campaign->save();
+                    $campaign_ids[] = $db_campaign->id;
                 }
             }
         }
@@ -464,7 +460,7 @@ class Outbrain extends Root implements AdVendorInterface
         }
     }
 
-    public function getSummaryDataQuery($data)
+    public function getSummaryDataQuery($data, $campaign = null)
     {
         $summary_data_query = OutbrainReport::select(
             DB::raw('SUM(JSON_EXTRACT(data, "$.summary.spend")) as total_cost'),
