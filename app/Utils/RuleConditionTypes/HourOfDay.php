@@ -6,7 +6,7 @@ use App\Utils\ReportData;
 
 class HourOfDay extends Root
 {
-    public function check($redtrack_data, $rule_condition)
+    public function check($campaign, $redtrack_data, $rule_condition)
     {
         $hour_of_day = date('H');
 

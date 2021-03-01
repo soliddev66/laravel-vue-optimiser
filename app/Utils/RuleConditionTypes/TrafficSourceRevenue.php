@@ -6,9 +6,9 @@ use App\Utils\ReportData;
 
 class TrafficSourceRevenue extends Root
 {
-    public function check($redtrack_data, $rule_condition)
+    public function check($campaign, $redtrack_data, $rule_condition)
     {
-        $sum_revenues = ReportData::sum($redtrack_data, 'revenue');
+        $sum_revenues = ReportData::sum($campaign, $redtrack_data, 'revenue');
 
         return parent::compare($sum_revenues, $rule_condition->amount, $rule_condition->operation);
     }

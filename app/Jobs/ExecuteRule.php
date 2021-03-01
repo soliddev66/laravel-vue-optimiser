@@ -66,7 +66,7 @@ class ExecuteRule implements ShouldQueue
                     $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
                     $performance_data = (new $adVendorClass)->getPerformanceData($campaign, $time_range);
 
-                    if ($this->checkConditions($rule, $redtrack_data, $performance_data)) {
+                    if ($this->checkConditions($campaign, $rule, $redtrack_data, $performance_data)) {
                         $this->log->passed = true;
 
                         // ActivateCampaign, PauseCampaign, BlockWidgetsPushlisher, UnBlockWidgetsPushlisher, ChangeCampaignBudget, ChangeCampaignBid
@@ -111,7 +111,7 @@ class ExecuteRule implements ShouldQueue
                         $this->log->start_date = $time_range[0]->format('Y-m-d');
                         $this->log->end_date = $time_range[1]->format('Y-m-d');
 
-                        if ($this->checkConditions($rule, [$data], [$data])) {
+                        if ($this->checkConditions($campaign, $rule, [$data], [$data])) {
                             $this->log->passed = true;
 
                             // BlockSite
@@ -156,7 +156,7 @@ class ExecuteRule implements ShouldQueue
                         $this->log->start_date = $time_range[0]->format('Y-m-d');
                         $this->log->end_date = $time_range[1]->format('Y-m-d');
 
-                        if ($this->checkConditions($rule, $redtrack_content_stats, $redtrack_content_stats)) {
+                        if ($this->checkConditions($campaign, $rule, $redtrack_content_stats, $redtrack_content_stats)) {
                             $this->log->passed = true;
 
                             // PauseContents, ActivateContents
@@ -193,7 +193,7 @@ class ExecuteRule implements ShouldQueue
         }
     }
 
-    private function checkConditions($rule, $redtrack_data, $performance_data)
+    private function checkConditions($campaign, $rule, $redtrack_data, $performance_data)
     {
         $data = [];
         $this->log->data_text['info'] = &$data;
@@ -221,13 +221,13 @@ class ExecuteRule implements ShouldQueue
                         (
                             $rule_condition->ruleConditionType->report_source == 1
                             && count($redtrack_data)
-                            && $rule_condition_type_instance->check($redtrack_data, $rule_condition)
+                            && $rule_condition_type_instance->check($campaign, $redtrack_data, $rule_condition)
                         )
                         ||
                         (
                             $rule_condition->ruleConditionType->report_source == 2
                             && count($performance_data)
-                            && $rule_condition_type_instance->check($performance_data, $rule_condition)
+                            && $rule_condition_type_instance->check($campaign, $performance_data, $rule_condition)
                         )
                     )
                 ) {
