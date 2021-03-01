@@ -80,7 +80,7 @@ export default {
     },
     linkNewTracker(trafficSource) {
       const selectedProvider = this.providers.find(provider => provider.id === trafficSource.provider_id).slug
-      window.location = `/login/${selectedProvider}?user_tracker=1&open_id=${trafficSource.open_id}`
+      window.location = `/login/${selectedProvider}?user_tracker=1&open_id=${encodeURIComponent(trafficSource.open_id)}`
     }
   }
 }

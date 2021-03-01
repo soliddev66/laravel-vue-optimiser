@@ -159,11 +159,10 @@ class AccountController extends Controller
                 session()->put('provider_slug', $db_provider->slug);
 
                 // Redirect to Tracker setup
-
                 return redirect('account-wizard?step=2&provider=' . $param);
             }
 
-            return redirect('account-wizard?step=3&provider=' . session('provider_slug') . '&account=' . session('provider_open_id'));
+            return redirect('account-wizard?step=3&provider=' . session('provider_slug') . '&account=' . urlencode(session('provider_open_id')));
         }
         if ($db_tracker) {
             $client = new Client();
@@ -183,7 +182,7 @@ class AccountController extends Controller
                 'name' => $tracker_user['firstname'] . ' ' . $tracker_user['lastname']
             ]);
 
-            return redirect('account-wizard?step=3&provider=' . session('provider_slug') . '&account=' . session('provider_open_id'));
+            return redirect('account-wizard?step=3&provider=' . session('provider_slug') . '&account=' . urlencode(session('provider_open_id')));
         }
 
         abort(404);
@@ -253,7 +252,7 @@ class AccountController extends Controller
 
             return redirect('account-wizard?step=2');
         } else {
-            return redirect('account-wizard?step=3&provider=' . $db_provider->slug . '&account=' . $open_id);
+            return redirect('account-wizard?step=3&provider=' . $db_provider->slug . '&account=' . urlencode($open_id));
         }
     }
 }

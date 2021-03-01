@@ -143,7 +143,7 @@ export default {
       const params = (new URL(document.location)).searchParams;
       this.accounts = []
       this.isLoading = true
-      axios.get(`/account/formated-advertisers?provider=${params.get('provider')}&account=${params.get('account')}`).then(response => {
+      axios.get(`/account/formated-advertisers?provider=${params.get('provider')}&account=${encodeURIComponent(params.get('account'))}`).then(response => {
         this.accounts = response.data.advertisers
         this.selectedAccounts = response.data.accounts || []
       }).catch(err => {
@@ -183,7 +183,7 @@ export default {
       this.isLoading = true;
       axios.patch(`/user-providers`, {
         provider: params.get('provider'),
-        account: params.get('account'),
+        account: encodeURIComponent(params.get('account')),
         advertisers: this.selectedAccounts
       }).then((response) => {
         window.location = `/account-wizard?step=4`
