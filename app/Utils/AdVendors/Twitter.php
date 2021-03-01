@@ -675,6 +675,11 @@ class Twitter extends Root implements AdVendorInterface
         return [];
     }
 
+    public function getDomainData($campaign, $time_range)
+    {
+        return [];
+    }
+
     public function targets(Campaign $campaign)
     {
         //

@@ -99,7 +99,9 @@ class ExecuteRule implements ShouldQueue
                     break;
 
                 case 2:
-                    $redtrack_domain_data = $campaign->redtrackPublisherStats()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+
+                    $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+                    $redtrack_domain_data = (new $adVendorClass)->getPerformanceData($campaign, $time_range);
 
                     foreach ($redtrack_domain_data as $data) {
                         $this->log = new RuleLog();

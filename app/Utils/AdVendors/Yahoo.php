@@ -887,6 +887,11 @@ class Yahoo extends Root implements AdVendorInterface
         return $campaign->performanceStats()->whereBetween('day', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
     }
 
+    public function getDomainData($campaign, $time_range)
+    {
+        return $campaign->performanceStats()->whereBetween('day', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+    }
+
     public function addSiteBlock($campaign, $data)
     {
         $api = new GeminiAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
