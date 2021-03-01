@@ -173,16 +173,9 @@ class YahooJPAPI
         ]);
     }
 
-    public function updateCampaignBid($advertiser_id, $campaign_id, $bid)
+    public function updateCampaignData($body)
     {
-        return $this->client->call('POST', 'CampaignService/set', [
-            'accountId' => $advertiser_id,
-            'operand' => [[
-                'accountId' => $advertiser_id,
-                'campaignBiddingStrategy' => $this->getCampaignBiddingStrategy(),
-                'campaignId' => $campaign_id,
-            ]]
-        ]);
+        return $this->client->call('POST', 'CampaignService/set', $body);
     }
 
     public function deleteCampaign($advertiser_id, $campaign_id)
@@ -198,29 +191,29 @@ class YahooJPAPI
 
     private function getCampaignBiddingStrategy()
     {
-        $campaignBiddingStrategy = [
+        $bidding_strategy = [
             'campaignBiddingStrategyType' => request('campaignCampaignBidStrategy')
         ];
 
         switch(request('campaignCampaignBidStrategy')) {
             case 'MAX_CPC':
-                $campaignBiddingStrategy['maxCpcBidValue'] = request('campaignMaxCpcBidValue');
+                $bidding_strategy['maxCpcBidValue'] = request('campaignMaxCpcBidValue');
                 break;
 
             case 'MAX_VCPM':
-                $campaignBiddingStrategy['maxVcpmBidValue'] = request('campaignMaxVcpmBidValue');
+                $bidding_strategy['maxVcpmBidValue'] = request('campaignMaxVcpmBidValue');
                 break;
 
             case 'MAX_CPV':
-                $campaignBiddingStrategy['maxCpvBidValue'] = request('campaignMaxCpvBidValue');
+                $bidding_strategy['maxCpvBidValue'] = request('campaignMaxCpvBidValue');
                 break;
 
             case 'MAX_VCPM':
-                $campaignBiddingStrategy['targetCpaBidValue'] = request('campaignTargetCpaBidValue');
+                $bidding_strategy['targetCpaBidValue'] = request('campaignTargetCpaBidValue');
                 break;
         }
 
-        return $campaignBiddingStrategy;
+        return $bidding_strategy;
     }
 
     public function updateCampaignStatus($campaign)

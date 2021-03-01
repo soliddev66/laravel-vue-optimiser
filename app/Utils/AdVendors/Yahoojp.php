@@ -973,7 +973,7 @@ class Yahoojp extends Root implements AdVendorInterface
 
     public function getPerformanceData($campaign, $time_range)
     {
-        return [];
+        return $campaign->yahooJapanReports()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
     }
 
     public function getDomainData($campaign, $time_range)
@@ -1010,10 +1010,35 @@ class Yahoojp extends Root implements AdVendorInterface
 
         $campaign_data = $api->getCampaign($campaign->advertiser_id, $campaign->campaign_id)['rval']['values'][0]['campaign'];
 
-        var_dump($campaign_data);
-        return;
-        $api->updateCampaign($campaign->advertiser_id, $campaign->campaign_id, [
-            'cpc' => $data->bid
+        $campaign_bidding_strategy = [
+            'campaignBiddingStrategyType' => $campaign_data['campaignBiddingStrategy']['campaignBiddingStrategyType']
+        ];
+
+        switch ($campaign_bidding_strategy['campaignBiddingStrategyType']) {
+            case 'MAX_CPC':
+                $campaign_bidding_strategy['maxCpcBidValue'] = $data->bid;
+                break;
+
+            case 'MAX_VCPM':
+                $campaign_bidding_strategy['maxVcpmBidValue'] = $data->bid;
+                break;
+
+            case 'MAX_CPV':
+                $campaign_bidding_strategy['maxCpvBidValue'] = $data->bid;
+                break;
+
+            case 'MAX_VCPM':
+                $campaign_bidding_strategy['targetCpaBidValue'] = $data->bid;
+                break;
+        }
+
+        $api->updateCampaignData([
+            'accountId' => $campaign->advertiser_id,
+            'operand' => [[
+                'accountId' => $campaign->advertiser_id,
+                'campaignId' => $campaign->campaign_id,
+                'campaignBiddingStrategy' => $campaign_bidding_strategy
+            ]]
         ]);
     }
 }
