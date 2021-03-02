@@ -23,7 +23,7 @@
                   <td>{{ providers.find(provider => provider.id === trafficSource.provider_id).label }}</td>
                   <td>{{ linkedTracker(trafficSource) }}</td>
                   <td>
-                    <button class="btn btn-primary" @click.prevent="linkNewTracker(trafficSource)">Update</button>
+                    <button class="btn btn-primary" @click.prevent="updateAccounts(trafficSource)">Update Accounts</button>
                     <button v-if="linkedTracker(trafficSource)" class="btn btn-danger" @click.prevent="removeTrafficSource(trafficSource)">Unlink</button>
                     <button v-else class="btn btn-success" @click.prevent="linkNewTracker(trafficSource)">Link New Tracker</button>
                   </td>
@@ -82,6 +82,10 @@ export default {
     linkNewTracker(trafficSource) {
       const selectedProvider = this.providers.find(provider => provider.id === trafficSource.provider_id).slug
       window.location = `/login/${selectedProvider}?user_tracker=1&open_id=${encodeURIComponent(trafficSource.open_id)}`
+    },
+    updateAccounts(trafficSource) {
+      const selectedProvider = this.providers.find(provider => provider.id === trafficSource.provider_id).slug
+      window.location = `/login/${selectedProvider}?user_tracker=0&open_id=${encodeURIComponent(trafficSource.open_id)}`
     }
   }
 }
