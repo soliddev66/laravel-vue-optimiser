@@ -68,14 +68,39 @@ class Campaign extends Model
         return $this->hasMany(RedtrackDomainStat::class);
     }
 
+    public function redtrackPublisherStats()
+    {
+        return $this->hasMany(RedtrackPublisherStat::class);
+    }
+
     public function performanceStats()
     {
         return $this->hasMany(GeminiPerformanceStat::class, 'campaign_id', 'campaign_id');
     }
 
+    public function geminiDomainPerformanceStats()
+    {
+        return $this->hasMany(GeminiDomainPerformanceStat::class);
+    }
+
+    public function outbrainReports()
+    {
+        return $this->hasMany(OutbrainReport::class);
+    }
+
+    public function twitterReports()
+    {
+        return $this->hasMany(TwitterReport::class);
+    }
+
     public function taboolaReports()
     {
-        return $this->hasMany(TaboolaReport::class, 'campaign_id', 'campaign_id');
+        return $this->hasMany(TaboolaReport::class);
+    }
+
+    public function yahooJapanReports()
+    {
+        return $this->hasMany(YahooJapanReport::class);
     }
 
     public function provider()

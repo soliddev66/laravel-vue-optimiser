@@ -21,7 +21,7 @@ class ReportData
         return round($total / $length, 2);
     }
 
-    public static function sum($report_data, $attribute)
+    public static function sum($campaign, $report_data, $attribute)
     {
         $length = count($report_data);
 

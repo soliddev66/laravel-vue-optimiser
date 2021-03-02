@@ -173,6 +173,11 @@ class YahooJPAPI
         ]);
     }
 
+    public function updateCampaignData($body)
+    {
+        return $this->client->call('POST', 'CampaignService/set', $body);
+    }
+
     public function deleteCampaign($advertiser_id, $campaign_id)
     {
         return $this->client->call('POST', 'CampaignService/remove', [
@@ -186,29 +191,29 @@ class YahooJPAPI
 
     private function getCampaignBiddingStrategy()
     {
-        $campaignBiddingStrategy = [
+        $bidding_strategy = [
             'campaignBiddingStrategyType' => request('campaignCampaignBidStrategy')
         ];
 
         switch(request('campaignCampaignBidStrategy')) {
             case 'MAX_CPC':
-                $campaignBiddingStrategy['maxCpcBidValue'] = request('campaignMaxCpcBidValue');
+                $bidding_strategy['maxCpcBidValue'] = request('campaignMaxCpcBidValue');
                 break;
 
             case 'MAX_VCPM':
-                $campaignBiddingStrategy['maxVcpmBidValue'] = request('campaignMaxVcpmBidValue');
+                $bidding_strategy['maxVcpmBidValue'] = request('campaignMaxVcpmBidValue');
                 break;
 
             case 'MAX_CPV':
-                $campaignBiddingStrategy['maxCpvBidValue'] = request('campaignMaxCpvBidValue');
+                $bidding_strategy['maxCpvBidValue'] = request('campaignMaxCpvBidValue');
                 break;
 
             case 'MAX_VCPM':
-                $campaignBiddingStrategy['targetCpaBidValue'] = request('campaignTargetCpaBidValue');
+                $bidding_strategy['targetCpaBidValue'] = request('campaignTargetCpaBidValue');
                 break;
         }
 
-        return $campaignBiddingStrategy;
+        return $bidding_strategy;
     }
 
     public function updateCampaignStatus($campaign)
