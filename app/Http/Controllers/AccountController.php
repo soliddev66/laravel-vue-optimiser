@@ -56,7 +56,7 @@ class AccountController extends Controller
                 if (isset($value['advertiserName'])) {
                     $value['name'] = $value['advertiserName'];
                 }
-                if (request('provider') == 4 && isset($value['account_id'])) {
+                if (request('provider') == 'taboola' && isset($value['account_id'])) {
                     $value['id'] = $value['account_id'];
                 }
 
@@ -68,8 +68,23 @@ class AccountController extends Controller
     public function advertisers()
     {
         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $remote_advertisers = (new $adVendorClass())->advertisers();
+        if (request('provider') == 'outbrain') {
+            $remote_advertisers = $remote_advertisers['marketers'];
+        }
 
-        return (new $adVendorClass())->advertisers();
+        $filtered_advertisers = UserProvider::whereHas('provider', function ($q) {
+            return $q->where('slug', request('provider'))->where('open_id', request('account'));
+        })->first()->advertisers;
+
+        $advertisers = array_filter($remote_advertisers, function ($advertiser) use ($filtered_advertisers) {
+            if (request('provider') == 'taboola' && isset($advertiser['account_id'])) {
+                $advertiser['id'] = $advertiser['account_id'];
+            }
+            return in_array($advertiser['id'], $filtered_advertisers);
+        });
+
+        return array_values($advertisers);
     }
 
     public function fundingInstruments()

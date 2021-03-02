@@ -436,7 +436,7 @@ class Outbrain extends Root implements AdVendorInterface
             }
 
             // Publishers stats
-            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub3,sub7&sub5=' . $campaign->campaign_id . '&tracks_view=true';
+            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub3,sub4,sub7&sub5=' . $campaign->campaign_id . '&tracks_view=true';
             $response = $client->get($url);
 
             $data = json_decode($response->getBody(), true);

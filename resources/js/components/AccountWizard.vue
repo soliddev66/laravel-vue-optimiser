@@ -183,7 +183,7 @@ export default {
       this.isLoading = true;
       axios.patch(`/user-providers`, {
         provider: params.get('provider'),
-        account: encodeURIComponent(params.get('account')),
+        account: params.get('account'),
         advertisers: this.selectedAccounts
       }).then((response) => {
         window.location = `/account-wizard?step=4`

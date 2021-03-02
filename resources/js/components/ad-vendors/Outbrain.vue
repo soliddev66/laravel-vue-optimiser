@@ -668,7 +668,7 @@ export default {
       this.advertisers = []
       this.isLoading = true
       axios.get(`/account/advertisers?provider=${this.selectedProvider}&account=${encodeURIComponent(this.selectedAccount)}`).then(response => {
-        this.advertisers = response.data.marketers
+        this.advertisers = response.data
       }).catch(err => {
         console.log(err)
       }).finally(() => {
