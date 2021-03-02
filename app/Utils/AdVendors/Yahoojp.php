@@ -8,12 +8,9 @@ use App\Models\Ad;
 use App\Models\AdGroup;
 use App\Models\Campaign;
 use App\Models\GeminiDomainPerformanceStat;
-use App\Models\GeminiPerformanceStat;
 use App\Models\GeminiSitePerformanceStat;
-use App\Models\NetworkSetting;
 use App\Models\Provider;
 use App\Models\RedtrackContentStat;
-use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
@@ -971,6 +968,16 @@ class Yahoojp extends Root implements AdVendorInterface
         //
     }
 
+    public function getPerformanceData($campaign, $time_range)
+    {
+        return $campaign->yahooJapanReports()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+    }
+
+    public function getDomainData($campaign, $time_range)
+    {
+        return [];
+    }
+
     public function targets(Campaign $campaign)
     {
         //
@@ -989,5 +996,46 @@ class Yahoojp extends Root implements AdVendorInterface
     public function changeBugget(Campaign $campaign, $budget)
     {
         //
+    }
+
+    public function changeCampaignBid(Campaign $campaign, $data)
+    {
+        $api = new YahooJPAPI(UserProvider::where([
+            'provider_id' => $campaign->provider->id,
+            'open_id' => $campaign->open_id
+        ])->first());
+
+        $campaign_data = $api->getCampaign($campaign->advertiser_id, $campaign->campaign_id)['rval']['values'][0]['campaign'];
+
+        $campaign_bidding_strategy = [
+            'campaignBiddingStrategyType' => $campaign_data['campaignBiddingStrategy']['campaignBiddingStrategyType']
+        ];
+
+        switch ($campaign_bidding_strategy['campaignBiddingStrategyType']) {
+            case 'MAX_CPC':
+                $campaign_bidding_strategy['maxCpcBidValue'] = $data->bid;
+                break;
+
+            case 'MAX_VCPM':
+                $campaign_bidding_strategy['maxVcpmBidValue'] = $data->bid;
+                break;
+
+            case 'MAX_CPV':
+                $campaign_bidding_strategy['maxCpvBidValue'] = $data->bid;
+                break;
+
+            case 'MAX_VCPM':
+                $campaign_bidding_strategy['targetCpaBidValue'] = $data->bid;
+                break;
+        }
+
+        $api->updateCampaignData([
+            'accountId' => $campaign->advertiser_id,
+            'operand' => [[
+                'accountId' => $campaign->advertiser_id,
+                'campaignId' => $campaign->campaign_id,
+                'campaignBiddingStrategy' => $campaign_bidding_strategy
+            ]]
+        ]);
     }
 }

@@ -6,10 +6,10 @@ use App\Utils\ReportData;
 
 class LandingPageCTR extends Root
 {
-    public function check($redtrack_data, $rule_condition)
+    public function check($campaign, $redtrack_data, $rule_condition)
     {
-        $sum_clicks = ReportData::sum($redtrack_data, 'lp_clicks');
-        $sum_views = ReportData::sum($redtrack_data, 'lp_views');
+        $sum_clicks = ReportData::sum($campaign, $redtrack_data, 'lp_clicks');
+        $sum_views = ReportData::sum($campaign, $redtrack_data, 'lp_views');
         if ($sum_views) {
             $lp_ctr = $sum_clicks / $sum_views;
         } else {

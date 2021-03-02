@@ -1,12 +1,12 @@
 <template>
   <div class="row">
     <div class="col">
+      <div class="vld-parent">
+        <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+      </div>
       <fieldset class="mb-3 p-3 rounded border" v-for="(ruleCampaign, index) in ruleCampaigns" :key="index">
         <div class="row">
           <div class="col-sm-11">
-            <div class="vld-parent">
-              <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
-            </div>
             <div class="form-group row">
               <label for="" class="col-sm-2 control-label">Campaign</label>
               <div class="col-sm-10">

@@ -6,10 +6,10 @@ use App\Utils\ReportData;
 
 class EstimatedROI extends Root
 {
-    public function check($redtrack_data, $rule_condition)
+    public function check($campaign, $redtrack_data, $rule_condition)
     {
-        $sum_profits = ReportData::sum($redtrack_data, 'profit');
-        $sum_costs = ReportData::sum($redtrack_data, 'cost');
+        $sum_profits = ReportData::sum($campaign, $redtrack_data, 'profit');
+        $sum_costs = ReportData::sum($campaign, $redtrack_data, 'cost');
 
         return parent::compare($sum_profits / $sum_costs * 100, $rule_condition->amount, $rule_condition->operation);
     }

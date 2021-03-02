@@ -199,6 +199,7 @@ import {
   BlockSite,
   BlockWidgetsPushlisher,
   UnBlockWidgetsPushlisher,
+  ChangeCampaignBid,
 } from './rule-actions'
 
 export default {
@@ -242,6 +243,7 @@ export default {
     BlockSite,
     BlockWidgetsPushlisher,
     UnBlockWidgetsPushlisher,
+    ChangeCampaignBid,
   },
   computed: {
     ruleNameState() {
@@ -388,6 +390,8 @@ export default {
     },
     saveRule () {
       this.isLoading = true
+
+      this.$emit('submit');
 
       this.postData = {
         ruleName: this.ruleName,
