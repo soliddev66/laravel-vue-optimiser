@@ -610,8 +610,7 @@ export default {
       }
     }
   },
-  watch: {
-  },
+  watch: {},
   data() {
     let campaignGender = [],
       campaignAge = [],

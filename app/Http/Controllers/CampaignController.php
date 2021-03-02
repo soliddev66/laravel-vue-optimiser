@@ -12,6 +12,7 @@ use App\Models\Provider;
 use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\Rule;
+use App\Models\UserProvider;
 use App\Vngodev\Helper;
 use Carbon\Carbon;
 use DB;
@@ -279,10 +280,20 @@ class CampaignController extends Controller
             if (request('account')) {
                 $provider = Provider::where('id', request('provider'))->first();
                 $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
-                $advertisers = (new $adVendorClass())->advertisers();
+                $remote_advertisers = (new $adVendorClass())->advertisers();
                 if ($provider->id === 2) {
-                    $advertisers = $advertisers['marketers'];
+                    $remote_advertisers = $remote_advertisers['marketers'];
                 }
+                $filtered_advertisers = UserProvider::whereHas('provider', function ($q) {
+                    return $q->where('id', request('provider'))->where('open_id', request('account'));
+                })->first()->advertisers;
+
+                $advertisers = array_filter($remote_advertisers, function ($advertiser) use ($filtered_advertisers) {
+                    if (request('provider') == 4 && isset($advertiser['account_id'])) {
+                        $advertiser['id'] = $advertiser['account_id'];
+                    }
+                    return in_array($advertiser['id'], $filtered_advertisers);
+                });
             }
         }
 
