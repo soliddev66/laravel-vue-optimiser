@@ -101,7 +101,7 @@ class ExecuteRule implements ShouldQueue
                 case 2:
 
                     $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-                    $redtrack_domain_data = (new $adVendorClass)->getPerformanceData($campaign, $time_range);
+                    $redtrack_domain_data = (new $adVendorClass)->getDomainData($campaign, $time_range);
 
                     foreach ($redtrack_domain_data as $data) {
                         $this->log = new RuleLog();
