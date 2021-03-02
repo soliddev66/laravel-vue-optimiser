@@ -178,6 +178,11 @@ class OutbrainAPI
         ]);
     }
 
+    public function updateCampaignData($campaign_id, $body)
+    {
+        return $this->client->call('PUT', 'campaigns/' . $campaign_id, $body);
+    }
+
     public function getPromotedLinks($campaign_id)
     {
         return $this->client->call('GET', 'campaigns/' . $campaign_id . '/promotedLinks?extraFields=ImageMetaData');
