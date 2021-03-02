@@ -28,6 +28,8 @@ use Illuminate\Support\Str;
 
 class Yahoo extends Root implements AdVendorInterface
 {
+    use \App\Utils\AdVendors\Attributes\Yahoo;
+
     private function api()
     {
         $provider = Provider::where('slug', request('provider'))->orWhere('id', request('provider'))->first();

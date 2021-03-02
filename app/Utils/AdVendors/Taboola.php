@@ -22,6 +22,8 @@ use GuzzleHttp\Client;
 
 class Taboola extends Root implements AdVendorInterface
 {
+    use \App\Utils\AdVendors\Attributes\Taboola;
+
     private function api()
     {
         $provider = Provider::where('slug', request('provider'))->orWhere('id', request('provider'))->first();

@@ -32,7 +32,8 @@ class ReportData
         $total = 0;
 
         foreach ($report_data as $data) {
-            $total += !empty($data[$attribute]) ? $data[$attribute] : 0;
+            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            $total += (new $adVendorClass)->{$attribute}($data);
         }
 
         return round($total, 2);

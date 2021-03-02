@@ -26,6 +26,8 @@ use Illuminate\Support\Str;
 
 class Yahoojp extends Root implements AdVendorInterface
 {
+    use \App\Utils\AdVendors\Attributes\Yahoojp;
+
     private function api()
     {
         $provider = Provider::where('slug', request('provider'))->orWhere('id', request('provider'))->first();
