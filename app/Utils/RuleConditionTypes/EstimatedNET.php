@@ -6,10 +6,10 @@ use App\Utils\ReportData;
 
 class EstimatedNET extends Root
 {
-    public function check($campaign, $redtrack_data, $rule_condition)
+    public function check($campaign, $redtrack_data, $rule_condition, $calculation_type)
     {
-        $sum_profits = ReportData::sum($campaign, $redtrack_data, 'profit');
+        $profits = ReportData::sum($campaign, $redtrack_data, 'profit', $calculation_type);
 
-        return parent::compare($sum_profits, $rule_condition->amount, $rule_condition->operation);
+        return parent::compare($profits, $rule_condition->amount, $rule_condition->operation);
     }
 }

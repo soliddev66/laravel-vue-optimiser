@@ -6,11 +6,11 @@ use App\Utils\ReportData;
 
 class TrackerCPA extends Root
 {
-    public function check($campaign, $redtrack_data, $rule_condition)
+    public function check($campaign, $redtrack_data, $rule_condition, $calculation_type)
     {
-        $sum_costs = ReportData::sum($campaign, $redtrack_data, 'cost');
-        $sum_conversions = ReportData::sum($campaign, $redtrack_data, 'conversions');
+        $costs = ReportData::sum($campaign, $redtrack_data, 'cost', $calculation_type);
+        $conversions = ReportData::sum($campaign, $redtrack_data, 'conversions', $calculation_type);
 
-        return parent::compare($sum_costs / $sum_conversions, $rule_condition->amount, $rule_condition->operation);
+        return parent::compare($conversions ? $costs / $conversions : INF, $rule_condition->amount, $rule_condition->operation);
     }
 }
