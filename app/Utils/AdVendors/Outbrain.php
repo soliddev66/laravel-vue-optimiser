@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\Log;
 
 class Outbrain extends Root implements AdVendorInterface
 {
+    use \App\Utils\AdVendors\Attributes\Outbrain;
+
     private function api()
     {
         $provider = Provider::where('slug', request('provider'))->orWhere('id', request('provider'))->first();
@@ -624,6 +626,25 @@ class Outbrain extends Root implements AdVendorInterface
     public function getDomainData($campaign, $time_range)
     {
         return $campaign->redtrackPublisherStats()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+    }
+
+    public function addSiteBlock($campaign, $data)
+    {
+        $api = new OutbrainAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
+
+        $campaign_data = $api->getCampaign($campaign->campaign_id);
+
+        $blocked_publishers = $campaign_data['blockedSites']['blockedPublishers'];
+
+        $blocked_publishers[] = [
+            'id' => $data['sub4']
+        ];
+
+        $api->updateCampaignData($campaign->campaign_id, [
+            'blockedSites' => [
+                'blockedPublishers' => $blocked_publishers
+            ]
+        ]);
     }
 
     public function targets(Campaign $campaign)

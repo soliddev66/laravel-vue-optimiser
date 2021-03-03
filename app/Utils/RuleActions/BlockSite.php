@@ -13,7 +13,7 @@ class BlockSite extends Root
     {
         $log['effect'] = [
             'campaign' => $campaign->name,
-            'site' => $data['sub1']
+            'site' => $data
         ];
         try {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
@@ -31,7 +31,7 @@ class BlockSite extends Root
     {
         $log['visual-effect'] = [
             'campaign' => $campaign->name,
-            'site' => $data['sub1'],
+            'site' => $data,
             'blocked' => true
         ];
     }

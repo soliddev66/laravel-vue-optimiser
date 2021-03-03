@@ -28,6 +28,8 @@ use Log;
 
 class Twitter extends Root implements AdVendorInterface
 {
+    use \App\Utils\AdVendors\Attributes\Twitter;
+
     private function api()
     {
         $provider = Provider::where('slug', request('provider'))->orWhere('id', request('provider'))->first();
