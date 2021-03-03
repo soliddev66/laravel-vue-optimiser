@@ -15,9 +15,9 @@ trait Yahoo
             return $data['spend'];
         } else if (isset($data['cost'])) {
             return $data['cost'];
-        } else {
-            throw new Exception('No attribute was found.');
         }
+
+        throw new Exception('No attribute was found.');
     }
 
     public function clicks($data, $calculation_type)
@@ -29,36 +29,36 @@ trait Yahoo
     {
         if (isset($data['lp_clicks'])) {
             return $data['lp_clicks'];
-        } else {
-            throw new Exception('No attribute was found.');
         }
+
+        throw new Exception('No attribute was found.');
     }
 
     public function lpViews($data, $calculation_type)
     {
         if (isset($data['lp_views'])) {
             return $data['lp_views'];
-        } else {
-            throw new Exception('No attribute was found.');
         }
+
+        throw new Exception('No attribute was found.');
     }
 
     public function revenue($data, $calculation_type)
     {
         if (isset($data['revenue'])) {
             return $data['revenue'];
-        } else {
-            throw new Exception('No attribute was found.');
         }
+
+        throw new Exception('No attribute was found.');
     }
 
     public function profit($data, $calculation_type)
     {
         if (isset($data['profit'])) {
             return $data['profit'];
-        } else {
-            throw new Exception('No attribute was found.');
         }
+
+        throw new Exception('No attribute was found.');
     }
 
     public function cost($data, $calculation_type)
@@ -67,17 +67,17 @@ trait Yahoo
             return $data['spend'];
         } else if (isset($data['cost'])) {
             return $data['cost'];
-        } else {
-            throw new Exception('No attribute was found.');
         }
+
+        throw new Exception('No attribute was found.');
     }
 
     public function conversions($data, $calculation_type)
     {
         if (isset($data['conversions'])) {
             return $data['conversions'];
-        } else {
-            throw new Exception('No attribute was found.');
         }
+
+        throw new Exception('No attribute was found.');
     }
 }
