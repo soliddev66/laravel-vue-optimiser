@@ -157,7 +157,10 @@ class AccountController extends Controller
         $db_provider = Provider::where('slug', $param)->first();
         $db_tracker = Tracker::where('slug', $param)->first();
         if ($db_provider) {
+            session()->put('provider_slug', $db_provider->slug);
+            session()->put('provider_open_id', request('open_id'));
             session()->put('use_tracker', request('user_tracker'));
+            session()->put('provider_id', $db_provider->id);
 
             // If service has auth, which can be adapted to Socialite
             if ($param !== 'outbrain' && $param !== 'taboola') {
@@ -169,10 +172,6 @@ class AccountController extends Controller
             }
 
             if (request('user_tracker')) {
-                session()->put('provider_open_id', request('open_id'));
-                session()->put('provider_id', $db_provider->id);
-                session()->put('provider_slug', $db_provider->slug);
-
                 // Redirect to Tracker setup
                 return redirect('account-wizard?step=2&provider=' . $param);
             }
