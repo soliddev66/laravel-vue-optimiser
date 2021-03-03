@@ -14,9 +14,9 @@ trait Yahoo
         return $data['spend'];
     }
 
-    public function click($data, $calculation_type)
+    public function clicks($data, $calculation_type)
     {
-        return $data['click'];
+        return $data['clicks'];
     }
 
     public function lpClicks($data, $calculation_type)
@@ -27,5 +27,25 @@ trait Yahoo
     public function lpViews($data, $calculation_type)
     {
         return $data['lp_views'];
+    }
+
+    public function revenue($data, $calculation_type)
+    {
+        return $data['revenue'];
+    }
+
+    public function profit($data, $calculation_type)
+    {
+        return $data['profit'];
+    }
+
+    public function cost($data, $calculation_type)
+    {
+        return $data['cost'];
+    }
+
+    public function conversions($data, $calculation_type)
+    {
+        return $data['conversions'];
     }
 }
