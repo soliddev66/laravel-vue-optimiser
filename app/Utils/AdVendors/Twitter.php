@@ -672,11 +672,7 @@ class Twitter extends Root implements AdVendorInterface
 
     public function getPerformanceData($campaign, $time_range)
     {
-        return $campaign->twitterReports()->where([[
-            'start_time', '>=', $time_range[0]->format('Y-m-d')
-        ], [
-            'end_time', '<=', $time_range[1]->format('Y-m-d')
-        ]])->get();
+        return $campaign->twitterReports()->whereBetween('end_time', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
     }
 
     public function getDomainData($campaign, $time_range)
@@ -702,5 +698,10 @@ class Twitter extends Root implements AdVendorInterface
     public function changeBugget(Campaign $campaign, $budget)
     {
         //
+    }
+
+    public function changeCampaignBid(Campaign $campaign, $data)
+    {
+
     }
 }
