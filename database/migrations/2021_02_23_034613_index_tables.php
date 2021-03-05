@@ -62,7 +62,7 @@ class IndexTables extends Migration
         // Update index to use partitions
         DB::statement('
             ALTER TABLE `redtrack_reports`
-            MODIFY COLUMN `date` date NOT NULL AFTER `unique_clicks`,
+            MODIFY COLUMN `date` date NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `unique_clicks`,
             DROP PRIMARY KEY,
             ADD PRIMARY KEY (`id`, `date`);
         ');
