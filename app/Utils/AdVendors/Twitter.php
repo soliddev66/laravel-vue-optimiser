@@ -358,6 +358,26 @@ class Twitter extends Root implements AdVendorInterface
         ]);
     }
 
+    public function adGroupSelection(Campaign $campaign)
+    {
+        $api = new TwitterAPI(auth()->user()->providers()->where([
+            'provider_id' => $campaign->provider_id,
+            'open_id' => $campaign->open_id
+        ])->first(), $campaign->advertiser_id);
+
+        $ad_groups = $api->getAdGroups($campaign->campaign_id);
+
+        $result = [];
+
+        if (is_array($ad_groups) && count($ad_groups)) {
+            foreach ($ad_groups as $ad_group) {
+                $result[] = ['id' => $ad_group->getId(), 'text' => $ad_group->getName()];
+            }
+        }
+
+        return $result;
+    }
+
     public function adStatus(Campaign $campaign, $ad_group_id, $ad_id, $status = null)
     {
         return [];
@@ -702,6 +722,13 @@ class Twitter extends Root implements AdVendorInterface
 
     public function changeCampaignBid(Campaign $campaign, $data)
     {
+        $api = new TwitterAPI(UserProvider::where([
+            'provider_id' => $campaign->provider_id,
+            'open_id' => $campaign->open_id
+        ])->first(), $campaign->advertiser_id);
 
+        foreach ($data->adGroups as $item) {
+            $api->updateLineItemBid($item->id, $item->data->bid);
+        }
     }
 }
