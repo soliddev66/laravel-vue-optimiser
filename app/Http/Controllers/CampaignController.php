@@ -266,6 +266,9 @@ class CampaignController extends Controller
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
             $campaigns_query = (new $adVendorClass())->getCampaignQuery(request()->all());
         }
+        foreach (request()->all() as $session_key => $session_value) {
+            session([$session_key => $session_value]);
+        }
 
         return new DataTableCollectionResource($campaigns_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }

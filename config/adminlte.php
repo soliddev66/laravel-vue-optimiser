@@ -240,11 +240,13 @@ return [
         [
             'text' => 'Home',
             'url'  => 'home',
+            'key'  => 'home',
             'icon' => 'fas fa-tachometer-alt',
         ],
         [
             'text' => 'Campaigns',
             'url' => 'campaigns',
+            'key' => 'campaigns',
             'icon' => 'fas fa-chart-line'
         ],
         ['header' => 'AUTOMATION'],
