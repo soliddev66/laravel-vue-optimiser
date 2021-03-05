@@ -216,6 +216,18 @@ class TwitterAPI
         }
     }
 
+    public function updateLineItemBid($line_item_id, $bid)
+    {
+        try {
+            $line_item = new LineItem($line_item_id);
+            $line_item->setBidAmountLocalMicro($bid * 1E6);
+
+            return $line_item->save();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     public function createWebsiteCard($card_media_key, $card)
     {
         try {

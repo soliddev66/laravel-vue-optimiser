@@ -14,7 +14,7 @@
               </div>
             </div>
 
-            <div class="row" v-if="ruleCampaign.provider_id == 1">
+            <div class="row" v-if="ruleCampaign.provider_id == 1 || ruleCampaign.provider_id == 3">
               <div class="col">
                 <fieldset class="mb-3 p-3 rounded border" v-for="(campaignAdGroup, indexAdGroup) in ruleCampaign.data.adGroups" :key="indexAdGroup">
                   <div class="form-group row">
@@ -41,7 +41,7 @@
               </div>
             </div>
 
-            <div class="form-group row" v-if="ruleCampaign.provider_id != 1">
+            <div class="form-group row" v-if="ruleCampaign.provider_id != 1 && ruleCampaign.provider_id != 3">
               <label for="rule_campaign_bid" class="col-sm-2 control-label">Bid</label>
               <div class="col-sm-10">
                 <input type="text" name="rule_campaign_bid" v-model="ruleCampaign.data.bid" class="form-control" placeholder="Enter bid">
@@ -144,7 +144,7 @@ export default {
       for (let i = 0; i < this.campaignSelections.length; i++) {
         if (this.campaignSelections[i].id == campaignId) {
           this.ruleCampaigns[index].provider_id = this.campaignSelections[i].provider_id
-          if (this.campaignSelections[i].provider_id == 1) {
+          if (this.campaignSelections[i].provider_id == 1 || this.campaignSelections[i].provider_id == 3) {
             this.ruleCampaigns[index].data.adGroups = []
             this.ruleCampaigns[index].data.adGroups.push({id: null, data: {bid: ''}})
             this.loadAdGroups(campaignId, index)
@@ -167,7 +167,7 @@ export default {
     },
     cleanSubmitData() {
       for (let i = 0; i < this.ruleCampaigns.length; i++) {
-        if (this.ruleCampaigns[i].provider_id == 1) {
+        if (this.ruleCampaigns[i].provider_id == 1 || this.ruleCampaigns[i].provider_id == 3) {
           delete this.ruleCampaigns[i].data.bid
           delete this.ruleCampaigns[i].adGroupSelections
         } else {

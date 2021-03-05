@@ -358,6 +358,26 @@ class Twitter extends Root implements AdVendorInterface
         ]);
     }
 
+    public function adGroupSelection(Campaign $campaign)
+    {
+        $api = new TwitterAPI(auth()->user()->providers()->where([
+            'provider_id' => $campaign->provider_id,
+            'open_id' => $campaign->open_id
+        ])->first(), $campaign->advertiser_id);
+
+        $ad_groups = $api->getAdGroups($campaign->campaign_id);
+
+        $result = [];
+
+        if (is_array($ad_groups) && count($ad_groups)) {
+            foreach ($ad_groups as $ad_group) {
+                $result[] = ['id' => $ad_group->getId(), 'text' => $ad_group->getName()];
+            }
+        }
+
+        return $result;
+    }
+
     public function adStatus(Campaign $campaign, $ad_group_id, $ad_id, $status = null)
     {
         return [];
@@ -672,7 +692,7 @@ class Twitter extends Root implements AdVendorInterface
 
     public function getPerformanceData($campaign, $time_range)
     {
-        return [];
+        return $campaign->twitterReports()->whereBetween('end_time', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
     }
 
     public function getDomainData($campaign, $time_range)
@@ -698,5 +718,17 @@ class Twitter extends Root implements AdVendorInterface
     public function changeBugget(Campaign $campaign, $budget)
     {
         //
+    }
+
+    public function changeCampaignBid(Campaign $campaign, $data)
+    {
+        $api = new TwitterAPI(UserProvider::where([
+            'provider_id' => $campaign->provider_id,
+            'open_id' => $campaign->open_id
+        ])->first(), $campaign->advertiser_id);
+
+        foreach ($data->adGroups as $item) {
+            $api->updateLineItemBid($item->id, $item->data->bid);
+        }
     }
 }
