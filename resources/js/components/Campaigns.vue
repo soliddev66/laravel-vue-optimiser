@@ -123,6 +123,10 @@ export default {
       type: Array,
       default: []
     },
+    authProviders: {
+      type: Array,
+      default: []
+    },
     trackers: {
       type: Array,
       default: []
@@ -339,6 +343,9 @@ export default {
       if (!this.selectedTracker && !this.selectedProvider) {
         alert('You need to filter provider along with the tracker or use Redtrack by default!');
         return;
+      }
+      if (this.selectedProvider == '' && this.authProviders.length === 1) {
+        this.selectedProvider = this.authProviders[0].provider.id
       }
       this.isLoading = true;
       const filters = { tracker: this.selectedTracker, provider: this.selectedProvider, account: this.selectedAccount, advertiser: this.selectedAdvertiser };

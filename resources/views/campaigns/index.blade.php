@@ -7,7 +7,7 @@
 @stop
 
 @section('content')
-    <campaigns :providers="{{ App\Models\Provider::all() }}" :trackers="{{ App\Models\Tracker::all() }}"></campaigns>
+    <campaigns :providers="{{ App\Models\Provider::all() }}" :auth-providers="{{ auth()->user()->providers()->with('provider')->get() }}" :trackers="{{ App\Models\Tracker::all() }}"></campaigns>
 @stop
 
 @section('css')
