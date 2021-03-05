@@ -745,7 +745,10 @@ class Taboola extends Root implements AdVendorInterface
 
     public function addSiteBlock($campaign, $data)
     {
-        $api = new TaboolaAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
+        $api = new TaboolaAPI(UserProvider::where([
+            'provider_id' => $campaign->provider->id,
+            'open_id' => $campaign->open_id
+        ])->first());
 
         $api->blockPublisher($campaign->advertiser_id, [
             'sites' => [
@@ -772,12 +775,22 @@ class Taboola extends Root implements AdVendorInterface
 
     public function changeBugget(Campaign $campaign, $budget)
     {
-        //
+        $api = new TaboolaAPI(UserProvider::where([
+            'provider_id' => $campaign->provider->id,
+            'open_id' => $campaign->open_id
+        ])->first());
+
+        $api->updateCampaign($campaign->advertiser_id, $campaign->campaign_id, [
+            'spending_limit' => $budget
+        ]);
     }
 
     public function changeCampaignBid(Campaign $campaign, $data)
     {
-        $api = new TaboolaAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
+        $api = new TaboolaAPI(UserProvider::where([
+            'provider_id' => $campaign->provider->id,
+            'open_id' => $campaign->open_id
+        ])->first());
 
         $api->updateCampaign($campaign->advertiser_id, $campaign->campaign_id, [
             'cpc' => $data->bid
