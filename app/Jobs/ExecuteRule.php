@@ -74,11 +74,11 @@ class ExecuteRule implements ShouldQueue
 
                         if (class_exists($rule_action_class)) {
                             if ($rule->run_type == 1) {
-                                (new $rule_action_class())->visual($campaign, $this->log->data_text, $rule_campaign->data);
+                                (new $rule_action_class())->visual($campaign, $this->log->data_text, $rule_campaign->data ?? null);
                             }
 
                             if ($rule->run_type == 2 || $rule->run_type == 3) {
-                                (new $rule_action_class())->process($campaign, $this->log->data_text, $rule_campaign->data);
+                                (new $rule_action_class())->process($campaign, $this->log->data_text, $rule_campaign->data ?? null);
                             }
 
                             if ($rule->run_type == 1 || $rule->run_type == 3) {
