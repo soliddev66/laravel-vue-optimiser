@@ -104,6 +104,13 @@ class OutbrainAPI
         ]);
     }
 
+    public function updateBudgetAmount($budget_id, $amount)
+    {
+        return $this->client->call('PUT', 'budgets/' . $budget_id, [
+            'amount' => $amount
+        ]);
+    }
+
     public function createCampaign($budget_data)
     {
         return $this->client->call('POST', 'campaigns', [
