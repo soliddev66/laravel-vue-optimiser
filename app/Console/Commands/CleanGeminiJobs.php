@@ -38,6 +38,6 @@ class CleanGeminiJobs extends Command
      */
     public function handle()
     {
-        GeminiJob::where('status', 'completed')->delete();
+        GeminiJob::where('status', 'completed')->whereRaw('DATE(created_at) < DATE_SUB(CURDATE(), INTERVAL 7 DAY)')->delete();
     }
 }
