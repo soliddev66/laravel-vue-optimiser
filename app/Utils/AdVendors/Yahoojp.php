@@ -980,6 +980,11 @@ class Yahoojp extends Root implements AdVendorInterface
         return [];
     }
 
+    public function addSiteBlock($campaign, $data)
+    {
+        //
+    }
+
     public function targets(Campaign $campaign)
     {
         //
