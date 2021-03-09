@@ -55,16 +55,16 @@ class CampaignExport implements FromCollection
         }])->get();
 
         foreach($campaigns as $campaign) {
-            $sum_conversions = ReportData::sum($campaign->redtrackReport, 'conversions');
-            $sum_cost = ReportData::sum($campaign->redtrackReport, 'cost');
+            $sum_conversions = ReportData::sum($campaign, $campaign->redtrackReport, 'conversions');
+            $sum_cost = ReportData::sum($campaign, $campaign->redtrackReport, 'cost');
             $avg_cpc = ReportData::avg($campaign->redtrackReport, 'cpc');
-            $sum_revenue = ReportData::sum($campaign->redtrackReport, 'revenue');
+            $sum_revenue = ReportData::sum($campaign, $campaign->redtrackReport, 'revenue');
             $avg_ctr = ReportData::avg($campaign->redtrackReport, 'ctr');
-            $sum_clicks = ReportData::sum($campaign->redtrackReport, 'clicks');
-            $sum_prelp_clicks = ReportData::sum($campaign->redtrackReport, 'prelp_clicks');
-            $sum_lp_clicks = ReportData::sum($campaign->redtrackReport, 'lp_clicks');
+            $sum_clicks = ReportData::sum($campaign, $campaign->redtrackReport, 'clicks');
+            $sum_prelp_clicks = ReportData::sum($campaign, $campaign->redtrackReport, 'prelpClicks');
+            $sum_lp_clicks = ReportData::sum($campaign, $campaign->redtrackReport, 'lpClicks');
             $avg_roi = ReportData::avg($campaign->redtrackReport, 'roi');
-            $sum_lp_views = ReportData::sum($campaign->redtrackReport, 'lp_views');
+            $sum_lp_views = ReportData::sum($campaign, $campaign->redtrackReport, 'lpViews');
 
             $result[] = [
                 '_',
