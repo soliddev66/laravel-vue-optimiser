@@ -80,4 +80,13 @@ trait Yahoo
 
         throw new Exception('No attribute was found.');
     }
+
+    public function prelpClicks($data)
+    {
+        if (isset($data['prelp_clicks'])) {
+            return $data['prelp_clicks'];
+        }
+
+        throw new Exception('No attribute was found.');
+    }
 }
