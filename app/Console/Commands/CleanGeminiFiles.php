@@ -42,7 +42,10 @@ class CleanGeminiFiles extends Command
 
         foreach ($files as $file) {
             if (is_file($file)) {
-                unlink($file);
+                $file_last_modified = filemtime($file);
+                if ((time() - $file_last_modified) > 7 * 24 * 3600) {
+                    unlink($file);
+                }
             }
         }
     }
