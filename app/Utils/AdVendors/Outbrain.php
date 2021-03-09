@@ -664,7 +664,10 @@ class Outbrain extends Root implements AdVendorInterface
 
     public function changeBugget(Campaign $campaign, $budget)
     {
-        //
+        $api = new OutbrainAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
+        $campaign_data = $api->getCampaign($campaign->campaign_id);
+
+        $api->updateBudgetAmount($campaign_data['budget']['id'], $budget);
     }
 
     public function changeCampaignBid(Campaign $campaign, $data)
