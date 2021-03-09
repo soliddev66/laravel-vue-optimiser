@@ -997,7 +997,21 @@ class Yahoojp extends Root implements AdVendorInterface
 
     public function changeBugget(Campaign $campaign, $budget)
     {
-        //
+        $api = new YahooJPAPI(UserProvider::where([
+            'provider_id' => $campaign->provider->id,
+            'open_id' => $campaign->open_id
+        ])->first());
+
+        $api->updateCampaignData([
+            'accountId' => $campaign->advertiser_id,
+            'operand' => [[
+                'accountId' => $campaign->advertiser_id,
+                'campaignId' => $campaign->campaign_id,
+                'budget' => [
+                    'amount' => $budget
+                ]
+            ]]
+        ]);
     }
 
     public function changeCampaignBid(Campaign $campaign, $data)

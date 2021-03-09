@@ -113,7 +113,7 @@ class TwitterAPI
             }
 
             if (!empty(request('campaignTotalBudgetAmountLocalMicro'))) {
-                $campaign->setTotalBudgetAmountLocalMicro(request('campaignTotalBudgetAmountLocalMicro'));
+                $campaign->setTotalBudgetAmountLocalMicro(request('campaignTotalBudgetAmountLocalMicro') * 1E6);
             }
 
             return $campaign->save();
@@ -135,6 +135,13 @@ class TwitterAPI
     {
         $campaign = new Campaign($campaign_instance->campaign_id);
         $campaign->setEntityStatus($campaign_instance->status);
+        $campaign->save();
+    }
+
+    public function updateCampaignBudget($campaign_instance, $budget)
+    {
+        $campaign = new Campaign($campaign_instance->campaign_id);
+        $campaign->setTotalBudgetAmountLocalMicro($budget * 1E6);
         $campaign->save();
     }
 

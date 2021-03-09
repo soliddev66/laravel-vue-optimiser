@@ -717,7 +717,12 @@ class Twitter extends Root implements AdVendorInterface
 
     public function changeBugget(Campaign $campaign, $budget)
     {
-        //
+        $api = new TwitterAPI(UserProvider::where([
+            'provider_id' => $campaign->provider_id,
+            'open_id' => $campaign->open_id
+        ])->first(), $campaign->advertiser_id);
+
+        $api->updateCampaignBudget($campaign, $budget);
     }
 
     public function changeCampaignBid(Campaign $campaign, $data)
