@@ -95,6 +95,19 @@
                 </div>
                 <h2>Campaign settings</h2>
                 <div class="form-group row">
+                  <label for="objective" class="col-sm-2 control-label mt-2">Objective</label>
+                  <div class="col-sm-8">
+                    <select name="objective" class="form-control" v-model="campaignObjective">
+                      <option value="VISIT_WEB">Visit Web</option>
+                      <option value="VISIT_OFFER">Visit Offer</option>
+                      <option value="PROMOTE_BRAND">Promote Brand</option>
+                      <option value="INSTALL_APP">Install App</option>
+                      <option value="MAIL_SPONSORED">Mail Sponsored</option>
+                      <option value="REENGAGE_APP">Reengage App</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
                   <label for="budget" class="col-sm-2 control-label mt-2">Budget</label>
                   <div class="col-sm-2">
                     <input type="number" name="budget" min="40" class="form-control" v-model="campaignBudget" />
@@ -360,11 +373,26 @@
                           <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
+
+                      <div class="form-group row">
+                        <label for="ad_type" class="col-sm-4 control-label mt-2">Ad Type</label>
+                        <div class="col-sm-8 text-center">
+                          <div class="btn-group btn-group-toggle">
+                            <label class="btn bg-olive" :class="{ active: content.adType === 'IMAGE' }">
+                              <input type="radio" name="ad_type" autocomplete="off" value="IMAGE" v-model="content.adType"> IMAGE
+                            </label>
+                            <label class="btn bg-olive" :class="{ active: content.adType === 'VIDEO' }">
+                              <input type="radio" name="ad_type" autocomplete="off" value="VIDEO" v-model="content.adType"> VIDEO
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
                       <fieldset class="mb-3 p-3 rounded border" v-for="(image, indexImage) in content.images" :key="indexImage">
                         <div class="form-group row">
                           <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
                           <div class="col-sm-8">
-                            <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index)" />
+                            <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index, indexImage)" />
                             <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index, indexImage)">Choose File</button>
                           </div>
                           <div class="col-sm-8 offset-sm-4">
@@ -375,7 +403,18 @@
                         <div class="form-group row">
                           <label for="image_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
                           <div class="col-sm-8">
-                            <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index)" />
+                            <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index, indexImage)" />
+                            <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, indexImage)">Choose File</button>
+                          </div>
+                          <div class="col-sm-8 offset-sm-4">
+                            <small class="text-danger" v-if="image.imageUrl && !validURL(image.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
+                            <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
+                          </div>
+                        </div>
+                        <div class="form-group row" v-if="['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'].includes(campaignObjective)">
+                          <label for="video_primary_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
+                          <div class="col-sm-8">
+                            <input type="text" name="video_primary_url" placeholder="Enter video URL" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index, indexImage)" />
                             <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, indexImage)">Choose File</button>
                           </div>
                           <div class="col-sm-8 offset-sm-4">
@@ -515,7 +554,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 1
+      default: 2
     }
   },
   components: {
@@ -830,6 +869,7 @@ export default {
       campaignAge: campaignAge,
       campaignDevice: campaignDevice,
       campaignBudget: this.instance ? this.instance.budget : '',
+      campaignObjective: this.instance ? this.instance.objective : 'VISIT_WEB',
       campaignStartDate: this.instance ? this.instance.start_date : this.$moment().format('YYYY-MM-DD'),
       campaignEndDate: this.instance ? this.instance.end_date : '',
       campaignBudgetType: this.instance ? this.instance.budgetType : 'DAILY',
@@ -941,14 +981,14 @@ export default {
     loadPreviewEvent(event, index) {
       this.loadPreview(index)
     },
-    validImageHQSizeEvent(event, index) {
-      this.validImageSize(this.contents[index].imageUrlHQ, 1200, 627).then(result => {
-        this.contents[index].imageUrlHQState = result
+    validImageHQSizeEvent(event, index, indexImage) {
+      this.validImageSize(this.contents[index].images[indexImage].imageUrlHQ, 1200, 627).then(result => {
+        this.contents[index].images[indexImage].imageUrlHQState = result
       });
     },
-    validImageSizeEvent(event, index) {
-      this.validImageSize(this.contents[index].imageUrl, 627, 627).then(result => {
-        this.contents[index].imageUrlState = result
+    validImageSizeEvent(event, index, indexImage) {
+      this.validImageSize(this.contents[index].images[indexImage].imageUrl, 627, 627).then(result => {
+        this.contents[index].images[indexImage].imageUrlState = result
       });
     },
     loadPreview(index, firstLoad = false) {
