@@ -462,7 +462,7 @@
                     </div>
                   </div>
                 </fieldset>
-                <button class="btn btn-primary btn-sm" @click.prevent="addContent()">Add New</button>
+                <button class="btn btn-primary btn-sm d-none" @click.prevent="addContent()">Add New</button>
               </div>
             </form>
           </div>
@@ -577,7 +577,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 2
+      default: 1
     }
   },
   components: {
@@ -614,9 +614,19 @@ export default {
           }
         }
 
-        for (let j = 0; j < this.contents[i].images.length; j++) {
-          if (!this.contents[i].images[j].imageUrlHQ || !this.validURL(this.contents[i].images[j].imageUrlHQ) || !this.contents[i].images[j].imageUrl || !this.validURL(this.contents[i].images[j].imageUrl) || !this.contents[i].images[j].imageUrlHQState || !this.contents[i].images[j].imageUrlState) {
-            return false
+        if (this.contents[i].adType == 'IMAGE') {
+          for (let j = 0; j < this.contents[i].images.length; j++) {
+            if (!this.contents[i].images[j].imageUrlHQ || !this.validURL(this.contents[i].images[j].imageUrlHQ) || !this.contents[i].images[j].imageUrl || !this.validURL(this.contents[i].images[j].imageUrl) || !this.contents[i].images[j].imageUrlHQState || !this.contents[i].images[j].imageUrlState) {
+              return false
+            }
+          }
+        } else {
+          for (let j = 0; j < this.contents[i].videos.length; j++) {
+            if (['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'].includes(this.campaignObjective) && !this.contents[i].videos[j].videoPrimaryUrl) {
+              return false
+            } else if (!['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'].includes(this.campaignObjective) && (!this.contents[i].videos[j].imagePortraitUrl || !this.contents[i].videos[j].videoPortraitUrl)) {
+              return false
+            }
           }
         }
       }
@@ -1296,6 +1306,7 @@ export default {
         account: this.selectedAccount,
         selectedAdvertiser: this.selectedAdvertiser,
         campaignBudget: this.campaignBudget,
+        campaignObjective: this.campaignObjective,
         campaignBudgetType: this.campaignBudgetType,
         campaignName: this.campaignName,
         adGroupID: this.adGroupID,
