@@ -376,7 +376,7 @@
 
                       <div class="form-group row">
                         <label for="ad_type" class="col-sm-4 control-label mt-2">Ad Type</label>
-                        <div class="col-sm-8 text-center">
+                        <div class="col-sm-8">
                           <div class="btn-group btn-group-toggle">
                             <label class="btn bg-olive" :class="{ active: content.adType === 'IMAGE' }">
                               <input type="radio" name="ad_type" autocomplete="off" value="IMAGE" v-model="content.adType"> IMAGE
@@ -388,43 +388,66 @@
                         </div>
                       </div>
 
-                      <fieldset class="mb-3 p-3 rounded border" v-for="(image, indexImage) in content.images" :key="indexImage">
-                        <div class="form-group row">
-                          <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
-                          <div class="col-sm-8">
-                            <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index, indexImage)" />
-                            <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index, indexImage)">Choose File</button>
+                      <div v-if="content.adType == 'IMAGE'">
+                        <fieldset class="mb-3 p-3 rounded border" v-for="(image, indexImage) in content.images" :key="indexImage">
+                          <div class="form-group row">
+                            <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
+                            <div class="col-sm-8">
+                              <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index, indexImage)" />
+                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index, indexImage)">Choose File</button>
+                            </div>
+                            <div class="col-sm-8 offset-sm-4">
+                              <small class="text-danger" v-if="image.imageUrlHQ && !validURL(image.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
+                              <small class="text-danger" v-if="!image.imageUrlHQState">Image is invalid. You might need an 1200x627 image.</small>
+                            </div>
                           </div>
-                          <div class="col-sm-8 offset-sm-4">
-                            <small class="text-danger" v-if="image.imageUrlHQ && !validURL(image.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
-                            <small class="text-danger" v-if="!image.imageUrlHQState">Image is invalid. You might need an 1200x627 image.</small>
+                          <div class="form-group row">
+                            <label for="image_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
+                            <div class="col-sm-8">
+                              <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index, indexImage)" />
+                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, indexImage)">Choose File</button>
+                            </div>
+                            <div class="col-sm-8 offset-sm-4">
+                              <small class="text-danger" v-if="image.imageUrl && !validURL(image.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
+                              <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
+                            </div>
                           </div>
-                        </div>
-                        <div class="form-group row">
-                          <label for="image_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
-                          <div class="col-sm-8">
-                            <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index, indexImage)" />
-                            <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, indexImage)">Choose File</button>
+                          <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeImage(index, indexImage); loadPreviewEvent($event, index)" v-if="indexImage > 0">Remove Image</button>
+                        </fieldset>
+                        <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)">Add Image</button>
+                      </div>
+
+                      <div v-if="content.adType == 'VIDEO'">
+                        <fieldset class="mb-3 p-3 rounded border" v-for="(video, indexVideo) in content.videos" :key="indexVideo">
+                          <div v-if="!['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'].includes(campaignObjective)">
+                            <div class="form-group row">
+                              <label for="image_portrait_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> vertical (portrait) 9:16'"></label>
+                              <div class="col-sm-8">
+                                <input type="text" name="image_portrait_url" placeholder="Enter a url" class="form-control" v-model="video.imagePortraitUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                                <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imagePortraitUrl', index, indexVideo)">Choose File</button>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label for="video_portrait_url" class="col-sm-4 control-label mt-2" v-html="'Video URL <br> vertical (portrait) 9:16'"></label>
+                              <div class="col-sm-8">
+                                <input type="text" name="video_portrait_url" placeholder="Enter video URL" class="form-control" v-model="video.videoPortraitUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                                <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoPortraitUrl', index, indexVideo)">Choose File</button>
+                              </div>
+                            </div>
                           </div>
-                          <div class="col-sm-8 offset-sm-4">
-                            <small class="text-danger" v-if="image.imageUrl && !validURL(image.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
-                            <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
+                          <div v-if="['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'].includes(campaignObjective)">
+                            <div class="form-group row">
+                              <label for="video_primary_url" class="col-sm-4 control-label mt-2">Video URL</label>
+                              <div class="col-sm-8">
+                                <input type="text" name="video_primary_url" placeholder="Enter video URL" class="form-control" v-model="video.videoPrimaryUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                                <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoPrimaryUrl', index, indexVideo)">Choose File</button>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                        <div class="form-group row" v-if="['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'].includes(campaignObjective)">
-                          <label for="video_primary_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
-                          <div class="col-sm-8">
-                            <input type="text" name="video_primary_url" placeholder="Enter video URL" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index, indexImage)" />
-                            <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, indexImage)">Choose File</button>
-                          </div>
-                          <div class="col-sm-8 offset-sm-4">
-                            <small class="text-danger" v-if="image.imageUrl && !validURL(image.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
-                            <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
-                          </div>
-                        </div>
-                        <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeImage(index, indexImage); loadPreviewEvent($event, index)" v-if="indexImage > 0">Remove Image</button>
-                      </fieldset>
-                      <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)">Add Image</button>
+                          <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeVideo(index, indexVideo); loadPreviewEvent($event, index)" v-if="indexVideo > 0">Remove Video</button>
+                        </fieldset>
+                        <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)">Add Video</button>
+                      </div>
                     </div>
                     <div class="col-sm-5">
                       <h1>Preview</h1>
@@ -439,7 +462,7 @@
                     </div>
                   </div>
                 </fieldset>
-                <button class="btn btn-primary btn-sm d-none" @click.prevent="addContent()">Add New</button>
+                <button class="btn btn-primary btn-sm" @click.prevent="addContent()">Add New</button>
               </div>
             </form>
           </div>
@@ -633,6 +656,21 @@ export default {
         });
         this.loadPreview(this.fileSelectorIndex)
       }
+      if (this.openingFileSelector === 'videoPrimaryUrl') {
+        this.contents[this.fileSelectorIndex].videos[this.fileSelectorIndexImage].videoPrimaryUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+
+        this.loadPreview(this.fileSelectorIndex)
+      }
+      if (this.openingFileSelector === 'imagePortraitUrl') {
+        this.contents[this.fileSelectorIndex].videos[this.fileSelectorIndexImage].imagePortraitUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+
+        this.loadPreview(this.fileSelectorIndex)
+      }
+      if (this.openingFileSelector === 'videoPortraitUrl') {
+        this.contents[this.fileSelectorIndex].videos[this.fileSelectorIndexImage].videoPortraitUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+
+        this.loadPreview(this.fileSelectorIndex)
+      }
       vm.$modal.hide('imageModal')
     });
     this.currentStep = this.step
@@ -674,6 +712,7 @@ export default {
       supportedSiteCollections = [],
       contents = [{
         id: '',
+        adType: 'IMAGE',
         titles: [{
           title: '',
           existing: false
@@ -687,6 +726,12 @@ export default {
           imageUrlHQState: true,
           imageUrl: '',
           imageUrlState: true,
+          existing: false
+        }],
+        videos: [{
+          videoPrimaryUrl: '',
+          videoPortraitUrl: '',
+          imagePortraitUrl: '',
           existing: false
         }],
         adPreviews: []
@@ -783,6 +828,7 @@ export default {
       for (let i = 0; i < this.instance.ads.length; i++) {
         contents.push({
           id: this.instance.ads[i]['id'],
+          adType: this.instance.ads[i]['videoPrimaryUrl'] || this.instance.ads[i]['imagePortraitUrl'] ? 'VIDEO': 'IMAGE',
           titles: [{
             title: this.instance.ads[i]['title'],
             existing: true
@@ -796,6 +842,12 @@ export default {
             imageUrlHQState: true,
             imageUrl: this.instance.ads[i]['imageUrl'],
             imageUrlState: true,
+            existing: true
+          }],
+          videos: [{
+            videoPrimaryUrl: this.instance.ads[i]['videoPrimaryUrl'],
+            videoPortraitUrl: this.instance.ads[i]['videoPortraitUrl'],
+            imagePortraitUrl: this.instance.ads[i]['imagePortraitUrl'],
             existing: true
           }],
           adPreviews: [],
@@ -933,6 +985,7 @@ export default {
     addContent() {
       this.contents.push({
         id: '',
+        adType: 'IMAGE',
         titles: [{
           title: '',
           existing: false
@@ -946,6 +999,12 @@ export default {
           imageUrlHQState: true,
           imageUrl: '',
           imageUrlState: true,
+          existing: false
+        }],
+        videos: [{
+          videoPrimaryUrl: '',
+          videoPortraitUrl: '',
+          imagePortraitUrl: '',
           existing: false
         }],
         adPreviews: []
@@ -974,6 +1033,17 @@ export default {
     },
     removeImage(index, indexImage) {
       this.contents[index].images.splice(indexImage, 1)
+    },
+    addVideo(index) {
+      this.contents[index].videos.push({
+        videoPrimaryUrl: '',
+        videoPortraitUrl: '',
+        imagePortraitUrl: '',
+        existing: false
+      })
+    },
+    removeVideo(index, indexVideo) {
+      this.contents[index].videos.splice(indexVideo, 1)
     },
     removeSupportedSite(index) {
       this.supportedSiteCollections.splice(index, 1);
@@ -1008,8 +1078,13 @@ export default {
             landingUrl: this.contents[index].targetUrl,
             description: this.contents[index].description,
             sponsoredBy: this.contents[index].brandname,
+            adType: this.contents[index].adType,
             imageUrlHQ: this.contents[index].images[y].imageUrlHQ,
             imageUrl: this.contents[index].images[y].imageUrl,
+            videoPrimaryUrl: this.contents[index].videos[y].videoPrimaryUrl,
+            videoPortraitUrl: this.contents[index].videos[y].videoPortraitUrl,
+            imagePortraitUrl: this.contents[index].videos[y].imagePortraitUrl,
+            campaignObjective: this.campaignObjective,
             campaignLanguage: this.campaignLanguage
           }, {
             cancelToken: new axios.CancelToken(function executor(c) {
@@ -1227,6 +1302,7 @@ export default {
         adGroupName: this.adGroupName,
         bidAmount: this.bidAmount,
         campaignType: this.campaignType,
+        campaignSupplyGroupState: this.campaignSupplyGroupState,
         campaignLanguage: this.campaignLanguage,
         campaignStrategy: this.campaignStrategy,
         campaignLocation: this.campaignLocation,

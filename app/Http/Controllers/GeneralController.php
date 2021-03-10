@@ -83,6 +83,27 @@ class GeneralController extends Controller
     private function getPreview($user_info)
     {
         $client = new Client();
+        $ad = [
+            'description' => request('description'),
+            'displayUrl' => request('displayUrl'),
+            'title' => request('title'),
+            'sponsoredBy' => request('sponsoredBy'),
+            'landingUrl' => request('landingUrl')
+        ];
+
+        if (request('adType') == 'VIDEO') {
+            $ad['adFormat'] = 'VIDEO';
+            if (in_array(request('campaignObjective'), ['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'])) {
+                $ad['videoPrimaryUrl'] = request('videoPrimaryUrl');
+            } else {
+                $ad['imagePortraitUrl'] = request('imagePortraitUrl');
+                $ad['videoPortraitUrl'] = request('videoPortraitUrl');
+            }
+        } else {
+            $ad['imageUrl'] = request('imageUrl');
+            $ad['imageUrlHQ'] = request('imageUrlHQ');
+        }
+
         $response = $client->request('POST', env('MAIN_URL') . '/v3/rest/preview', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_info->token,
@@ -93,17 +114,9 @@ class GeneralController extends Controller
                     'displayType' => 'handheld',
                     'responseType' => 'iframe'
                 ],
-                'ad' => [
-                    'description' => request('description'),
-                    'displayUrl' => request('displayUrl'),
-                    'imageUrlHQ' => request('imageUrlHQ'),
-                    'title' => request('title'),
-                    'sponsoredBy' => request('sponsoredBy'),
-                    'imageUrl' => request('imageUrl'),
-                    'landingUrl' => request('landingUrl')
-                ],
+                'ad' => $ad,
                 'campaign' => [
-                    'objective' => 'VISIT_WEB',
+                    'objective' => request('campaignObjective'),
                     'language' => request('campaignLanguage')
                 ]
             ])
