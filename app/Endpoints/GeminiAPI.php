@@ -133,6 +133,7 @@ class GeminiAPI
             'budget' => request('campaignBudget'),
             'budgetType' => request('campaignBudgetType'),
             'campaignName' => request('campaignName'),
+            'objective' => request('campaignObjective'),
             'channel' => request('campaignType'),
             'language' => request('campaignLanguage'),
             'biddingStrategy' => request('campaignStrategy'),
