@@ -43,8 +43,6 @@
               <tbody slot="body" slot-scope="{ data }">
                 <tr v-for="campaign in data" :key="campaign.id">
                   <td>{{ campaign.id }}</td>
-                  <td class="text-capitalize">{{ campaign.provider_name || providers[selectedProvider - 1].label }}</td>
-                  <td class="fit">{{ campaign.campaign_id }}</td>
                   <td class="fit">
                     <a :href="'/campaigns/' + campaign.id">{{ campaign.name }}</a>
                     <div class="dropdown d-inline ml-2">
@@ -60,19 +58,19 @@
                         <a class="btn btn-sm btn-default border" :href="'/campaigns/delete/' + campaign.id" @click.prevent="deleteCampaign"><i class="fas fa-trash"></i></a>
                       </div>
                     </div>
+                    <br>
+                    <small>ID: {{ campaign.campaign_id }}</small>
                   </td>
-                  <td v-if="['ACTIVE', 'RUNNING'].includes(campaign.status)" class="text-success">
-                    {{ campaign.status }}
+                  <td v-if="['ACTIVE', 'RUNNING'].includes(campaign.status)" class="text-center text-success">
+                    <i class="fas fa-dot-circle"></i>
                   </td>
-                  <td v-else-if="['PENDING_APPROVAL'].includes(campaign.status)" class="text-default">
-                    {{ campaign.status }}
+                  <td v-else-if="['PENDING_APPROVAL'].includes(campaign.status)" class="text-center text-default">
+                    <i class="fas fa-dot-circle"></i>
                   </td>
-                  <td v-else class="text-danger">
-                    {{ campaign.status }}
+                  <td v-else class="text-center text-danger">
+                    <i class="fas fa-dot-circle"></i>
                   </td>
                   <td>{{ campaign.budget }}</td>
-                  <td>{{ campaign.payout || 0 }}</td>
-                  <td>{{ campaign.impressions || 0 }}</td>
                   <td>{{ campaign.clicks || 0 }}</td>
                   <td>{{ campaign.lp_views || 0 }}</td>
                   <td>{{ campaign.lp_clicks || 0 }}</td>
@@ -91,6 +89,8 @@
                   <td>{{ campaign.lp_views_cr || 0 }}%</td>
                   <td>{{ campaign.lp_clicks_cr || 0 }}%</td>
                   <td>{{ campaign.lp_cpc || 0 }}</td>
+                  <td>{{ campaign.payout || 0 }}</td>
+                  <td>{{ campaign.impressions || 0 }}</td>
                 </tr>
               </tbody>
             </data-table>
@@ -176,14 +176,6 @@ export default {
         name: 'id',
         orderable: true,
       }, {
-        label: 'Traffic Source',
-        name: 'provider_id',
-        orderable: false,
-      }, {
-        label: 'Camp. ID',
-        name: 'campaign_id',
-        orderable: true,
-      }, {
         label: 'Name',
         name: 'name',
         orderable: true,
@@ -194,14 +186,6 @@ export default {
       }, {
         label: 'Budget',
         name: 'budget',
-        orderable: true,
-      }, {
-        label: 'Payout',
-        name: 'payout',
-        orderable: true,
-      }, {
-        label: 'Native Impression',
-        name: 'impressions',
         orderable: true,
       }, {
         label: 'Clicks',
@@ -274,6 +258,14 @@ export default {
       }, {
         label: 'LP CPC',
         name: 'lp_cpc',
+        orderable: true,
+      }, {
+        label: 'Payout',
+        name: 'payout',
+        orderable: true,
+      }, {
+        label: 'Native Impression',
+        name: 'impressions',
         orderable: true,
       }],
       summaryData: {
