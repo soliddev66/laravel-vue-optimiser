@@ -55,32 +55,81 @@
                         <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
                       </div>
                     </div>
-                    <fieldset class="mb-3 p-3 rounded border" v-for="(image, indexImage) in content.images" :key="indexImage">
-                      <div class="form-group row">
-                        <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
-                        <div class="col-sm-8">
-                          <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index)" />
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index, indexImage)">Choose File</button>
-                        </div>
-                        <div class="col-sm-8 offset-sm-4">
-                          <small class="text-danger" v-if="image.imageUrlHQ && !validURL(image.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
-                          <small class="text-danger" v-if="!image.imageUrlHQState">Image is invalid. You might need an 1200x627 image.</small>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="image_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
-                        <div class="col-sm-8">
-                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index)" />
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, indexImage)">Choose File</button>
-                        </div>
-                        <div class="col-sm-8 offset-sm-4">
-                          <small class="text-danger" v-if="image.imageUrl && !validURL(image.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
-                          <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
+
+                    <div class="form-group row">
+                      <label for="ad_type" class="col-sm-4 control-label mt-2">Ad Type</label>
+                      <div class="col-sm-8">
+                        <div class="btn-group btn-group-toggle">
+                          <label class="btn bg-olive" :class="{ active: content.adType === 'IMAGE' }">
+                            <input type="radio" name="ad_type" autocomplete="off" value="IMAGE" v-model="content.adType"> IMAGE
+                          </label>
+                          <label class="btn bg-olive" :class="{ active: content.adType === 'VIDEO' }">
+                            <input type="radio" name="ad_type" autocomplete="off" value="VIDEO" v-model="content.adType"> VIDEO
+                          </label>
                         </div>
                       </div>
-                      <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeImage(index, indexImage); loadPreviewEvent($event, index)" v-if="indexImage > 0">Remove Image</button>
-                    </fieldset>
-                    <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)">Add Image</button>
+                    </div>
+
+                    <div v-if="content.adType == 'IMAGE'">
+                      <fieldset class="mb-3 p-3 rounded border" v-for="(image, indexImage) in content.images" :key="indexImage">
+                        <div class="form-group row">
+                          <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
+                          <div class="col-sm-8">
+                            <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index)" />
+                            <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index, indexImage)">Choose File</button>
+                          </div>
+                          <div class="col-sm-8 offset-sm-4">
+                            <small class="text-danger" v-if="image.imageUrlHQ && !validURL(image.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
+                            <small class="text-danger" v-if="!image.imageUrlHQState">Image is invalid. You might need an 1200x627 image.</small>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label for="image_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
+                          <div class="col-sm-8">
+                            <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index)" />
+                            <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, indexImage)">Choose File</button>
+                          </div>
+                          <div class="col-sm-8 offset-sm-4">
+                            <small class="text-danger" v-if="image.imageUrl && !validURL(image.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
+                            <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
+                          </div>
+                        </div>
+                        <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeImage(index, indexImage); loadPreviewEvent($event, index)" v-if="indexImage > 0">Remove Image</button>
+                      </fieldset>
+                      <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)">Add Image</button>
+                    </div>
+
+                    <div v-if="content.adType == 'VIDEO'">
+                      <fieldset class="mb-3 p-3 rounded border" v-for="(video, indexVideo) in content.videos" :key="indexVideo">
+                        <div v-if="!['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'].includes(campaignObjective)">
+                          <div class="form-group row">
+                            <label for="image_portrait_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> vertical (portrait) 9:16'"></label>
+                            <div class="col-sm-8">
+                              <input type="text" name="image_portrait_url" placeholder="Enter a url" class="form-control" v-model="video.imagePortraitUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imagePortraitUrl', index, indexVideo)">Choose File</button>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label for="video_portrait_url" class="col-sm-4 control-label mt-2" v-html="'Video URL <br> vertical (portrait) 9:16'"></label>
+                            <div class="col-sm-8">
+                              <input type="text" name="video_portrait_url" placeholder="Enter video URL" class="form-control" v-model="video.videoPortraitUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoPortraitUrl', index, indexVideo)">Choose File</button>
+                            </div>
+                          </div>
+                        </div>
+                        <div v-if="['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'].includes(campaignObjective)">
+                          <div class="form-group row">
+                            <label for="video_primary_url" class="col-sm-4 control-label mt-2">Video URL</label>
+                            <div class="col-sm-8">
+                              <input type="text" name="video_primary_url" placeholder="Enter video URL" class="form-control" v-model="video.videoPrimaryUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoPrimaryUrl', index, indexVideo)">Choose File</button>
+                            </div>
+                          </div>
+                        </div>
+                        <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeVideo(index, indexVideo); loadPreviewEvent($event, index)" v-if="indexVideo > 0">Remove Video</button>
+                      </fieldset>
+                      <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)">Add Video</button>
+                    </div>
                   </div>
                   <div class="col-sm-5">
                     <h1>Preview</h1>
@@ -195,8 +244,10 @@ export default {
     //
   },
   data() {
+    console.log(this.ad)
     let contents = [{
       id: '',
+      adType: 'IMAGE',
       titles: [{
         title: this.ad ? this.ad.title : '',
         existing: false
@@ -212,6 +263,12 @@ export default {
         imageUrlState: true,
         existing: false
       }],
+      videos: [{
+        videoPrimaryUrl: this.ad ? this.ad.videoPrimaryUrl : '',
+        videoPortraitUrl: this.ad ? this.ad.videoPortraitUrl : '',
+        imagePortraitUrl: this.ad ? this.ad.imagePortraitUrl : '',
+        existing: false
+      }],
       adPreviews: []
     }];
 
@@ -220,6 +277,7 @@ export default {
       fullPage: true,
       selectedProvider: 'yahoo',
       selectedAccount: this.campaign ? this.campaign.open_id : '',
+      campaignObjective: this.campaign ? this.campaign.objective : 'VISIT_WEB',
       postData: {},
       contents: contents,
       openingFileSelector: '',
@@ -255,6 +313,7 @@ export default {
     addContent() {
       this.contents.push({
         id: '',
+        adType: 'IMAGE',
         titles: [{
           title: '',
           existing: false
@@ -268,6 +327,12 @@ export default {
           imageUrlHQState: true,
           imageUrl: '',
           imageUrlState: true,
+          existing: false
+        }],
+        videos: [{
+          videoPrimaryUrl: '',
+          videoPortraitUrl: '',
+          imagePortraitUrl: '',
           existing: false
         }],
         adPreviews: []
@@ -296,6 +361,17 @@ export default {
     },
     removeImage(index, indexImage) {
       this.contents[index].images.splice(indexImage, 1)
+    },
+    addVideo(index) {
+      this.contents[index].videos.push({
+        videoPrimaryUrl: '',
+        videoPortraitUrl: '',
+        imagePortraitUrl: '',
+        existing: false
+      })
+    },
+    removeVideo(index, indexVideo) {
+      this.contents[index].videos.splice(indexVideo, 1)
     },
     loadPreviewEvent(event, index) {
       this.loadPreview(index)
@@ -329,6 +405,10 @@ export default {
             sponsoredBy: this.contents[index].brandname,
             imageUrlHQ: this.contents[index].images[y].imageUrlHQ,
             imageUrl: this.contents[index].images[y].imageUrl,
+            videoPrimaryUrl: this.contents[index].videos[y].videoPrimaryUrl,
+            videoPortraitUrl: this.contents[index].videos[y].videoPortraitUrl,
+            imagePortraitUrl: this.contents[index].videos[y].imagePortraitUrl,
+            campaignObjective: this.campaignObjective,
             campaignLanguage: this.campaignLanguage
           }, {
             cancelToken: new axios.CancelToken(function executor(c) {
