@@ -117,8 +117,13 @@ class FileManager extends \Alexusmai\LaravelFileManager\FileManager
                 'name' => $file->getClientOriginalName()
             ]);
 
-            $image->width = $dimensions[0];
-            $image->height = $dimensions[1];
+            if ($dimensions) {
+                $image->width = $dimensions[0];
+                $image->height = $dimensions[1];
+            } else {
+                $image->width = '';
+                $image->height = '';
+            }
 
             $image->save();
 
@@ -160,8 +165,13 @@ class FileManager extends \Alexusmai\LaravelFileManager\FileManager
             if (!$image->width) {
                 $dimensions = getimagesize(Storage::disk($disk)->path($file['path']));
 
-                $image->width = $dimensions[0];
-                $image->height = $dimensions[1];
+                if ($dimensions) {
+                    $image->width = $dimensions[0];
+                    $image->height = $dimensions[1];
+                } else {
+                    $image->width = '';
+                    $image->height = '';
+                }
 
                 $image->save();
             }
