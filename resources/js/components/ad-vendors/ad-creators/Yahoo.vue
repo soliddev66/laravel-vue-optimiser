@@ -205,9 +205,19 @@ export default {
           }
         }
 
-        for (let j = 0; j < this.contents[i].images.length; j++) {
-          if (!this.contents[i].images[j].imageUrlHQ || !this.validURL(this.contents[i].images[j].imageUrlHQ) || !this.contents[i].images[j].imageUrl || !this.validURL(this.contents[i].images[j].imageUrl) || !this.contents[i].images[j].imageUrlHQState || !this.contents[i].images[j].imageUrlState) {
-            return false
+        if (this.contents[i].adType == 'IMAGE') {
+          for (let j = 0; j < this.contents[i].images.length; j++) {
+            if (!this.contents[i].images[j].imageUrlHQ || !this.validURL(this.contents[i].images[j].imageUrlHQ) || !this.contents[i].images[j].imageUrl || !this.validURL(this.contents[i].images[j].imageUrl) || !this.contents[i].images[j].imageUrlHQState || !this.contents[i].images[j].imageUrlState) {
+              return false
+            }
+          }
+        } else {
+          for (let j = 0; j < this.contents[i].videos.length; j++) {
+            if (['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'].includes(this.campaignObjective) && !this.contents[i].videos[j].videoPrimaryUrl) {
+              return false
+            } else if (!['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'].includes(this.campaignObjective) && (!this.contents[i].videos[j].imagePortraitUrl || !this.contents[i].videos[j].videoPortraitUrl)) {
+              return false
+            }
           }
         }
       }
@@ -237,6 +247,23 @@ export default {
         });
         this.loadPreview(this.fileSelectorIndex)
       }
+
+      if (this.openingFileSelector === 'videoPrimaryUrl') {
+        this.contents[this.fileSelectorIndex].videos[this.fileSelectorIndexImage].videoPrimaryUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+
+        this.loadPreview(this.fileSelectorIndex)
+      }
+      if (this.openingFileSelector === 'imagePortraitUrl') {
+        this.contents[this.fileSelectorIndex].videos[this.fileSelectorIndexImage].imagePortraitUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+
+        this.loadPreview(this.fileSelectorIndex)
+      }
+      if (this.openingFileSelector === 'videoPortraitUrl') {
+        this.contents[this.fileSelectorIndex].videos[this.fileSelectorIndexImage].videoPortraitUrl = process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath
+
+        this.loadPreview(this.fileSelectorIndex)
+      }
+
       vm.$modal.hide('imageModal')
     });
   },
@@ -244,7 +271,7 @@ export default {
     //
   },
   data() {
-    console.log(this.ad)
+    console.log(this.campaign)
     let contents = [{
       id: '',
       adType: 'IMAGE',
@@ -277,7 +304,7 @@ export default {
       fullPage: true,
       selectedProvider: 'yahoo',
       selectedAccount: this.campaign ? this.campaign.open_id : '',
-      campaignObjective: this.campaign ? this.campaign.objective : 'VISIT_WEB',
+      campaignObjective: this.campaign && this.campaign.objective ? this.campaign.objective : 'VISIT_WEB',
       postData: {},
       contents: contents,
       openingFileSelector: '',
@@ -399,6 +426,7 @@ export default {
         for (let y = 0; y < this.contents[index].images.length; y++) {
           axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
             title: this.contents[index].titles[i].title,
+            adType: this.contents[index].adType,
             displayUrl: this.contents[index].displayUrl,
             landingUrl: this.contents[index].targetUrl,
             description: this.contents[index].description,
@@ -432,6 +460,7 @@ export default {
         provider: this.selectedProvider,
         account: this.selectedAccount,
         selectedAdvertiser: this.campaign.advertiser_id,
+        campaignObjective: this.campaignObjective,
         contents: this.contents
       }
       let vm = this

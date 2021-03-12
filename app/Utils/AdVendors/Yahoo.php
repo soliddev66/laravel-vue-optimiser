@@ -285,21 +285,35 @@ class Yahoo extends Root implements AdVendorInterface
         try {
             foreach (request('contents') as $content) {
                 foreach ($content['titles'] as $title) {
-                    foreach ($content['images'] as $image) {
-                        $ads[] = [
-                            'adGroupId' => $ad_group_id,
-                            'advertiserId' => request('selectedAdvertiser'),
-                            'campaignId' => $campaign->campaign_id,
-                            'description' => $content['description'],
-                            'displayUrl' => $content['displayUrl'],
-                            'landingUrl' => $content['targetUrl'],
-                            'sponsoredBy' => $content['brandname'],
-                            'imageUrlHQ' => Helper::encodeUrl($image['imageUrlHQ']),
-                            'imageUrl' => Helper::encodeUrl($image['imageUrl']),
-                            'title' => $title['title'],
-                            'status' => 'ACTIVE'
-                        ];
+                    $ad = [
+                        'adGroupId' => $ad_group_id,
+                        'advertiserId' => request('selectedAdvertiser'),
+                        'campaignId' => $campaign->campaign_id,
+                        'description' => $content['description'],
+                        'displayUrl' => $content['displayUrl'],
+                        'landingUrl' => $content['targetUrl'],
+                        'sponsoredBy' => $content['brandname'],
+                        'title' => $title['title'],
+                        'status' => 'ACTIVE'
+                    ];
+
+                    if ($content['adType'] == 'VIDEO') {
+                        foreach ($content['videos'] as $video) {
+                            if (in_array(request('campaignObjective'), ['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'])) {
+                                $ad['videoPrimaryUrl'] = Helper::encodeUrl($video['videoPrimaryUrl']);
+                            } else {
+                                $ad['imagePortraitUrl'] = Helper::encodeUrl($video['imagePortraitUrl']);
+                                $ad['videoPortraitUrl'] = Helper::encodeUrl($video['videoPortraitUrl']);
+                            }
+                        }
+                    } else {
+                        foreach ($content['images'] as $image) {
+                            $ad['imageUrl'] = Helper::encodeUrl($image['imageUrl']);
+                            $ad['imageUrlHQ'] = Helper::encodeUrl($image['imageUrlHQ']);
+                        }
                     }
+
+                    $ads[] = $ad;
                 }
             }
 
