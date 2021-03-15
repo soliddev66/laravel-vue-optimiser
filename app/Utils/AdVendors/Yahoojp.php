@@ -213,12 +213,14 @@ class Yahoojp extends Root implements AdVendorInterface
                     throw new Exception(json_encode($errors));
                 }
 
-                $target_data = $api->createTargets($campaign_id, $ad_group_id);
+                if (count(request('campaignAges')) || count(request('campaignGenders')) || count(request('campaignDevices'))) {
+                    $target_data = $api->createTargets($campaign_id, $ad_group_id);
 
-                $errors = $this->getErrors($target_data);
+                    $errors = $this->getErrors($target_data);
 
-                if (count($errors)) {
-                    throw new Exception(json_encode($errors));
+                    if (count($errors)) {
+                        throw new Exception(json_encode($errors));
+                    }
                 }
             } catch (Exception $e) {
                 $api->deleteCampaign(request('selectedAdvertiser'), $campaign_id);
