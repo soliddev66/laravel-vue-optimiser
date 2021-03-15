@@ -46,4 +46,39 @@ class YahooJPClient
 
         return json_decode($response->getBody(), true);
     }
+
+    public function upload($endpoint, $body, $file, $file_name)
+    {
+        $client = new Client();
+
+        $url = env('YAHOOJP_DISPLAY_API_ENDPOINT') . '/' . $endpoint;
+
+        $request_body = [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->user_info->token,
+                'Content-Type' => 'multipart/form-data'
+            ],
+            'multipart' => [[
+                'name' => 'accountId',
+                'contents' => $body['accountId'],
+            ], [
+                'name' => 'videoName',
+                'contents' => $body['videoName'],
+            ], [
+                'name' => 'videoTitle',
+                'contents' => $body['videoTitle'],
+            ], [
+                'name' => 'userStatus',
+                'contents' => $body['userStatus'],
+            ], [
+                'name' => 'file',
+                'contents' => $file,
+                'filename' => $file_name
+            ]]
+        ];
+
+        $response = $client->request('POST', $url, $request_body);
+
+        return json_decode($response->getBody(), true);
+    }
 }

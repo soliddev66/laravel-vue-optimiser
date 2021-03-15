@@ -153,18 +153,29 @@ class Yahoojp extends Root implements AdVendorInterface
                             $file = storage_path('app/public/images/') . $image['image'];
                             $data = file_get_contents($file);
                             $ext = explode('.', $image['image']);
-                            $media = $api->createMedia([
-                                'accountId' => request('selectedAdvertiser'),
-                                'operand' => [[
+
+                            if ($content['adType'] == 'RESPONSIVE_IMAGE_AD') {
+                                $media = $api->createMedia([
                                     'accountId' => request('selectedAdvertiser'),
-                                    'imageMedia' => [
-                                        'data' => base64_encode($data)
-                                    ],
-                                    'mediaName' => md5($image['image'] . time()) . '.' . end($ext),
-                                    'mediaTitle' => md5($image['image'] . time()),
+                                    'operand' => [[
+                                        'accountId' => request('selectedAdvertiser'),
+                                        'imageMedia' => [
+                                            'data' => base64_encode($data)
+                                        ],
+                                        'mediaName' => md5($image['image'] . time()) . '.' . end($ext),
+                                        'mediaTitle' => md5($image['image'] . time()),
+                                        'userStatus' => 'ACTIVE'
+                                    ]]
+                                ]);
+                            } else if ($content['adType'] == 'RESPONSIVE_VIDEO_AD') {
+                                $file_name = md5($image['image'] . time()) . '.' . end($ext);
+                                $media = $api->uploadVideo([
+                                    'accountId' => request('selectedAdvertiser'),
+                                    'videoName' => $file_name,
+                                    'videoTitle' => md5($image['image'] . time()),
                                     'userStatus' => 'ACTIVE'
-                                ]]
-                            ]);
+                                ], $data, $file_name);
+                            }
 
                             $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
 

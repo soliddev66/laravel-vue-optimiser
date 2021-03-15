@@ -102,6 +102,11 @@ class YahooJPAPI
         return $this->client->call('POST', 'MediaService/remove', $media);
     }
 
+    public function uploadVideo($body, $file, $file_name)
+    {
+        return $this->client->upload('VideoService/upload', $body, $file, $file_name);
+    }
+
     public function updateAdStatus($data)
     {
         return $this->client->call('POST', 'AdGroupAdService/set', $data);
