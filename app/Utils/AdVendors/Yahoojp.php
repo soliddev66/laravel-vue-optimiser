@@ -178,11 +178,12 @@ class Yahoojp extends Root implements AdVendorInterface
                         }
 
                         foreach ($content['headlines'] as $headlines) {
+                            $adTypeKey = $content['adType'] == 'RESPONSIVE_IMAGE_AD' ? 'responsiveImageAd' : 'responsiveVideoAd';
                             $ads[] = [
                                 'accountId' => request('selectedAdvertiser'),
                                 'ad' => [
-                                    'adType' => 'RESPONSIVE_IMAGE_AD',
-                                    'responsiveImageAd' => [
+                                    'adType' => $content['adType'],
+                                    $adTypeKey => [
                                         'buttonText' => 'FOR_MORE_INFO',
                                         'description' => $content['description'],
                                         'displayUrl' => $content['displayUrl'],
@@ -425,12 +426,13 @@ class Yahoojp extends Root implements AdVendorInterface
                     }
 
                     foreach ($content['headlines'] as $headlines) {
+                        $adTypeKey = $content['adType'] == 'RESPONSIVE_IMAGE_AD' ? 'responsiveImageAd' : 'responsiveVideoAd';
                         if ($headlines['existing']) {
                             $update_ads[] = [
                                 'accountId' => request('selectedAdvertiser'),
                                 'ad' => [
-                                    'adType' => 'RESPONSIVE_IMAGE_AD',
-                                    'responsiveImageAd' => [
+                                    'adType' => $content['adType'],
+                                    $adTypeKey => [
                                         'buttonText' => 'FOR_MORE_INFO',
                                         'description' => $content['description'],
                                         'displayUrl' => $content['displayUrl'],
@@ -450,8 +452,8 @@ class Yahoojp extends Root implements AdVendorInterface
                             $ads[] = [
                                 'accountId' => request('selectedAdvertiser'),
                                 'ad' => [
-                                    'adType' => 'RESPONSIVE_IMAGE_AD',
-                                    'responsiveImageAd' => [
+                                    'adType' => $content['adType'],
+                                    $adTypeKey => [
                                         'buttonText' => 'FOR_MORE_INFO',
                                         'description' => $content['description'],
                                         'displayUrl' => $content['displayUrl'],

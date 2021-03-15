@@ -169,6 +169,21 @@
                           </div>
                         </div>
                       </div>
+
+                      <div class="form-group row">
+                        <label for="ad_type" class="col-sm-4 control-label mt-2">Ad Type</label>
+                        <div class="col-sm-8">
+                          <div class="btn-group btn-group-toggle">
+                            <label class="btn bg-olive" :class="{ active: content.adType === 'RESPONSIVE_IMAGE_AD' }">
+                              <input type="radio" name="ad_type" autocomplete="off" value="RESPONSIVE_IMAGE_AD" v-model="content.adType"> IMAGE
+                            </label>
+                            <label class="btn bg-olive" :class="{ active: content.adType === 'RESPONSIVE_VIDEO_AD' }">
+                              <input type="radio" name="ad_type" autocomplete="off" value="RESPONSIVE_VIDEO_AD" v-model="content.adType"> VIDEO
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
                       <div class="form-group row">
                         <label for="brand_name" class="col-sm-4 control-label mt-2">Principal</label>
                         <div class="col-sm-8">
@@ -196,7 +211,8 @@
                         </div>
                       </div>
                       <div class="form-group row">
-                        <label for="thumbnail_url" class="col-sm-4 control-label mt-2">Images</label>
+                        <label for="image" v-if="content.adType === 'RESPONSIVE_IMAGE_AD'" class="col-sm-4 control-label mt-2">Images</label>
+                        <label for="image" v-if="content.adType === 'RESPONSIVE_VIDEO_AD'" class="col-sm-4 control-label mt-2">Videos</label>
                         <div class="col-sm-8">
                           <input type="text" name="image" placeholder="Images" class="form-control" disabled="disabled" v-model="content.imagePath" />
                           <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose Files</button>
@@ -318,6 +334,10 @@ export default {
           }
         }
 
+        if (this.contents[i].adType == 'RESPONSIVE_VIDEO_AD') {
+          return true
+        }
+
         if (this.contents[i].images.length == 0) {
           return false
         }
@@ -341,10 +361,11 @@ export default {
     this.$root.$on('fm-selected-items', (values) => {
       if (this.openingFileSelector === 'imageModal') {
         let paths = []
+        this.contents[this.fileSelectorIndex].images = []
         for (let i = 0; i < values.length; i++) {
           this.contents[this.fileSelectorIndex].images.push({
             image: values[i].path,
-            state: this.validDimensions(values[i].width, values[i].height, 1200, 628),
+            state: this.contents[this.fileSelectorIndex].adType == 'RESPONSIVE_VIDEO_AD' || (this.contents[this.fileSelectorIndex].adType == 'RESPONSIVE_IMAGE_AD' && this.validDimensions(values[i].width, values[i].height, 1200, 628)),
             existing: false
           })
           paths.push(values[i].path)
@@ -372,11 +393,10 @@ export default {
       campaignDevices = [],
       campaignDeviceApps = [],
       campaignDeviceOs = [],
-      adGroupName = '',
-      adGroupID = '',
 
       contents = [{
         id: '',
+        adType: 'RESPONSIVE_IMAGE_AD',
         headlines: [{
           headline: '',
           existing: false
@@ -385,10 +405,7 @@ export default {
         targetUrl: '',
         description: '',
         principal: '',
-        images: [{
-          image: '',
-          existing: false
-        }],
+        images: [],
         imagePath: '',
         adPreviews: []
       }];
@@ -415,6 +432,7 @@ export default {
       for (let i = 0; i < this.instance.ads.length; i++) {
         contents.push({
           id: this.instance.ads[i]['adGroupAd']['adId'],
+          adType: this.instance.ads[i]['adGroupAd']['ad']['adType'],
           headlines: [{
             headline: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['headline'],
             existing: true
@@ -575,6 +593,7 @@ export default {
     addContent() {
       this.contents.push({
         id: '',
+        adType: 'RESPONSIVE_IMAGE_AD',
         headlines: [{
           headline: '',
           existing: false
