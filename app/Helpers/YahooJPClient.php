@@ -51,33 +51,21 @@ class YahooJPClient
     {
         $client = new Client();
 
-        $url = env('YAHOOJP_DISPLAY_API_ENDPOINT') . '/' . $endpoint;
+        $url = env('YAHOOJP_DISPLAY_API_ENDPOINT') . '/' . $endpoint . '?accountId=' . $body['accountId'] . '&videoName=' . $body['videoName'] . '&videoTitle=' . $body['videoTitle'] . '&userStatus=' . $body['userStatus'];
 
         $request_body = [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->user_info->token,
-                'Content-Type' => 'multipart/form-data'
+                'Authorization' => 'Bearer ' . $this->user_info->token
             ],
             'multipart' => [[
-                'name' => 'accountId',
-                'contents' => $body['accountId'],
-            ], [
-                'name' => 'videoName',
-                'contents' => $body['videoName'],
-            ], [
-                'name' => 'videoTitle',
-                'contents' => $body['videoTitle'],
-            ], [
-                'name' => 'userStatus',
-                'contents' => $body['userStatus'],
-            ], [
+                'Content-Type' => 'multipart/form-data',
                 'name' => 'file',
                 'contents' => $file,
                 'filename' => $file_name
             ]]
         ];
 
-        $response = $client->request('POST', $url, $request_body);
+        $response = $client->post($url, $request_body);
 
         return json_decode($response->getBody(), true);
     }

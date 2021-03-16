@@ -167,6 +167,8 @@ class Yahoojp extends Root implements AdVendorInterface
                                         'userStatus' => 'ACTIVE'
                                     ]]
                                 ]);
+
+                                $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
                             } else if ($content['adType'] == 'RESPONSIVE_VIDEO_AD') {
                                 $file_name = md5($image['image'] . time()) . '.' . end($ext);
                                 $media = $api->uploadVideo([
@@ -175,9 +177,9 @@ class Yahoojp extends Root implements AdVendorInterface
                                     'videoTitle' => md5($image['image'] . time()),
                                     'userStatus' => 'ACTIVE'
                                 ], $data, $file_name);
-                            }
 
-                            $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
+                                $media_id = $media['rval']['values'][0]['uploadData']['mediaId'] ?? null;
+                            }
 
                             if ($media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
                                 $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
