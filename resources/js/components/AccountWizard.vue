@@ -18,7 +18,7 @@
           <div class="card-body" v-if="currentStep == 1">
             <p v-for="provider in providers" :key="provider.slug">
               <label>
-                <input type="radio" v-model="selectedProvider" :value="provider.slug" /> {{ provider.label }}
+                <input type="radio" v-model="selectedProvider" :value="provider.slug" /> <img :src="provider.icon" width="20px" height="20px">
               </label>
             </p>
             <form v-if="selectedProvider === 'outbrain' || selectedProvider === 'taboola'">

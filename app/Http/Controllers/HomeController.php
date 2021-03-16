@@ -85,6 +85,7 @@ class HomeController extends Controller
             return RedtrackReport::select(
                 $field,
                 DB::raw('MAX(providers.label) as name'),
+                DB::raw('MAX(providers.icon) as icon'),
                 DB::raw('ROUND(SUM(cost), 2) as total_cost'),
                 DB::raw('ROUND(SUM(profit), 2) as total_net'),
                 DB::raw('SUM(clicks) as total_clicks'),

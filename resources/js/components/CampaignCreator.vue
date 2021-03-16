@@ -14,7 +14,7 @@
               <div class="col">
                 <select class="form-control" v-model="selectedProvider" @change="selectedProviderChanged()" :disabled="instance">
                   <option value="">Select Traffic Source</option>
-                  <option :value="provider.slug" v-for="provider in providers" :key="provider.id">{{ provider.label }}</option>
+                  <option :value="provider.slug" v-for="provider in providers" :key="provider.id" :style="`background-image:url(${provider.icon});`">{{ provider.label }}</option>
                 </select>
                 <select class="form-control" v-if="accounts.length" v-model="selectedAccount" :disabled="instance">
                   <option value="">Select Account</option>
