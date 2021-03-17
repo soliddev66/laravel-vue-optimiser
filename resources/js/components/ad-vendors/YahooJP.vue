@@ -210,18 +210,38 @@
                           <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
-                      <div class="form-group row">
-                        <label for="image" v-if="content.adType === 'RESPONSIVE_IMAGE_AD'" class="col-sm-4 control-label mt-2">Images</label>
-                        <label for="image" v-if="content.adType === 'RESPONSIVE_VIDEO_AD'" class="col-sm-4 control-label mt-2">Videos</label>
+                      <div class="form-group row" v-if="content.adType === 'RESPONSIVE_IMAGE_AD'">
+                        <label for="image" class="col-sm-4 control-label mt-2">Images</label>
                         <div class="col-sm-8">
                           <input type="text" name="image" placeholder="Images" class="form-control" disabled="disabled" v-model="content.imagePath" />
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose Files</button>
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index)">Choose Files</button>
                         </div>
                         <div class="col-sm-8 offset-sm-4">
                           <small class="text-danger" v-for="(image, indexImage) in content.images" :key="indexImage">
                             <span class="d-inline-block" v-if="image.image && !image.state">Image {{ image.image }} is invalid. You might need an 1200 x 628 image.</span>
                           </small>
                         </div>
+                      </div>
+                      <div v-if="content.adType === 'RESPONSIVE_VIDEO_AD'">
+                        <fieldset class="mb-3 p-3 rounded border" v-for="(video, indexVideo) in content.videos" :key="indexVideo">
+                          <div class="form-group row">
+                            <label for="video" class="col-sm-4 control-label mt-2">Video</label>
+                            <div class="col-sm-8">
+                              <input type="text" name="video" placeholder="Video" class="form-control" disabled="disabled" v-model="content.videoUrl" />
+                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoUrl', index)">Choose File</button>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label for="video_thumbnail_url" class="col-sm-4 control-label mt-2">Thumbnail</label>
+                            <div class="col-sm-8">
+                              <input type="text" name="video_thumbnail_url" placeholder="Enter thumbnail URL" class="form-control" v-model="video.videoThumbnailUrl" />
+                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoThumbnailUrl', index, indexVideo)">Choose File</button>
+                            </div>
+                          </div>
+                          <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeVideo(index, indexVideo)" v-if="indexVideo > 0">Remove Video</button>
+                        </fieldset>
+                        <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)">Add Video</button>
                       </div>
                     </div>
                     <div class="col-sm-5">
@@ -263,6 +283,13 @@
           upload: true,
           viewType: 'grid',
           selectionType: 'multiple'
+      }"></file-manager>
+    </modal>
+    <modal width="60%" height="80%" name="videoModal">
+      <file-manager v-bind:settings="settings" :props="{
+          upload: true,
+          viewType: 'grid',
+          selectionType: 'single'
       }"></file-manager>
     </modal>
   </section>
@@ -309,7 +336,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 1
+      default: 2
     }
   },
   components: {
@@ -359,7 +386,7 @@ export default {
     console.log('Component mounted.')
     let vm = this
     this.$root.$on('fm-selected-items', (values) => {
-      if (this.openingFileSelector === 'imageModal') {
+      if (this.openingFileSelector === 'imageUrl') {
         let paths = []
         this.contents[this.fileSelectorIndex].images = []
         for (let i = 0; i < values.length; i++) {
@@ -371,8 +398,14 @@ export default {
           paths.push(values[i].path)
         }
         this.contents[this.fileSelectorIndex].imagePath = paths.join(';')
+      } else if (this.openingFileSelector === 'videoUrl') {
+        this.contents[this.fileSelectorIndex].videos[this.fileSelectorIndexImage].videoUrl = process.env.MIX_APP_URL + '/storage/images/' + values[0].path
+      } else if (this.openingFileSelector === 'videoThumbmailUrl') {
+        this.contents[this.fileSelectorIndex].videos[this.fileSelectorIndexImage].videoThumbmailUrl = process.env.MIX_APP_URL + '/storage/images/' + values[0].path
       }
+
       vm.$modal.hide('imageModal')
+      vm.$modal.hide('videoModal')
     });
     this.currentStep = this.step
 
@@ -406,6 +439,11 @@ export default {
         description: '',
         principal: '',
         images: [],
+        videos: [{
+          videoUrl: '',
+          videoThumbmailUrl: '',
+          existing: false
+        }],
         imagePath: '',
         adPreviews: []
       }];
@@ -442,6 +480,10 @@ export default {
           description: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['description'],
           principal: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['principal'],
           images: [{
+            mediaId: this.instance.ads[i]['adGroupAd']['mediaId'],
+            existing: true
+          }],
+          videos: [{
             mediaId: this.instance.ads[i]['adGroupAd']['mediaId'],
             existing: true
           }],
@@ -581,7 +623,12 @@ export default {
     openChooseFile(name, index) {
       this.openingFileSelector = name
       this.fileSelectorIndex = index
-      this.$modal.show('imageModal')
+
+      if (name == 'imageUrl') {
+        this.$modal.show('imageModal')
+      } else {
+        this.$modal.show('videoModal')
+      }
     },
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
@@ -606,6 +653,11 @@ export default {
           image: '',
           existing: false
         }],
+        videos: [{
+          videoUrl: '',
+          videoThumbmailUrl: '',
+          existing: false
+        }],
         imagePath: '',
         adPreviews: []
       })
@@ -621,6 +673,17 @@ export default {
     },
     removeTitle(index, indexHeadline) {
       this.contents[index].headlines.splice(indexHeadline, 1)
+    },
+
+    addVideo(index) {
+      this.contents[index].videos.push({
+        videoUrl: '',
+        videoThumbmailUrl: '',
+        existing: false
+      })
+    },
+    removeVideo(index, indexVideo) {
+      this.contents[index].videos.splice(indexVideo, 1)
     },
 
     getCampaignGoals() {

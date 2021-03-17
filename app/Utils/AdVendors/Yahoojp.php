@@ -176,7 +176,7 @@ class Yahoojp extends Root implements AdVendorInterface
                                     'videoName' => $file_name,
                                     'videoTitle' => md5($image['image'] . time()),
                                     'userStatus' => 'ACTIVE'
-                                ], $data, $file_name);
+                                ], $file, $file_name);
 
                                 $media_id = $media['rval']['values'][0]['uploadData']['mediaId'] ?? null;
                             }
