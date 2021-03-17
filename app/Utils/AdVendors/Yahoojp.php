@@ -146,15 +146,15 @@ class Yahoojp extends Root implements AdVendorInterface
 
             try {
                 foreach (request('contents') as $content) {
-                    foreach ($content['images'] as $image) {
-                        if ($image['existing']) {
-                            $media_id = $image['mediaId'];
-                        } else {
-                            $file = storage_path('app/public/images/') . $image['image'];
-                            $data = file_get_contents($file);
-                            $ext = explode('.', $image['image']);
+                    if ($content['adType'] == 'RESPONSIVE_IMAGE_AD') {
+                        foreach ($content['images'] as $image) {
+                            if ($image['existing']) {
+                                $media_id = $image['mediaId'];
+                            } else {
+                                $file = storage_path('app/public/images/') . $image['image'];
+                                $data = file_get_contents($file);
+                                $ext = explode('.', $image['image']);
 
-                            if ($content['adType'] == 'RESPONSIVE_IMAGE_AD') {
                                 $media = $api->createMedia([
                                     'accountId' => request('selectedAdvertiser'),
                                     'operand' => [[
@@ -169,48 +169,124 @@ class Yahoojp extends Root implements AdVendorInterface
                                 ]);
 
                                 $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
-                            } else if ($content['adType'] == 'RESPONSIVE_VIDEO_AD') {
-                                $file_name = md5($image['image'] . time()) . '.' . end($ext);
-                                $media = $api->uploadVideo([
+
+                                if ($media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
+                                    $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
+                                }
+
+                                if (!$media_id) {
+                                    throw new Exception(json_encode($media));
+                                }
+                            }
+
+                            foreach ($content['headlines'] as $headlines) {
+                                $ads[] = [
                                     'accountId' => request('selectedAdvertiser'),
-                                    'videoName' => $file_name,
-                                    'videoTitle' => md5($image['image'] . time()),
-                                    'userStatus' => 'ACTIVE'
-                                ], $file, $file_name);
-
-                                $media_id = $media['rval']['values'][0]['uploadData']['mediaId'] ?? null;
-                            }
-
-                            if ($media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
-                                $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
-                            }
-
-                            if (!$media_id) {
-                                throw new Exception(json_encode($media));
+                                    'ad' => [
+                                        'adType' => $content['adType'],
+                                        'responsiveImageAd' => [
+                                            'buttonText' => 'FOR_MORE_INFO',
+                                            'description' => $content['description'],
+                                            'displayUrl' => $content['displayUrl'],
+                                            'headline' => $headlines['headline'],
+                                            'principal' => $content['principal'],
+                                            'url' => $content['targetUrl'],
+                                        ]
+                                    ],
+                                    'adGroupId' => $ad_group_id,
+                                    'campaignId' => $campaign_id,
+                                    'adName' => $headlines['headline'],
+                                    'mediaId' => $media_id,
+                                    'userStatus' => request('campaignStatus')
+                                ];
                             }
                         }
+                    } else if ($content['adType'] == 'RESPONSIVE_VIDEO_AD') {
+                        foreach ($content['videos'] as $video) {
+                            if ($video['existing']) {
+                                $media_id = $video['mediaId'];
+                            } else {
+                                $file = storage_path('app/public/images/') . $video['videoPath'];
+                                $data = file_get_contents($file);
+                                $ext = explode('.', $video['videoPath']);
 
-                        foreach ($content['headlines'] as $headlines) {
-                            $adTypeKey = $content['adType'] == 'RESPONSIVE_IMAGE_AD' ? 'responsiveImageAd' : 'responsiveVideoAd';
-                            $ads[] = [
-                                'accountId' => request('selectedAdvertiser'),
-                                'ad' => [
-                                    'adType' => $content['adType'],
-                                    $adTypeKey => [
-                                        'buttonText' => 'FOR_MORE_INFO',
-                                        'description' => $content['description'],
-                                        'displayUrl' => $content['displayUrl'],
-                                        'headline' => $headlines['headline'],
-                                        'principal' => $content['principal'],
-                                        'url' => $content['targetUrl'],
-                                    ]
-                                ],
-                                'adGroupId' => $ad_group_id,
-                                'campaignId' => $campaign_id,
-                                'adName' => $headlines['headline'],
-                                'mediaId' => $media_id,
-                                'userStatus' => request('campaignStatus')
-                            ];
+                                $file_name = md5($video['videoPath'] . time() . rand(0, 100)) . '.' . end($ext);
+                                // $media = $api->uploadVideo([
+                                //     'accountId' => request('selectedAdvertiser'),
+                                //     'videoName' => $file_name,
+                                //     'videoTitle' => md5($video['videoPath'] . time()),
+                                //     'userStatus' => 'ACTIVE'
+                                // ], $file, $file_name);
+
+                                // $media_id = $media['rval']['values'][0]['uploadData']['mediaId'] ?? null;
+
+                                // file_put_contents('a', json_encode($media) . "\n", FILE_APPEND);
+
+                                // if (!$media_id) {
+                                //     throw new Exception(json_encode($media));
+                                // }
+
+                                $media_id = '8509672';
+
+                                $file = storage_path('app/public/images/') . $video['videoThumbnailPath'];
+                                $data = file_get_contents($file);
+                                $ext = explode('.', $video['videoThumbnailPath']);
+
+                                $file_name = md5($video['videoThumbnailPath'] . time()) . '.' . end($ext);
+
+                                $media = $api->createMedia([
+                                    'accountId' => request('selectedAdvertiser'),
+                                    'operand' => [[
+                                        'accountId' => request('selectedAdvertiser'),
+                                        'imageMedia' => [
+                                            'data' => base64_encode($data)
+                                        ],
+                                        'mediaName' => md5($video['videoThumbnailPath'] . time()) . '.' . end($ext),
+                                        'mediaTitle' => md5($video['videoThumbnailPath'] . time()),
+                                        'thumbnailFlg' => 'TRUE',
+                                        'userStatus' => 'ACTIVE'
+                                    ]]
+                                ]);
+
+                                file_put_contents('a', json_encode($media) . "\n", FILE_APPEND);
+
+                                $thumbnail_media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
+
+                                if ($thumbnail_media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
+                                    $thumbnail_media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
+                                }
+
+                                if (!$thumbnail_media_id) {
+                                    throw new Exception(json_encode($media));
+                                }
+                            }
+
+                            file_put_contents('a', $media_id . "\n", FILE_APPEND);
+
+                            file_put_contents('a', $thumbnail_media_id . "\n", FILE_APPEND);
+
+                            foreach ($content['headlines'] as $headlines) {
+                                $ads[] = [
+                                    'accountId' => request('selectedAdvertiser'),
+                                    'ad' => [
+                                        'adType' => $content['adType'],
+                                        'responsiveVideoAd' => [
+                                            'buttonText' => 'FOR_MORE_INFO',
+                                            'description' => $content['description'],
+                                            'displayUrl' => $content['displayUrl'],
+                                            'headline' => $headlines['headline'],
+                                            'principal' => $content['principal'],
+                                            'url' => $content['targetUrl'],
+                                            'thumbnailMediaId' => $thumbnail_media_id
+                                        ]
+                                    ],
+                                    'adGroupId' => $ad_group_id,
+                                    'campaignId' => $campaign_id,
+                                    'adName' => $headlines['headline'],
+                                    'mediaId' => $media_id,
+                                    'userStatus' => request('campaignStatus')
+                                ];
+                            }
                         }
                     }
                 }
