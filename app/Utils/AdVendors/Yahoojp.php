@@ -211,22 +211,21 @@ class Yahoojp extends Root implements AdVendorInterface
                                 $ext = explode('.', $video['videoPath']);
 
                                 $file_name = md5($video['videoPath'] . time() . rand(0, 100)) . '.' . end($ext);
-                                // $media = $api->uploadVideo([
-                                //     'accountId' => request('selectedAdvertiser'),
-                                //     'videoName' => $file_name,
-                                //     'videoTitle' => md5($video['videoPath'] . time()),
-                                //     'userStatus' => 'ACTIVE'
-                                // ], $file, $file_name);
 
-                                // $media_id = $media['rval']['values'][0]['uploadData']['mediaId'] ?? null;
+                                $media = $api->uploadVideo([
+                                    'accountId' => request('selectedAdvertiser'),
+                                    'videoName' => $file_name,
+                                    'videoTitle' => md5($video['videoPath'] . time()),
+                                    'userStatus' => 'ACTIVE'
+                                ], $file, $file_name);
 
-                                // file_put_contents('a', json_encode($media) . "\n", FILE_APPEND);
+                                $media_id = $media['rval']['values'][0]['uploadData']['mediaId'] ?? null;
 
-                                // if (!$media_id) {
-                                //     throw new Exception(json_encode($media));
-                                // }
+                                file_put_contents('a', json_encode($media) . "\n", FILE_APPEND);
 
-                                $media_id = '8509672';
+                                if (!$media_id) {
+                                    throw new Exception(json_encode($media));
+                                }
 
                                 $file = storage_path('app/public/images/') . $video['videoThumbnailPath'];
                                 $data = file_get_contents($file);
@@ -248,8 +247,6 @@ class Yahoojp extends Root implements AdVendorInterface
                                     ]]
                                 ]);
 
-                                file_put_contents('a', json_encode($media) . "\n", FILE_APPEND);
-
                                 $thumbnail_media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
 
                                 if ($thumbnail_media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
@@ -260,10 +257,6 @@ class Yahoojp extends Root implements AdVendorInterface
                                     throw new Exception(json_encode($media));
                                 }
                             }
-
-                            file_put_contents('a', $media_id . "\n", FILE_APPEND);
-
-                            file_put_contents('a', $thumbnail_media_id . "\n", FILE_APPEND);
 
                             foreach ($content['headlines'] as $headlines) {
                                 $ads[] = [

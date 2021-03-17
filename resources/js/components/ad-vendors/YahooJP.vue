@@ -238,6 +238,11 @@
                               <input type="text" name="video_thumbnail_url" placeholder="Enter thumbnail URL" class="form-control" disabled="disabled" v-model="video.videoThumbnailPath" />
                               <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoThumbnailPath', index, videoIndex)">Choose File</button>
                             </div>
+                            <div class="col-sm-8 offset-sm-4">
+                              <small class="text-danger" v-if="video.videoThumbnailPath && !video.videoThumbnailState">
+                                <span class="d-inline-block">Image {{ video.videoThumbnailPath }} is invalid. You might need an 640 x 360 image.</span>
+                              </small>
+                            </div>
                           </div>
                           <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeVideo(index, videoIndex)" v-if="videoIndex > 0">Remove Video</button>
                         </fieldset>
@@ -370,7 +375,7 @@ export default {
             if (this.contents[i].videos[j].mediaId) {
               continue
             }
-            if (!this.contents[i].videos[j].videoPath || !this.contents[i].videos[j].videoThumbnailPath) {
+            if (!this.contents[i].videos[j].videoPath || !this.contents[i].videos[j].videoThumbnailPath|| !this.contents[i].videos[j].videoThumbnailState) {
               return false
             }
           }
@@ -405,7 +410,7 @@ export default {
         for (let i = 0; i < values.length; i++) {
           this.contents[this.fileSelectorIndex].images.push({
             image: values[i].path,
-            state: this.contents[this.fileSelectorIndex].adType == 'RESPONSIVE_VIDEO_AD' || (this.contents[this.fileSelectorIndex].adType == 'RESPONSIVE_IMAGE_AD' && this.validDimensions(values[i].width, values[i].height, 1200, 628)),
+            state: this.validDimensions(values[i].width, values[i].height, 1200, 628),
             existing: false
           })
           paths.push(values[i].path)
@@ -415,6 +420,7 @@ export default {
         this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoPath = values[0].path
       } else if (this.openingFileSelector === 'videoThumbnailPath') {
         this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoThumbnailPath = values[0].path
+        this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoThumbnailState = this.validDimensions(values[0].width, values[0].height, 640, 360)
       }
 
       vm.$modal.hide('imageModal')
