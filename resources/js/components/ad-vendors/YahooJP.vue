@@ -223,23 +223,23 @@
                         </div>
                       </div>
                       <div v-if="content.adType === 'RESPONSIVE_VIDEO_AD'">
-                        <fieldset class="mb-3 p-3 rounded border" v-for="(video, indexVideo) in content.videos" :key="indexVideo">
+                        <fieldset class="mb-3 p-3 rounded border" v-for="(video, videoIndex) in content.videos" :key="videoIndex">
                           <div class="form-group row">
                             <label for="video" class="col-sm-4 control-label mt-2">Video</label>
                             <div class="col-sm-8">
-                              <input type="text" name="video" placeholder="Video" class="form-control" disabled="disabled" v-model="content.videoUrl" />
-                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoUrl', index)">Choose File</button>
+                              <input type="text" name="video" placeholder="Video" class="form-control" disabled="disabled" v-model="video.videoPath" />
+                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoPath', index, videoIndex)">Choose File</button>
                             </div>
                           </div>
 
                           <div class="form-group row">
                             <label for="video_thumbnail_url" class="col-sm-4 control-label mt-2">Thumbnail</label>
                             <div class="col-sm-8">
-                              <input type="text" name="video_thumbnail_url" placeholder="Enter thumbnail URL" class="form-control" v-model="video.videoThumbnailUrl" />
-                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoThumbnailUrl', index, indexVideo)">Choose File</button>
+                              <input type="text" name="video_thumbnail_url" placeholder="Enter thumbnail URL" class="form-control" disabled="disabled" v-model="video.videoThumbnailPath" />
+                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoThumbnailPath', index, videoIndex)">Choose File</button>
                             </div>
                           </div>
-                          <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeVideo(index, indexVideo)" v-if="indexVideo > 0">Remove Video</button>
+                          <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeVideo(index, videoIndex)" v-if="videoIndex > 0">Remove Video</button>
                         </fieldset>
                         <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)">Add Video</button>
                       </div>
@@ -336,7 +336,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 2
+      default: 1
     }
   },
   components: {
@@ -362,19 +362,32 @@ export default {
         }
 
         if (this.contents[i].adType == 'RESPONSIVE_VIDEO_AD') {
-          return true
-        }
-
-        if (this.contents[i].images.length == 0) {
-          return false
-        }
-
-        for (let j = 0; j < this.contents[i].images.length; j++) {
-          if (this.contents[i].images[j].mediaId) {
-            continue
-          }
-          if (!this.contents[i].images[j].image || !this.contents[i].images[j].state) {
+          if (this.contents[i].videos.length == 0) {
             return false
+          }
+
+          for (let j = 0; j < this.contents[i].videos.length; j++) {
+            if (this.contents[i].videos[j].mediaId) {
+              continue
+            }
+            if (!this.contents[i].videos[j].videoPath || !this.contents[i].videos[j].videoThumbnailPath) {
+              return false
+            }
+          }
+        }
+
+        if (this.contents[i].adType == 'RESPONSIVE_IMAGE_AD') {
+          if (this.contents[i].images.length == 0) {
+            return false
+          }
+
+          for (let j = 0; j < this.contents[i].images.length; j++) {
+            if (this.contents[i].images[j].mediaId) {
+              continue
+            }
+            if (!this.contents[i].images[j].image || !this.contents[i].images[j].state) {
+              return false
+            }
           }
         }
       }
@@ -398,10 +411,10 @@ export default {
           paths.push(values[i].path)
         }
         this.contents[this.fileSelectorIndex].imagePath = paths.join(';')
-      } else if (this.openingFileSelector === 'videoUrl') {
-        this.contents[this.fileSelectorIndex].videos[this.fileSelectorIndexImage].videoUrl = process.env.MIX_APP_URL + '/storage/images/' + values[0].path
-      } else if (this.openingFileSelector === 'videoThumbmailUrl') {
-        this.contents[this.fileSelectorIndex].videos[this.fileSelectorIndexImage].videoThumbmailUrl = process.env.MIX_APP_URL + '/storage/images/' + values[0].path
+      } else if (this.openingFileSelector === 'videoPath') {
+        this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoPath = values[0].path
+      } else if (this.openingFileSelector === 'videoThumbnailPath') {
+        this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoThumbnailPath = values[0].path
       }
 
       vm.$modal.hide('imageModal')
@@ -440,8 +453,8 @@ export default {
         principal: '',
         images: [],
         videos: [{
-          videoUrl: '',
-          videoThumbmailUrl: '',
+          videoPath: '',
+          videoThumbnailPath: '',
           existing: false
         }],
         imagePath: '',
@@ -612,6 +625,7 @@ export default {
       contents: contents,
       openingFileSelector: '',
       fileSelectorIndex: 0,
+      fileSelectorVideoIndex: 0,
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
@@ -620,9 +634,13 @@ export default {
     }
   },
   methods: {
-    openChooseFile(name, index) {
+    openChooseFile(name, index, videoIndex) {
       this.openingFileSelector = name
       this.fileSelectorIndex = index
+
+      this.fileSelectorVideoIndex = videoIndex
+
+      console.log(name)
 
       if (name == 'imageUrl') {
         this.$modal.show('imageModal')
@@ -654,8 +672,8 @@ export default {
           existing: false
         }],
         videos: [{
-          videoUrl: '',
-          videoThumbmailUrl: '',
+          videoPath: '',
+          videoThumbnailPath: '',
           existing: false
         }],
         imagePath: '',
@@ -677,13 +695,13 @@ export default {
 
     addVideo(index) {
       this.contents[index].videos.push({
-        videoUrl: '',
-        videoThumbmailUrl: '',
+        videoPath: '',
+        videoThumbnailPath: '',
         existing: false
       })
     },
-    removeVideo(index, indexVideo) {
-      this.contents[index].videos.splice(indexVideo, 1)
+    removeVideo(index, videoIndex) {
+      this.contents[index].videos.splice(videoIndex, 1)
     },
 
     getCampaignGoals() {
