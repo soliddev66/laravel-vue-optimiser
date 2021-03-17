@@ -60,7 +60,7 @@ class YahooJPClient
             'multipart' => [[
                 'Content-Type' => 'multipart/form-data',
                 'name' => 'file',
-                'contents' => $file,
+                'contents' => fopen($file, 'r'),
                 'filename' => $file_name
             ]]
         ];
