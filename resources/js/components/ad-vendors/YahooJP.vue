@@ -458,17 +458,19 @@ export default {
         adPreviews: []
       }];
     if (this.instance) {
-      for (let i = 0; i < this.instance.attributes.length; i++) {
-        if (this.instance.attributes[i]['adGroupTargetList']['target'].targetType == 'AGE_TARGET') {
-          campaignAges.push(this.instance.attributes[i]['adGroupTargetList']['target']['ageTarget']['age'])
-        }
+      if (this.instance.attributes) {
+        for (let i = 0; i < this.instance.attributes.length; i++) {
+          if (this.instance.attributes[i]['adGroupTargetList']['target'].targetType == 'AGE_TARGET') {
+            campaignAges.push(this.instance.attributes[i]['adGroupTargetList']['target']['ageTarget']['age'])
+          }
 
-        if (this.instance.attributes[i]['adGroupTargetList']['target'].targetType == 'GENDER_TARGET') {
-          campaignGenders.push(this.instance.attributes[i]['adGroupTargetList']['target']['genderTarget']['gender'])
-        }
+          if (this.instance.attributes[i]['adGroupTargetList']['target'].targetType == 'GENDER_TARGET') {
+            campaignGenders.push(this.instance.attributes[i]['adGroupTargetList']['target']['genderTarget']['gender'])
+          }
 
-        if (this.instance.attributes[i]['adGroupTargetList']['target'].targetType == 'DEVICE_TARGET') {
-          campaignDevices.push(this.instance.attributes[i]['adGroupTargetList']['target']['deviceTarget']['deviceType'])
+          if (this.instance.attributes[i]['adGroupTargetList']['target'].targetType == 'DEVICE_TARGET') {
+            campaignDevices.push(this.instance.attributes[i]['adGroupTargetList']['target']['deviceTarget']['deviceType'])
+          }
         }
       }
 
@@ -478,17 +480,19 @@ export default {
       contents = []
 
       for (let i = 0; i < this.instance.ads.length; i++) {
+        let adType = this.instance.ads[i]['adGroupAd']['ad']['adType']
+        let adKey = adType == 'RESPONSIVE_IMAGE_AD' ? 'responsiveImageAd' : 'responsiveVideoAd'
         contents.push({
           id: this.instance.ads[i]['adGroupAd']['adId'],
-          adType: this.instance.ads[i]['adGroupAd']['ad']['adType'],
+          adType: adType,
           headlines: [{
-            headline: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['headline'],
+            headline: this.instance.ads[i]['adGroupAd']['ad'][adKey]['headline'],
             existing: true
           }],
-          displayUrl: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['displayUrl'],
-          targetUrl: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['url'],
-          description: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['description'],
-          principal: this.instance.ads[i]['adGroupAd']['ad']['responsiveImageAd']['principal'],
+          displayUrl: this.instance.ads[i]['adGroupAd']['ad'][adKey]['displayUrl'],
+          targetUrl: this.instance.ads[i]['adGroupAd']['ad'][adKey]['url'],
+          description: this.instance.ads[i]['adGroupAd']['ad'][adKey]['description'],
+          principal: this.instance.ads[i]['adGroupAd']['ad'][adKey]['principal'],
           images: [{
             mediaId: this.instance.ads[i]['adGroupAd']['mediaId'],
             existing: true
