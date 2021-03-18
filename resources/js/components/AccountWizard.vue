@@ -15,21 +15,19 @@
             <i class="fas fa-arrow-right"></i>
             <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Connect and Finish</label>
           </div>
-          <div class="card-body" v-if="currentStep == 1">
-            <p v-for="provider in providers" :key="provider.slug">
-              <label>
-                <input type="radio" v-model="selectedProvider" :value="provider.slug" /> <img :src="provider.icon" width="20px" height="20px">
-              </label>
-            </p>
-            <form v-if="selectedProvider === 'outbrain' || selectedProvider === 'taboola'">
+          <div class="card-body text-center" v-if="currentStep == 1">
+            <label class="mr-5" v-for="provider in providers" :key="provider.slug">
+              <input type="radio" v-model="selectedProvider" :value="provider.slug" /> <img :src="provider.icon" width="40px" height="40px">
+            </label>
+            <form class="mt-3 w-50 mx-auto" v-if="selectedProvider === 'outbrain' || selectedProvider === 'taboola'">
               <div class="form-group mb-3">
-                <label for="outBrainFormName">Name</label>
-                <input type="text" placeholder="Insert Name" v-model="credentials.name" class="form-control" id="outBrainFormName">
+                <label for="outBrainFormName">Username or Email</label>
+                <input type="text" placeholder="Enter username or email" v-model="credentials.name" class="form-control" id="outBrainFormName">
               </div>
               <div class="form-group mb-3">
                 <label for="outBrainFormPassword">Password</label>
                 <div class="input-group">
-                  <input :type="credentials.showPassword ? 'text' : 'password'" v-model="credentials.password" class="form-control" id="outBrainFormPassword">
+                  <input placeholder="Enter password" :type="credentials.showPassword ? 'text' : 'password'" v-model="credentials.password" class="form-control" id="outBrainFormPassword">
                   <div class="show-passport-checkbox">
                     <a href="javascript:void(0);" @click="toggleShowingPassword">
                       <i class="fa fa-eye-slash" aria-hidden="true"></i>

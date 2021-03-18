@@ -144,6 +144,6 @@ class UnlinkTrafficSource implements ShouldQueue
         Campaign::where('provider_id', request('providerId'))->where('open_id', request('openId'))->delete();
 
         // Restart the queue
-        Artisan::call('queue:restart');
+        // Artisan::call('queue:restart');
     }
 }

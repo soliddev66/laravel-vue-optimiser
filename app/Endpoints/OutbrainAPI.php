@@ -73,9 +73,9 @@ class OutbrainAPI
      * @return mixed
      * @throws GuzzleException
      */
-    public function getCampaignsByMarketerId($id)
+    public function getCampaignsByMarketerId($id, $offset)
     {
-        return $this->client->call('GET', 'marketers/' . $id . '/campaigns');
+        return $this->client->call('GET', 'marketers/' . $id . '/campaigns?offset=' . $offset);
     }
 
     public function createBudget()
