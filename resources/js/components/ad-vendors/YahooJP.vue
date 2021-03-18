@@ -290,13 +290,6 @@
           selectionType: 'multiple'
       }"></file-manager>
     </modal>
-    <modal width="60%" height="80%" name="videoModal">
-      <file-manager v-bind:settings="settings" :props="{
-          upload: true,
-          viewType: 'grid',
-          selectionType: 'single'
-      }"></file-manager>
-    </modal>
   </section>
 </template>
 
@@ -422,9 +415,7 @@ export default {
         this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoThumbnailPath = values[0].path
         this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoThumbnailState = this.validDimensions(values[0].width, values[0].height, 640, 360)
       }
-
       vm.$modal.hide('imageModal')
-      vm.$modal.hide('videoModal')
     });
     this.currentStep = this.step
 
@@ -635,7 +626,7 @@ export default {
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
-        lang: 'end'
+        lang: 'en'
       }
     }
   },
@@ -646,13 +637,13 @@ export default {
 
       this.fileSelectorVideoIndex = videoIndex
 
-      console.log(name)
-
       if (name == 'imageUrl') {
-        this.$modal.show('imageModal')
+        this.$root.$store.commit('fm/setSelectionType', 'multiple')
       } else {
-        this.$modal.show('videoModal')
+        this.$root.$store.commit('fm/setSelectionType', 'single')
       }
+
+      this.$modal.show('imageModal')
     },
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
