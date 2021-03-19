@@ -968,7 +968,7 @@ export default {
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
-        lang: 'end'
+        lang: 'en'
       }
     }
   },
