@@ -29,7 +29,7 @@
               </div>
               <div class="col-md-6 col-12">
                 <select class="form-control" v-model="selectedTracker" @change="getData()">
-                  <option value="">-</option>
+                  <option value="">TS Report</option>
                   <option v-for="tracker in trackers" :value="tracker.slug" :key="tracker.slug">{{ tracker.label }}</option>
                 </select>
               </div>
