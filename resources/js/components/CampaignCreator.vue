@@ -12,7 +12,7 @@
           <div class="card-body">
             <div class="row form-inline">
               <div class="col-6">
-                <select2 v-model="selectedProvider" :options="formatedProviders" :settings="{ templateSelection: formatState, templateResult: formatState, multiple: false, placeholder: 'Select Traffic Source' }" @change="selectedProviderChanged()" :disabled="instance" />
+                <select2 v-model="selectedProvider" :options="formatedProviders" :settings="{ templateSelection: formatState, templateResult: formatState, multiple: false, placeholder: 'Select Traffic Source' }" @change="selectedProviderChanged()" :disabled="instance != null" />
               </div>
               <div class="col-6">
                 <select class="form-control" v-if="accounts.length" v-model="selectedAccount" :disabled="instance">
