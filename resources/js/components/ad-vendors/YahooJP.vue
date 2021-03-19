@@ -499,6 +499,10 @@ export default {
           }],
           videos: [{
             mediaId: this.instance.ads[i]['adGroupAd']['mediaId'],
+            videoPath: this.instance.ads[i]['adGroupAd']['mediaId'],
+            videoThumbnailId: adType == 'RESPONSIVE_VIDEO_AD' ? this.instance.ads[i]['adGroupAd']['ad']['responsiveVideoAd']['thumbnailMediaId'] : '',
+            videoThumbnailPath: adType == 'RESPONSIVE_VIDEO_AD' ? this.instance.ads[i]['adGroupAd']['ad']['responsiveVideoAd']['thumbnailMediaId'] : '',
+            videoThumbnailState: true,
             existing: true
           }],
           imagePath: this.instance.ads[i]['adGroupAd']['mediaId'],

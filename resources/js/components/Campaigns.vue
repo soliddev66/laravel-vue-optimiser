@@ -13,10 +13,7 @@
                 <VueCtkDateTimePicker :shortcut="getShortcut()" :customShortcuts="shortcuts" position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData()"></VueCtkDateTimePicker>
               </div>
               <div class="col-md-4 col-12">
-                <select class="form-control" v-model="selectedProvider" @change="resetAccountAndGetData()">
-                  <option value="">-</option>
-                  <option v-for="provider in providers" :value="provider.id" :key="provider.id">{{ provider.label }}</option>
-                </select>
+                <select2 v-model="selectedProvider" :options="formatedProviders" :settings="{ templateSelection: formatState, templateResult: formatState, multiple: false, placeholder: 'Select Traffic Source' }" @change="resetAccountAndGetData()" />
               </div>
               <div class="col-md-4 col-12">
                 <select class="form-control" v-model="selectedAccount" @change="resetAdvertiserAndGetData()">
@@ -32,7 +29,7 @@
               </div>
               <div class="col-md-6 col-12">
                 <select class="form-control" v-model="selectedTracker" @change="getData()">
-                  <option value="">-</option>
+                  <option value="">TS Report</option>
                   <option v-for="tracker in trackers" :value="tracker.slug" :key="tracker.slug">{{ tracker.label }}</option>
                 </select>
               </div>
@@ -112,7 +109,8 @@
 <script>
 import _ from 'lodash';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
-import Loading from 'vue-loading-overlay'
+import Select2 from 'v-select2-component';
+import Loading from 'vue-loading-overlay';
 
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
 import 'vue-loading-overlay/dist/vue-loading.css';
@@ -134,7 +132,16 @@ export default {
   },
   components: {
     VueCtkDateTimePicker,
+    Select2,
     Loading
+  },
+  computed: {
+    formatedProviders() {
+      return this.providers.map(provider => {
+        provider.text = provider.label
+        return provider
+      })
+    }
   },
   mounted() {
     console.log('Component mounted.')
@@ -288,6 +295,15 @@ export default {
     }
   },
   methods: {
+    formatState(state) {
+      if (!state.id) {
+        return state.text;
+      }
+      var $state = $(
+        '<span><img src="' + state.icon + '" width="20px" height="20px" /> ' + state.text + '</span>'
+      );
+      return $state;
+    },
     getShortcut() {
       const params = (new URL(document.location)).searchParams;
       const selectedShortcut = this.shortcuts.find(shortcut => shortcut.value === params.get('shortcut'));
@@ -325,6 +341,7 @@ export default {
     resetAccountAndGetData(options = this.tableProps, state = false) {
       this.selectedAccount = '';
       this.selectedAdvertiser = '';
+      options['page'] = 1;
       this.getData(options, state);
     },
     resetAdvertiserAndGetData(options = this.tableProps, state = false) {

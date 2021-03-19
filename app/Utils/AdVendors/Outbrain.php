@@ -292,26 +292,37 @@ class Outbrain extends Root implements AdVendorInterface
     {
         $api = new OutbrainAPI($user_provider);
         $campaign_ids = [];
+        $campaigns = [];
+        $offset = 0;
 
         foreach ($user_provider->advertisers as $key => $marketer) {
-            $campaigns_by_marketer = $api->getCampaignsByMarketerId($marketer);
+            $campaigns_by_marketer = $api->getCampaignsByMarketerId($marketer, $offset);
             if (array_key_exists('campaigns', $campaigns_by_marketer)) {
-                $campaigns_by_marketer = $campaigns_by_marketer['campaigns'];
-                foreach ($campaigns_by_marketer as $campaign) {
-                    $db_campaign = Campaign::firstOrNew([
-                        'campaign_id' => $campaign['id'],
-                        'provider_id' => $user_provider->provider_id,
-                        'open_id' => $user_provider->open_id,
-                        'user_id' => $user_provider->user_id
-                    ]);
-
-                    $db_campaign->name = $campaign['name'];
-                    $db_campaign->status = $campaign['enabled'] ? 'ACTIVE' : 'PAUSED';
-                    $db_campaign->budget = $campaign['budget']['amount'];
-                    $db_campaign->advertiser_id = $marketer;
-                    $db_campaign->save();
-                    $campaign_ids[] = $db_campaign->id;
+                $campaigns = $campaigns_by_marketer['campaigns'];
+                if (array_key_exists('totalCount', $campaigns_by_marketer) && count($campaigns) < $campaigns_by_marketer['totalCount']) {
+                    while ($offset < $campaigns_by_marketer['totalCount']) {
+                        $offset += 25;
+                        $loop_campaigns_by_marketer = $api->getCampaignsByMarketerId($marketer, $offset);
+                        foreach ($loop_campaigns_by_marketer['campaigns'] as $index => $campaign) {
+                            array_push($campaigns, $campaign);
+                        }
+                    }
                 }
+            }
+            foreach ($campaigns as $campaign) {
+                $db_campaign = Campaign::firstOrNew([
+                    'campaign_id' => $campaign['id'],
+                    'provider_id' => $user_provider->provider_id,
+                    'open_id' => $user_provider->open_id,
+                    'user_id' => $user_provider->user_id
+                ]);
+
+                $db_campaign->name = $campaign['name'];
+                $db_campaign->status = $campaign['enabled'] ? 'ACTIVE' : 'PAUSED';
+                $db_campaign->budget = $campaign['budget']['amount'];
+                $db_campaign->advertiser_id = $marketer;
+                $db_campaign->save();
+                $campaign_ids[] = $db_campaign->id;
             }
         }
 

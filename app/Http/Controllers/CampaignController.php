@@ -221,6 +221,7 @@ class CampaignController extends Controller
                 DB::raw('MAX(campaigns.id) as id'),
                 DB::raw('MAX(campaigns.name) as name'),
                 DB::raw('MAX(providers.label) as provider_name'),
+                DB::raw('MAX(providers.icon) as provider_icon'),
                 DB::raw('MAX(campaigns.campaign_id) as campaign_id'),
                 DB::raw('MAX(campaigns.budget) as budget'),
                 DB::raw('MAX(campaigns.status) as status'),

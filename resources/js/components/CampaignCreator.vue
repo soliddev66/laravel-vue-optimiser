@@ -11,11 +11,10 @@
           </div>
           <div class="card-body">
             <div class="row form-inline">
-              <div class="col">
-                <select class="form-control" v-model="selectedProvider" @change="selectedProviderChanged()" :disabled="instance">
-                  <option value="">Select Traffic Source</option>
-                  <option :value="provider.slug" v-for="provider in providers" :key="provider.id">{{ provider.label }}</option>
-                </select>
+              <div class="col-6">
+                <select2 v-model="selectedProvider" :options="formatedProviders" :settings="{ templateSelection: formatState, templateResult: formatState, multiple: false, placeholder: 'Select Traffic Source' }" @change="selectedProviderChanged()" :disabled="instance != null" />
+              </div>
+              <div class="col-6">
                 <select class="form-control" v-if="accounts.length" v-model="selectedAccount" :disabled="instance">
                   <option value="">Select Account</option>
                   <option :value="account.open_id" v-for="account in accounts" :key="account.id">{{ account.open_id }}</option>
@@ -32,6 +31,7 @@
 
 <script>
 import _ from 'lodash'
+import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
@@ -66,13 +66,22 @@ export default {
   },
   components: {
     Loading,
+    Select2,
     yahoo,
     outbrain,
     twitter,
     taboola,
     yahoojp
   },
-  computed: {},
+  computed: {
+    formatedProviders() {
+      return this.providers.map(provider => {
+        provider.id = provider.slug
+        provider.text = provider.label
+        return provider
+      })
+    }
+  },
   mounted() {
     console.log('Component mounted.')
     this.getAccounts()
@@ -90,6 +99,15 @@ export default {
     }
   },
   methods: {
+    formatState(state) {
+      if (!state.id) {
+        return state.text;
+      }
+      var $state = $(
+        '<span><img src="' + state.icon + '" width="20px" height="20px" /> ' + state.text + '</span>'
+      );
+      return $state;
+    },
     selectedProviderChanged() {
       this.selectedAccount = ''
       this.getAccounts()
