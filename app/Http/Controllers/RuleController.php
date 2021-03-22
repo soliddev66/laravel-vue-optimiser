@@ -54,7 +54,7 @@ class RuleController extends Controller
 
         return [
             'rule' => $rule,
-            'rule_actions' => RuleAction::all(),
+            'rule_action_selections' => RuleAction::all(),
             'rule_data_from_options' => RuleDataFromOption::all(),
             'rule_conditions' => $rule_conditions,
             'rule_groups' => auth()->user()->ruleGroups,
