@@ -35,7 +35,7 @@
                 </fieldset>
                 <div class="form-group row">
                   <div class="col">
-                    <button type="button" class="btn btn-primary" @click="addAdGroup(index)">ADD</button>
+                    <button type="button" class="btn btn-primary btn-sm" @click="addAdGroup(index)">ADD</button>
                   </div>
                 </div>
               </div>

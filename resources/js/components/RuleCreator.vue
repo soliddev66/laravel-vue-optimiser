@@ -300,6 +300,22 @@ export default {
     let tempRuleCondition = {rule_condition_type_id: '', operation: 1, amount: '', unit: '1'},
       excludedDayOptionType = this.rule.excluded_day_type ? this.rule.excluded_day_type : null;
 
+    let ruleActions = [{
+      selectedRuleAction: this.rule.rule_action_id ? this.rule.rule_action_id : 1,
+      ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : this.ruleActionSelections[0].provider,
+      ruleActionData: {}
+    }]
+
+    // [{
+    //     selectedRuleAction: this.rule.rule_action_id ? this.rule.rule_action_id : 1,
+    //     ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : this.ruleActionSelections[0].provider,
+    //     ruleActionData: this.rule.rule_action_data ? JSON.parse(this.rule.rule_action_data) : {}
+    //   }]
+
+    if (this.rule.rule_rule_actions) {
+
+    }
+
     return {
       errors: {},
       isLoading: false,
@@ -321,11 +337,7 @@ export default {
       selectedWidgetIncluded: this.rule.is_widget_included ? this.rule.is_widget_included : 1,
       tempRuleCondition: tempRuleCondition,
       ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]],
-      ruleActions: [{
-        selectedRuleAction: this.rule.rule_action_id ? this.rule.rule_action_id : 1,
-        ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : this.ruleActionSelections[0].provider,
-        ruleActionData: this.rule.rule_action_data ? JSON.parse(this.rule.rule_action_data) : {}
-      }],
+      ruleActions: ruleActions,
     }
   },
   methods: {
@@ -422,7 +434,7 @@ export default {
 
       this.postData = {
         ruleName: this.ruleName,
-        ruleAction: this.selectedRuleAction,
+        ruleActions: this.ruleActions,
         ruleGroup: this.selectedRuleGroup,
         dataFrom: this.selectedDataFrom,
         excludedDay: this.selectedExcludedDay,
@@ -431,8 +443,7 @@ export default {
         ruleIntervalUnit: this.ruleIntervalUnit,
         ruleRunType: this.ruleRunType,
         ruleWidgetIncluded: this.selectedWidgetIncluded,
-        ruleWidget: this.ruleWidget,
-        ruleActionSubmitData: this.ruleActionData
+        ruleWidget: this.ruleWidget
       }
 
       let url = '/rules';

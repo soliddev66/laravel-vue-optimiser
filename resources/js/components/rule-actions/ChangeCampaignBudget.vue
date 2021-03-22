@@ -24,7 +24,7 @@
       </fieldset>
       <div class="form-group row">
         <div class="col">
-          <button type="button" class="btn btn-primary" @click="addRuleCampaign()">ADD</button>
+          <button type="button" class="btn btn-primary btn-sm" @click="addRuleCampaign()">ADD</button>
         </div>
       </div>
     </div>

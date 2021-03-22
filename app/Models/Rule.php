@@ -44,14 +44,14 @@ class Rule extends Model
         return $this->hasMany(RuleConditionGroup::class);
     }
 
+    public function ruleRuleActions()
+    {
+        return $this->hasMany(RuleRuleAction::class);
+    }
+
     public function timeRange()
     {
         return $this->belongsTo(RuleDataFromOption::class, 'from');
-    }
-
-    public function ruleAction()
-    {
-        return $this->belongsTo(RuleAction::class);
     }
 
     public function logs()
