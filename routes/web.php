@@ -35,6 +35,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'general'], function() {
     Route::post('/upload-files', [App\Http\Controllers\GeneralController::class, 'uploadFiles'])->name('general.upload_files');
 });
 
+Route::get('/create-campaign', [App\Http\Controllers\CampaignController::class, 'create'])->name('campaigns.createCampaign');
 Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/', [App\Http\Controllers\CampaignController::class, 'index'])->name('campaigns.index');
     Route::post('/', [App\Http\Controllers\CampaignController::class, 'store'])->name('campaigns.store');

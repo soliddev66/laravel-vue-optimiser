@@ -37,11 +37,25 @@
           </div>
           <div class="card-body">
             <data-table :data="campaigns" :columns="campaignColumns" @on-table-props-changed="reloadData" :order-by="tableProps.column" :order-dir="tableProps.dir">
+              <div slot="filters" slot-scope="{ tableFilters, perPage }">
+                <div class="row mb-2">
+                  <div class="col-6">
+                    <select class="form-control" v-model="tableProps.length" @change="getData()">
+                      <option :key="page" v-for="page in perPage">{{ page }}</option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <input name="search" class="form-control" v-model="tableProps.search" placeholder="Search Table" @blur="getData()">
+                  </div>
+                </div>
+              </div>
               <tbody slot="body" slot-scope="{ data }">
                 <tr v-for="campaign in data" :key="campaign.id">
                   <td>{{ campaign.id }}</td>
                   <td class="fit">
                     <a :href="'/campaigns/' + campaign.id">{{ campaign.name }}</a>
+                    <br>
+                    <small>ID: {{ campaign.campaign_id }}</small>
                     <div class="dropdown d-inline ml-2">
                       <button class="btn btn-sm border" type="button" @click="showQuickAct(campaign.id)">
                         <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
@@ -55,8 +69,6 @@
                         <a class="btn btn-sm btn-default border" :href="'/campaigns/delete/' + campaign.id" @click.prevent="deleteCampaign"><i class="fas fa-trash"></i></a>
                       </div>
                     </div>
-                    <br>
-                    <small>ID: {{ campaign.campaign_id }}</small>
                   </td>
                   <td v-if="['ACTIVE', 'RUNNING'].includes(campaign.status)" class="text-center text-success">
                     <i class="fas fa-dot-circle"></i>
@@ -141,10 +153,19 @@ export default {
         provider.text = provider.label
         return provider
       })
+    },
+    tableProps() {
+      const params = (new URL(document.location)).searchParams;
+      return {
+        page: params.get('page') || 1,
+        search: params.get('search') || '',
+        length: params.get('length') || 50,
+        column: params.get('column') || 'clicks',
+        dir: params.get('dir') || 'desc',
+      }
     }
   },
   mounted() {
-    console.log('Component mounted.')
     this.getData(this.tableProps, true)
   },
   watch: {
@@ -153,8 +174,7 @@ export default {
     // }
   },
   data() {
-    let params = (new URL(document.location)).searchParams;
-
+    const params = (new URL(document.location)).searchParams;
     return {
       accounts: [],
       advertisers: [],
@@ -171,13 +191,6 @@ export default {
         { key: 'lastYear', label: 'Last year', value: '-year' }
       ],
       campaigns: {},
-      tableProps: {
-        page: params.get('page') || 1,
-        search: params.get('search') || '',
-        length: params.get('length') || 10,
-        column: params.get('column') || 'clicks',
-        dir: params.get('dir') || 'desc',
-      },
       campaignColumns: [{
         label: 'ID',
         name: 'id',
@@ -207,15 +220,15 @@ export default {
         name: 'lp_clicks',
         orderable: true,
       }, {
-        label: 'Conversion',
+        label: 'Conv.',
         name: 'total_conversions',
         orderable: true,
       }, {
-        label: 'Total Actions',
+        label: 'Actions',
         name: 'total_actions',
         orderable: true,
       }, {
-        label: 'Total Actions CR',
+        label: 'Actions CR',
         name: 'total_actions_cr',
         orderable: true,
       }, {
@@ -223,7 +236,7 @@ export default {
         name: 'cr',
         orderable: true,
       }, {
-        label: 'Total Revenue',
+        label: 'Revenue',
         name: 'total_revenue',
         orderable: true,
       }, {

@@ -7,7 +7,20 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-body">
-            <data-table :data="logs" :columns="logColumns" @on-table-props-changed="reloadData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
+            <data-table :data="logs" :columns="logColumns" @on-table-props-changed="reloadData" :order-by="tableProps.column" :order-dir="tableProps.dir">
+              <div slot="filters" slot-scope="{ tableFilters, perPage }">
+                <div class="row mb-2">
+                  <div class="col-6">
+                    <select class="form-control" v-model="tableProps.length" @change="getData()">
+                      <option :key="page" v-for="page in perPage">{{ page }}</option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <input name="search" class="form-control" v-model="tableProps.search" placeholder="Search Table" @blur="getData()">
+                  </div>
+                </div>
+              </div>
+            </data-table>
           </div>
         </div>
       </div>

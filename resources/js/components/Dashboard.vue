@@ -98,7 +98,20 @@
       <div class="col-12 mt-3">
         <div class="card">
           <div class="card-body table-responsive">
-            <data-table order-by="provider_id" :data="dataByProvider" :columns="dataByProviderColumns" @on-table-props-changed="reloadData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
+            <data-table order-by="provider_id" :data="dataByProvider" :columns="dataByProviderColumns" @on-table-props-changed="reloadData" :order-by="tableProps.column" :order-dir="tableProps.dir">
+              <div slot="filters" slot-scope="{ tableFilters, perPage }">
+                <div class="row mb-2">
+                  <div class="col-6">
+                    <select class="form-control" v-model="tableProps.length" @change="getData()">
+                      <option :key="page" v-for="page in perPage">{{ page }}</option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <input name="search" class="form-control" v-model="tableProps.search" placeholder="Search Table" @blur="getData()">
+                  </div>
+                </div>
+              </div>
+            </data-table>
           </div>
         </div>
       </div>

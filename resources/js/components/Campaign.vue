@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container-fluid">
     <div class="vld-parent">
       <loading :active.sync="isLoading" :can-cancel="false" :is-full-page="true"></loading>
     </div>
@@ -46,23 +46,101 @@
             </ul>
             <div class="tab-content">
               <div class="tab-pane fade" :class="{ 'show active': show === 0 }" id="widgets" role="tabpanel" aria-labelledby="widgets-tab">
-                <data-table :data="widgets" :columns="widgetColumns" @on-table-props-changed="reloadWidgetData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
+                <data-table :data="widgets" :columns="widgetColumns" @on-table-props-changed="reloadWidgetData" :order-by="tableProps.column" :order-dir="tableProps.dir">
+                  <div slot="filters" slot-scope="{ tableFilters, perPage }">
+                    <div class="row mb-2">
+                      <div class="col-6">
+                        <select class="form-control" v-model="tableProps.length" @change="getWidgetData()">
+                          <option :key="page" v-for="page in perPage">{{ page }}</option>
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <input name="search" class="form-control" v-model="tableProps.search" placeholder="Search Table" @blur="getWidgetData()">
+                      </div>
+                    </div>
+                  </div>
+                </data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 1 }" id="contents" role="tabpanel" aria-labelledby="contents-tab">
                 <a class="btn btn-primary mb-2 float-right" v-if="campaign.provider_id == 2 || campaign.provider_id == 4" :href="`/campaigns/${campaign.id}/ad-groups/ad-group/ads/create`">Create New Ad</a>
-                <data-table :data="contents" :columns="contentColumns" @on-table-props-changed="reloadContentData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
+                <data-table :data="contents" :columns="contentColumns" @on-table-props-changed="reloadContentData" :order-by="tableProps.column" :order-dir="tableProps.dir">
+                  <div slot="filters" slot-scope="{ tableFilters, perPage }">
+                    <div class="row mb-2">
+                      <div class="col-6">
+                        <select class="form-control" v-model="tableProps.length" @change="getContentData()">
+                          <option :key="page" v-for="page in perPage">{{ page }}</option>
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <input name="search" class="form-control" v-model="tableProps.search" placeholder="Search Table" @blur="getContentData()">
+                      </div>
+                    </div>
+                  </div>
+                </data-table>
               </div>
               <div class="tab-pane fade" v-if="[1,3,4,5].includes(campaign.provider_id)" :class="{ 'show active': show === 2 }" id="ad-groups" role="tabpanel" aria-labelledby="ad-groups-tab">
-                <data-table :data="adGroups" :columns="adGroupColumns" @on-table-props-changed="reloadAdGroupData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
+                <data-table :data="adGroups" :columns="adGroupColumns" @on-table-props-changed="reloadAdGroupData" :order-by="tableProps.column" :order-dir="tableProps.dir">
+                  <div slot="filters" slot-scope="{ tableFilters, perPage }">
+                    <div class="row mb-2">
+                      <div class="col-6">
+                        <select class="form-control" v-model="tableProps.length" @change="getAdGroupData()">
+                          <option :key="page" v-for="page in perPage">{{ page }}</option>
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <input name="search" class="form-control" v-model="tableProps.search" placeholder="Search Table" @blur="getAdGroupData()">
+                      </div>
+                    </div>
+                  </div>
+                </data-table>
               </div>
               <div class="tab-pane fade" v-if="[2].includes(campaign.provider_id)" :class="{ 'show active': show === 2 }" id="publishers" role="tabpanel" aria-labelledby="publishers-tab">
-                <data-table :data="publishers" :columns="publisherColumns" @on-table-props-changed="reloadPublisherData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
+                <data-table :data="publishers" :columns="publisherColumns" @on-table-props-changed="reloadPublisherData" :order-by="tableProps.column" :order-dir="tableProps.dir">
+                  <div slot="filters" slot-scope="{ tableFilters, perPage }">
+                    <div class="row mb-2">
+                      <div class="col-6">
+                        <select class="form-control" v-model="tableProps.length" @change="getPublisherData()">
+                          <option :key="page" v-for="page in perPage">{{ page }}</option>
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <input name="search" class="form-control" v-model="tableProps.search" placeholder="Search Table" @blur="getPublisherData()">
+                      </div>
+                    </div>
+                  </div>
+                </data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 3 }" id="domains" role="tabpanel" aria-labelledby="domains-tab">
-                <data-table :data="domains" :columns="domainColumns" @on-table-props-changed="reloadDomainData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
+                <data-table :data="domains" :columns="domainColumns" @on-table-props-changed="reloadDomainData" :order-by="tableProps.column" :order-dir="tableProps.dir">
+                  <div slot="filters" slot-scope="{ tableFilters, perPage }">
+                    <div class="row mb-2">
+                      <div class="col-6">
+                        <select class="form-control" v-model="tableProps.length" @change="getDomainData()">
+                          <option :key="page" v-for="page in perPage">{{ page }}</option>
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <input name="search" class="form-control" v-model="tableProps.search" placeholder="Search Table" @blur="getDomainData()">
+                      </div>
+                    </div>
+                  </div>
+                </data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 4 }" id="rules" role="tabpanel" aria-labelledby="rules-tab">
-                <data-table :data="rules" :columns="ruleColumns" @on-table-props-changed="reloadRuleData" :order-by="tableProps.column" :order-dir="tableProps.dir"></data-table>
+                <data-table :data="rules" :columns="ruleColumns" @on-table-props-changed="reloadRuleData" :order-by="tableProps.column" :order-dir="tableProps.dir">
+                  <div slot="filters" slot-scope="{ tableFilters, perPage }">
+                    <div class="row mb-2">
+                      <div class="col-6">
+                        <select class="form-control" v-model="tableProps.length" @change="getRuleData()">
+                          <option :key="page" v-for="page in perPage">{{ page }}</option>
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <input name="search" class="form-control" v-model="tableProps.search" placeholder="Search Table" @blur="getRuleData()">
+                      </div>
+                    </div>
+                  </div>
+                </data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 5 }" id="performance" role="tabpanel" aria-labelledby="performance-tab">
                 <bar-chart v-if="performance" :chart-data="performance"></bar-chart>
@@ -104,6 +182,18 @@ export default {
   mounted() {
     console.log('Component mounted.')
     this.getData();
+  },
+  computed: {
+    tableProps() {
+      let params = (new URL(document.location)).searchParams;
+      return {
+        page: params.get('page') || 1,
+        search: params.get('search') || '',
+        length: params.get('length') || 50,
+        column: params.get('column') || 'clicks',
+        dir: params.get('dir') || 'desc',
+      }
+    }
   },
   data() {
     let params = (new URL(document.location)).searchParams;
@@ -174,11 +264,11 @@ export default {
         { label: 'Clicks', name: 'clicks', orderable: true },
         { label: 'LP Views', name: 'lp_views', orderable: true },
         { label: 'LP Clicks', name: 'lp_clicks', orderable: true },
-        { label: 'Conversion', name: 'conversions', orderable: true },
-        { label: 'Total Actions', name: 'total_actions', orderable: true },
-        { label: 'Total Actions CR', name: 'total_actions_cr', orderable: true },
+        { label: 'Conv.', name: 'conversions', orderable: true },
+        { label: 'Actions', name: 'total_actions', orderable: true },
+        { label: 'Actions CR', name: 'total_actions_cr', orderable: true },
         { label: 'CR', name: 'cr', orderable: true },
-        { label: 'Total Revenue', name: 'total_revenue', orderable: true },
+        { label: 'Revenue', name: 'total_revenue', orderable: true },
         { label: 'Cost', name: 'cost', orderable: true },
         { label: 'Profit', name: 'profit', orderable: true },
         { label: 'ROI', name: 'roi', orderable: true },
@@ -243,12 +333,12 @@ export default {
         { label: 'LP Clicks', name: 'lp_clicks', orderable: true },
         { label: 'Pre LP Clicks', name: 'prelp_clicks', orderable: true },
         { label: 'LP CTR', name: 'lp_ctr', orderable: true },
-        { label: 'Conversion', name: 'conversions', orderable: true },
+        { label: 'Conv.', name: 'conversions', orderable: true },
         { label: 'CR', name: 'cr', orderable: true },
-        { label: 'Total Actions', name: 'total_actions', orderable: true },
+        { label: 'Actions', name: 'total_actions', orderable: true },
         { label: 'TR', name: 'tr', orderable: true },
         { label: 'Conversion Revenue', name: 'conversion_revenue', orderable: true },
-        { label: 'Total Revenue', name: 'total_revenue', orderable: true },
+        { label: 'Revenue', name: 'total_revenue', orderable: true },
         { label: 'Cost', name: 'cost', orderable: true },
         { label: 'Profit', name: 'profit', orderable: true },
         { label: 'ROI', name: 'roi', orderable: true },
@@ -285,14 +375,7 @@ export default {
         end: this.$moment().format('YYYY-MM-DD')
       },
       show: 0,
-      isLoading: false,
-      tableProps: {
-        page: params.get('page') || 1,
-        search: params.get('search') || '',
-        length: params.get('length') || 10,
-        column: params.get('column') || 'clicks',
-        dir: params.get('dir') || 'desc',
-      }
+      isLoading: false
     }
   },
   methods: {
