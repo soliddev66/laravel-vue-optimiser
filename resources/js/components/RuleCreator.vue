@@ -412,6 +412,9 @@ export default {
         ruleActionData: {}
       })
     },
+    removeAction (index) {
+      this.ruleActions.splice(index)
+    },
     saveRule () {
       this.isLoading = true
 
