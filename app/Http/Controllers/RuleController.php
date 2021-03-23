@@ -58,8 +58,8 @@ class RuleController extends Controller
             'rule_action_selections' => RuleAction::all(),
             'rule_data_from_options' => RuleDataFromOption::all(),
             'rule_conditions' => $rule_conditions,
+            'rule_rule_actions' => $rule->ruleRuleActions ?? null,
             'rule_groups' => auth()->user()->ruleGroups,
-            'rule_rule_actions' => $rule->ruleRuleActions,
             'rule_condition_type_groups' => $rule_condition_type_groups
         ];
     }
@@ -97,6 +97,41 @@ class RuleController extends Controller
         return view('rules.form', $this->loadFormData($rule));
     }
 
+    public function store()
+    {
+        $validated_data = $this->validateRequest();
+
+        DB::beginTransaction();
+
+        try {
+            $rule = new Rule([
+                'name' => $validated_data['ruleName'],
+                'rule_group_id' => $validated_data['ruleGroup'],
+                'from' => $validated_data['dataFrom'],
+                'exclude_day' => $validated_data['excludedDay'],
+                'run_type' => $validated_data['ruleRunType'],
+                'interval_amount' => $validated_data['ruleIntervalAmount'],
+                'interval_unit' => $validated_data['ruleIntervalUnit'],
+                'user_id' => auth()->id(),
+                'status' => 'ACTIVE'
+            ]);
+
+            $rule->save();
+
+            $this->createRuleRuleActions($rule);
+            $this->createRuleConditions($rule);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'errors' => [$e->getMessage()]
+            ], 500);
+        }
+
+        return [];
+    }
+
     public function update(Rule $rule)
     {
         if (Gate::denies('modifiable', $rule)) {
@@ -114,8 +149,6 @@ class RuleController extends Controller
 
             $rule->name = $validated_data['ruleName'];
             $rule->rule_group_id = $validated_data['ruleGroup'];
-            $rule->rule_action_id = $validated_data['ruleAction'];
-            $rule->action_data = json_encode($validated_data['ruleActionSubmitData']);
             $rule->from = $validated_data['dataFrom'];
             $rule->exclude_day = $validated_data['excludedDay'];
             $rule->run_type = $validated_data['ruleRunType'];
@@ -124,6 +157,7 @@ class RuleController extends Controller
 
             $rule->save();
 
+            $this->createRuleRuleActions($rule);
             $this->createRuleConditions($rule);
 
             DB::commit();
@@ -187,41 +221,6 @@ class RuleController extends Controller
             'ruleIntervalUnit' => 'required',
             'ruleRunType' => 'required'
         ]);
-    }
-
-    public function store()
-    {
-        $validated_data = $this->validateRequest();
-
-        DB::beginTransaction();
-
-        try {
-            $rule = new Rule([
-                'name' => $validated_data['ruleName'],
-                'rule_group_id' => $validated_data['ruleGroup'],
-                'from' => $validated_data['dataFrom'],
-                'exclude_day' => $validated_data['excludedDay'],
-                'run_type' => $validated_data['ruleRunType'],
-                'interval_amount' => $validated_data['ruleIntervalAmount'],
-                'interval_unit' => $validated_data['ruleIntervalUnit'],
-                'user_id' => auth()->id(),
-                'status' => 'ACTIVE'
-            ]);
-
-            $rule->save();
-
-            $this->createRuleRuleActions($rule);
-            $this->createRuleConditions($rule);
-
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json([
-                'errors' => [$e->getMessage()]
-            ], 500);
-        }
-
-        return [];
     }
 
     public function delete(Rule $rule)

@@ -223,6 +223,10 @@ export default {
       type: Array,
       default: []
     },
+    ruleRuleActions: {
+      type: Array,
+      default: []
+    },
     ruleGroups: {
       type: Array,
       default: []
@@ -300,20 +304,22 @@ export default {
     let tempRuleCondition = {rule_condition_type_id: '', operation: 1, amount: '', unit: '1'},
       excludedDayOptionType = this.rule.excluded_day_type ? this.rule.excluded_day_type : null;
 
-    let ruleActions = [{
+    var ruleActions = [{
       selectedRuleAction: this.rule.rule_action_id ? this.rule.rule_action_id : 1,
       ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : this.ruleActionSelections[0].provider,
       ruleActionData: {}
     }]
 
-    // [{
-    //     selectedRuleAction: this.rule.rule_action_id ? this.rule.rule_action_id : 1,
-    //     ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : this.ruleActionSelections[0].provider,
-    //     ruleActionData: this.rule.rule_action_data ? JSON.parse(this.rule.rule_action_data) : {}
-    //   }]
+    if (this.ruleRuleActions) {
+      ruleActions = []
 
-    if (this.rule.rule_rule_actions) {
-
+      for (let i = 0; i < this.ruleRuleActions.length; i++) {
+        ruleActions.push({
+          selectedRuleAction: this.ruleRuleActions[i].rule_action_id,
+          ruleActionProvider: this.getRuleActionProvider(this.ruleRuleActions[i].rule_action_id),
+          ruleActionData: JSON.parse(this.ruleRuleActions[i].action_data)
+        })
+      }
     }
 
     return {
