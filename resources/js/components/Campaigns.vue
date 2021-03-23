@@ -50,7 +50,7 @@
                 </div>
               </div>
               <tbody slot="body" slot-scope="{ data }">
-                <tr v-for="campaign in data" :key="campaign.id">
+                <tr v-for="campaign in data" :key="campaign.id" :class="campaign.profit < 0 ? 'table-danger' : 'table-success'">
                   <td>{{ campaign.id }}</td>
                   <td class="fit">
                     <a :href="'/campaigns/' + campaign.id">{{ campaign.name }}</a>
@@ -471,5 +471,11 @@ export default {
 .table th {
   white-space: nowrap;
   width: 1%;
+}
+
+.table td,
+.table th,
+.table tr {
+  border: 1px solid #c2c7cb !important;
 }
 </style>
