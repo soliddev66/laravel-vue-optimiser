@@ -43,5 +43,15 @@ class RemoveColumnsRulesTable extends Migration
             $table->integer('rule_action_id')->unsigned();
             $table->text('action_data')->nullable();
         });
+
+        $rule_rule_actions = RuleRuleAction::all();
+
+        foreach ($rule_rule_actions as $rule_rule_action) {
+            $rule = Rule::find($rule_rule_action->rule_id);
+            $rule->rule_action_id = $rule_rule_action->rule_action_id;
+            $rule->action_data = $rule_rule_action->action_data;
+
+            $rule->save();
+        }
     }
 }
