@@ -14,4 +14,9 @@ class RuleRuleAction extends Model
         'rule_action_id',
         'action_data',
     ];
+
+    public function ruleAction()
+    {
+        return $this->belongsTo(RuleAction::class);
+    }
 }
