@@ -91,8 +91,10 @@
                       </select>
                     </div>
                   </div>
+                </fieldset>
 
-                  <fieldset class="mb-3 p-3 rounded border" v-for="(ruleAction, index) in ruleActions" :key="index">
+                <fieldset class="mb-4 p-3 rounded border bg-dark">
+                  <fieldset class="mb-3 p-3 rounded border bg-midnight" v-for="(ruleAction, index) in ruleActions" :key="index">
                     <div class="form-group row">
                       <label for="" class="col-sm-2 control-label mt-2">Do</label>
                       <div class="col-sm-10">
