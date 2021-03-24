@@ -36,6 +36,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'general'], function() {
 });
 
 Route::get('/create-campaign', [App\Http\Controllers\CampaignController::class, 'create'])->name('campaigns.createCampaign');
+Route::get('/queue', [App\Http\Controllers\CampaignController::class, 'queue'])->name('campaigns.queue');
 Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/', [App\Http\Controllers\CampaignController::class, 'index'])->name('campaigns.index');
     Route::post('/', [App\Http\Controllers\CampaignController::class, 'store'])->name('campaigns.store');
@@ -51,7 +52,6 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::post('/update/{campaign}', [App\Http\Controllers\CampaignController::class, 'update'])->name('campaigns.update');
     Route::post('/delete/{campaign}', [App\Http\Controllers\CampaignController::class, 'delete'])->name('campaigns.delete');
     Route::post('/status/{campaign}', [App\Http\Controllers\CampaignController::class, 'status'])->name('campaigns.status');
-    Route::get('/queue', [App\Http\Controllers\CampaignController::class, 'queue'])->name('campaigns.queue');
     Route::get('/jobs', [App\Http\Controllers\CampaignController::class, 'jobs'])->name('campaigns.jobs');
     Route::get('/failed-jobs', [App\Http\Controllers\CampaignController::class, 'failedJobs'])->name('campaigns.failed_jobs');
     Route::get('/{campaign}', [App\Http\Controllers\CampaignController::class, 'show'])->name('campaigns.show');

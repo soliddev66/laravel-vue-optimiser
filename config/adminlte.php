@@ -262,7 +262,7 @@ return [
                 ],
                 [
                     'text' => 'Queue',
-                    'url'  => 'campaigns/queue',
+                    'url'  => 'queue',
                     'icon' => 'fas fa-list'
                 ]
             ]
