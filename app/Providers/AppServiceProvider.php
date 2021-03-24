@@ -36,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
                 'text' => 'Campaigns',
                 'url' => 'campaigns?start=' . session('start') . '&end=' . session('end') . '&shortcut=' . session('shortcut') . '&tracker=' . session('tracker') . '&provider=' . session('provider') . '&account=' . session('account') . '&advertiser=' . session('advertiser') . '&page=' . session('page') . '&search=' . session('search') . '&length=' . session('length') . '&column=' . session('column') . '&dir=' . session('dir'),
                 'key' => 'campaigns',
+                'active' => ['campaigns*'],
                 'icon' => 'fas fa-chart-line'
             ]);
         });

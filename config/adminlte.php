@@ -247,6 +247,7 @@ return [
             'text' => 'Campaigns',
             'url' => 'campaigns',
             'key' => 'campaigns',
+            'active' => ['campaigns*'],
             'icon' => 'fas fa-chart-line'
         ],
         ['header' => 'AUTOMATION'],
@@ -256,12 +257,12 @@ return [
             'submenu' => [
                 [
                     'text' => 'Create Campaign',
-                    'url'  => 'campaigns/create',
+                    'url'  => 'create-campaign',
                     'icon' => 'fas fa-plus'
                 ],
                 [
                     'text' => 'Queue',
-                    'url'  => 'campaigns/queue',
+                    'url'  => 'queue',
                     'icon' => 'fas fa-list'
                 ]
             ]
