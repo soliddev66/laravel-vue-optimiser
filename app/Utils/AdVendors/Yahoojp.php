@@ -460,10 +460,10 @@ class Yahoojp extends Root implements AdVendorInterface
                                     ]
                                 ],
                                 'adGroupId' => $ad_group_id,
-                                'campaignId' => $campaign_id,
+                                'campaignId' => $campaign->campaign_id,
                                 'adName' => $headlines['headline'],
                                 'mediaId' => $media_id,
-                                'userStatus' => request('campaignStatus')
+                                'userStatus' => $campaign->status
                             ];
                         }
                     }

@@ -280,9 +280,18 @@ export default {
     }
   },
   methods: {
-    openChooseFile(name, index) {
+    openChooseFile(name, index, videoIndex) {
       this.openingFileSelector = name
       this.fileSelectorIndex = index
+
+      this.fileSelectorVideoIndex = videoIndex
+
+      if (name == 'imagePath') {
+        this.$root.$store.commit('fm/setSelectionType', 'multiple')
+      } else {
+        this.$root.$store.commit('fm/setSelectionType', 'single')
+      }
+
       this.$modal.show('imageModal')
     },
     validURL(str) {
