@@ -214,7 +214,7 @@
                         <label for="image" class="col-sm-4 control-label mt-2">Images</label>
                         <div class="col-sm-8">
                           <input type="text" name="image" placeholder="Images" class="form-control" disabled="disabled" v-model="content.imagePath" />
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index)">Choose Files</button>
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imagePath', index)">Choose Files</button>
                         </div>
                         <div class="col-sm-8 offset-sm-4">
                           <small class="text-danger" v-for="(image, indexImage) in content.images" :key="indexImage">
@@ -397,7 +397,7 @@ export default {
     console.log('Component mounted.')
     let vm = this
     this.$root.$on('fm-selected-items', (values) => {
-      if (this.openingFileSelector === 'imageUrl') {
+      if (this.openingFileSelector === 'imagePath') {
         let paths = []
         this.contents[this.fileSelectorIndex].images = []
         for (let i = 0; i < values.length; i++) {
@@ -499,6 +499,10 @@ export default {
           }],
           videos: [{
             mediaId: this.instance.ads[i]['adGroupAd']['mediaId'],
+            videoPath: this.instance.ads[i]['adGroupAd']['mediaId'],
+            videoThumbnailId: adType == 'RESPONSIVE_VIDEO_AD' ? this.instance.ads[i]['adGroupAd']['ad']['responsiveVideoAd']['thumbnailMediaId'] : '',
+            videoThumbnailPath: adType == 'RESPONSIVE_VIDEO_AD' ? this.instance.ads[i]['adGroupAd']['ad']['responsiveVideoAd']['thumbnailMediaId'] : '',
+            videoThumbnailState: true,
             existing: true
           }],
           imagePath: this.instance.ads[i]['adGroupAd']['mediaId'],
@@ -641,7 +645,7 @@ export default {
 
       this.fileSelectorVideoIndex = videoIndex
 
-      if (name == 'imageUrl') {
+      if (name == 'imagePath') {
         this.$root.$store.commit('fm/setSelectionType', 'multiple')
       } else {
         this.$root.$store.commit('fm/setSelectionType', 'single')
