@@ -60,32 +60,6 @@
                   </div>
 
                   <div class="form-group row">
-                    <label for="group" class="col-sm-2 control-label mt-2">Every</label>
-                    <div class="col-sm-5">
-                      <input type="number" name="interval_amount" class="form-control" v-model="ruleIntervalAmount" />
-                    </div>
-                    <div class="col-sm-5">
-                      <select name="interval_unit" class="form-control" v-model="ruleIntervalUnit">
-                        <option value="1">Minutes</option>
-                        <option value="2">Hours</option>
-                        <option value="3">Days</option>
-                        <option value="4">Weeks</option>
-                        <option value="5">Months</option>
-                        <option value="6">Years</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div class="form-group row">
-                    <label for="" class="col-sm-2 control-label mt-2">Do</label>
-                    <div class="col-sm-10">
-                      <select name="rule_action" class="form-control" v-model="selectedRuleAction" @change="selectedRuleActionChanged">
-                        <option :value="ruleAction.id" v-for="ruleAction in ruleActions" :key="ruleAction.id" :data-provider="ruleAction.provider">{{ ruleAction.name }}</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div class="form-group row">
                     <label for="dataFrom" class="col-sm-2 control-label mt-2">Considering data from</label>
                     <div class="col-sm-3">
                       <select name="data_from" class="form-control" v-model="selectedDataFrom" @change="selectedDataFromChanged">
@@ -101,10 +75,45 @@
                     </div>
                   </div>
 
-                  <h3 class="pb-2">On</h3>
-                  <fieldset class="mb-4 p-3 rounded border">
-                    <component :is="ruleActionProvider" :submitData="ruleActionData" />
+                  <div class="form-group row">
+                    <label for="group" class="col-sm-2 control-label mt-2">Every</label>
+                    <div class="col-sm-5">
+                      <input type="number" name="interval_amount" class="form-control" v-model="ruleIntervalAmount" />
+                    </div>
+                    <div class="col-sm-5">
+                      <select name="interval_unit" class="form-control" v-model="ruleIntervalUnit">
+                        <option value="1">Minutes</option>
+                        <option value="2">Hours</option>
+                        <option value="3">Days</option>
+                        <option value="4">Weeks</option>
+                        <option value="5">Months</option>
+                        <option value="6">Years</option>
+                      </select>
+                    </div>
+                  </div>
+                </fieldset>
+
+                <fieldset class="mb-4 p-3 rounded border bg-dark">
+                  <fieldset class="mb-3 p-3 rounded border bg-midnight" v-for="(ruleAction, index) in ruleActions" :key="index">
+                    <div class="form-group row">
+                      <label for="" class="col-sm-2 control-label mt-2">Do</label>
+                      <div class="col-sm-10">
+                        <select name="rule_action" class="form-control" v-model="ruleAction.selectedRuleAction" @change="selectedRuleActionChanged(index)">
+                          <option :value="ruleActionSelection.id" v-for="ruleActionSelection in ruleActionSelections" :key="ruleActionSelection.id">{{ ruleActionSelection.name }}</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <h3 class="pb-2">On</h3>
+                    <component :is="ruleAction.ruleActionProvider" :submitData="ruleAction.ruleActionData" />
+
+                    <div class="row" v-if="index > 0">
+                      <div class="col text-right">
+                        <button class="btn btn-warning btn-sm" @click.prevent="removeAction(index)">Remove</button>
+                      </div>
+                    </div>
                   </fieldset>
+                  <button class="btn btn-primary btn-sm" @click.prevent="addAction()">Add New</button>
                 </fieldset>
 
                 <fieldset class="mb-4 p-3 rounded border bg-dark">
@@ -208,11 +217,15 @@ export default {
       type: Object,
       default: null
     },
-    ruleActions: {
+    ruleActionSelections: {
       type: Array,
       default: []
     },
     ruleConditions: {
+      type: Array,
+      default: []
+    },
+    ruleRuleActions: {
       type: Array,
       default: []
     },
@@ -293,6 +306,24 @@ export default {
     let tempRuleCondition = {rule_condition_type_id: '', operation: 1, amount: '', unit: '1'},
       excludedDayOptionType = this.rule.excluded_day_type ? this.rule.excluded_day_type : null;
 
+    var ruleActions = [{
+      selectedRuleAction: this.rule.rule_action_id ? this.rule.rule_action_id : 1,
+      ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : this.ruleActionSelections[0].provider,
+      ruleActionData: {}
+    }]
+
+    if (this.ruleRuleActions) {
+      ruleActions = []
+
+      for (let i = 0; i < this.ruleRuleActions.length; i++) {
+        ruleActions.push({
+          selectedRuleAction: this.ruleRuleActions[i].rule_action_id,
+          ruleActionProvider: this.getRuleActionProvider(this.ruleRuleActions[i].rule_action_id),
+          ruleActionData: JSON.parse(this.ruleRuleActions[i].action_data)
+        })
+      }
+    }
+
     return {
       errors: {},
       isLoading: false,
@@ -311,12 +342,10 @@ export default {
       ruleIntervalAmount: this.rule.interval_amount ? this.rule.interval_amount : 1,
       ruleIntervalUnit: this.rule.interval_unit ? this.rule.interval_unit : 1,
       ruleRunType: this.rule.run_type ? this.rule.run_type : 1,
-      selectedRuleAction: this.rule.rule_action_id ? this.rule.rule_action_id : 1,
       selectedWidgetIncluded: this.rule.is_widget_included ? this.rule.is_widget_included : 1,
       tempRuleCondition: tempRuleCondition,
       ruleConditionData: this.ruleConditions.length > 0 ? this.ruleConditions : [[{...tempRuleCondition}]],
-      ruleActionProvider: this.rule.rule_action_provider ? this.rule.rule_action_provider : this.ruleActions[0].provider,
-      ruleActionData: this.rule.rule_action_data ? JSON.parse(this.rule.rule_action_data) : {}
+      ruleActions: ruleActions,
     }
   },
   methods: {
@@ -381,12 +410,30 @@ export default {
       this.excludedDayOptions = this.generateExcludeDayOptions(this.excludedDayOptionType)
       this.selectedExcludedDay = 1
     },
-    selectedRuleActionChanged (e) {
-      this.ruleActionProvider = e.target.options[e.target.selectedIndex].dataset.provider
-      if (typeof this.$options.components[this.ruleActionProvider] === 'undefined') {
+    getRuleActionProvider(id) {
+      for (let i = 0; i < this.ruleActionSelections.length; i++) {
+        if (this.ruleActionSelections[i].id == id) {
+          return this.ruleActionSelections[i].provider
+        }
+      }
+    },
+    selectedRuleActionChanged (index) {
+      let ruleAction = this.ruleActions[index];
+      this.ruleActions[index].ruleActionProvider = this.getRuleActionProvider(ruleAction.selectedRuleAction)
+      if (typeof this.$options.components[this.ruleActions[index].ruleActionProvider] === 'undefined') {
         alert('The rule action is under development.');
       }
-      this.ruleActionData = this.rule && this.rule.rule_action_id && this.rule.rule_action_data && this.rule.rule_action_id == this.selectedRuleAction ? JSON.parse(this.rule.rule_action_data) : {}
+      this.ruleActions[index].ruleActionData = {}
+    },
+    addAction () {
+      this.ruleActions.push({
+        selectedRuleAction: 1,
+        ruleActionProvider: this.ruleActionSelections[0].provider,
+        ruleActionData: {}
+      })
+    },
+    removeAction (index) {
+      this.ruleActions.splice(index)
     },
     saveRule () {
       this.isLoading = true
@@ -395,7 +442,7 @@ export default {
 
       this.postData = {
         ruleName: this.ruleName,
-        ruleAction: this.selectedRuleAction,
+        ruleActions: this.ruleActions,
         ruleGroup: this.selectedRuleGroup,
         dataFrom: this.selectedDataFrom,
         excludedDay: this.selectedExcludedDay,
@@ -404,8 +451,7 @@ export default {
         ruleIntervalUnit: this.ruleIntervalUnit,
         ruleRunType: this.ruleRunType,
         ruleWidgetIncluded: this.selectedWidgetIncluded,
-        ruleWidget: this.ruleWidget,
-        ruleActionSubmitData: this.ruleActionData
+        ruleWidget: this.ruleWidget
       }
 
       let url = '/rules';

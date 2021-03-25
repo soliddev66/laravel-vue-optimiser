@@ -43,67 +43,18 @@ class ExecuteRule implements ShouldQueue
 
         $time_range = (new $time_range_class())->get();
 
-        $rule_campaigns = json_decode($rule->action_data)->ruleCampaigns;
+        foreach ($rule->ruleRuleActions as $rule_rule_action) {
+            $rule_campaigns = json_decode($rule_rule_action->action_data)->ruleCampaigns;
 
-        foreach ($rule_campaigns as $rule_campaign) {
-            if (is_object($rule_campaign)) {
-                $campaign = Campaign::find($rule_campaign->id);
-            } else {
-                $campaign = Campaign::find($rule_campaign);
-            }
+            foreach ($rule_campaigns as $rule_campaign) {
+                if (is_object($rule_campaign)) {
+                    $campaign = Campaign::find($rule_campaign->id);
+                } else {
+                    $campaign = Campaign::find($rule_campaign);
+                }
 
-            switch ($rule->ruleAction->calculation_type) {
-                case 1:
-                    $this->log = new RuleLog();
-
-                    $this->log->rule_id = $this->rule_id;
-
-                    $this->log->start_date = $time_range[0]->format('Y-m-d');
-                    $this->log->end_date = $time_range[1]->format('Y-m-d');
-
-                    $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
-
-                    $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-                    $performance_data = (new $adVendorClass)->getPerformanceData($campaign, $time_range);
-
-                    if ($this->checkConditions($campaign, $rule, $redtrack_data, $performance_data, 1)) {
-                        $this->log->passed = true;
-
-                        // ActivateCampaign, PauseCampaign, BlockWidgetsPushlisher, UnBlockWidgetsPushlisher, ChangeCampaignBudget, ChangeCampaignBid
-                        $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
-
-                        if (class_exists($rule_action_class)) {
-                            if ($rule->run_type == 1) {
-                                (new $rule_action_class())->visual($campaign, $this->log->data_text, $rule_campaign->data ?? null);
-                            }
-
-                            if ($rule->run_type == 2 || $rule->run_type == 3) {
-                                (new $rule_action_class())->process($campaign, $this->log->data_text, $rule_campaign->data ?? null);
-                            }
-
-                            if ($rule->run_type == 1 || $rule->run_type == 3) {
-                                $this->sendNotify();
-                            }
-                        }
-                    } else {
-                        $this->log->passed = false;
-                        $this->log->data_text[$rule->run_type == 1 ? 'visual-effect' : 'effect'] = [
-                            'campaign' => $campaign->name,
-                            'passed' => false
-                        ];
-                    }
-
-                    $this->log->data = json_encode($this->log->data_text);
-                    $this->log->save();
-
-                    break;
-
-                case 2:
-
-                    $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-                    $redtrack_domain_data = (new $adVendorClass)->getDomainData($campaign, $time_range);
-
-                    foreach ($redtrack_domain_data as $data) {
+                switch ($rule_rule_action->ruleAction->calculation_type) {
+                    case 1:
                         $this->log = new RuleLog();
 
                         $this->log->rule_id = $this->rule_id;
@@ -111,19 +62,24 @@ class ExecuteRule implements ShouldQueue
                         $this->log->start_date = $time_range[0]->format('Y-m-d');
                         $this->log->end_date = $time_range[1]->format('Y-m-d');
 
-                        if ($this->checkConditions($campaign, $rule, [$data], [$data], 2)) {
+                        $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+
+                        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+                        $performance_data = (new $adVendorClass)->getPerformanceData($campaign, $time_range);
+
+                        if ($this->checkConditions($campaign, $rule, $redtrack_data, $performance_data, 1)) {
                             $this->log->passed = true;
 
-                            // BlockSite
-                            $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
+                            // ActivateCampaign, PauseCampaign, BlockWidgetsPushlisher, UnBlockWidgetsPushlisher, ChangeCampaignBudget, ChangeCampaignBid
+                            $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule_rule_action->ruleAction->provider;
 
                             if (class_exists($rule_action_class)) {
                                 if ($rule->run_type == 1) {
-                                    (new $rule_action_class())->visual($campaign, $data, $this->log->data_text);
+                                    (new $rule_action_class())->visual($campaign, $this->log->data_text, $rule_campaign->data ?? null);
                                 }
 
                                 if ($rule->run_type == 2 || $rule->run_type == 3) {
-                                    (new $rule_action_class())->process($campaign, $data, $this->log->data_text);
+                                    (new $rule_action_class())->process($campaign, $this->log->data_text, $rule_campaign->data ?? null);
                                 }
 
                                 if ($rule->run_type == 1 || $rule->run_type == 3) {
@@ -134,61 +90,107 @@ class ExecuteRule implements ShouldQueue
                             $this->log->passed = false;
                             $this->log->data_text[$rule->run_type == 1 ? 'visual-effect' : 'effect'] = [
                                 'campaign' => $campaign->name,
-                                'site' => $data['sub1'],
                                 'passed' => false
                             ];
                         }
 
                         $this->log->data = json_encode($this->log->data_text);
                         $this->log->save();
-                    }
 
-                    break;
+                        break;
 
-                case 3:
-                    foreach ($campaign->ads as $ad) {
-                        $redtrack_content_stats = $ad->redtrackContentStats()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+                    case 2:
 
-                        $this->log = new RuleLog();
+                        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+                        $redtrack_domain_data = (new $adVendorClass)->getDomainData($campaign, $time_range);
 
-                        $this->log->rule_id = $this->rule_id;
+                        foreach ($redtrack_domain_data as $data) {
+                            $this->log = new RuleLog();
 
-                        $this->log->start_date = $time_range[0]->format('Y-m-d');
-                        $this->log->end_date = $time_range[1]->format('Y-m-d');
+                            $this->log->rule_id = $this->rule_id;
 
-                        if ($this->checkConditions($campaign, $rule, $redtrack_content_stats, $redtrack_content_stats, 3)) {
-                            $this->log->passed = true;
+                            $this->log->start_date = $time_range[0]->format('Y-m-d');
+                            $this->log->end_date = $time_range[1]->format('Y-m-d');
 
-                            // PauseContents, ActivateContents
-                            $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule->ruleAction->provider;
+                            if ($this->checkConditions($campaign, $rule, [$data], [$data], 2)) {
+                                $this->log->passed = true;
 
-                            if (class_exists($rule_action_class)) {
-                                if ($rule->run_type == 1) {
-                                    (new $rule_action_class())->visual($campaign, $ad, $this->log->data_text);
+                                // BlockSite
+                                $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule_rule_action->ruleAction->provider;
+
+                                if (class_exists($rule_action_class)) {
+                                    if ($rule->run_type == 1) {
+                                        (new $rule_action_class())->visual($campaign, $data, $this->log->data_text);
+                                    }
+
+                                    if ($rule->run_type == 2 || $rule->run_type == 3) {
+                                        (new $rule_action_class())->process($campaign, $data, $this->log->data_text);
+                                    }
+
+                                    if ($rule->run_type == 1 || $rule->run_type == 3) {
+                                        $this->sendNotify();
+                                    }
                                 }
-
-                                if ($rule->run_type == 2 || $rule->run_type == 3) {
-                                    (new $rule_action_class())->process($campaign, $ad, $this->log->data_text);
-                                }
-
-                                if ($rule->run_type == 1 || $rule->run_type == 3) {
-                                    $this->sendNotify();
-                                }
+                            } else {
+                                $this->log->passed = false;
+                                $this->log->data_text[$rule->run_type == 1 ? 'visual-effect' : 'effect'] = [
+                                    'campaign' => $campaign->name,
+                                    'site' => $data['sub1'],
+                                    'passed' => false
+                                ];
                             }
-                        } else {
-                            $this->log->passed = false;
-                            $this->log->data_text[$rule->run_type == 1 ? 'visual-effect' : 'effect'] = [
-                                'campaign' => $campaign->name,
-                                'ad' => $ad->name,
-                                'passed' => false
-                            ];
+
+                            $this->log->data = json_encode($this->log->data_text);
+                            $this->log->save();
                         }
 
-                        $this->log->data = json_encode($this->log->data_text);
-                        $this->log->save();
-                    }
+                        break;
 
-                    break;
+                    case 3:
+                        foreach ($campaign->ads as $ad) {
+                            $redtrack_content_stats = $ad->redtrackContentStats()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+
+                            $this->log = new RuleLog();
+
+                            $this->log->rule_id = $this->rule_id;
+
+                            $this->log->start_date = $time_range[0]->format('Y-m-d');
+                            $this->log->end_date = $time_range[1]->format('Y-m-d');
+
+                            if ($this->checkConditions($campaign, $rule, $redtrack_content_stats, $redtrack_content_stats, 3)) {
+                                $this->log->passed = true;
+
+                                // PauseContents, ActivateContents
+                                $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule_rule_action->ruleAction->provider;
+
+                                if (class_exists($rule_action_class)) {
+                                    if ($rule->run_type == 1) {
+                                        (new $rule_action_class())->visual($campaign, $ad, $this->log->data_text);
+                                    }
+
+                                    if ($rule->run_type == 2 || $rule->run_type == 3) {
+                                        (new $rule_action_class())->process($campaign, $ad, $this->log->data_text);
+                                    }
+
+                                    if ($rule->run_type == 1 || $rule->run_type == 3) {
+                                        $this->sendNotify();
+                                    }
+                                }
+                            } else {
+                                $this->log->passed = false;
+                                $this->log->data_text[$rule->run_type == 1 ? 'visual-effect' : 'effect'] = [
+                                    'campaign' => $campaign->name,
+                                    'ad' => $ad->name,
+                                    'passed' => false
+                                ];
+                            }
+
+                            $this->log->data = json_encode($this->log->data_text);
+                            $this->log->save();
+                        }
+
+                        break;
+                }
             }
         }
     }

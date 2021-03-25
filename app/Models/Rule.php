@@ -25,8 +25,6 @@ class Rule extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'rule_action_id',
-        'action_data',
         'rule_group_id',
         'from',
         'exclude_day',
@@ -44,14 +42,14 @@ class Rule extends Model
         return $this->hasMany(RuleConditionGroup::class);
     }
 
+    public function ruleRuleActions()
+    {
+        return $this->hasMany(RuleRuleAction::class);
+    }
+
     public function timeRange()
     {
         return $this->belongsTo(RuleDataFromOption::class, 'from');
-    }
-
-    public function ruleAction()
-    {
-        return $this->belongsTo(RuleAction::class);
     }
 
     public function logs()
