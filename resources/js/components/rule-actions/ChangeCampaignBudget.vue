@@ -10,10 +10,18 @@
                 <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" />
               </div>
             </div>
-            <div class="form-group row">
-              <label for="" class="col-sm-2 control-label">Budget</label>
-              <div class="col-sm-10">
+            <div class="form-group">
+              <div class="input-group">
+                <select name="budget_set_type" v-model="ruleCampaign.data.budgetSetType" class="form-control col-sm-2">
+                  <option value="1">Set Budget To</option>
+                  <option value="2">Increase Budget By</option>
+                  <option value="3">Descrease Budget By</option>
+                </select>
                 <input type="text" name="rule_campaign_budget" v-model="ruleCampaign.data.budget" class="form-control" placeholder="Enter budget">
+                <select name="budget_unit" v-model="ruleCampaign.data.budgetType" class="form-control col-sm-1">
+                  <option value="1">$</option>
+                  <option value="2">%</option>
+                </select>
               </div>
             </div>
           </div>
