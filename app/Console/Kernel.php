@@ -32,7 +32,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         // Report data
         $schedule->command('gemini:crawl')->daily();
-        $schedule->command('gemini:crawl today')->everyTwoHours();
+        $schedule->command('gemini:crawl today')->everySixHours();
         $schedule->command('gemini:check')->everyTenMinutes();
         $schedule->call(function () {
             Outbrain::getReport();

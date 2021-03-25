@@ -2,6 +2,8 @@
 
 namespace App\Utils\AdVendors\Attributes;
 
+use Exception;
+
 trait Yahoo
 {
     public function impressions($data, $calculation_type)

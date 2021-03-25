@@ -59,7 +59,7 @@
                     <a class="btn btn-sm btn-default border" :href="'/rules/delete/' + rule.id" @click.prevent="deleteRule"><i class="fas fa-trash"></i> Delete</a>
                   </td>
                   <td>{{ rule.name }}</td>
-                  <td>{{ rule.rule_action.name }}</td>
+                  <td>{{ rule.rule_rule_actions.map(item => { return item.rule_action.name }) }}</td>
                   <td>
                     <span v-if="rule.status === 'ACTIVE'" class="text-success">{{ rule.status }}</span>
                     <span v-if="rule.status === 'PAUSED'" class="text-danger">{{ rule.status }}</span>
@@ -106,6 +106,7 @@ export default {
   mounted() {
     console.log('Component mounted.')
     this.data = this.rules
+    console.log(this.data)
   },
   data() {
     return {
