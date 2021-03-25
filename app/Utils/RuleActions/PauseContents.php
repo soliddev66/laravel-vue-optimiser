@@ -13,8 +13,7 @@ class PauseContents extends Root
     {
         $log['effect'] = [
             'campaign' => $campaign->name,
-            'ad_group_id' => $ad->ad_group_id,
-            'ad_id' => $ad->ad_id
+            'ad' => $ad
         ];
 
         try {
@@ -33,8 +32,7 @@ class PauseContents extends Root
     {
         $log['visual-effect'] = [
             'campaign' => $campaign->name,
-            'ad_group_id' => $ad->ad_group_id,
-            'ad_id' => $ad->ad_id,
+            'ad' => $ad,
             'paused' => true
         ];
     }

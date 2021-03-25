@@ -12,7 +12,7 @@ class PauseCampaign extends Root
     public function process($campaign, &$log, $rule_data = null)
     {
         $log['effect'] = [
-            'campaign' => $campaign->name
+            'campaign' => $campaign
         ];
 
         try {
@@ -30,7 +30,7 @@ class PauseCampaign extends Root
     public function visual($campaign, &$log, $rule_data = null)
     {
         $log['visual-effect'] = [
-            'campaign' => $campaign->name,
+            'campaign' => $campaign,
             'paused' => true
         ];
     }

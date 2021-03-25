@@ -13,8 +13,7 @@ class ActivateContents extends Root
     {
         $log['effect'] = [
             'campaign' => $campaign->name,
-            'ad_group_id' => $ad->ad_group_id,
-            'ad_id' => $ad->ad_id
+            'ad' => $ad
         ];
         try {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
@@ -33,8 +32,7 @@ class ActivateContents extends Root
     {
         $log['visual-effect'] = [
             'campaign' => $campaign->name,
-            'ad_group_id' => $ad->ad_group_id,
-            'ad_id' => $ad->ad_id,
+            'ad' => $ad,
             'activated' => true
         ];
     }
