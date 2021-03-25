@@ -56,9 +56,7 @@ class ExecuteRule implements ShouldQueue
                 switch ($rule_rule_action->ruleAction->calculation_type) {
                     case 1:
                         $this->log = new RuleLog();
-
                         $this->log->rule_id = $this->rule_id;
-
                         $this->log->start_date = $time_range[0]->format('Y-m-d');
                         $this->log->end_date = $time_range[1]->format('Y-m-d');
 
@@ -100,15 +98,12 @@ class ExecuteRule implements ShouldQueue
                         break;
 
                     case 2:
-
                         $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
                         $redtrack_domain_data = (new $adVendorClass)->getDomainData($campaign, $time_range);
 
                         foreach ($redtrack_domain_data as $data) {
                             $this->log = new RuleLog();
-
                             $this->log->rule_id = $this->rule_id;
-
                             $this->log->start_date = $time_range[0]->format('Y-m-d');
                             $this->log->end_date = $time_range[1]->format('Y-m-d');
 
@@ -135,7 +130,7 @@ class ExecuteRule implements ShouldQueue
                                 $this->log->passed = false;
                                 $this->log->data_text[$rule->run_type == 1 ? 'visual-effect' : 'effect'] = [
                                     'campaign' => $campaign->name,
-                                    'site' => $data['sub1'],
+                                    'site' => $data,
                                     'passed' => false
                                 ];
                             }
@@ -151,9 +146,7 @@ class ExecuteRule implements ShouldQueue
                             $redtrack_content_stats = $ad->redtrackContentStats()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
 
                             $this->log = new RuleLog();
-
                             $this->log->rule_id = $this->rule_id;
-
                             $this->log->start_date = $time_range[0]->format('Y-m-d');
                             $this->log->end_date = $time_range[1]->format('Y-m-d');
 
@@ -180,7 +173,7 @@ class ExecuteRule implements ShouldQueue
                                 $this->log->passed = false;
                                 $this->log->data_text[$rule->run_type == 1 ? 'visual-effect' : 'effect'] = [
                                     'campaign' => $campaign->name,
-                                    'ad' => $ad->name,
+                                    'ad' => $ad,
                                     'passed' => false
                                 ];
                             }

@@ -2,6 +2,8 @@
 
 namespace App\Utils\AdVendors\Attributes;
 
+use Exception;
+
 trait Outbrain
 {
     public function impressions($data, $calculation_type)

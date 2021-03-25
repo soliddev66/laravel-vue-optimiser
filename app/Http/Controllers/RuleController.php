@@ -21,7 +21,7 @@ class RuleController extends Controller
 {
     public function index()
     {
-        $rules = auth()->user()->rules()->get();
+        $rules = auth()->user()->rules()->with('ruleRuleActions.ruleAction')->get();
 
         $rule_actions = RuleAction::all();
 

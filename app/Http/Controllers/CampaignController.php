@@ -173,20 +173,21 @@ class CampaignController extends Controller
 
     public function rules(Campaign $campaign)
     {
-        $domains_query = Rule::select(
+        $rules_query = Rule::select(
             DB::raw('rules.id as id'),
             DB::raw('rules.name as name'),
-            DB::raw('rules.rule_action_id as rule_action_id'),
+            DB::raw('rule_rule_actions.rule_action_id as rule_action_id'),
             DB::raw('rule_actions.name as action_name'),
             DB::raw('rules.id as clicks'),
             DB::raw('rules.status as status')
-        )->join('rule_actions', 'rules.rule_action_id', 'rule_actions.id');
-        $domains_query->where(DB::raw('JSON_EXTRACT(rules.action_data, "$.ruleCampaigns")'), 'REGEXP', '\\b' . $campaign->id . '\\b');
+        )->join('rule_rule_actions', 'rules.id', 'rule_rule_actions.rule_id')
+        ->join('rule_actions', 'rule_rule_actions.rule_action_id', 'rule_actions.id');
+        $rules_query->where(DB::raw('JSON_EXTRACT(rule_rule_actions.action_data, "$.ruleCampaigns")'), 'REGEXP', '\\b' . $campaign->id . '\\b');
         if (request('search')) {
-            $domains_query->where('rules.name', 'LIKE', '%' . request('search') . '%')->orWhere('rule_actions.name', 'LIKE', '%' . request('search') . '%');
+            $rules_query->where('rules.name', 'LIKE', '%' . request('search') . '%')->orWhere('rule_actions.name', 'LIKE', '%' . request('search') . '%');
         }
 
-        return new DataTableCollectionResource($domains_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
+        return new DataTableCollectionResource($rules_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
 
     public function performance(Campaign $campaign)

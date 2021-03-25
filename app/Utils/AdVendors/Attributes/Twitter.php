@@ -2,6 +2,8 @@
 
 namespace App\Utils\AdVendors\Attributes;
 
+use Exception;
+
 trait Twitter
 {
     public function impressions($data, $calculation_type)
