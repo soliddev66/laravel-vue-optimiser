@@ -7,7 +7,7 @@
             <div class="form-group row">
               <label for="" class="col-sm-2 control-label">Campaign</label>
               <div class="col-sm-10">
-                <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" />
+                <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" :settings="{ placeholder: 'Select campaign' }" />
               </div>
             </div>
             <div class="form-group">
@@ -17,11 +17,35 @@
                   <option value="2">Increase Budget By</option>
                   <option value="3">Descrease Budget By</option>
                 </select>
-                <input type="text" name="rule_campaign_budget" v-model="ruleCampaign.data.budget" class="form-control" placeholder="Enter budget">
-                <select name="budget_unit" v-model="ruleCampaign.data.budgetType" class="form-control col-sm-1">
+                <input type="text" name="rule_campaign_budget" v-model="ruleCampaign.data.budget" class="form-control" placeholder="Enter value">
+                <select name="budget_unit" v-model="ruleCampaign.data.budgetUnit" class="form-control col-sm-1">
                   <option value="1">$</option>
                   <option value="2">%</option>
                 </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Do not allow the Budget to be lower than</span>
+                </div>
+                <input type="text" name="budget_min" v-model="ruleCampaign.data.budgetMin" class="form-control" placeholder="Enter amount">
+                <div class="input-group-append">
+                  <span class="input-group-text">$</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Do not allow the Budget to be higher than</span>
+                </div>
+                <input type="text" name="budget_min" v-model="ruleCampaign.data.budgetMax" class="form-control" placeholder="Enter amount">
+                <div class="input-group-append">
+                  <span class="input-group-text">$</span>
+                </div>
               </div>
             </div>
           </div>
@@ -73,7 +97,7 @@ export default {
     let postData = this.submitData
 
     if (!postData.ruleCampaigns) {
-      postData.ruleCampaigns = [{id: null, data: {budget: ''}}]
+      postData.ruleCampaigns = [{id: null, data: {budget: '', budgetSetType: 1, budgetUnit: 1, budgetMin: '', budgetMax: ''}}]
     }
 
     return {
@@ -102,7 +126,7 @@ export default {
       })
     },
     addRuleCampaign() {
-      this.ruleCampaigns.push({id: null, data: {budget: ''}})
+      this.ruleCampaigns.push({id: null, data: {budget: '', budgetSetType: 1, budgetUnit: 1, budgetMin: '', budgetMax: ''}})
     },
     removeRuleCampaign(index) {
       this.ruleCampaigns.splice(index, 1);
