@@ -1041,11 +1041,21 @@ class Yahoo extends Root implements AdVendorInterface
         $api->updateAttributes($request_body);
     }
 
-    public function changeBugget(Campaign $campaign, $budget)
+    public function changeBugget(Campaign $campaign, $data)
     {
         $api = new GeminiAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
 
-        $api->updateCampaignBudget($campaign->campaign_id, $budget);
+        $budget = 0;
+
+        if (!isset($data->budgetSetType) || $data->budgetSetType == 1) {
+            $budget = $data->budget;
+        } else {
+            $campaign_data = $api->getCampaign($campaign->campaign_id);
+
+            var_dump($campaign_data);
+        }
+
+        //$api->updateCampaignBudget($campaign->campaign_id, $budget);
     }
 
     public function changeCampaignBid(Campaign $campaign, $data)
