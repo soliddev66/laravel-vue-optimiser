@@ -720,12 +720,36 @@ class Twitter extends Root implements AdVendorInterface
         //
     }
 
-    public function changeBugget(Campaign $campaign, $budget)
+    public function changeBugget(Campaign $campaign, $data)
     {
         $api = new TwitterAPI(UserProvider::where([
             'provider_id' => $campaign->provider_id,
             'open_id' => $campaign->open_id
         ])->first(), $campaign->advertiser_id);
+
+        $budget = 0;
+
+        if (!isset($data->budgetSetType) || $data->budgetSetType == 1) {
+            $budget = $data->budget;
+        } else {
+            $campaign_data = $api->getCampaign($campaign->campaign_id)->toArray();
+
+            $campaign_budget = $campaign_data['total_budget_amount_local_micro'] / 1E6;
+
+            if ($data->budgetSetType == 2) {
+                $budget = $campaign_budget + ($data->budgetUnit == 1 ? $data->budget : $campaign_budget * $data->budget / 100);
+
+                if (!empty($data->budgetMax) && $budget > $data->budgetMax) {
+                    $budget = $data->budgetMax;
+                }
+            } else {
+                $budget = $campaign_budget - ($data->budgetUnit == 1 ? $data->budget : $campaign_budget * $data->budget / 100);
+
+                if (!empty($data->budgetMin) && $budget < $data->budgetMin) {
+                    $budget = $data->budgetMin;
+                }
+            }
+        }
 
         $api->updateCampaignBudget($campaign, $budget);
     }
