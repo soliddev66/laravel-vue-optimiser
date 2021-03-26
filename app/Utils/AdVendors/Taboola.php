@@ -773,12 +773,34 @@ class Taboola extends Root implements AdVendorInterface
         //
     }
 
-    public function changeBugget(Campaign $campaign, $budget)
+    public function changeBugget(Campaign $campaign, $data)
     {
         $api = new TaboolaAPI(UserProvider::where([
             'provider_id' => $campaign->provider->id,
             'open_id' => $campaign->open_id
         ])->first());
+
+        $budget = 0;
+
+        if (!isset($data->budgetSetType) || $data->budgetSetType == 1) {
+            $budget = $data->budget;
+        } else {
+            $campaign_data = $api->getCampaign($campaign->advertiser_id, $campaign->campaign_id);
+
+            if ($data->budgetSetType == 2) {
+                $budget = $campaign_data['spending_limit'] + ($data->budgetUnit == 1 ? $data->budget : $campaign_data['spending_limit'] * $data->budget / 100);
+
+                if (!empty($data->budgetMax) && $budget > $data->budgetMax) {
+                    $budget = $data->budgetMax;
+                }
+            } else {
+                $budget = $campaign_data['spending_limit'] - ($data->budgetUnit == 1 ? $data->budget : $campaign_data['spending_limit'] * $data->budget / 100);
+
+                if (!empty($data->budgetMin) && $budget < $data->budgetMin) {
+                    $budget = $data->budgetMin;
+                }
+            }
+        }
 
         $api->updateCampaign($campaign->advertiser_id, $campaign->campaign_id, [
             'spending_limit' => $budget

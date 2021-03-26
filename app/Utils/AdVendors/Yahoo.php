@@ -1067,9 +1067,7 @@ class Yahoo extends Root implements AdVendorInterface
             }
         }
 
-        $campaign_data = $api->updateCampaignBudget($campaign->campaign_id, $budget);
-
-        var_dump($campaign_data);
+        $api->updateCampaignBudget($campaign->campaign_id, $budget);
     }
 
     public function changeCampaignBid(Campaign $campaign, $data)
