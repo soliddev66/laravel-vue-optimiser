@@ -1279,15 +1279,15 @@ class Yahoojp extends Root implements AdVendorInterface
             $campaign_data = $api->getCampaign($campaign->advertiser_id, $campaign->campaign_id)['rval']['values'][0]['campaign'];
 
             if ($data->budgetSetType == 2) {
-                $budget = $campaign_data['budget']['amount'] + $campaign_data['budget']['amount'] * $data->budget / 100;
+                $budget = $campaign_data['budget']['amount'] + ($data->budgetUnit == 1 ? $data->budget : $campaign_data['budget']['amount'] * $data->budget / 100);
 
                 if (!empty($data->budgetMax) && $budget > $data->budgetMax) {
                     $budget = $data->budgetMax;
                 }
             } else {
-                $budget = $campaign_data['budget']['amount'] - $campaign_data['budget']['amount'] * $data->budget / 100;
+                $budget = $campaign_data['budget']['amount'] - ($data->budgetUnit == 1 ? $data->budget : $campaign_data['budget']['amount'] * $data->budget / 100);
 
-                if (!empty($data->budgetMin) && $budget > $data->budgetMin) {
+                if (!empty($data->budgetMin) && $budget < $data->budgetMin) {
                     $budget = $data->budgetMin;
                 }
             }

@@ -1052,10 +1052,24 @@ class Yahoo extends Root implements AdVendorInterface
         } else {
             $campaign_data = $api->getCampaign($campaign->campaign_id);
 
-            var_dump($campaign_data);
+            if ($data->budgetSetType == 2) {
+                $budget = $campaign_data['budget'] + ($data->budgetUnit == 1 ? $data->budget : $campaign_data['budget'] * $data->budget / 100);
+
+                if (!empty($data->budgetMax) && $budget > $data->budgetMax) {
+                    $budget = $data->budgetMax;
+                }
+            } else {
+                $budget = $campaign_data['budget'] - ($data->budgetUnit == 1 ? $data->budget : $campaign_data['budget'] * $data->budget / 100);
+
+                if (!empty($data->budgetMin) && $budget < $data->budgetMin) {
+                    $budget = $data->budgetMin;
+                }
+            }
         }
 
-        //$api->updateCampaignBudget($campaign->campaign_id, $budget);
+        $campaign_data = $api->updateCampaignBudget($campaign->campaign_id, $budget);
+
+        var_dump($campaign_data);
     }
 
     public function changeCampaignBid(Campaign $campaign, $data)
