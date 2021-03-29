@@ -471,6 +471,8 @@ export default {
 .table th {
   white-space: nowrap;
   width: 1%;
+  vertical-align: middle;
+  padding: 0.25rem 0.75rem;
 }
 
 .table td,
