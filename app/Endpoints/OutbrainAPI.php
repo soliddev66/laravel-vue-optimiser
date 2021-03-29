@@ -104,6 +104,11 @@ class OutbrainAPI
         ]);
     }
 
+    public function getBudget($budget_id)
+    {
+        return $this->client->call('GET', 'budgets/' . $budget_id);
+    }
+
     public function updateBudgetAmount($budget_id, $amount)
     {
         return $this->client->call('PUT', 'budgets/' . $budget_id, [

@@ -18,7 +18,7 @@ class ChangeCampaignBudget extends Root
 
         try {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            (new $adVendorClass)->changeBugget($campaign, $rule_data->budget);
+            (new $adVendorClass)->changeBugget($campaign, $rule_data);
             echo "Campaign's budget was being changed\n";
             $log['effect']['changed'] = true;
         } catch (Exception $e) {

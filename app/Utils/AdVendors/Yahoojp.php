@@ -1264,12 +1264,34 @@ class Yahoojp extends Root implements AdVendorInterface
         //
     }
 
-    public function changeBugget(Campaign $campaign, $budget)
+    public function changeBugget(Campaign $campaign, $data)
     {
         $api = new YahooJPAPI(UserProvider::where([
             'provider_id' => $campaign->provider->id,
             'open_id' => $campaign->open_id
         ])->first());
+
+        $budget = 0;
+
+        if (!isset($data->budgetSetType) || $data->budgetSetType == 1) {
+            $budget = $data->budget;
+        } else {
+            $campaign_data = $api->getCampaign($campaign->advertiser_id, $campaign->campaign_id)['rval']['values'][0]['campaign'];
+
+            if ($data->budgetSetType == 2) {
+                $budget = $campaign_data['budget']['amount'] + ($data->budgetUnit == 1 ? $data->budget : $campaign_data['budget']['amount'] * $data->budget / 100);
+
+                if (!empty($data->budgetMax) && $budget > $data->budgetMax) {
+                    $budget = $data->budgetMax;
+                }
+            } else {
+                $budget = $campaign_data['budget']['amount'] - ($data->budgetUnit == 1 ? $data->budget : $campaign_data['budget']['amount'] * $data->budget / 100);
+
+                if (!empty($data->budgetMin) && $budget < $data->budgetMin) {
+                    $budget = $data->budgetMin;
+                }
+            }
+        }
 
         $api->updateCampaignData([
             'accountId' => $campaign->advertiser_id,
