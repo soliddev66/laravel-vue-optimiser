@@ -11,12 +11,14 @@ class Ad extends Model
 
     protected $fillable = [
         'ad_id',
+        'type',
         'user_id',
         'provider_id',
         'campaign_id',
         'advertiser_id',
         'ad_group_id',
         'open_id',
+        'video',
         'image',
         'description',
         'synced'
