@@ -18,6 +18,7 @@ import vueDebounce from 'vue-debounce';
 import DataTable from 'laravel-vue-datatable';
 import * as Sentry from '@sentry/browser';
 import { Integrations } from '@sentry/tracing';
+import Viewer from 'v-viewer';
 
 import moment from './plugins/moment.js';
 
@@ -34,6 +35,7 @@ Vue.use(VModal);
 Vue.use(vueDebounce);
 Vue.use(moment);
 Vue.use(DataTable);
+Vue.use(Viewer);
 Sentry.init({
   Vue,
   dsn: 'https://cab5a7c169254985ba5c039f83db66b1@o501900.ingest.sentry.io/5583628',

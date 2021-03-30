@@ -1177,6 +1177,7 @@ class Yahoojp extends Root implements AdVendorInterface
             DB::raw('MAX(ads.ad_id) as ad_id'),
             DB::raw('MAX(ads.name) as name'),
             DB::raw('MAX(ads.status) as status'),
+            DB::raw('MAX(ads.image) as image'),
             DB::raw('ROUND(SUM(total_revenue)/SUM(total_conversions), 2) as payout'),
             DB::raw('SUM(clicks) as clicks'),
             DB::raw('SUM(lp_views) as lp_views'),
