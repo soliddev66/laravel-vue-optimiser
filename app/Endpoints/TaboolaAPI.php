@@ -55,19 +55,19 @@ class TaboolaAPI
         ]);
     }
 
-    public function createCampaignVideoItem($advertiser_id, $campaign_id, $url, $title, $video_url, $image_url)
-    {
-        return $this->client->call('POST', $advertiser_id . '/campaigns/' . $campaign_id . '/performance-video/items', [
-            'url' => $url,
-            'title' => $title,
-            'video_url' => $video_url,
-            'fallback_url' => $image_url
-        ]);
-    }
-
     public function updateCampaignItem($advertiser_id, $campaign_id, $campaign_item_id, $data)
     {
         return $this->client->call('PUT', $advertiser_id . '/campaigns/' . $campaign_id . '/items/' . $campaign_item_id, $data);
+    }
+
+    public function createCampaignVideoItem($advertiser_id, $campaign_id, $data)
+    {
+        return $this->client->call('POST', $advertiser_id . '/campaigns/' . $campaign_id . '/performance-video/items', $data);
+    }
+
+    public function updateCampaignVideoItem($advertiser_id, $campaign_id, $campaign_item_id, $data)
+    {
+        return $this->client->call('PUT', $advertiser_id . '/campaigns/' . $campaign_id . '/performance-video/items/' . $campaign_item_id, $data);
     }
 
     public function getCampaignItems($advertiser_id, $campaign_id)

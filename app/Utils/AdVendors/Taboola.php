@@ -97,7 +97,7 @@ class Taboola extends Root implements AdVendorInterface
                                 'ad_id' => $campaign_item_data['id'],
                                 'user_id' => auth()->id(),
                                 'provider_id' => 4,
-                                'campaign_id' =>  $campaign_data['id'],
+                                'campaign_id' => $campaign_data['id'],
                                 'ad_group_id' => 'taboola',
                                 'advertiser_id' => request('advertiser'),
                                 'open_id' => request('account')
@@ -113,13 +113,19 @@ class Taboola extends Root implements AdVendorInterface
                         }
                     } else {
                         foreach ($campaign_item['videos'] as $video) {
-                            $campaign_item_data = $api->createCampaignVideoItem(request('advertiser'), $campaign_data['id'], $campaign_item['url'], $title['title'], $video['videoUrl'], $video['imageUrl']);
+                            $campaign_item_data = $api->createCampaignVideoItem(request('advertiser'), $campaign_data['id'], [
+                                'url' => $campaign_item['url'],
+                                'title' => $title['title'],
+                                'description' => $campaign_item['description'],
+                                'video_url' => $video['videoUrl'],
+                                'fallback_url' => $video['imageUrl']
+                            ]);
 
                             $ad = Ad::firstOrNew([
                                 'ad_id' => $campaign_item_data['id'],
                                 'user_id' => auth()->id(),
                                 'provider_id' => 4,
-                                'campaign_id' =>  $campaign_data['id'],
+                                'campaign_id' => $campaign_data['id'],
                                 'ad_group_id' => 'taboola',
                                 'advertiser_id' => request('advertiser'),
                                 'open_id' => request('account')
@@ -188,38 +194,90 @@ class Taboola extends Root implements AdVendorInterface
 
             foreach (request('campaignItems') as $campaign_item) {
                 foreach ($campaign_item['titles'] as $title) {
-                    foreach ($campaign_item['images'] as $image) {
-                        $ad = Ad::firstOrNew([
-                            'ad_id' => $campaign_item_data['id'],
-                            'user_id' => auth()->id(),
-                            'provider_id' => 4,
-                            'campaign_id' =>  $campaign_data['id'],
-                            'ad_group_id' => 'taboola',
-                            'advertiser_id' => request('advertiser'),
-                            'open_id' => request('account')
-                        ]);
+                    if ($campaign_item['adType'] == 'IMAGE') {
+                        foreach ($campaign_item['images'] as $image) {
+                            if ($title['existing'] && $image['existing']) {
+                                $campaign_item_data = $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['id'], [
+                                    'url' => $campaign_item['url'],
+                                    'title' => $title['title'],
+                                    'description' => $campaign_item['description'],
+                                    'thumbnail_url' => $image['image']
+                                ]);
 
-                        if ($title['existing'] && $image['existing']) {
-                            $campaign_item_data = $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['id'], [
-                                'url' => $campaign_item['url'],
-                                'title' => $title['title'],
-                                'description' => $campaign_item['description'],
-                                'thumbnail_url' => $image['image']
+                                $ad = Ad::firstOrNew([
+                                    'ad_id' => $campaign_item_data['id'],
+                                    'user_id' => auth()->id(),
+                                    'provider_id' => 4,
+                                    'campaign_id' => $campaign_data['id'],
+                                    'ad_group_id' => 'taboola',
+                                    'advertiser_id' => request('advertiser'),
+                                    'open_id' => request('account')
+                                ]);
+
+                                $ad->synced = 1;
+                            } else {
+                                $campaign_item_data = $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
+
+                                $ad = Ad::firstOrNew([
+                                    'ad_id' => $campaign_item_data['id'],
+                                    'user_id' => auth()->id(),
+                                    'provider_id' => 4,
+                                    'campaign_id' => $campaign_data['id'],
+                                    'ad_group_id' => 'taboola',
+                                    'advertiser_id' => request('advertiser'),
+                                    'open_id' => request('account')
+                                ]);
+
+                                $ad->synced = 0;
+                            }
+
+                            $ad->type = 1;
+                            $ad->name = $title['title'];
+                            $ad->image = $image['image'];
+                            $ad->status = $campaign_item_data['status'];
+                            $ad->description = $campaign_item['description'];
+
+                            $ad->save();
+                        }
+                    } else {
+                        foreach ($campaign_item['videos'] as $video) {
+                            if ($title['existing'] && $video['existing']) {
+                                $campaign_item_data = $api->updateCampaignVideoItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['id'], [
+                                    'url' => $campaign_item['url'],
+                                    'title' => $title['title'],
+                                    'description' => $campaign_item['description'],
+                                    'video_url' => $video['videoUrl'],
+                                    'fallback_url' => $video['imageUrl'],
+                                ]);
+                            } else {
+                                $campaign_item_data = $api->createCampaignVideoItem(request('advertiser'), $campaign_data['id'], [
+                                    'url' => $campaign_item['url'],
+                                    'title' => $title['title'],
+                                    'description' => $campaign_item['description'],
+                                    'video_url' => $video['videoUrl'],
+                                    'fallback_url' => $video['imageUrl']
+                                ]);
+                            }
+
+                            $ad = Ad::firstOrNew([
+                                'ad_id' => $campaign_item_data['id'],
+                                'user_id' => auth()->id(),
+                                'provider_id' => 4,
+                                'campaign_id' => $campaign_data['id'],
+                                'ad_group_id' => 'taboola',
+                                'advertiser_id' => request('advertiser'),
+                                'open_id' => request('account')
                             ]);
 
+                            $ad->type = 2;
+                            $ad->name = $title['title'];
+                            $ad->video = $video['videoUrl'];
+                            $ad->image = $video['imageUrl'];
+                            $ad->status = $campaign_item_data['status'];
+                            $ad->description = $campaign_item['description'];
                             $ad->synced = 1;
-                        } else {
-                            $campaign_item_data = $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
-
-                            $ad->synced = 0;
+                            $ad->save();
                         }
-
-                        $ad->name = $title['title'];
-                        $ad->image = $image['image'];
-                        $ad->status = $campaign_item_data['status'];
-                        $ad->description = $campaign_item['description'];
-
-                        $ad->save();
                     }
                 }
             }
@@ -273,7 +331,7 @@ class Taboola extends Root implements AdVendorInterface
                             'ad_id' => $campaign_item_data['id'],
                             'user_id' => auth()->id(),
                             'provider_id' => 4,
-                            'campaign_id' =>  $campaign->campaign_id,
+                            'campaign_id' => $campaign->campaign_id,
                             'ad_group_id' => 'taboola',
                             'advertiser_id' => $campaign->advertiser_id,
                             'open_id' => request('account')
@@ -329,7 +387,7 @@ class Taboola extends Root implements AdVendorInterface
                             'ad_id' => $campaign_item_data['id'],
                             'user_id' => auth()->id(),
                             'provider_id' => 4,
-                            'campaign_id' =>  $campaign->campaign_id,
+                            'campaign_id' => $campaign->campaign_id,
                             'ad_group_id' => 'taboola',
                             'advertiser_id' => $campaign->advertiser_id,
                             'open_id' => request('account')
