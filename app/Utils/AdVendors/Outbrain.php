@@ -374,6 +374,7 @@ class Outbrain extends Root implements AdVendorInterface
 
                         $db_ad->name = $ad['text'];
                         $db_ad->status = $ad['status'];
+                        $db_ad->image = $ad['imageMetadata']['originalImageUrl'];
                         $db_ad->save();
                         $ad_ids[] = $db_ad->id;
                     }
@@ -544,6 +545,7 @@ class Outbrain extends Root implements AdVendorInterface
             DB::raw('MAX(ads.ad_id) as ad_id'),
             DB::raw('MAX(ads.name) as name'),
             DB::raw('MAX(ads.status) as status'),
+            DB::raw('MAX(ads.image) as image'),
             DB::raw('ROUND(SUM(total_revenue)/SUM(total_conversions), 2) as payout'),
             DB::raw('SUM(clicks) as clicks'),
             DB::raw('SUM(lp_views) as lp_views'),
@@ -673,10 +675,32 @@ class Outbrain extends Root implements AdVendorInterface
         //
     }
 
-    public function changeBugget(Campaign $campaign, $budget)
+    public function changeBugget(Campaign $campaign, $data)
     {
         $api = new OutbrainAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
         $campaign_data = $api->getCampaign($campaign->campaign_id);
+
+        $budget = 0;
+
+        if (!isset($data->budgetSetType) || $data->budgetSetType == 1) {
+            $budget = $data->budget;
+        } else {
+            $budget_data = $api->getBudget($campaign_data['budget']['id']);
+
+            if ($data->budgetSetType == 2) {
+                $budget = $budget_data['amount'] + ($data->budgetUnit == 1 ? $data->budget : $budget_data['amount'] * $data->budget / 100);
+
+                if (!empty($data->budgetMax) && $budget > $data->budgetMax) {
+                    $budget = $data->budgetMax;
+                }
+            } else {
+                $budget = $budget_data['amount'] - ($data->budgetUnit == 1 ? $data->budget : $budget_data['amount'] * $data->budget / 100);
+
+                if (!empty($data->budgetMin) && $budget < $data->budgetMin) {
+                    $budget = $data->budgetMin;
+                }
+            }
+        }
 
         $api->updateBudgetAmount($campaign_data['budget']['id'], $budget);
     }

@@ -655,6 +655,7 @@ class Yahoo extends Root implements AdVendorInterface
 
                     $db_ad->name = $ad['adName'] ?? $ad['title'];
                     $db_ad->status = $ad['status'];
+                    $db_ad->image = $ad['imageUrl'];
                     $db_ad->save();
                     $ad_ids[] = $db_ad->id;
                 }
@@ -849,6 +850,7 @@ class Yahoo extends Root implements AdVendorInterface
             DB::raw('MAX(ads.ad_id) as ad_id'),
             DB::raw('MAX(ads.name) as name'),
             DB::raw('MAX(ads.status) as status'),
+            DB::raw('MAX(ads.image) as image'),
             DB::raw('ROUND(SUM(total_revenue)/SUM(total_conversions), 2) as payout'),
             DB::raw('SUM(clicks) as clicks'),
             DB::raw('SUM(lp_views) as lp_views'),
@@ -1041,9 +1043,31 @@ class Yahoo extends Root implements AdVendorInterface
         $api->updateAttributes($request_body);
     }
 
-    public function changeBugget(Campaign $campaign, $budget)
+    public function changeBugget(Campaign $campaign, $data)
     {
         $api = new GeminiAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
+
+        $budget = 0;
+
+        if (!isset($data->budgetSetType) || $data->budgetSetType == 1) {
+            $budget = $data->budget;
+        } else {
+            $campaign_data = $api->getCampaign($campaign->campaign_id);
+
+            if ($data->budgetSetType == 2) {
+                $budget = $campaign_data['budget'] + ($data->budgetUnit == 1 ? $data->budget : $campaign_data['budget'] * $data->budget / 100);
+
+                if (!empty($data->budgetMax) && $budget > $data->budgetMax) {
+                    $budget = $data->budgetMax;
+                }
+            } else {
+                $budget = $campaign_data['budget'] - ($data->budgetUnit == 1 ? $data->budget : $campaign_data['budget'] * $data->budget / 100);
+
+                if (!empty($data->budgetMin) && $budget < $data->budgetMin) {
+                    $budget = $data->budgetMin;
+                }
+            }
+        }
 
         $api->updateCampaignBudget($campaign->campaign_id, $budget);
     }

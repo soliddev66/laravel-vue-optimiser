@@ -158,6 +158,8 @@ import _ from 'lodash';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import Loading from 'vue-loading-overlay';
 import ActionsComponent from './includes/ActionsComponent.vue';
+import NameComponent from './includes/NameComponent.vue';
+import ImageComponent from './includes/ImageComponent.vue';
 import BarChart from '../plugins/BarChart.js';
 
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
@@ -180,7 +182,6 @@ export default {
     Loading
   },
   mounted() {
-    console.log('Component mounted.')
     this.getData();
   },
   computed: {
@@ -243,9 +244,17 @@ export default {
         { label: 'LP CPC', name: 'lp_cpc', orderable: true }
       ],
       contentColumns: [
-        { label: 'ID', name: 'id', orderable: true },
-        { label: 'Ad. ID', name: 'ad_id', orderable: true },
-        { label: 'Name', name: 'name', orderable: true }, {
+        { label: 'ID', name: 'id', orderable: true }, {
+          label: 'Name',
+          name: 'name',
+          component: NameComponent,
+          orderable: true
+        }, {
+          label: 'Image',
+          name: 'image',
+          component: ImageComponent,
+          orderable: false
+        }, {
           label: 'Actions',
           name: 'actions',
           orderable: false,

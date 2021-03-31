@@ -423,7 +423,7 @@ export default {
       })
     },
     removeAction(index) {
-      this.ruleActions.splice(index)
+      this.ruleActions.splice(index, 1)
     },
     saveRule() {
       this.isLoading = true
