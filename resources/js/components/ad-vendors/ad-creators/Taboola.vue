@@ -34,19 +34,59 @@
                     </div>
                   </div>
                 </div>
+
+                <div class="form-group row">
+                  <label for="ad_type" class="col-sm-2 control-label mt-2">Ad Type</label>
+                  <div class="col-sm-8">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: campaignItem.adType === 'IMAGE' }">
+                        <input type="radio" name="ad_type" autocomplete="off" value="IMAGE" v-model="campaignItem.adType"> IMAGE
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: campaignItem.adType === 'VIDEO' }">
+                        <input type="radio" name="ad_type" autocomplete="off" value="VIDEO" v-model="campaignItem.adType"> VIDEO
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="form-group row">
                   <label for="description" class="col-sm-2 control-label mt-2">Description</label>
                   <div class="col-sm-8">
                     <textarea class="form-control" rows="3" placeholder="Enter description" v-model="campaignItem.description"></textarea>
                   </div>
                 </div>
-                <div class="form-group row">
-                  <label for="thumbnail_url" class="col-sm-2 control-label mt-2">Thumbnail Images</label>
-                  <div class="col-sm-8">
-                    <input type="text" name="thumbnail_url" placeholder="Thumbnail Images" class="form-control" disabled="disabled" v-model="campaignItem.imagePath" />
-                    <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose Files</button>
+
+                <div v-if="campaignItem.adType == 'IMAGE'">
+                  <div class="form-group row">
+                    <label for="thumbnail_url" class="col-sm-2 control-label mt-2">Thumbnail Images</label>
+                    <div class="col-sm-8">
+                      <input type="text" name="thumbnail_url" placeholder="Thumbnail Images" class="form-control" disabled="disabled" v-model="campaignItem.imagePath" />
+                      <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose Files</button>
+                    </div>
                   </div>
                 </div>
+
+                <div v-if="campaignItem.adType == 'VIDEO'">
+                  <fieldset class="mb-3 p-3 rounded border" v-for="(video, videoIndex) in campaignItem.videos" :key="videoIndex">
+                    <div class="form-group row">
+                      <label for="video_url" class="col-sm-2 control-label mt-2">Video URL</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="video_url" placeholder="Enter video URL" class="form-control" v-model="video.videoUrl" />
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoUrl', index, videoIndex)">Choose File</button>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="image_url" class="col-sm-2 control-label mt-2">Image URL</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="video.imageUrl" />
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, videoIndex)">Choose File</button>
+                      </div>
+                    </div>
+                    <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeVideo(index, videoIndex)" v-if="videoIndex > 0">Remove Video</button>
+                  </fieldset>
+                  <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)">Add Video</button>
+                </div>
+
                 <div class="row" v-if="index > 0 && action == 'create'">
                   <div class="col text-right">
                     <button class="btn btn-warning btn-sm" @click.prevent="removeCampaignItem(index)">Remove</button>
@@ -134,9 +174,9 @@ export default {
 
   },
   data() {
-    console.log(this.ad)
     let campaignItems = [{
       url: this.ad ? this.ad.url : '',
+      adType: 'IMAGE',
       titles: [{
         title: this.ad ? this.ad.title : '',
         existing: this.ad ? true : false
@@ -144,6 +184,11 @@ export default {
       description: this.ad ? this.ad.description : '',
       images: [{
         image: this.ad ? this.ad.thumbnail_url : '',
+        existing: this.ad ? true : false
+      }],
+      videos: [{
+        videoUrl: this.ad ? this.ad.video_url : '',
+        imageUrl: this.ad ? this.ad.fallback_url : '',
         existing: this.ad ? true : false
       }],
       imagePath: this.ad ? this.ad.thumbnail_url : ''
@@ -177,9 +222,10 @@ export default {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
     },
-    addCampaignItem(index) {
+    addCampaignItem() {
       this.campaignItems.push({
         url: '',
+        adType: 'IMAGE',
         titles: [{
           title: '',
           existing: false
@@ -187,6 +233,11 @@ export default {
         description: '',
         images: [{
           image: '',
+          existing: false
+        }],
+        videos: [{
+          videoUrl: '',
+          imageUrl: '',
           existing: false
         }],
         imagePath: ''
@@ -203,6 +254,17 @@ export default {
     },
     removeTitle(index, indexTitle) {
       this.campaignItems[index].titles.splice(indexTitle, 1)
+    },
+
+    addVideo(index) {
+      this.campaignItems[index].videos.push({
+        videoUrl: '',
+        imageUrl: '',
+        existing: false
+      })
+    },
+    removeVideo(index, videoIndex) {
+      this.campaignItems[index].videos.splice(videoIndex, 1)
     },
 
     submit() {
