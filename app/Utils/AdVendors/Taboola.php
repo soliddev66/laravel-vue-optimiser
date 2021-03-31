@@ -378,6 +378,10 @@ class Taboola extends Root implements AdVendorInterface
                             $ad->description = $campaign_item['description'];
                             $ad->synced = 1;
                             $ad->save();
+
+                            $ad->url = $campaign_item['url'];
+
+                            $ads[] = $ad;
                         }
                     }
                 }

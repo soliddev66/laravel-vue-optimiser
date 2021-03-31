@@ -289,6 +289,7 @@ export default {
           for (let i = 0; i < response.data.length; i++) {
             this.campaignItems.push({
               id: response.data[i].ad_id,
+              adType: response.data[i].type == 1 ? 'IMAGE' : 'VIDEO',
               url: response.data[i].url,
               titles: [{
                 title: response.data[i].name,
@@ -297,6 +298,11 @@ export default {
               description: response.data[i].description,
               images: [{
                 image: response.data[i].image,
+                existing: true
+              }],
+              videos: [{
+                videoUrl: response.data[i].video,
+                imageUrl: response.data[i].image,
                 existing: true
               }],
               imagePath: response.data[i].image
