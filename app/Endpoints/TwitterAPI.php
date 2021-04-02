@@ -167,7 +167,11 @@ class TwitterAPI
         try {
             (new WebsiteCard($card_id))->delete();
         } catch (Exception $e) {
-            throw $e;
+            try {
+                (new VideoWebsiteCard($card_id))->delete();
+            } catch (Exception $e) {
+                throw $e;
+            }
         }
     }
 

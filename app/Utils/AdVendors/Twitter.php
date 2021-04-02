@@ -233,10 +233,15 @@ class Twitter extends Root implements AdVendorInterface
                 }
 
                 foreach (request('cards') as $card) {
-                    foreach ($card['media'] as $media_image) {
-                        $media = $this->api()->uploadMedia($promotable_users, $media_image['image']);
+                    foreach ($card['media'] as $media_item) {
+                        $media = $this->api()->uploadMedia($promotable_users, $media_item['media']);
                         $media_library = $this->api()->createMediaLibrary($media->media_key);
-                        $card_data = $api->createWebsiteCard($media->media_key, $card);
+
+                        if ($card['type'] == 'IMAGE') {
+                            $card_data = $api->createWebsiteCard($media->media_key, $card);
+                        } else {
+                            $card_data = $api->createVideoWebsiteCard($media->media_key, $card);
+                        }
 
                         foreach ($card['tweetTexts'] as $tweet_text) {
                             $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweet_text);
@@ -261,10 +266,15 @@ class Twitter extends Root implements AdVendorInterface
         $promotable_users = $api->getPromotableUsers();
 
         foreach (request('cards') as $card) {
-            foreach ($card['media'] as $media_image) {
-                $media = $api->uploadMedia($promotable_users, $media_image['image']);
+            foreach ($card['media'] as $media_item) {
+                $media = $api->uploadMedia($promotable_users, $media_item['media']);
                 $media_library = $api->createMediaLibrary($media->media_key);
-                $card_data = $api->createWebsiteCard($media->media_key, $card);
+
+                if ($card['type'] == 'IMAGE') {
+                    $card_data = $api->createWebsiteCard($media->media_key, $card);
+                } else {
+                    $card_data = $api->createVideoWebsiteCard($media->media_key, $card);
+                }
 
                 foreach ($card['tweetTexts'] as $tweet_text) {
                     $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweet_text);
