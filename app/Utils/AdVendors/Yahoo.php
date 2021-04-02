@@ -655,7 +655,7 @@ class Yahoo extends Root implements AdVendorInterface
 
                     $db_ad->name = $ad['adName'] ?? $ad['title'];
                     $db_ad->status = $ad['status'];
-                    $db_ad->image = $ad['imageUrl'];
+                    $db_ad->image = !empty($ad['imageUrl']) ? $ad['imageUrl'] : $ad['imagePortraitUrl'];
                     $db_ad->save();
                     $ad_ids[] = $db_ad->id;
                 }
