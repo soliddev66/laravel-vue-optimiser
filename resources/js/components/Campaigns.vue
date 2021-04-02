@@ -53,6 +53,7 @@
                 <tr v-for="campaign in data" :key="campaign.id" :class="campaign.profit < 0 ? 'table-danger' : 'table-success'">
                   <td>{{ campaign.id }}</td>
                   <td class="fit">
+                    <img :src="campaign.provider_icon" width="20px" height="20px" />
                     <a :href="'/campaigns/' + campaign.id">{{ campaign.name }}</a>
                     <br>
                     <small>ID: {{ campaign.campaign_id }}</small>
