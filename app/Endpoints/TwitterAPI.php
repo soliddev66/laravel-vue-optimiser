@@ -5,6 +5,7 @@ namespace App\Endpoints;
 use App\Helpers\GeminiClient;
 use App\Vendors\Twitter\Creative\MediaLibrary;
 use App\Vendors\Twitter\Creative\WebsiteCard;
+use App\Vendors\Twitter\Creative\VideoWebsiteCard;
 use App\Vendors\Twitter\Creative\Tweets;
 use Carbon\Carbon;
 use DateTime;
@@ -166,7 +167,11 @@ class TwitterAPI
         try {
             (new WebsiteCard($card_id))->delete();
         } catch (Exception $e) {
-            throw $e;
+            try {
+                (new VideoWebsiteCard($card_id))->delete();
+            } catch (Exception $e) {
+                throw $e;
+            }
         }
     }
 
@@ -242,6 +247,21 @@ class TwitterAPI
             $website_card->setName($card['name']);
             $website_card->setMediaKey($card_media_key);
             $website_card->setWebsiteTitle($card['websiteTitle']);
+            $website_card->setWebsiteUrl($card['websiteUrl']);
+
+            return $website_card->save();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function createVideoWebsiteCard($card_media_key, $card)
+    {
+        try {
+            $website_card = new VideoWebsiteCard();
+            $website_card->setName($card['name']);
+            $website_card->setMediaKey($card_media_key);
+            $website_card->setTitle($card['websiteTitle']);
             $website_card->setWebsiteUrl($card['websiteUrl']);
 
             return $website_card->save();
