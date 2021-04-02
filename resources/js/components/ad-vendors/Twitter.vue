@@ -254,17 +254,32 @@
                         <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="card.name" />
                       </div>
                     </div>
+
                     <div class="form-group row">
-                      <label for="card_media" class="col-sm-2 control-label mt-2">Card Media Image</label>
+                      <label for="ad_type" class="col-sm-2 control-label mt-2">Ad Type</label>
                       <div class="col-sm-8">
-                        <input type="text" name="card_media" placeholder="Media Image" class="form-control" v-model="card.mediaPath" disabled />
+                        <div class="btn-group btn-group-toggle">
+                          <label class="btn bg-olive" :class="{ active: card.type === 'IMAGE' }">
+                            <input type="radio" name="ad_type" autocomplete="off" value="IMAGE" v-model="card.type"> IMAGE
+                          </label>
+                          <label class="btn bg-olive" :class="{ active: card.type === 'VIDEO' }">
+                            <input type="radio" name="ad_type" autocomplete="off" value="VIDEO" v-model="card.type"> VIDEO
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group row">
+                      <label for="card_media" class="col-sm-2 control-label mt-2">Card Media</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="card_media" placeholder="Media" class="form-control" v-model="card.mediaPath" disabled />
                       </div>
                       <div class="col-sm-8 offset-sm-2">
                         <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('cardMedia', index)">Choose File</button>
                       </div>
                       <div class="col-sm-8 offset-sm-2">
-                        <small class="text-danger" v-for="(image, indexImage) in card.media" :key="indexImage">
-                          <span class="d-inline-block" v-if="image.image && !image.state">Image {{ image.image }} is invalid. A minimum image width of 800px and a width:height aspect ratio of either 1:1 or 1.91:1 is required.</span>
+                        <small class="text-danger" v-for="(media, indexMedia) in card.media" :key="indexMedia">
+                          <span class="d-inline-block" v-if="media.media && !media.state">Image {{ media.media }} is invalid. A minimum image width of 800px and a width:height aspect ratio of either 1:1 or 1.91:1 is required.</span>
                         </small>
                       </div>
                     </div>
@@ -396,7 +411,7 @@ export default {
         }
 
         for (let j = 0; j < this.cards[i].media.length; j++) {
-          if (!this.cards[i].media[j].image || !this.cards[i].media[j].state) {
+          if (!this.cards[i].media[j].media || !this.cards[i].media[j].state) {
             return false
           }
         }
@@ -422,8 +437,8 @@ export default {
 
         for (let i = 0; i < values.length; i++) {
           this.cards[this.fileSelectorIndex].media.push({
-            image: values[i].path,
-            state: this.validImage(values[i].width, values[i].height)
+            media: values[i].path,
+            state: this.cards[this.fileSelectorIndex].type == 'IMAGE' ? this.validImage(values[i].width, values[i].height) : true
           })
 
           paths.push(values[i].path)
@@ -496,6 +511,7 @@ export default {
       adGroupStartTime: this.instance && this.instance.adGroups.length > 0 && this.instance.adGroups[0]['start_time'] ? this.instance.adGroups[0]['start_time'].date.split(' ')[0] : '',
       adGroupEndTime: this.instance && this.instance.adGroups.length > 0 && this.instance.adGroups[0]['end_time'] ? this.instance.adGroups[0]['end_time'].date.split(' ')[0] : '',
       cards: [{
+        type: 'IMAGE',
         name: '',
         media: [],
         mediaPath: '',
@@ -561,6 +577,7 @@ export default {
     },
     addCard() {
       this.cards.push({
+        type: 'IMAGE',
         name: '',
         media: [],
         mediaPath: '',

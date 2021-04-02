@@ -165,13 +165,18 @@ class Twitter extends Root implements AdVendorInterface
             $line_item_data = $api->saveLineItem($campaign_data);
 
             foreach (request('cards') as $card) {
-                foreach ($card['media'] as $mediaImage) {
-                    $media = $this->api()->uploadMedia($promotable_users, $mediaImage['image']);
+                foreach ($card['media'] as $media_item) {
+                    $media = $this->api()->uploadMedia($promotable_users, $media_item['media']);
                     $media_library = $this->api()->createMediaLibrary($media->media_key);
-                    $card_data = $api->createWebsiteCard($media->media_key, $card);
 
-                    foreach ($card['tweetTexts'] as $tweetText) {
-                        $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweetText);
+                    if ($card['type'] == 'IMAGE') {
+                        $card_data = $api->createWebsiteCard($media->media_key, $card);
+                    } else {
+                        $card_data = $api->createVideoWebsiteCard($media->media_key, $card);
+                    }
+
+                    foreach ($card['tweetTexts'] as $tweet_text) {
+                        $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweet_text);
                         $promoted_tweet = $api->createPromotedTweet($line_item_data->getId(), $tweet_data);
                     }
                 }
@@ -228,13 +233,13 @@ class Twitter extends Root implements AdVendorInterface
                 }
 
                 foreach (request('cards') as $card) {
-                    foreach ($card['media'] as $mediaImage) {
-                        $media = $this->api()->uploadMedia($promotable_users, $mediaImage['image']);
+                    foreach ($card['media'] as $media_image) {
+                        $media = $this->api()->uploadMedia($promotable_users, $media_image['image']);
                         $media_library = $this->api()->createMediaLibrary($media->media_key);
                         $card_data = $api->createWebsiteCard($media->media_key, $card);
 
-                        foreach ($card['tweetTexts'] as $tweetText) {
-                            $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweetText);
+                        foreach ($card['tweetTexts'] as $tweet_text) {
+                            $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweet_text);
                             $promoted_tweet = $api->createPromotedTweet($line_item_data->getId(), $tweet_data);
                         }
                     }
@@ -256,13 +261,13 @@ class Twitter extends Root implements AdVendorInterface
         $promotable_users = $api->getPromotableUsers();
 
         foreach (request('cards') as $card) {
-            foreach ($card['media'] as $mediaImage) {
-                $media = $api->uploadMedia($promotable_users, $mediaImage['image']);
+            foreach ($card['media'] as $media_image) {
+                $media = $api->uploadMedia($promotable_users, $media_image['image']);
                 $media_library = $api->createMediaLibrary($media->media_key);
                 $card_data = $api->createWebsiteCard($media->media_key, $card);
 
-                foreach ($card['tweetTexts'] as $tweetText) {
-                    $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweetText);
+                foreach ($card['tweetTexts'] as $tweet_text) {
+                    $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweet_text);
                     $promoted_tweet = $api->createPromotedTweet($ad_group_id, $tweet_data);
                 }
             }
