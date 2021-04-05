@@ -221,6 +221,21 @@
                           </div>
                         </div>
                       </div>
+
+                      <div class="form-group row">
+                        <label for="ad_type" class="col-sm-4 control-label mt-2">Ad Type</label>
+                        <div class="col-sm-8">
+                          <div class="btn-group btn-group-toggle">
+                            <label class="btn bg-olive" :class="{ active: content.adType === 'IMAGE' }">
+                              <input type="radio" name="ad_type" autocomplete="off" value="IMAGE" v-model="content.adType"> IMAGE
+                            </label>
+                            <label class="btn bg-olive" :class="{ active: content.adType === 'VIDEO' }">
+                              <input type="radio" name="ad_type" autocomplete="off" value="VIDEO" v-model="content.adType"> VIDEO
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
                       <div class="form-group row">
                         <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
                         <div class="col-sm-8">
@@ -240,10 +255,11 @@
                           <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
+
                       <div class="form-group row">
-                        <label for="image_url" class="col-sm-4 control-label mt-2">Image URL</label>
+                        <label for="image_url" class="col-sm-4 control-label mt-2">Media URL (Video / Image)</label>
                         <div class="col-sm-8">
-                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="content.imageUrl" disabled="true" />
+                          <input type="text" name="image_url" placeholder="Select media" class="form-control" v-model="content.imageUrl" disabled="true" />
                         </div>
                         <div class="col-sm-8 offset-sm-4">
                           <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose File</button>
@@ -261,7 +277,7 @@
                       <section v-for="(title, indexTitle) in content.titles" :key="indexTitle">
                         <section v-for="(image, indexImage) in content.images" :key="indexImage">
                           <div class="row no-gutters mb-2" v-if="image.url">
-                            <div class="col-sm-5">
+                            <div class="col-sm-5" v-if="content.adType == 'IMAGE'">
                               <img :src="image.url" class="card-img-top h-100">
                             </div>
                             <div class="col-sm-7">
@@ -334,7 +350,7 @@
                 <div class="col-sm-6" v-for="(title, indexTitle) in content.titles" :key="indexTitle">
                   <div class="row" v-for="(image, indexImage) in content.images" :key="indexImage">
                     <div v-if="image.url">
-                      <div class="col-sm-5">
+                      <div class="col-sm-5" v-if="content.adType == 'IMAGE'">
                         <img :src="image.url" class="card-img-top h-100">
                       </div>
                       <div class="col-sm-7">
@@ -476,7 +492,7 @@ export default {
         for (var i = 0; i < values.length; i++) {
           this.ads[this.fileSelectorIndex].images[i] = {
             url: process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
-            state: this.validDimensions(values[i].width, values[i].height, 1200, 800),
+            state: this.ads[this.fileSelectorIndex].adType == 'IMAGE' ? this.validDimensions(values[i].width, values[i].height, 1200, 800) : true,
             existing: false
           };
           paths.push(values[i].path)
@@ -498,6 +514,7 @@ export default {
     let dataAttributes = [],
       ads = [{
         adId: '',
+        adType: 'IMAGE',
         titles: [{
           title: '',
           existing: false
@@ -630,6 +647,7 @@ export default {
     addAd() {
       this.ads.push({
         adId: '',
+        adType: 'IMAGE',
         titles: [{
           title: '',
           existing: false
