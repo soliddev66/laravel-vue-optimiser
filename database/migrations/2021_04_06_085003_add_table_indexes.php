@@ -249,12 +249,169 @@ class AddTableIndexes extends Migration
             $table->index('tag_id', 'image_tags_tag_id__index');
         });
 
+        Schema::table('images', function($table) {
+            $table->index('user_id', 'images_user_id__index');
+            $table->index('disk', 'images_disk__index');
+        });
+
         Schema::table('job_batches', function($table) {
             $table->index('name', 'job_batches_name__index');
         });
 
+        Schema::table('network_settings', function($table) {
+            $table->index('user_id', 'network_settings_user_id__index');
+        });
 
+        Schema::table('outbrain_reports', function($table) {
+            $table->index('campaign_id', 'outbrain_reports_campaign_id__index');
+            $table->index('date', 'outbrain_reports_date__index');
+        });
 
+        Schema::table('redtrack_content_stats', function($table) {
+            $table->index('user_id', 'redtrack_content_stats_user_id__index');
+            $table->index('campaign_id', 'redtrack_content_stats_campaign_id__index');
+            $table->index('approved', 'redtrack_content_stats_approved__index');
+            $table->index('date', 'redtrack_content_stats_date__index');
+            $table->index('provider_id', 'redtrack_content_stats_provider_id__index');
+            $table->index('open_id', 'redtrack_content_stats_open_id__index');
+            $table->index('advertiser_id', 'redtrack_content_stats_advertiser_id__index');
+        });
+
+        Schema::table('redtrack_domain_stats', function($table) {
+            $table->index('user_id', 'redtrack_domain_stats_user_id__index');
+            $table->index('campaign_id', 'redtrack_domain_stats_campaign_id__index');
+            $table->index('open_id', 'redtrack_domain_stats_open_id__index');
+            $table->index('advertiser_id', 'redtrack_domain_stats_advertiser_id__index');
+            $table->index('provider_id', 'redtrack_domain_stats_provider_id__index');
+            $table->index('approved', 'redtrack_domain_stats_approved__index');
+            $table->index('date', 'redtrack_domain_stats_date__index');
+        });
+
+        Schema::table('redtrack_publisher_stats', function($table) {
+            $table->index('user_id', 'redtrack_publisher_stats_user_id__index');
+            $table->index('campaign_id', 'redtrack_publisher_stats_campaign_id__index');
+            $table->index('open_id', 'redtrack_publisher_stats_open_id__index');
+            $table->index('advertiser_id', 'redtrack_publisher_stats_advertiser_id__index');
+            $table->index('provider_id', 'redtrack_publisher_stats_provider_id__index');
+            $table->index('approved', 'redtrack_publisher_stats_approved__index');
+            $table->index('date', 'redtrack_publisher_stats_date__index');
+        });
+
+        Schema::table('redtrack_reports', function($table) {
+            $table->index('user_id', 'redtrack_reports_user_id__index');
+            $table->index('campaign_id', 'redtrack_reports_campaign_id__index');
+            $table->index('open_id', 'redtrack_reports_open_id__index');
+            $table->index('advertiser_id', 'redtrack_reports_advertiser_id__index');
+            $table->index('provider_id', 'redtrack_reports_provider_id__index');
+            $table->index('approved', 'redtrack_reports_approved__index');
+            $table->index('date', 'redtrack_reports_date__index');
+        });
+
+        Schema::table('rule_actions', function($table) {
+            $table->index('calculation_type', 'rule_actions_calculation_type__index');
+            $table->index('provider', 'rule_actions_provider__index');
+        });
+
+        Schema::table('rule_condition_group_templates', function($table) {
+            $table->index('rule_template_id', 'r_c_g_templates_rule_template_id__index');
+        });
+
+        Schema::table('rule_condition_groups', function($table) {
+            $table->index('rule_id', 'rule_condition_groups_rule_id__index');
+        });
+
+        Schema::table('rule_condition_templates', function($table) {
+            $table->index('rule_condition_group_template_id', 'r_c_t_rule_condition_group_template_id__index');
+            $table->index('rule_condition_type_id', 'r_c_t_rule_condition_type_id__index');
+            $table->index('operation', 'r_c_t_operation__index');
+            $table->index('unit', 'r_c_t_unit__index');
+        });
+
+        Schema::table('rule_condition_types', function($table) {
+            $table->index('provider', 'r_c_t_provider__index');
+            $table->index('report_source', 'r_c_t_report_source__index');
+            $table->index('rule_condition_type_group_id', 'r_c_t_rule_condition_type_group_id__index');
+        });
+
+        Schema::table('rule_conditions', function($table) {
+            $table->index('rule_condition_group_id', 'rule_conditions_rule_condition_group_id__index');
+            $table->index('rule_condition_type_id', 'rule_conditions_rule_condition_type_id__index');
+            $table->index('operation', 'rule_conditions_operation__index');
+            $table->index('unit', 'rule_conditions_unit__index');
+        });
+
+        Schema::table('rule_groups', function($table) {
+            $table->index('user_id', 'rule_groups_user_id__index');
+        });
+
+        Schema::table('rule_logs', function($table) {
+            $table->index('rule_id', 'rule_logs_rule_id__index');
+            $table->index('start_date', 'rule_logs_start_date__index');
+            $table->index('end_date', 'rule_logs_end_date__index');
+            $table->index('passed', 'rule_logs_passed__index');
+        });
+
+        Schema::table('rule_rule_actions', function($table) {
+            $table->index('rule_id', 'rule_rule_actions_rule_id__index');
+            $table->index('rule_action_id', 'rule_rule_actions_rule_action_id__index');
+        });
+
+        Schema::table('rule_templates', function($table) {
+            $table->index('rule_action_id', 'rule_templates_rule_action_id__index');
+            $table->index('from', 'rule_templates_from__index');
+            $table->index('exclude_day', 'rule_templates_exclude_day__index');
+            $table->index('run_type', 'rule_templates_run_type__index');
+            $table->index('status', 'rule_templates_status__index');
+        });
+
+        Schema::table('rules', function($table) {
+            $table->index('user_id', 'rules_user_id__index');
+            $table->index('rule_group_id', 'rules_rule_group_id__index');
+            $table->index('from', 'rules_from__index');
+            $table->index('exclude_day', 'rules_exclude_day__index');
+            $table->index('is_widget_included', 'rules_is_widget_included__index');
+            $table->index('run_type', 'rules_run_type__index');
+            $table->index('status', 'rules_status__index');
+        });
+
+        Schema::table('taboola_reports', function($table) {
+            $table->index('campaign_id', 'taboola_reports_campaign_id__index');
+            $table->index('date', 'taboola_reports_date__index');
+            $table->index('date_end_period', 'taboola_reports_date_end_period__index');
+        });
+
+        Schema::table('tags', function($table) {
+            $table->index('user_id', 'tags_user_id__index');
+        });
+
+        Schema::table('twitter_reports', function($table) {
+            $table->index('campaign_id', 'twitter_reports_campaign_id__index');
+            $table->index('start_time', 'twitter_reports_start_time__index');
+            $table->index('end_time', 'twitter_reports_end_time__index');
+            $table->index('granularity', 'twitter_reports_granularity__index');
+            $table->index('placement', 'twitter_reports_placement__index');
+        });
+
+        Schema::table('user_providers', function($table) {
+            $table->index('user_id', 'user_providers_user_id__index');
+            $table->index('provider_id', 'user_providers_provider_id__index');
+            $table->index('open_id', 'user_providers_open_id__index');
+        });
+
+        Schema::table('user_trackers', function($table) {
+            $table->index('user_id', 'user_trackers_user_id__index');
+            $table->index('tracker_id', 'user_trackers_tracker_id__index');
+            $table->index('provider_id', 'user_trackers_provider_id__index');
+            $table->index('provider_open_id', 'user_trackers_provider_open_id__index');
+            $table->index('open_id', 'user_trackers_open_id__index');
+            $table->index('api_key', 'user_trackers_api_key__index');
+            $table->index('email', 'user_trackers_email__index');
+        });
+
+        Schema::table('yahoo_japan_reports', function($table) {
+            $table->index('campaign_id', 'yahoo_japan_reports_campaign_id__index');
+            $table->index('date', 'yahoo_japan_reports_date__index');
+        });
     }
 
     /**
@@ -493,6 +650,175 @@ class AddTableIndexes extends Migration
             $table->dropIndex('gemini_user_stats_zip_woeid__index');
             $table->dropIndex('gemini_user_stats_country_woeid__index');
             $table->dropIndex('gemini_user_stats_location_type__index');
+        });
+
+        Schema::table('image_tags', function($table) {
+            $table->dropIndex('image_tags_image_id__index');
+            $table->dropIndex('image_tags_tag_id__index');
+        });
+
+        Schema::table('images', function($table) {
+            $table->dropIndex('images_user_id__index');
+            $table->dropIndex('images_disk__index');
+        });
+
+        Schema::table('job_batches', function($table) {
+            $table->dropIndex('job_batches_name__index');
+        });
+
+        Schema::table('network_settings', function($table) {
+            $table->dropIndex('network_settings_user_id__index');
+        });
+
+        Schema::table('outbrain_reports', function($table) {
+            $table->dropIndex('outbrain_reports_campaign_id__index');
+            $table->dropIndex('outbrain_reports_date__index');
+        });
+
+        Schema::table('redtrack_content_stats', function($table) {
+            $table->dropIndex('redtrack_content_stats_user_id__index');
+            $table->dropIndex('redtrack_content_stats_campaign_id__index');
+            $table->dropIndex('redtrack_content_stats_approved__index');
+            $table->dropIndex('redtrack_content_stats_date__index');
+            $table->dropIndex('redtrack_content_stats_provider_id__index');
+            $table->dropIndex('redtrack_content_stats_open_id__index');
+            $table->dropIndex('redtrack_content_stats_advertiser_id__index');
+        });
+
+        Schema::table('redtrack_domain_stats', function($table) {
+            $table->dropIndex('redtrack_domain_stats_user_id__index');
+            $table->dropIndex('redtrack_domain_stats_campaign_id__index');
+            $table->dropIndex('redtrack_domain_stats_open_id__index');
+            $table->dropIndex('redtrack_domain_stats_advertiser_id__index');
+            $table->dropIndex('redtrack_domain_stats_provider_id__index');
+            $table->dropIndex('redtrack_domain_stats_approved__index');
+            $table->dropIndex('redtrack_domain_stats_date__index');
+        });
+
+        Schema::table('redtrack_publisher_stats', function($table) {
+            $table->dropIndex('redtrack_publisher_stats_user_id__index');
+            $table->dropIndex('redtrack_publisher_stats_campaign_id__index');
+            $table->dropIndex('redtrack_publisher_stats_open_id__index');
+            $table->dropIndex('redtrack_publisher_stats_advertiser_id__index');
+            $table->dropIndex('redtrack_publisher_stats_provider_id__index');
+            $table->dropIndex('redtrack_publisher_stats_approved__index');
+            $table->dropIndex('redtrack_publisher_stats_date__index');
+        });
+
+        Schema::table('redtrack_reports', function($table) {
+            $table->dropIndex('redtrack_reports_user_id__index');
+            $table->dropIndex('redtrack_reports_campaign_id__index');
+            $table->dropIndex('redtrack_reports_open_id__index');
+            $table->dropIndex('redtrack_reports_advertiser_id__index');
+            $table->dropIndex('redtrack_reports_provider_id__index');
+            $table->dropIndex('redtrack_reports_approved__index');
+            $table->dropIndex('redtrack_reports_date__index');
+        });
+
+        Schema::table('rule_actions', function($table) {
+            $table->dropIndex('rule_actions_calculation_type__index');
+            $table->dropIndex('rule_actions_provider__index');
+        });
+
+        Schema::table('rule_condition_group_templates', function($table) {
+            $table->dropIndex('r_c_g_templates_rule_template_id__index');
+        });
+
+        Schema::table('rule_condition_groups', function($table) {
+            $table->dropIndex('rule_condition_groups_rule_id__index');
+        });
+
+        Schema::table('rule_condition_templates', function($table) {
+            $table->dropIndex('r_c_t_rule_condition_group_template_id__index');
+            $table->dropIndex('r_c_t_rule_condition_type_id__index');
+            $table->dropIndex('r_c_t_operation__index');
+            $table->dropIndex('r_c_t_unit__index');
+        });
+
+        Schema::table('rule_condition_types', function($table) {
+            $table->dropIndex('r_c_t_provider__index');
+            $table->dropIndex('r_c_t_report_source__index');
+            $table->dropIndex('r_c_t_rule_condition_type_group_id__index');
+        });
+
+        Schema::table('rule_conditions', function($table) {
+            $table->dropIndex('rule_conditions_rule_condition_group_id__index');
+            $table->dropIndex('rule_conditions_rule_condition_type_id__index');
+            $table->dropIndex('rule_conditions_operation__index');
+            $table->dropIndex('rule_conditions_unit__index');
+        });
+
+        Schema::table('rule_groups', function($table) {
+            $table->dropIndex('rule_groups_user_id__index');
+        });
+
+        Schema::table('rule_logs', function($table) {
+            $table->dropIndex('rule_logs_rule_id__index');
+            $table->dropIndex('rule_logs_start_date__index');
+            $table->dropIndex('rule_logs_end_date__index');
+            $table->dropIndex('rule_logs_passed__index');
+        });
+
+        Schema::table('rule_rule_actions', function($table) {
+            $table->dropIndex('rule_rule_actions_rule_id__index');
+            $table->dropIndex('rule_rule_actions_rule_action_id__index');
+        });
+
+        Schema::table('rule_templates', function($table) {
+            $table->dropIndex('rule_templates_rule_action_id__index');
+            $table->dropIndex('rule_templates_from__index');
+            $table->dropIndex('rule_templates_exclude_day__index');
+            $table->dropIndex('rule_templates_run_type__index');
+            $table->dropIndex('rule_templates_status__index');
+        });
+
+        Schema::table('rules', function($table) {
+            $table->dropIndex('rules_user_id__index');
+            $table->dropIndex('rules_rule_group_id__index');
+            $table->dropIndex('rules_from__index');
+            $table->dropIndex('rules_exclude_day__index');
+            $table->dropIndex('rules_is_widget_included__index');
+            $table->dropIndex('rules_run_type__index');
+            $table->dropIndex('rules_status__index');
+        });
+
+        Schema::table('taboola_reports', function($table) {
+            $table->dropIndex('taboola_reports_campaign_id__index');
+            $table->dropIndex('taboola_reports_date__index');
+            $table->dropIndex('taboola_reports_date_end_period__index');
+        });
+
+        Schema::table('tags', function($table) {
+            $table->dropIndex('tags_user_id__index');
+        });
+
+        Schema::table('twitter_reports', function($table) {
+            $table->dropIndex('twitter_reports_campaign_id__index');
+            $table->dropIndex('twitter_reports_start_time__index');
+            $table->dropIndex('twitter_reports_end_time__index');
+            $table->dropIndex('twitter_reports_granularity__index');
+            $table->dropIndex('twitter_reports_placement__index');
+        });
+
+        Schema::table('user_providers', function($table) {
+            $table->dropIndex('user_providers_user_id__index');
+            $table->dropIndex('user_providers_provider_id__index');
+            $table->dropIndex('user_providers_open_id__index');
+        });
+
+        Schema::table('user_trackers', function($table) {
+            $table->dropIndex('user_trackers_user_id__index');
+            $table->dropIndex('user_trackers_tracker_id__index');
+            $table->dropIndex('user_trackers_provider_id__index');
+            $table->dropIndex('user_trackers_provider_open_id__index');
+            $table->dropIndex('user_trackers_open_id__index');
+            $table->dropIndex('user_trackers_api_key__index');
+            $table->dropIndex('user_trackers_email__index');
+        });
+
+        Schema::table('yahoo_japan_reports', function($table) {
+            $table->dropIndex('yahoo_japan_reports_campaign_id__index');
+            $table->dropIndex('yahoo_japan_reports_date__index');
         });
     }
 }
