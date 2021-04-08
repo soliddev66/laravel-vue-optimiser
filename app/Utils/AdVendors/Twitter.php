@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Models\UserTracker;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
+use App\Vngodev\ResourceImporter;
 use Carbon\Carbon;
 use DB;
 use Exception;
@@ -418,25 +419,23 @@ class Twitter extends Root implements AdVendorInterface
     {
         $campaign_ids = [];
 
+        $resource_importer = new ResourceImporter();
+
         foreach ($user_provider->advertisers as $advertiser) {
             $campaigns = (new TwitterAPI($user_provider, $advertiser))->getCampaigns();
 
             if (is_array($campaigns)) {
                 foreach ($campaigns as $item) {
-                    $campaign = Campaign::firstOrNew([
+                    $campaign_ids[] = $resource_importer->insertOrUpdate('campaigns', [[
                         'campaign_id' => $item->getId(),
                         'provider_id' => $user_provider->provider_id,
                         'user_id' => $user_provider->user_id,
-                        'open_id' => $user_provider->open_id
-                    ]);
-
-                    $campaign->advertiser_id = $advertiser;
-
-                    $campaign->name = $item->getName();
-                    $campaign->status = $item->getEntityStatus();
-                    $campaign->budget = $item->getTotalBudgetAmountLocalMicro() ? ($item->getTotalBudgetAmountLocalMicro() / 1000000) : ($item->getDailyBudgetAmountLocalMicro() / 1000000);
-                    $campaign->save();
-                    $campaign_ids[] = $campaign->id;
+                        'open_id' => $user_provider->open_id,
+                        'advertiser_id' => $advertiser,
+                        'name' => $item->getName(),
+                        'status' => $item->getEntityStatus(),
+                        'budget' => $item->getTotalBudgetAmountLocalMicro() ? ($item->getTotalBudgetAmountLocalMicro() / 1000000) : ($item->getDailyBudgetAmountLocalMicro() / 1000000)
+                    ]], ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
                 }
             }
         }
@@ -452,24 +451,23 @@ class Twitter extends Root implements AdVendorInterface
     {
         $ad_group_ids = [];
 
-        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($campaigns) use ($user_provider, &$ad_group_ids) {
+        $resource_importer = new ResourceImporter();
+
+        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($campaigns) use ($resource_importer, $user_provider, &$ad_group_ids) {
             foreach ($campaigns as $campaign) {
                 $ad_groups = (new TwitterAPI($user_provider, $campaign->advertiser_id))->getAdGroups($campaign->campaign_id);
                 if (is_array($ad_groups) && count($ad_groups)) {
                     foreach ($ad_groups as $ad_group) {
-                        $db_ad_group = AdGroup::firstOrNew([
+                        $ad_group_ids[] = $resource_importer->insertOrUpdate('ad_groups', [[
                             'ad_group_id' => $ad_group->getId(),
                             'user_id' => $user_provider->user_id,
                             'provider_id' => $user_provider->provider_id,
                             'campaign_id' => $campaign->campaign_id,
                             'advertiser_id' => $campaign->advertiser_id,
-                            'open_id' => $user_provider->open_id
-                        ]);
-
-                        $db_ad_group->name = $ad_group->getName();
-                        $db_ad_group->status = $ad_group->getEntityStatus();
-                        $db_ad_group->save();
-                        $ad_group_ids[] = $db_ad_group->id;
+                            'open_id' => $user_provider->open_id,
+                            'name' => $ad_group->getName(),
+                            'status' => $ad_group->getEntityStatus()
+                        ]], ['ad_group_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'open_id']);
                     }
                 }
             }
@@ -485,26 +483,26 @@ class Twitter extends Root implements AdVendorInterface
     public function pullAd($user_provider)
     {
         $ad_ids = [];
-        AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($ad_groups) use ($user_provider, &$ad_ids) {
+
+        $resource_importer = new ResourceImporter();
+
+        AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($ad_groups) use ($resource_importer, $user_provider, &$ad_ids) {
             foreach ($ad_groups as $key => $ad_group) {
                 $ads = (new TwitterAPI($user_provider, $ad_group->advertiser_id))->getPromotedTweets([$ad_group->ad_group_id]);
 
                 if ($ads) {
                     foreach ($ads as $key => $ad) {
-                        $db_ad = Ad::firstOrNew([
+                        $ad_ids[] = $resource_importer->insertOrUpdate('ads', [[
                             'ad_id' => $ad->getId(),
                             'user_id' => $user_provider->user_id,
                             'provider_id' => $user_provider->provider_id,
                             'campaign_id' => $ad_group->campaign_id,
                             'advertiser_id' => $ad_group->advertiser_id,
                             'ad_group_id' => $ad_group->ad_group_id,
-                            'open_id' => $user_provider->open_id
-                        ]);
-
-                        $db_ad->name = $ad->getTweetId();
-                        $db_ad->status = $ad->getEntityStatus();
-                        $db_ad->save();
-                        $ad_ids[] = $db_ad->id;
+                            'open_id' => $user_provider->open_id,
+                            'name' => $ad->getTweetId(),
+                            'status' => $ad->getEntityStatus()
+                        ]], ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
                     }
                 }
             }
