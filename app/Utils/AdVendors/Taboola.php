@@ -684,7 +684,7 @@ class Taboola extends Root implements AdVendorInterface
 
                         $ad->name = $campaign_item['title'] ?? 'NA';
                         $ad->status = $campaign_item['status'] === 'RUNNING' ? 'ACTIVE' : $campaign_item['status'];
-                        $ad->image = $ad->type == 1 ? $campaign_item['thumbnail_url'] : $campaign_item['fallback_url'];
+                        $ad->image = $ad->type == 1 ? $campaign_item['thumbnail_url'] : $campaign_item['fallback_url'] ?? null;
                         $ad->save();
                         $ad_ids[] = $ad->id;
                     }
