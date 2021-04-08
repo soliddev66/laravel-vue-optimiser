@@ -43,6 +43,10 @@ class AddUniqueIndexTables extends Migration
 
             $table->unique(['ad_id', 'user_id', 'provider_id', 'open_id', 'campaign_id', 'ad_group_id', 'advertiser_id'], 'ads__unique_index');
         });
+
+        Schema::table('tags', function($table) {
+            $table->unique(['user_id', 'name'], 'tags__unique_index');
+        });
     }
 
     /**
@@ -86,6 +90,10 @@ class AddUniqueIndexTables extends Migration
             $table->string('advertiser_id')->change();
             $table->string('ad_id')->change();
             $table->string('ad_group_id')->change();
+        });
+
+        Schema::table('tags', function($table) {
+            $table->dropUnique('tags__unique_index');
         });
     }
 }
