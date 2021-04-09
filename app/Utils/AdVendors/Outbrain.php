@@ -15,6 +15,7 @@ use App\Models\UserProvider;
 use App\Models\UserTracker;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
+use App\Vngodev\ResourceImporter;
 use Carbon\Carbon;
 use DB;
 use GuzzleHttp\Client;
@@ -295,6 +296,8 @@ class Outbrain extends Root implements AdVendorInterface
         $campaigns = [];
         $offset = 0;
 
+        $resource_importer = new ResourceImporter();
+
         foreach ($user_provider->advertisers as $key => $marketer) {
             $campaigns_by_marketer = $api->getCampaignsByMarketerId($marketer, $offset);
             if (array_key_exists('campaigns', $campaigns_by_marketer)) {
@@ -310,19 +313,16 @@ class Outbrain extends Root implements AdVendorInterface
                 }
             }
             foreach ($campaigns as $campaign) {
-                $db_campaign = Campaign::firstOrNew([
+                $campaign_ids[] = $resource_importer->insertOrUpdate('campaigns', [[
                     'campaign_id' => $campaign['id'],
                     'provider_id' => $user_provider->provider_id,
                     'open_id' => $user_provider->open_id,
-                    'user_id' => $user_provider->user_id
-                ]);
-
-                $db_campaign->name = $campaign['name'];
-                $db_campaign->status = $campaign['enabled'] ? 'ACTIVE' : 'PAUSED';
-                $db_campaign->budget = $campaign['budget']['amount'];
-                $db_campaign->advertiser_id = $marketer;
-                $db_campaign->save();
-                $campaign_ids[] = $db_campaign->id;
+                    'user_id' => $user_provider->user_id,
+                    'advertiser_id' => $marketer,
+                    'name' => $campaign['name'],
+                    'status' => $campaign['enabled'] ? 'ACTIVE' : 'PAUSED',
+                    'budget' => $campaign['budget']['amount'],
+                ]], ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
             }
         }
 
@@ -338,6 +338,43 @@ class Outbrain extends Root implements AdVendorInterface
         //
     }
 
+    public function pullAd($user_provider)
+    {
+        $ad_ids = [];
+
+        $resource_importer = new ResourceImporter();
+        $api = new OutbrainAPI($user_provider);
+
+        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 2)->chunk(10, function ($campaigns) use ($resource_importer, $api, $user_provider, &$ad_ids) {
+            foreach ($campaigns as $key => $campaign) {
+                $promoted_links = $api->getPromotedLinks($campaign->campaign_id);
+
+                if ($promoted_links && isset($promoted_links['promotedLinks'])) {
+                    foreach ($promoted_links['promotedLinks'] as $key => $ad) {
+                        $ad_ids[] = $resource_importer->insertOrUpdate('ads', [[
+                            'ad_id' => $ad['id'],
+                            'user_id' => $user_provider->user_id,
+                            'provider_id' => $user_provider->provider_id,
+                            'campaign_id' => $campaign->campaign_id,
+                            'advertiser_id' => $campaign->advertiser_id,
+                            'ad_group_id' => 'NA',
+                            'open_id' => $user_provider->open_id,
+                            'name' => $ad['text'],
+                            'status' => $ad['status'],
+                            'image' => $ad['imageMetadata']['originalImageUrl']
+                        ]], ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
+                    }
+                }
+            }
+        });
+
+        Ad::where([
+            'user_id' => $user_provider->user_id,
+            'provider_id' => $user_provider->provider_id,
+            'open_id' => $user_provider->open_id
+        ])->whereNotIn('id', $ad_ids)->delete();
+    }
+
     public function adStatus(Campaign $campaign, $ad_group_id, $ad_id, $status = null)
     {
         $api = new OutbrainAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
@@ -351,42 +388,6 @@ class Outbrain extends Root implements AdVendorInterface
         $ad->save();
 
         $api->updatePromotedLinkStatus($ad_id, $status == Campaign::STATUS_ACTIVE);
-    }
-
-    public function pullAd($user_provider)
-    {
-        $ad_ids = [];
-        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 2)->chunk(10, function ($campaigns) use ($user_provider, &$ad_ids) {
-            foreach ($campaigns as $key => $campaign) {
-                $promoted_links = (new OutbrainAPI($user_provider))->getPromotedLinks($campaign->campaign_id);
-
-                if ($promoted_links && isset($promoted_links['promotedLinks'])) {
-                    foreach ($promoted_links['promotedLinks'] as $key => $ad) {
-                        $db_ad = Ad::firstOrNew([
-                            'ad_id' => $ad['id'],
-                            'user_id' => $user_provider->user_id,
-                            'provider_id' => $user_provider->provider_id,
-                            'campaign_id' => $campaign->campaign_id,
-                            'advertiser_id' => $campaign->advertiser_id,
-                            'ad_group_id' => 'NA',
-                            'open_id' => $user_provider->open_id
-                        ]);
-
-                        $db_ad->name = $ad['text'];
-                        $db_ad->status = $ad['status'];
-                        $db_ad->image = $ad['imageMetadata']['originalImageUrl'];
-                        $db_ad->save();
-                        $ad_ids[] = $db_ad->id;
-                    }
-                }
-            }
-        });
-
-        Ad::where([
-            'user_id' => $user_provider->user_id,
-            'provider_id' => $user_provider->provider_id,
-            'open_id' => $user_provider->open_id
-        ])->whereNotIn('id', $ad_ids)->delete();
     }
 
     public function pullRedTrack($campaign, $target_date = null)

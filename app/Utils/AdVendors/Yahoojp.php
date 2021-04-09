@@ -17,6 +17,7 @@ use App\Models\UserTracker;
 use App\Models\YahooJapanReport;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
+use App\Vngodev\ResourceImporter;
 use Carbon\Carbon;
 use DB;
 use Exception;
@@ -923,25 +924,24 @@ class Yahoojp extends Root implements AdVendorInterface
         $api = new YahooJPAPI($user_provider);
         $campaign_ids = [];
 
+        $resource_importer = new ResourceImporter();
+
         foreach ($user_provider->advertisers as $key => $advertiser) {
             $campaigns_by_account_response = $api->getCampaignsByAccountId($advertiser);
             $campaigns_by_account = $campaigns_by_account_response['rval']['values'];
             if (is_array($campaigns_by_account)) {
                 foreach ($campaigns_by_account as $campaign) {
                     $campaign = $campaign['campaign'];
-                    $db_campaign = Campaign::firstOrNew([
+                    $campaign_ids[] = $resource_importer->insertOrUpdate('campaigns', [[
                         'campaign_id' => $campaign['campaignId'],
                         'provider_id' => $user_provider->provider_id,
                         'open_id' => $user_provider->open_id,
-                        'user_id' => $user_provider->user_id
-                    ]);
-
-                    $db_campaign->name = $campaign['campaignName'];
-                    $db_campaign->status = $campaign['userStatus'];
-                    $db_campaign->budget = $campaign['budget']['amount'];
-                    $db_campaign->advertiser_id = $advertiser;
-                    $db_campaign->save();
-                    $campaign_ids[] = $db_campaign->id;
+                        'user_id' => $user_provider->user_id,
+                        'advertiser_id' => $advertiser,
+                        'name' => $campaign['campaignName'],
+                        'status' => $campaign['userStatus'],
+                        'budget' => $campaign['budget']['amount']
+                    ]], ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
                 }
             }
         }
@@ -956,26 +956,28 @@ class Yahoojp extends Root implements AdVendorInterface
     public function pullAdGroup($user_provider)
     {
         $ad_group_ids = [];
-        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 5)->chunk(10, function ($campaigns) use ($user_provider, &$ad_group_ids) {
+
+        $resource_importer = new ResourceImporter();
+
+        $api = new YahooJPAPI($user_provider);
+
+        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 5)->chunk(10, function ($campaigns) use ($resource_importer, $api, $user_provider, &$ad_group_ids) {
             foreach ($campaigns as $key => $campaign) {
-                $ad_groups_response = (new YahooJPAPI($user_provider))->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
+                $ad_groups_response = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
                 $ad_groups = $ad_groups_response['rval']['values'];
                 if (is_array($ad_groups) && count($ad_groups)) {
                     foreach ($ad_groups as $key => $ad_group) {
                         $ad_group = $ad_group['adGroup'];
-                        $db_ad_group = AdGroup::firstOrNew([
+                        $ad_group_ids[] = $resource_importer->insertOrUpdate('ad_groups', [[
                             'ad_group_id' => $ad_group['adGroupId'],
                             'user_id' => $user_provider->user_id,
                             'provider_id' => $user_provider->provider_id,
                             'campaign_id' => $campaign->campaign_id,
                             'advertiser_id' => $campaign->advertiser_id,
-                            'open_id' => $user_provider->open_id
-                        ]);
-
-                        $db_ad_group->name = $ad_group['adGroupName'];
-                        $db_ad_group->status = $ad_group['userStatus'];
-                        $db_ad_group->save();
-                        $ad_group_ids[] = $db_ad_group->id;
+                            'open_id' => $user_provider->open_id,
+                            'name' => $ad_group['adGroupName'],
+                            'status' => $ad_group['userStatus']
+                        ]], ['ad_group_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'open_id']);
                     }
                 }
             }
@@ -991,27 +993,29 @@ class Yahoojp extends Root implements AdVendorInterface
     public function pullAd($user_provider)
     {
         $ad_ids = [];
-        AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 5)->chunk(10, function ($ad_groups) use ($user_provider, &$ad_ids) {
+
+        $resource_importer = new ResourceImporter();
+
+        $api = new YahooJPAPI($user_provider);
+
+        AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 5)->chunk(10, function ($ad_groups) use ($resource_importer, $api, $user_provider, &$ad_ids) {
             foreach ($ad_groups as $key => $ad_group) {
-                $ads_response = (new YahooJPAPI($user_provider))->getAds([$ad_group->ad_group_id], $ad_group->advertiser_id);
+                $ads_response = $api->getAds([$ad_group->ad_group_id], $ad_group->advertiser_id);
                 $ads = $ads_response['rval']['values'];
                 if (is_array($ads) && count($ads)) {
                     foreach ($ads as $key => $ad) {
                         $ad = $ad['adGroupAd'];
-                        $db_ad = Ad::firstOrNew([
+                        $ad_ids[] = $resource_importer->insertOrUpdate('ads', [[
                             'ad_id' => $ad['adId'],
                             'user_id' => $user_provider->user_id,
                             'provider_id' => $user_provider->provider_id,
                             'campaign_id' => $ad_group->campaign_id,
                             'advertiser_id' => $ad_group->advertiser_id,
                             'ad_group_id' => $ad_group->ad_group_id,
-                            'open_id' => $user_provider->open_id
-                        ]);
-
-                        $db_ad->name = $ad['adName'];
-                        $db_ad->status = $ad['userStatus'];
-                        $db_ad->save();
-                        $ad_ids[] = $db_ad->id;
+                            'open_id' => $user_provider->open_id,
+                            'name' => $ad['adName'],
+                            'status' => $ad['userStatus']
+                        ]], ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
                     }
                 }
             }
