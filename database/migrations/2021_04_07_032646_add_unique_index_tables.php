@@ -47,6 +47,10 @@ class AddUniqueIndexTables extends Migration
         Schema::table('tags', function($table) {
             $table->unique(['user_id', 'name'], 'tags__unique_index');
         });
+
+        Schema::table('rule_groups', function($table) {
+            $table->unique(['user_id', 'name'], 'rule_groups__unique_index');
+        });
     }
 
     /**
@@ -94,6 +98,10 @@ class AddUniqueIndexTables extends Migration
 
         Schema::table('tags', function($table) {
             $table->dropUnique('tags__unique_index');
+        });
+
+        Schema::table('rule_groups', function($table) {
+            $table->dropUnique('rule_groups__unique_index');
         });
     }
 }
