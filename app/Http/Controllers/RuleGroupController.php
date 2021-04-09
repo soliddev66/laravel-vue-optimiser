@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RuleGroup;
+use App\Vngodev\ResourceImporter;
 
 use Illuminate\Support\Facades\Validator;
 
@@ -28,10 +29,12 @@ class RuleGroupController extends Controller
             'name' => 'required|max:255'
         ]);
 
-        RuleGroup::firstOrNew([
+        $resource_importer = new ResourceImporter();
+
+        $resource_importer->insertOrUpdate('rule_groups', [[
             'name' => $validated_data['name'],
             'user_id' => auth()->id()
-        ])->save();
+        ]], ['user_id']);
 
         return [];
     }
