@@ -418,6 +418,8 @@ export default {
         })
     },
     reloadData(tableProps) {
+      const params = (new URL(document.location)).searchParams;
+      tableProps.length = params.get('length') || 50
       this.getData(tableProps);
     },
     exportExcel() {
