@@ -13,7 +13,7 @@
                 <VueCtkDateTimePicker :shortcut="getShortcut()" :customShortcuts="shortcuts" position="bottom" v-model="targetDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :range="true" @is-hidden="getData()"></VueCtkDateTimePicker>
               </div>
               <div class="col-md-4 col-12">
-                <select2 v-model="selectedProvider" :options="formatedProviders" :settings="{ templateSelection: formatState, templateResult: formatState, multiple: false, placeholder: 'Select Traffic Source' }" @change="resetAccountAndGetData()" />
+                <select2 v-model="selectedProvider" :options="formatedProviders" :settings="{ allowClear:true, templateSelection: formatState, templateResult: formatState, multiple: false, placeholder: 'Select Traffic Source' }" @change="resetAccountAndGetData()" />
               </div>
               <div class="col-md-4 col-12">
                 <select class="form-control" v-model="selectedAccount" @change="resetAdvertiserAndGetData()">
@@ -53,7 +53,7 @@
                 <tr v-for="campaign in data" :key="campaign.id" :class="campaign.profit < 0 ? 'table-danger' : 'table-success'">
                   <td>{{ campaign.id }}</td>
                   <td class="fit">
-                    <img :src="campaign.provider_icon" width="20px" height="20px" />
+                    <img :src="getProviderIcon(campaign)" width="20px" height="20px" />
                     <a :href="'/campaigns/' + campaign.id">{{ campaign.name }}</a>
                     <br>
                     <small>ID: {{ campaign.campaign_id }}</small>
@@ -325,6 +325,13 @@ export default {
         return selectedShortcut.key
       } else {
         return 'today'
+      }
+    },
+    getProviderIcon(campaign) {
+      if (this.selectedProvider) {
+        return this.formatedProviders.find(provider => provider.id == this.selectedProvider).icon
+      } else {
+        return campaign.provider_icon
       }
     },
     showQuickAct(campaignId) {
