@@ -10,13 +10,13 @@ use App\Models\Campaign;
 use App\Models\GeminiDomainPerformanceStat;
 use App\Models\GeminiPerformanceStat;
 use App\Models\GeminiSitePerformanceStat;
+use App\Models\NetworkSetting;
 use App\Models\Provider;
 use App\Models\RedtrackContentStat;
 use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
-use App\Models\NetworkSetting;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use App\Vngodev\ResourceImporter;
@@ -24,8 +24,6 @@ use Carbon\Carbon;
 use DB;
 use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class Yahoo extends Root implements AdVendorInterface
 {
@@ -392,7 +390,6 @@ class Yahoo extends Root implements AdVendorInterface
             }
             $api->updateAd($uupdate_ads);
 
-
             $api->deleteAttributes();
             $api->createAttributes($campaign_data);
         } catch (Exception $e) {
@@ -674,82 +671,89 @@ class Yahoo extends Root implements AdVendorInterface
         ])->whereNotIn('id', $ad_ids)->delete();
     }
 
-    public function pullRedTrack($campaign, $target_date = null)
+    public function pullRedTrack($user_provider, $target_date = null)
     {
-        $tracker = UserTracker::where('provider_id', $campaign->provider_id)->where('provider_open_id', $campaign->open_id)->first();
+        $tracker = UserTracker::where('provider_id', $user_provider->provider_id)->where('provider_open_id', $user_provider->open_id)->first();
         if ($tracker) {
             $client = new Client();
             $date = Carbon::now()->format('Y-m-d');
             if ($target_date) {
                 $date = $target_date;
             }
-            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=hour_of_day&sub6=' . $campaign->campaign_id . '&tracks_view=true';
+            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub6,hour_of_day&sub9=Gemini&tracks_view=true';
             $response = $client->get($url);
 
             $data = json_decode($response->getBody(), true);
             if (count($data)) {
-                foreach ($data as $i => $value) {
-                    $value['date'] = $date;
-                    $value['user_id'] = $campaign->user_id;
-                    $value['campaign_id'] = $campaign->id;
-                    $value['provider_id'] = $campaign->provider_id;
-                    $value['open_id'] = $campaign->open_id;
-                    $value['advertiser_id'] = $campaign->advertiser_id;
-                    $redtrack_report = RedtrackReport::firstOrNew([
-                        'date' => $date,
-                        'sub6' => $campaign->campaign_id,
-                        'hour_of_day' => $value['hour_of_day']
-                    ]);
-                    foreach (array_keys($value) as $array_key) {
-                        $redtrack_report->{$array_key} = $value[$array_key];
+                foreach ($data as $key => $value) {
+                    $campaigns = Campaign::where('campaign_id', $value['sub6'])->get();
+                    foreach ($campaigns as $index => $campaign) {
+                        $value['date'] = $date;
+                        $value['user_id'] = $campaign->user_id;
+                        $value['campaign_id'] = $campaign->id;
+                        $value['provider_id'] = $campaign->provider_id;
+                        $value['open_id'] = $campaign->open_id;
+                        $value['advertiser_id'] = $campaign->advertiser_id;
+                        $redtrack_report = RedtrackReport::firstOrNew([
+                            'date' => $date,
+                            'sub6' => $campaign->campaign_id,
+                            'hour_of_day' => $value['hour_of_day']
+                        ]);
+                        foreach (array_keys($value) as $array_key) {
+                            $redtrack_report->{$array_key} = $value[$array_key];
+                        }
+                        $redtrack_report->save();
                     }
-                    $redtrack_report->save();
                 }
 
                 // Domain stats
-                $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub1&sub6=' . $campaign->campaign_id . '&tracks_view=true';
+                $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub6,sub1&sub9=Gemini&tracks_view=true';
                 $response = $client->get($url);
 
                 $data = json_decode($response->getBody(), true);
-
-                foreach ($data as $i => $value) {
-                    $value['date'] = $date;
-                    $value['user_id'] = $campaign->user_id;
-                    $value['provider_id'] = $campaign->provider_id;
-                    $value['open_id'] = $campaign->open_id;
-                    $value['advertiser_id'] = $campaign->advertiser_id;
-                    $redtrack_report = RedtrackDomainStat::firstOrNew([
-                        'date' => $date,
-                        'campaign_id' => $campaign->id,
-                        'sub1' => $value['sub1']
-                    ]);
-                    foreach (array_keys($value) as $array_key) {
-                        $redtrack_report->{$array_key} = $value[$array_key];
+                foreach ($data as $key => $value) {
+                    $campaigns = Campaign::where('campaign_id', $value['sub6'])->get();
+                    foreach ($campaigns as $index => $campaign) {
+                        $value['date'] = $date;
+                        $value['user_id'] = $campaign->user_id;
+                        $value['provider_id'] = $campaign->provider_id;
+                        $value['open_id'] = $campaign->open_id;
+                        $value['advertiser_id'] = $campaign->advertiser_id;
+                        $redtrack_report = RedtrackDomainStat::firstOrNew([
+                            'date' => $date,
+                            'campaign_id' => $campaign->id,
+                            'sub1' => $value['sub1']
+                        ]);
+                        foreach (array_keys($value) as $array_key) {
+                            $redtrack_report->{$array_key} = $value[$array_key];
+                        }
+                        $redtrack_report->save();
                     }
-                    $redtrack_report->save();
                 }
 
                 // Content stats
-                $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub5&sub6=' . $campaign->campaign_id . '&tracks_view=true';
+                $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub6,sub5&sub9=Gemini&tracks_view=true';
                 $response = $client->get($url);
 
                 $data = json_decode($response->getBody(), true);
-
-                foreach ($data as $i => $value) {
-                    $value['date'] = $date;
-                    $value['user_id'] = $campaign->user_id;
-                    $value['campaign_id'] = $campaign->id;
-                    $value['provider_id'] = $campaign->provider_id;
-                    $value['open_id'] = $campaign->open_id;
-                    $value['advertiser_id'] = $campaign->advertiser_id;
-                    $redtrack_report = RedtrackContentStat::firstOrNew([
-                        'date' => $date,
-                        'sub5' => $value['sub5']
-                    ]);
-                    foreach (array_keys($value) as $array_key) {
-                        $redtrack_report->{$array_key} = $value[$array_key];
+                foreach ($data as $key => $value) {
+                    $campaigns = Campaign::where('campaign_id', $value['sub6'])->get();
+                    foreach ($campaigns as $index => $campaign) {
+                        $value['date'] = $date;
+                        $value['user_id'] = $campaign->user_id;
+                        $value['campaign_id'] = $campaign->id;
+                        $value['provider_id'] = $campaign->provider_id;
+                        $value['open_id'] = $campaign->open_id;
+                        $value['advertiser_id'] = $campaign->advertiser_id;
+                        $redtrack_report = RedtrackContentStat::firstOrNew([
+                            'date' => $date,
+                            'sub5' => $value['sub5']
+                        ]);
+                        foreach (array_keys($value) as $array_key) {
+                            $redtrack_report->{$array_key} = $value[$array_key];
+                        }
+                        $redtrack_report->save();
                     }
-                    $redtrack_report->save();
                 }
             }
         }
@@ -979,8 +983,8 @@ class Yahoo extends Root implements AdVendorInterface
 
         foreach ($attributes as $attribute) {
             if (($status == 'active' && $attribute['status'] == Campaign::STATUS_ACTIVE)
-            || ($status == 'paused' && $attribute['status'] == Campaign::STATUS_PAUSED)) {
-                $text = $attribute['type']. ' | ';
+                || ($status == 'paused' && $attribute['status'] == Campaign::STATUS_PAUSED)) {
+                $text = $attribute['type'] . ' | ';
 
                 if ($attribute['type'] == 'WOEID') {
                     $text .= $this->getCountryName($countries, $attribute['value']);

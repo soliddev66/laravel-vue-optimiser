@@ -10,11 +10,11 @@ use App\Jobs\PullCampaign;
 use App\Models\Ad;
 use App\Models\AdGroup;
 use App\Models\Campaign;
-use App\Models\UserProvider;
 use App\Models\Provider;
 use App\Models\RedtrackReport;
 use App\Models\TwitterReport;
 use App\Models\User;
+use App\Models\UserProvider;
 use App\Models\UserTracker;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
@@ -24,8 +24,6 @@ use DB;
 use Exception;
 use GuzzleHttp\Client;
 use Hborras\TwitterAdsSDK\TwitterAdsException;
-use Illuminate\Support\Str;
-use Log;
 
 class Twitter extends Root implements AdVendorInterface
 {
@@ -118,7 +116,7 @@ class Twitter extends Root implements AdVendorInterface
                 }
             }
 
-            return  $instance;
+            return $instance;
         } catch (Exception $e) {
             return [];
         }
@@ -533,11 +531,9 @@ class Twitter extends Root implements AdVendorInterface
         (new TwitterAPI($user->providers()->where('provider_id', $provider->id)->where('open_id', $account)->first(), $advertiser))->deleteCard($card_id);
     }
 
-    public function pullRedTrack($campaign, $target_date = null)
+    public function pullRedTrack($user_provider, $target_date = null)
     {
-        $tracker = UserTracker::where('provider_id', $campaign->provider_id)
-            ->where('provider_open_id', $campaign->open_id)
-            ->first();
+        $tracker = UserTracker::where('provider_id', $user_provider->provider_id)->where('provider_open_id', $user_provider->open_id)->first();
 
         if ($tracker) {
             $client = new Client();
@@ -545,27 +541,32 @@ class Twitter extends Root implements AdVendorInterface
             if ($target_date) {
                 $date = $target_date;
             }
-            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=hour_of_day&sub3=[' . $campaign->campaign_id . ']&sub9=Twitter&tracks_view=true';
+            $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub3,hour_of_day&sub9=Twitter&tracks_view=true';
             $response = $client->get($url);
 
             $data = json_decode($response->getBody(), true);
-
-            foreach ($data as $i => $value) {
-                $value['date'] = $date;
-                $value['user_id'] = $campaign->user_id;
-                $value['campaign_id'] = $campaign->id;
-                $value['provider_id'] = $campaign->provider_id;
-                $value['open_id'] = $campaign->open_id;
-                $value['advertiser_id'] = $campaign->advertiser_id;
-                $redtrack_report = RedtrackReport::firstOrNew([
-                    'date' => $date,
-                    'sub3' => $campaign->campaign_id,
-                    'hour_of_day' => $value['hour_of_day']
-                ]);
-                foreach (array_keys($value) as $array_key) {
-                    $redtrack_report->{$array_key} = $value[$array_key];
+            if (count($data)) {
+                foreach ($data as $key => $value) {
+                    $campaign_id = substr($value['sub3'], 1, -1);
+                    $campaigns = Campaign::where('campaign_id', $campaign_id)->get();
+                    foreach ($campaigns as $index => $campaign) {
+                        $value['date'] = $date;
+                        $value['user_id'] = $campaign->user_id;
+                        $value['campaign_id'] = $campaign->id;
+                        $value['provider_id'] = $campaign->provider_id;
+                        $value['open_id'] = $campaign->open_id;
+                        $value['advertiser_id'] = $campaign->advertiser_id;
+                        $redtrack_report = RedtrackReport::firstOrNew([
+                            'date' => $date,
+                            'sub3' => $campaign->campaign_id,
+                            'hour_of_day' => $value['hour_of_day']
+                        ]);
+                        foreach (array_keys($value) as $array_key) {
+                            $redtrack_report->{$array_key} = $value[$array_key];
+                        }
+                        $redtrack_report->save();
+                    }
                 }
-                $redtrack_report->save();
             }
         }
     }
@@ -605,7 +606,7 @@ class Twitter extends Root implements AdVendorInterface
             DB::raw('MAX(campaigns.budget) AS budget'),
             DB::raw('SUM(JSON_EXTRACT(data, "$[0].metrics.impressions")) as impressions'),
             DB::raw('SUM(JSON_EXTRACT(data, "$[0].metrics.clicks")) as clicks'),
-            DB::raw('ROUND(SUM(JSON_EXTRACT(data, "$[0].metrics.billed_charge_local_micro[0]") / 1000000), 2) as cost'),
+            DB::raw('ROUND(SUM(JSON_EXTRACT(data, "$[0].metrics.billed_charge_local_micro[0]") / 1000000), 2) as cost')
         ]);
         $campaigns_query->leftJoin('twitter_reports', function ($join) use ($data) {
             $join->on('twitter_reports.campaign_id', '=', 'campaigns.id')->whereBetween('twitter_reports.end_time', [$data['start'], $data['end']]);

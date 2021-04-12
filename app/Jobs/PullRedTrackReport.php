@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Campaign;
+use App\Models\UserProvider;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -33,11 +34,11 @@ class PullRedTrackReport implements ShouldQueue
     public function handle()
     {
         $date = $this->date;
-        Campaign::chunk(10, function($campaigns) use ($date) {
-            foreach ($campaigns as $campaign) {
-                $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        UserProvider::chunk(10, function($user_providers) use ($date) {
+            foreach ($user_providers as $user_provider) {
+                $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($user_provider->provider->slug);
 
-                (new $adVendorClass())->pullRedTrack($campaign, $date);
+                (new $adVendorClass())->pullRedTrack($user_provider, $date);
             }
         });
 
