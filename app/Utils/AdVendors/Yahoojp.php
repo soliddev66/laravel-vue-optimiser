@@ -949,13 +949,13 @@ class Yahoojp extends Root implements AdVendorInterface
 
         if (count($db_campaigns)) {
             $resource_importer->insertOrUpdate('campaigns', $db_campaigns, ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
-        }
 
-        Campaign::where([
-            'user_id' => $user_provider->user_id,
-            'provider_id' => $user_provider->provider_id,
-            'open_id' => $user_provider->open_id
-        ])->where('updated_at', '<>', $updated_at)->delete();
+            Campaign::where([
+                'user_id' => $user_provider->user_id,
+                'provider_id' => $user_provider->provider_id,
+                'open_id' => $user_provider->open_id
+            ])->where('updated_at', '<>', $updated_at)->delete();
+        }
     }
 
     public function pullAdGroup($user_provider)
