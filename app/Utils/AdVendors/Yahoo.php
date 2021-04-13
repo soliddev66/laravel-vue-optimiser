@@ -578,13 +578,14 @@ class Yahoo extends Root implements AdVendorInterface
     public function pullCampaign($user_provider)
     {
         $campaigns = (new GeminiAPI($user_provider))->getCampaigns();
-
-        $campaign_ids = [];
+        $db_campaigns = [];
 
         $resource_importer = new ResourceImporter();
 
+        $updated_at = Carbon::now();
+
         foreach ($campaigns as $key => $campaign) {
-            $campaign_ids[] = $resource_importer->insertOrUpdate('campaigns', [[
+            $db_campaigns[] = [
                 'campaign_id' => $campaign['id'],
                 'provider_id' => $user_provider->provider_id,
                 'user_id' => $user_provider->user_id,
@@ -592,30 +593,36 @@ class Yahoo extends Root implements AdVendorInterface
                 'advertiser_id' => $campaign['advertiserId'],
                 'name' => $campaign['campaignName'],
                 'status' => $campaign['status'],
-                'budget' => $campaign['budget']
-            ]], ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
+                'budget' => $campaign['budget'],
+                'updated_at' => $updated_at
+            ];
         }
 
-        // Campaign::where([
-        //     'user_id' => $user_provider->user_id,
-        //     'provider_id' => $user_provider->provider_id,
-        //     'open_id' => $user_provider->open_id
-        // ])->whereNotIn('id', $campaign_ids)->delete();
+        if (count($db_campaigns)) {
+            $resource_importer->insertOrUpdate('campaigns', $db_campaigns, ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
+
+            Campaign::where([
+                'user_id' => $user_provider->user_id,
+                'provider_id' => $user_provider->provider_id,
+                'open_id' => $user_provider->open_id
+            ])->where('updated_at', '<>', $updated_at)->delete();
+        }
     }
 
     public function pullAdGroup($user_provider)
     {
-        $ad_group_ids = [];
+        $api = new GeminiAPI($user_provider);
+        $db_ad_groups = [];
 
         $resource_importer = new ResourceImporter();
 
-        $api = new GeminiAPI($user_provider);
+        $updated_at = Carbon::now();
 
-        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 1)->chunk(10, function ($campaigns) use ($resource_importer, $api, $user_provider, &$ad_group_ids) {
+        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 1)->chunk(10, function ($campaigns) use ($resource_importer, $api, $user_provider, &$db_ad_groups, $updated_at) {
             foreach ($campaigns as $key => $campaign) {
                 $ad_groups = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
                 foreach ($ad_groups as $key => $ad_group) {
-                    $ad_group_ids[] = $resource_importer->insertOrUpdate('ad_groups', [[
+                    $db_ad_groups[] = [
                         'ad_group_id' => $ad_group['id'],
                         'user_id' => $user_provider->user_id,
                         'provider_id' => $user_provider->provider_id,
@@ -623,32 +630,38 @@ class Yahoo extends Root implements AdVendorInterface
                         'advertiser_id' => $campaign->advertiser_id,
                         'open_id' => $user_provider->open_id,
                         'name' => $ad_group['adGroupName'],
-                        'status' => $ad_group['status']
-                    ]], ['ad_group_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'open_id']);
+                        'status' => $ad_group['status'],
+                        'updated_at' => $updated_at
+                    ];
                 }
             }
         });
 
-        // AdGroup::where([
-        //     'user_id' => $user_provider->user_id,
-        //     'provider_id' => $user_provider->provider_id,
-        //     'open_id' => $user_provider->open_id
-        // ])->whereNotIn('id', $ad_group_ids)->delete();
+        if (count($db_ad_groups)) {
+            $resource_importer->insertOrUpdate('ad_groups', $db_ad_groups, ['ad_group_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'open_id']);
+
+            AdGroup::where([
+                'user_id' => $user_provider->user_id,
+                'provider_id' => $user_provider->provider_id,
+                'open_id' => $user_provider->open_id
+            ])->where('updated_at', '<>', $updated_at)->delete();
+        }
     }
 
     public function pullAd($user_provider)
     {
-        $ad_ids = [];
+        $api = new GeminiAPI($user_provider);
+        $db_ads = [];
 
         $resource_importer = new ResourceImporter();
 
-        $api = new GeminiAPI($user_provider);
+        $updated_at = Carbon::now();
 
-        AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 1)->chunk(10, function ($ad_groups) use ($resource_importer, $api, $user_provider, &$ad_ids) {
+        AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 1)->chunk(10, function ($ad_groups) use ($resource_importer, $api, $user_provider, &$db_ads, $updated_at) {
             foreach ($ad_groups as $key => $ad_group) {
                 $ads = $api->getAds([$ad_group->ad_group_id], $ad_group->advertiser_id);
                 foreach ($ads as $key => $ad) {
-                    $ad_ids[] = $resource_importer->insertOrUpdate('ads', [[
+                    $db_ads[] = [
                         'ad_id' => $ad['id'],
                         'user_id' => $user_provider->user_id,
                         'provider_id' => $user_provider->provider_id,
@@ -658,17 +671,21 @@ class Yahoo extends Root implements AdVendorInterface
                         'open_id' => $user_provider->open_id,
                         'name' => $ad['adName'] ?? $ad['title'],
                         'status' => $ad['status'],
-                        'image' => !empty($ad['imageUrl']) ? $ad['imageUrl'] : $ad['imagePortraitUrl']
-                    ]], ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
+                        'image' => !empty($ad['imageUrl']) ? $ad['imageUrl'] : $ad['imagePortraitUrl'],
+                        'updated_at' => $updated_at
+                    ];
                 }
             }
         });
 
-        // Ad::where([
-        //     'user_id' => $user_provider->user_id,
-        //     'provider_id' => $user_provider->provider_id,
-        //     'open_id' => $user_provider->open_id
-        // ])->whereNotIn('id', $ad_ids)->delete();
+        if (count($db_ads)) {
+            $resource_importer->insertOrUpdate('ads', $db_ads, ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
+            Ad::where([
+                'user_id' => $user_provider->user_id,
+                'provider_id' => $user_provider->provider_id,
+                'open_id' => $user_provider->open_id
+            ])->where('updated_at', '<>', $updated_at)->delete();
+        }
     }
 
     public function pullRedTrack($user_provider, $target_date = null)

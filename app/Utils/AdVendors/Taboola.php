@@ -488,15 +488,17 @@ class Taboola extends Root implements AdVendorInterface
     public function pullCampaign($user_provider)
     {
         $api = new TaboolaAPI($user_provider);
-        $campaign_ids = [];
+        $db_campaigns = [];
 
         $resource_importer = new ResourceImporter();
+
+        $updated_at = Carbon::now();
 
         foreach ($user_provider->advertisers as $advertiser) {
             $campaigns = $api->getCampaigns($advertiser)['results'];
 
             foreach ($campaigns as $campaign) {
-                $campaign_ids[] = $resource_importer->insertOrUpdate('campaigns', [[
+                $db_campaigns[] = [
                     'campaign_id' => $campaign['id'],
                     'provider_id' => $user_provider->provider_id,
                     'user_id' => $user_provider->user_id,
@@ -504,16 +506,21 @@ class Taboola extends Root implements AdVendorInterface
                     'advertiser_id' => $advertiser,
                     'name' => $campaign['name'],
                     'status' => $campaign['status'] === 'RUNNING' ? 'ACTIVE' : $campaign['status'],
-                    'budget' => $campaign['spending_limit']
-                ]], ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
+                    'budget' => $campaign['spending_limit'],
+                    'updated_at' => $updated_at
+                ];
             }
         }
 
-        // Campaign::where([
-        //     'user_id' => $user_provider->user_id,
-        //     'provider_id' => $user_provider->provider_id,
-        //     'open_id' => $user_provider->open_id
-        // ])->whereNotIn('id', $campaign_ids)->delete();
+        if (count($db_campaigns)) {
+            $resource_importer->insertOrUpdate('campaigns', $db_campaigns, ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
+
+            Campaign::where([
+                'user_id' => $user_provider->user_id,
+                'provider_id' => $user_provider->provider_id,
+                'open_id' => $user_provider->open_id
+            ])->where('updated_at', '<>', $updated_at)->delete();
+        }
     }
 
     public function pullAdGroup($user_provider)
@@ -523,19 +530,20 @@ class Taboola extends Root implements AdVendorInterface
 
     public function pullAd($user_provider)
     {
-        $ad_ids = [];
+        $api = new TaboolaAPI($user_provider);
+        $db_ads = [];
 
         $resource_importer = new ResourceImporter();
 
-        $api = new TaboolaAPI($user_provider);
+        $updated_at = Carbon::now();
 
-        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', $user_provider->provider_id)->chunk(10, function ($campaigns) use ($resource_importer, $api, $user_provider, &$ad_ids) {
+        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', $user_provider->provider_id)->chunk(10, function ($campaigns) use ($resource_importer, $api, $user_provider, &$db_ads, $updated_at) {
             foreach ($campaigns as $key => $campaign) {
                 $campaign_items = $api->getCampaignItems($campaign->advertiser_id, $campaign->campaign_id)['results'];
 
                 if ($campaign_items && count($campaign_items)) {
                     foreach ($campaign_items as $campaign_item) {
-                        $ad_ids[] = $resource_importer->insertOrUpdate('ads', [[
+                        $db_ads[] = [
                             'ad_id' => $campaign_item['id'],
                             'user_id' => $user_provider->user_id,
                             'provider_id' => $user_provider->provider_id,
@@ -545,18 +553,22 @@ class Taboola extends Root implements AdVendorInterface
                             'open_id' => $user_provider->open_id,
                             'name' => $campaign_item['title'] ?? 'NA',
                             'status' => $campaign_item['status'] === 'RUNNING' ? 'ACTIVE' : $campaign_item['status'],
-                            'image' => $campaign_item['thumbnail_url'] ?? $campaign_item['fallback_url'] ?? null
-                        ]], ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
+                            'image' => $campaign_item['thumbnail_url'] ?? $campaign_item['fallback_url'] ?? null,
+                            'updated_at' => $updated_at
+                        ];
                     }
                 }
             }
         });
 
-        // Ad::where([
-        //     'user_id' => $user_provider->user_id,
-        //     'provider_id' => $user_provider->provider_id,
-        //     'open_id' => $user_provider->open_id
-        // ])->whereNotIn('id', $ad_ids)->delete();
+        if (count($db_ads)) {
+            $resource_importer->insertOrUpdate('ads', $db_ads, ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
+            Ad::where([
+                'user_id' => $user_provider->user_id,
+                'provider_id' => $user_provider->provider_id,
+                'open_id' => $user_provider->open_id
+            ])->where('updated_at', '<>', $updated_at)->delete();
+        }
     }
 
     public function delete(Campaign $campaign)

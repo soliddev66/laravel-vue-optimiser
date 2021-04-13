@@ -920,9 +920,11 @@ class Yahoojp extends Root implements AdVendorInterface
     public function pullCampaign($user_provider)
     {
         $api = new YahooJPAPI($user_provider);
-        $campaign_ids = [];
+        $db_campaigns = [];
 
         $resource_importer = new ResourceImporter();
+
+        $updated_at = Carbon::now();
 
         foreach ($user_provider->advertisers as $key => $advertiser) {
             $campaigns_by_account_response = $api->getCampaignsByAccountId($advertiser);
@@ -930,7 +932,7 @@ class Yahoojp extends Root implements AdVendorInterface
             if (is_array($campaigns_by_account)) {
                 foreach ($campaigns_by_account as $campaign) {
                     $campaign = $campaign['campaign'];
-                    $campaign_ids[] = $resource_importer->insertOrUpdate('campaigns', [[
+                    $db_campaigns[] = [
                         'campaign_id' => $campaign['campaignId'],
                         'provider_id' => $user_provider->provider_id,
                         'open_id' => $user_provider->open_id,
@@ -938,35 +940,41 @@ class Yahoojp extends Root implements AdVendorInterface
                         'advertiser_id' => $advertiser,
                         'name' => $campaign['campaignName'],
                         'status' => $campaign['userStatus'],
-                        'budget' => $campaign['budget']['amount']
-                    ]], ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
+                        'budget' => $campaign['budget']['amount'],
+                        'updated_at' => $updated_at
+                    ];
                 }
             }
         }
 
-        // Campaign::where([
-        //     'user_id' => $user_provider->user_id,
-        //     'provider_id' => $user_provider->provider_id,
-        //     'open_id' => $user_provider->open_id
-        // ])->whereNotIn('id', $campaign_ids)->delete();
+        if (count($db_campaigns)) {
+            $resource_importer->insertOrUpdate('campaigns', $db_campaigns, ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
+
+            Campaign::where([
+                'user_id' => $user_provider->user_id,
+                'provider_id' => $user_provider->provider_id,
+                'open_id' => $user_provider->open_id
+            ])->where('updated_at', '<>', $updated_at)->delete();
+        }
     }
 
     public function pullAdGroup($user_provider)
     {
-        $ad_group_ids = [];
+        $api = new YahooJPAPI($user_provider);
+        $db_ad_groups = [];
 
         $resource_importer = new ResourceImporter();
 
-        $api = new YahooJPAPI($user_provider);
+        $updated_at = Carbon::now();
 
-        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 5)->chunk(10, function ($campaigns) use ($resource_importer, $api, $user_provider, &$ad_group_ids) {
+        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 5)->chunk(10, function ($campaigns) use ($resource_importer, $api, $user_provider, &$db_ad_groups, $updated_at) {
             foreach ($campaigns as $key => $campaign) {
                 $ad_groups_response = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
                 $ad_groups = $ad_groups_response['rval']['values'];
                 if (is_array($ad_groups) && count($ad_groups)) {
                     foreach ($ad_groups as $key => $ad_group) {
                         $ad_group = $ad_group['adGroup'];
-                        $ad_group_ids[] = $resource_importer->insertOrUpdate('ad_groups', [[
+                        $db_ad_groups[] = [
                             'ad_group_id' => $ad_group['adGroupId'],
                             'user_id' => $user_provider->user_id,
                             'provider_id' => $user_provider->provider_id,
@@ -974,36 +982,42 @@ class Yahoojp extends Root implements AdVendorInterface
                             'advertiser_id' => $campaign->advertiser_id,
                             'open_id' => $user_provider->open_id,
                             'name' => $ad_group['adGroupName'],
-                            'status' => $ad_group['userStatus']
-                        ]], ['ad_group_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'open_id']);
+                            'status' => $ad_group['userStatus'],
+                            'updated_at' => $updated_at
+                        ];
                     }
                 }
             }
         });
 
-        // AdGroup::where([
-        //     'user_id' => $user_provider->user_id,
-        //     'provider_id' => $user_provider->provider_id,
-        //     'open_id' => $user_provider->open_id
-        // ])->whereNotIn('id', $ad_group_ids)->delete();
+        if (count($db_ad_groups)) {
+            $resource_importer->insertOrUpdate('ad_groups', $db_ad_groups, ['ad_group_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'open_id']);
+
+            AdGroup::where([
+                'user_id' => $user_provider->user_id,
+                'provider_id' => $user_provider->provider_id,
+                'open_id' => $user_provider->open_id
+            ])->where('updated_at', '<>', $updated_at)->delete();
+        }
     }
 
     public function pullAd($user_provider)
     {
-        $ad_ids = [];
+        $api = new YahooJPAPI($user_provider);
+        $db_ads = [];
 
         $resource_importer = new ResourceImporter();
 
-        $api = new YahooJPAPI($user_provider);
+        $updated_at = Carbon::now();
 
-        AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 5)->chunk(10, function ($ad_groups) use ($resource_importer, $api, $user_provider, &$ad_ids) {
+        AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 5)->chunk(10, function ($ad_groups) use ($resource_importer, $api, $user_provider, &$db_ads, $updated_at) {
             foreach ($ad_groups as $key => $ad_group) {
                 $ads_response = $api->getAds([$ad_group->ad_group_id], $ad_group->advertiser_id);
                 $ads = $ads_response['rval']['values'];
                 if (is_array($ads) && count($ads)) {
                     foreach ($ads as $key => $ad) {
                         $ad = $ad['adGroupAd'];
-                        $ad_ids[] = $resource_importer->insertOrUpdate('ads', [[
+                        $db_ads[] = [
                             'ad_id' => $ad['adId'],
                             'user_id' => $user_provider->user_id,
                             'provider_id' => $user_provider->provider_id,
@@ -1012,18 +1026,22 @@ class Yahoojp extends Root implements AdVendorInterface
                             'ad_group_id' => $ad_group->ad_group_id,
                             'open_id' => $user_provider->open_id,
                             'name' => $ad['adName'],
-                            'status' => $ad['userStatus']
-                        ]], ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
+                            'status' => $ad['userStatus'],
+                            'updated_at' => $updated_at
+                        ];
                     }
                 }
             }
         });
 
-        // Ad::where([
-        //     'user_id' => $user_provider->user_id,
-        //     'provider_id' => $user_provider->provider_id,
-        //     'open_id' => $user_provider->open_id
-        // ])->whereNotIn('id', $ad_ids)->delete();
+        if (count($db_ads)) {
+            $resource_importer->insertOrUpdate('ads', $db_ads, ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
+            Ad::where([
+                'user_id' => $user_provider->user_id,
+                'provider_id' => $user_provider->provider_id,
+                'open_id' => $user_provider->open_id
+            ])->where('updated_at', '<>', $updated_at)->delete();
+        }
     }
 
     public function pullRedTrack($user_provider, $target_date = null)
