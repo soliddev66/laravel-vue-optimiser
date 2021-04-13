@@ -415,16 +415,18 @@ class Twitter extends Root implements AdVendorInterface
 
     public function pullCampaign($user_provider)
     {
-        $campaign_ids = [];
+        $db_campaigns = [];
 
         $resource_importer = new ResourceImporter();
+
+        $updated_at = Carbon::now();
 
         foreach ($user_provider->advertisers as $advertiser) {
             $campaigns = (new TwitterAPI($user_provider, $advertiser))->getCampaigns();
 
             if (is_array($campaigns)) {
                 foreach ($campaigns as $item) {
-                    $campaign_ids[] = $resource_importer->insertOrUpdate('campaigns', [[
+                    $db_campaigns[] = [
                         'campaign_id' => $item->getId(),
                         'provider_id' => $user_provider->provider_id,
                         'user_id' => $user_provider->user_id,
@@ -432,31 +434,38 @@ class Twitter extends Root implements AdVendorInterface
                         'advertiser_id' => $advertiser,
                         'name' => $item->getName(),
                         'status' => $item->getEntityStatus(),
-                        'budget' => $item->getTotalBudgetAmountLocalMicro() ? ($item->getTotalBudgetAmountLocalMicro() / 1000000) : ($item->getDailyBudgetAmountLocalMicro() / 1000000)
-                    ]], ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
+                        'budget' => $item->getTotalBudgetAmountLocalMicro() ? ($item->getTotalBudgetAmountLocalMicro() / 1000000) : ($item->getDailyBudgetAmountLocalMicro() / 1000000),
+                        'updated_at' => $updated_at
+                    ];
                 }
             }
         }
 
-        // Campaign::where([
-        //     'user_id' => $user_provider->user_id,
-        //     'provider_id' => $user_provider->provider_id,
-        //     'open_id' => $user_provider->open_id
-        // ])->whereNotIn('id', $campaign_ids)->delete();
+        if (count($db_campaigns)) {
+            $resource_importer->insertOrUpdate('campaigns', $db_campaigns, ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
+
+            Campaign::where([
+                'user_id' => $user_provider->user_id,
+                'provider_id' => $user_provider->provider_id,
+                'open_id' => $user_provider->open_id
+            ])->where('updated_at', '<>', $updated_at)->delete();
+        }
     }
 
     public function pullAdGroup($user_provider)
     {
-        $ad_group_ids = [];
+        $db_ad_groups = [];
 
         $resource_importer = new ResourceImporter();
 
-        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($campaigns) use ($resource_importer, $user_provider, &$ad_group_ids) {
+        $updated_at = Carbon::now();
+
+        Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($campaigns) use ($resource_importer, $user_provider, &$db_ad_groups, $updated_at) {
             foreach ($campaigns as $campaign) {
                 $ad_groups = (new TwitterAPI($user_provider, $campaign->advertiser_id))->getAdGroups($campaign->campaign_id);
                 if (is_array($ad_groups) && count($ad_groups)) {
                     foreach ($ad_groups as $ad_group) {
-                        $ad_group_ids[] = $resource_importer->insertOrUpdate('ad_groups', [[
+                        $db_ad_groups[] = [
                             'ad_group_id' => $ad_group->getId(),
                             'user_id' => $user_provider->user_id,
                             'provider_id' => $user_provider->provider_id,
@@ -464,33 +473,40 @@ class Twitter extends Root implements AdVendorInterface
                             'advertiser_id' => $campaign->advertiser_id,
                             'open_id' => $user_provider->open_id,
                             'name' => $ad_group->getName(),
-                            'status' => $ad_group->getEntityStatus()
-                        ]], ['ad_group_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'open_id']);
+                            'status' => $ad_group->getEntityStatus(),
+                            'updated_at' => $updated_at
+                        ];
                     }
                 }
             }
         });
 
-        // AdGroup::where([
-        //     'user_id' => $user_provider->user_id,
-        //     'provider_id' => $user_provider->provider_id,
-        //     'open_id' => $user_provider->open_id
-        // ])->whereNotIn('id', $ad_group_ids)->delete();
+        if (count($db_ad_groups)) {
+            $resource_importer->insertOrUpdate('ad_groups', $db_ad_groups, ['ad_group_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'open_id']);
+
+            AdGroup::where([
+                'user_id' => $user_provider->user_id,
+                'provider_id' => $user_provider->provider_id,
+                'open_id' => $user_provider->open_id
+            ])->where('updated_at', '<>', $updated_at)->delete();
+        }
     }
 
     public function pullAd($user_provider)
     {
-        $ad_ids = [];
+        $db_ads = [];
 
         $resource_importer = new ResourceImporter();
 
-        AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($ad_groups) use ($resource_importer, $user_provider, &$ad_ids) {
+        $updated_at = Carbon::now();
+
+        AdGroup::where('user_id', $user_provider->user_id)->where('provider_id', 3)->chunk(10, function ($ad_groups) use ($resource_importer, $user_provider, &$db_ads, $updated_at) {
             foreach ($ad_groups as $key => $ad_group) {
                 $ads = (new TwitterAPI($user_provider, $ad_group->advertiser_id))->getPromotedTweets([$ad_group->ad_group_id]);
 
                 if ($ads) {
                     foreach ($ads as $key => $ad) {
-                        $ad_ids[] = $resource_importer->insertOrUpdate('ads', [[
+                        $db_ads[] = [
                             'ad_id' => $ad->getId(),
                             'user_id' => $user_provider->user_id,
                             'provider_id' => $user_provider->provider_id,
@@ -499,18 +515,22 @@ class Twitter extends Root implements AdVendorInterface
                             'ad_group_id' => $ad_group->ad_group_id,
                             'open_id' => $user_provider->open_id,
                             'name' => $ad->getTweetId(),
-                            'status' => $ad->getEntityStatus()
-                        ]], ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
+                            'status' => $ad->getEntityStatus(),
+                            'updated_at' => $updated_at
+                        ];
                     }
                 }
             }
         });
 
-        // Ad::where([
-        //     'user_id' => $user_provider->user_id,
-        //     'provider_id' => $user_provider->provider_id,
-        //     'open_id' => $user_provider->open_id
-        // ])->whereNotIn('id', $ad_ids)->delete();
+        if (count($db_ads)) {
+            $resource_importer->insertOrUpdate('ads', $db_ads, ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
+            Ad::where([
+                'user_id' => $user_provider->user_id,
+                'provider_id' => $user_provider->provider_id,
+                'open_id' => $user_provider->open_id
+            ])->where('updated_at', '<>', $updated_at)->delete();
+        }
     }
 
     public function deleteCampaign(User $user, $campaign_id, $provider_slug, $account, $advertiser)
