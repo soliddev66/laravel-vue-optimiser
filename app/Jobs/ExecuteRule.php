@@ -53,10 +53,6 @@ class ExecuteRule implements ShouldQueue
                     $campaign = Campaign::find($rule_campaign);
                 }
 
-                if (!$campaign) {
-                    continue;
-                }
-
                 switch ($rule_rule_action->ruleAction->calculation_type) {
                     case 1:
                         $this->log = new RuleLog();
