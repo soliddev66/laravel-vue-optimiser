@@ -438,11 +438,11 @@ class Twitter extends Root implements AdVendorInterface
             }
         }
 
-        Campaign::where([
-            'user_id' => $user_provider->user_id,
-            'provider_id' => $user_provider->provider_id,
-            'open_id' => $user_provider->open_id
-        ])->whereNotIn('id', $campaign_ids)->delete();
+        // Campaign::where([
+        //     'user_id' => $user_provider->user_id,
+        //     'provider_id' => $user_provider->provider_id,
+        //     'open_id' => $user_provider->open_id
+        // ])->whereNotIn('id', $campaign_ids)->delete();
     }
 
     public function pullAdGroup($user_provider)
@@ -471,11 +471,11 @@ class Twitter extends Root implements AdVendorInterface
             }
         });
 
-        AdGroup::where([
-            'user_id' => $user_provider->user_id,
-            'provider_id' => $user_provider->provider_id,
-            'open_id' => $user_provider->open_id
-        ])->whereNotIn('id', $ad_group_ids)->delete();
+        // AdGroup::where([
+        //     'user_id' => $user_provider->user_id,
+        //     'provider_id' => $user_provider->provider_id,
+        //     'open_id' => $user_provider->open_id
+        // ])->whereNotIn('id', $ad_group_ids)->delete();
     }
 
     public function pullAd($user_provider)
@@ -506,11 +506,11 @@ class Twitter extends Root implements AdVendorInterface
             }
         });
 
-        Ad::where([
-            'user_id' => $user_provider->user_id,
-            'provider_id' => $user_provider->provider_id,
-            'open_id' => $user_provider->open_id
-        ])->whereNotIn('id', $ad_ids)->delete();
+        // Ad::where([
+        //     'user_id' => $user_provider->user_id,
+        //     'provider_id' => $user_provider->provider_id,
+        //     'open_id' => $user_provider->open_id
+        // ])->whereNotIn('id', $ad_ids)->delete();
     }
 
     public function deleteCampaign(User $user, $campaign_id, $provider_slug, $account, $advertiser)
