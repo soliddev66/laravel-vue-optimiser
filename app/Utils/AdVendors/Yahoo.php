@@ -596,11 +596,11 @@ class Yahoo extends Root implements AdVendorInterface
             ]], ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
         }
 
-        Campaign::where([
-            'user_id' => $user_provider->user_id,
-            'provider_id' => $user_provider->provider_id,
-            'open_id' => $user_provider->open_id
-        ])->whereNotIn('id', $campaign_ids)->delete();
+        // Campaign::where([
+        //     'user_id' => $user_provider->user_id,
+        //     'provider_id' => $user_provider->provider_id,
+        //     'open_id' => $user_provider->open_id
+        // ])->whereNotIn('id', $campaign_ids)->delete();
     }
 
     public function pullAdGroup($user_provider)
@@ -629,11 +629,11 @@ class Yahoo extends Root implements AdVendorInterface
             }
         });
 
-        AdGroup::where([
-            'user_id' => $user_provider->user_id,
-            'provider_id' => $user_provider->provider_id,
-            'open_id' => $user_provider->open_id
-        ])->whereNotIn('id', $ad_group_ids)->delete();
+        // AdGroup::where([
+        //     'user_id' => $user_provider->user_id,
+        //     'provider_id' => $user_provider->provider_id,
+        //     'open_id' => $user_provider->open_id
+        // ])->whereNotIn('id', $ad_group_ids)->delete();
     }
 
     public function pullAd($user_provider)
@@ -664,11 +664,11 @@ class Yahoo extends Root implements AdVendorInterface
             }
         });
 
-        Ad::where([
-            'user_id' => $user_provider->user_id,
-            'provider_id' => $user_provider->provider_id,
-            'open_id' => $user_provider->open_id
-        ])->whereNotIn('id', $ad_ids)->delete();
+        // Ad::where([
+        //     'user_id' => $user_provider->user_id,
+        //     'provider_id' => $user_provider->provider_id,
+        //     'open_id' => $user_provider->open_id
+        // ])->whereNotIn('id', $ad_ids)->delete();
     }
 
     public function pullRedTrack($user_provider, $target_date = null)

@@ -326,11 +326,11 @@ class Outbrain extends Root implements AdVendorInterface
             }
         }
 
-        Campaign::where([
-            'user_id' => $user_provider->user_id,
-            'provider_id' => $user_provider->provider_id,
-            'open_id' => $user_provider->open_id
-        ])->whereNotIn('id', $campaign_ids)->delete();
+        // Campaign::where([
+        //     'user_id' => $user_provider->user_id,
+        //     'provider_id' => $user_provider->provider_id,
+        //     'open_id' => $user_provider->open_id
+        // ])->whereNotIn('id', $campaign_ids)->delete();
     }
 
     public function pullAdGroup($user_provider)
@@ -368,11 +368,11 @@ class Outbrain extends Root implements AdVendorInterface
             }
         });
 
-        Ad::where([
-            'user_id' => $user_provider->user_id,
-            'provider_id' => $user_provider->provider_id,
-            'open_id' => $user_provider->open_id
-        ])->whereNotIn('id', $ad_ids)->delete();
+        // Ad::where([
+        //     'user_id' => $user_provider->user_id,
+        //     'provider_id' => $user_provider->provider_id,
+        //     'open_id' => $user_provider->open_id
+        // ])->whereNotIn('id', $ad_ids)->delete();
     }
 
     public function adStatus(Campaign $campaign, $ad_group_id, $ad_id, $status = null)
