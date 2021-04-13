@@ -432,21 +432,27 @@ export default {
       }
     },
     reloadWidgetData(tableProps) {
+      tableProps.length = 50
       this.getWidgetData(tableProps);
     },
     reloadContentData(tableProps) {
+      tableProps.length = 50
       this.getContentData(tableProps);
     },
     reloadAdGroupData(tableProps) {
+      tableProps.length = 50
       this.getAdGroupData(tableProps);
     },
     reloadPublisherData(tableProps) {
+      tableProps.length = 50
       this.getPublisherData(tableProps);
     },
     reloadDomainData(tableProps) {
+      tableProps.length = 50
       this.getDomainData(tableProps);
     },
     reloadRuleData(tableProps) {
+      tableProps.length = 50
       this.getRuleData(tableProps);
     },
     getSummaryData() {
