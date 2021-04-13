@@ -25,11 +25,9 @@ class ResourceImporter
 
         $query = "insert into {$table} (`{$columnsString}`) values {$values} on duplicate key update {$updates}";
 
-        $sth = DB::getPdo()->prepare($query);
-        $sth->execute($params);
-        $id = DB::getPdo()->lastInsertID();
+        DB::statement($query, $params);
 
-        return $id;
+        return $query;
     }
 
     /**
