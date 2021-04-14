@@ -172,17 +172,6 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-sm-12 control-label mt-2">Outbrain Extended Network</label>
-                  <div class="col-sm-12">
-                    <div class="form-check form-check-inline custom-checkbox">
-                      <input type="checkbox" class="form-check-input custom-control-input" v-model="campaignUseNetworkExtendedTraffic" id="OutbrainExtendedNetwork">
-                      <label for="OutbrainExtendedNetwork" class="form-check-label custom-control-label">
-                        Use extended network traffic
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <div class="form-group row">
                   <label class="col-sm-12 control-label mt-2">AdBlock</label>
                   <div class="col-sm-12">
                     <div class="form-check form-check-inline custom-checkbox">
@@ -580,7 +569,6 @@ export default {
       operatingSystems: ['Ios', 'MacOs', 'Android', 'Windows'],
       browsers: ['Safari', 'Opera', 'Chrome', 'UCBrowser', 'InApp', 'Samsung', 'Firefox', 'InternetExplorer', 'Edge'],
       campaignTrackingCode: this.instance ? this.instance.suffixTrackingCode : '',
-      campaignUseNetworkExtendedTraffic: this.instance ? this.instance.targeting.useExtendedNetworkTraffic : true,
       campaignExcludeAdBlockUsers: this.instance ? this.instance.targeting.excludeAdBlockUsers : true,
       campaignBudgetType: this.instance ? this.instance.budget.type : 'DAILY',
       scheduleType: this.instance && !this.instance.budget.runForever ? 'CUSTOM' : 'CONTINUOUSLY',
@@ -732,7 +720,6 @@ export default {
         campaignCostPerClick: this.campaignCostPerClick,
         campaignObjective: this.campaignObjective,
         campaignStartTime: this.campaignStartTime,
-        campaignUseNetworkExtendedTraffic: this.campaignUseNetworkExtendedTraffic,
         campaignExcludeAdBlockUsers: this.campaignExcludeAdBlockUsers,
         campaignTrackingCode: this.campaignTrackingCode,
         campaignEndDate: this.campaignEndDate
