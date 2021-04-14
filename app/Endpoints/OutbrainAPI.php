@@ -128,7 +128,6 @@ class OutbrainAPI
                 'locations' => request('campaignLocation'),
                 'operatingSystems' => request('campaignOperatingSystem'),
                 'browsers' => request('campaignBrowser'),
-                'useExtendedNetworkTraffic' => request('campaignUseNetworkExtendedTraffic'),
                 'excludeAdBlockUsers' => request('campaignExcludeAdBlockUsers')
             ],
             'suffixTrackingCode' => request('campaignTrackingCode'),
@@ -148,7 +147,6 @@ class OutbrainAPI
                 'locations' => request('campaignLocation'),
                 'operatingSystems' => request('campaignOperatingSystem'),
                 'browsers' => request('campaignBrowser'),
-                'useExtendedNetworkTraffic' => request('campaignUseNetworkExtendedTraffic'),
                 'excludeAdBlockUsers' => request('campaignExcludeAdBlockUsers')
             ],
             'suffixTrackingCode' => request('campaignTrackingCode'),
