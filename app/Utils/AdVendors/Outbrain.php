@@ -680,6 +680,27 @@ class Outbrain extends Root implements AdVendorInterface
         ]);
     }
 
+    public function removeSiteBlock($campaign, $data)
+    {
+        $api = new OutbrainAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
+
+        $campaign_data = $api->getCampaign($campaign->campaign_id);
+
+        $blocked_publishers = $campaign_data['blockedSites']['blockedPublishers'];
+
+        var_dump($blocked_publishers); exit;
+
+        $blocked_publishers[] = [
+            'id' => $data['sub4']
+        ];
+
+        $api->updateCampaignData($campaign->campaign_id, [
+            'blockedSites' => [
+                'blockedPublishers' => $blocked_publishers
+            ]
+        ]);
+    }
+
     public function targets(Campaign $campaign)
     {
         //
