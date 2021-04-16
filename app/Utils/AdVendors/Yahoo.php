@@ -992,7 +992,7 @@ class Yahoo extends Root implements AdVendorInterface
     {
         $api = new GeminiAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
 
-        $result = $api->addAttributes([
+        $api->addAttributes([
             'advertiserId' => $campaign->advertiser_id,
             'parentType' => 'CAMPAIGN',
             'parentId' => $campaign->campaign_id,
@@ -1001,8 +1001,6 @@ class Yahoo extends Root implements AdVendorInterface
             'value' => $data['sub1'],
             'status' => 'DELETED'
         ]);
-
-        var_dump($result);
     }
 
     public function blockSite($campaign, $domain_id)
