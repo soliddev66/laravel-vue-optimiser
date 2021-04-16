@@ -176,9 +176,9 @@ class OutbrainAPI
         return $this->client->call('DELETE', 'budgets/' . $budget_data['id']);
     }
 
-    public function getCampaign($campaign_id)
+    public function getCampaign($campaign_id, $extra_fields = null)
     {
-        return $this->client->call('GET', 'campaigns/' . $campaign_id);
+        return $this->client->call('GET', 'campaigns/' . $campaign_id . ($extra_fields ? '?extraFields=' . $extra_fields : ''));
     }
 
     public function updateCampaignStatus($campaign_id, $enabled)

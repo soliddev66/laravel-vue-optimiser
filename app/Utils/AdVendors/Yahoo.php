@@ -988,6 +988,21 @@ class Yahoo extends Root implements AdVendorInterface
         ]);
     }
 
+    public function removeSiteBlock($campaign, $data)
+    {
+        $api = new GeminiAPI(UserProvider::where('provider_id', $campaign->provider->id)->where('open_id', $campaign->open_id)->first());
+
+        $api->addAttributes([
+            'advertiserId' => $campaign->advertiser_id,
+            'parentType' => 'CAMPAIGN',
+            'parentId' => $campaign->campaign_id,
+            'type' => 'SITE_BLOCK',
+            'exclude' => 'TRUE',
+            'value' => $data['sub1'],
+            'status' => 'DELETED'
+        ]);
+    }
+
     public function targets(Campaign $campaign, $status)
     {
         $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());

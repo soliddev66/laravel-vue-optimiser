@@ -665,9 +665,9 @@ class Outbrain extends Root implements AdVendorInterface
     {
         $api = new OutbrainAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
 
-        $campaign_data = $api->getCampaign($campaign->campaign_id);
+        $campaign_data = $api->getCampaign($campaign->campaign_id, 'BlockedSites');
 
-        $blocked_publishers = $campaign_data['blockedSites']['blockedPublishers'];
+        $blocked_publishers = isset($campaign_data['blockedSites']) ? $campaign_data['blockedSites']['blockedPublishers'] : [];
 
         $blocked_publishers[] = [
             'id' => $data['sub4']
@@ -678,6 +678,30 @@ class Outbrain extends Root implements AdVendorInterface
                 'blockedPublishers' => $blocked_publishers
             ]
         ]);
+    }
+
+    public function removeSiteBlock($campaign, $data)
+    {
+        $api = new OutbrainAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
+
+        $campaign_data = $api->getCampaign($campaign->campaign_id, 'BlockedSites');
+
+        if (isset($campaign_data['blockedSites'])) {
+            $blocked_publishers = $campaign_data['blockedSites']['blockedPublishers'];
+
+            foreach ($blocked_publishers as $key => $blocked_publisher) {
+                if ($blocked_publisher['id'] == $data['sub4']) {
+                    array_splice($blocked_publishers, $key, 1);
+                    break;
+                }
+            }
+
+            $api->updateCampaignData($campaign->campaign_id, [
+                'blockedSites' => [
+                    'blockedPublishers' => $blocked_publishers
+                ]
+            ]);
+        }
     }
 
     public function targets(Campaign $campaign)

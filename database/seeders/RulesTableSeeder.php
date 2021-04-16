@@ -426,6 +426,11 @@ class RulesTableSeeder extends Seeder
             'provider' => 'DayParting',
             'calculation_type' => 1,
             'created_at' => Carbon::now()
+        ], [
+            'name' => 'UnBlock Site',
+            'provider' => 'UnBlockSite',
+            'calculation_type' => 2,
+            'created_at' => Carbon::now()
         ]]);
     }
 }
