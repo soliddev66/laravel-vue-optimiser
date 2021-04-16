@@ -62,8 +62,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/{campaign}/publishers', [App\Http\Controllers\CampaignController::class, 'publishers'])->name('campaigns.publishers');
     Route::get('/{campaign}/contents', [App\Http\Controllers\CampaignController::class, 'contents'])->name('campaigns.contents');
     Route::get('/{campaign}/domains', [App\Http\Controllers\CampaignController::class, 'domains'])->name('campaigns.domains');
-    Route::get('/{campaign}/domains/{domain_id}/block', [App\Http\Controllers\CampaignController::class, 'blockSite'])->name('campaigns.blockSite');
-    Route::get('/{campaign}/domains/{domain_id}/un-block', [App\Http\Controllers\CampaignController::class, 'unBlockSite'])->name('campaigns.unBlockSite');
+    Route::post('/{campaign}/domains/{domain_id}/block', [App\Http\Controllers\CampaignController::class, 'blockSite'])->name('campaigns.blockSite');
+    Route::post('/{campaign}/domains/{domain_id}/un-block', [App\Http\Controllers\CampaignController::class, 'unBlockSite'])->name('campaigns.unBlockSite');
     Route::get('/{campaign}/rules', [App\Http\Controllers\CampaignController::class, 'rules'])->name('campaigns.rules');
     Route::get('/{campaign}/performance', [App\Http\Controllers\CampaignController::class, 'performance'])->name('campaigns.performance');
     Route::get('/{campaign}/ad-groups', [App\Http\Controllers\CampaignController::class, 'adGroups'])->name('campaigns.ad_groups');

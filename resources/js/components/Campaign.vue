@@ -108,6 +108,41 @@
                       </div>
                     </div>
                   </div>
+                  <tbody slot="body" slot-scope="{ data }">
+                    <tr v-for="publisher in data" :key="publisher.id">
+                      <td>{{ publisher.id }}</td>
+                      <td>{{ publisher.sub3 }}</td>
+                      <td>
+                        <span>{{ publisher.sub7 }}</span>
+                        <div class="dropdown d-inline ml-2">
+                          <button class="btn btn-sm border" type="button" @click="showQuickAct(publisher.id)">
+                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu px-2 quick-action" :class="{ 'show': showQuickActions === publisher.id }">
+                            <a class="btn btn-sm btn-default border" :href="`/campaigns/${campaign.id}/domains/${publisher.id}/block`" @click.prevent="blockSite"><i class="fas fa-plus"></i></a>
+                            <a class="btn btn-sm btn-default border" :href="`/campaigns/${campaign.id}/domains/${publisher.id}/un-block`" @click.prevent="unBlockSite"><i class="fas fa-trash"></i></a>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{{ publisher.clicks }}</td>
+                      <td>{{ publisher.lp_views }}</td>
+                      <td>{{ publisher.lp_clicks }}</td>
+                      <td>{{ publisher.prelp_clicks }}</td>
+                      <td>{{ publisher.lp_ctr }}</td>
+                      <td>{{ publisher.conversions }}</td>
+                      <td>{{ publisher.cr }}</td>
+                      <td>{{ publisher.total_actions }}</td>
+                      <td>{{ publisher.tr }}</td>
+                      <td>{{ publisher.conversion_revenue }}</td>
+                      <td>{{ publisher.total_revenue }}</td>
+                      <td>{{ publisher.cost }}</td>
+                      <td>{{ publisher.profit }}</td>
+                      <td>{{ publisher.roi }}</td>
+                      <td>{{ publisher.cpc }}</td>
+                      <td>{{ publisher.cpa }}</td>
+                      <td>{{ publisher.epc }}</td>
+                    </tr>
+                  </tbody>
                 </data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 3 }" id="domains" role="tabpanel" aria-labelledby="domains-tab">
