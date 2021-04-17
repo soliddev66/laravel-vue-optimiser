@@ -667,7 +667,7 @@ class Outbrain extends Root implements AdVendorInterface
 
         $campaign_data = $api->getCampaign($campaign->campaign_id, 'BlockedSites');
 
-        $blocked_publishers = isset($campaign_data['blockedSites']) ? $campaign_data['blockedSites']['blockedPublishers'] : [];
+        $blocked_publishers = $campaign_data['blockedSites']['blockedPublishers'] ?? [];
 
         $blocked_publishers[] = [
             'id' => $data['sub4']
@@ -686,7 +686,7 @@ class Outbrain extends Root implements AdVendorInterface
 
         $campaign_data = $api->getCampaign($campaign->campaign_id, 'BlockedSites');
 
-        if (isset($campaign_data['blockedSites'])) {
+        if (isset($campaign_data['blockedSites']) && isset($campaign_data['blockedSites']['blockedPublishers'])) {
             $blocked_publishers = $campaign_data['blockedSites']['blockedPublishers'];
 
             foreach ($blocked_publishers as $key => $blocked_publisher) {
@@ -702,6 +702,28 @@ class Outbrain extends Root implements AdVendorInterface
                 ]
             ]);
         }
+    }
+
+    public function blockSite($campaign, $domain_id)
+    {
+        $data = $campaign->redtrackPublisherStats()->find($domain_id);
+
+        if ($data) {
+            $this->addSiteBlock($campaign, $data);
+        }
+
+        return [];
+    }
+
+    public function unBlockSite($campaign, $domain_id)
+    {
+        $data = $campaign->redtrackPublisherStats()->find($domain_id);
+
+        if ($data) {
+            $this->removeSiteBlock($campaign, $data);
+        }
+
+        return [];
     }
 
     public function targets(Campaign $campaign)

@@ -108,6 +108,41 @@
                       </div>
                     </div>
                   </div>
+                  <tbody slot="body" slot-scope="{ data }">
+                    <tr v-for="publisher in data" :key="publisher.id">
+                      <td>{{ publisher.id }}</td>
+                      <td>{{ publisher.sub3 }}</td>
+                      <td>
+                        <span>{{ publisher.sub7 }}</span>
+                        <div class="dropdown d-inline ml-2">
+                          <button class="btn btn-sm border" type="button" @click="showQuickAct(publisher.id)">
+                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu px-2 quick-action" :class="{ 'show': showQuickActions === publisher.id }">
+                            <a class="btn btn-sm btn-default border" :href="`/campaigns/${campaign.id}/domains/${publisher.id}/block`" @click.prevent="blockSite"><i class="fas fa-plus"></i></a>
+                            <a class="btn btn-sm btn-default border" :href="`/campaigns/${campaign.id}/domains/${publisher.id}/un-block`" @click.prevent="unBlockSite"><i class="fas fa-trash"></i></a>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{{ publisher.clicks }}</td>
+                      <td>{{ publisher.lp_views }}</td>
+                      <td>{{ publisher.lp_clicks }}</td>
+                      <td>{{ publisher.prelp_clicks }}</td>
+                      <td>{{ publisher.lp_ctr }}</td>
+                      <td>{{ publisher.conversions }}</td>
+                      <td>{{ publisher.cr }}</td>
+                      <td>{{ publisher.total_actions }}</td>
+                      <td>{{ publisher.tr }}</td>
+                      <td>{{ publisher.conversion_revenue }}</td>
+                      <td>{{ publisher.total_revenue }}</td>
+                      <td>{{ publisher.cost }}</td>
+                      <td>{{ publisher.profit }}</td>
+                      <td>{{ publisher.roi }}</td>
+                      <td>{{ publisher.cpc }}</td>
+                      <td>{{ publisher.cpa }}</td>
+                      <td>{{ publisher.epc }}</td>
+                    </tr>
+                  </tbody>
                 </data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 3 }" id="domains" role="tabpanel" aria-labelledby="domains-tab">
@@ -124,6 +159,40 @@
                       </div>
                     </div>
                   </div>
+                  <tbody slot="body" slot-scope="{ data }">
+                    <tr v-for="domain in data" :key="domain.id">
+                      <td>{{ domain.id }}</td>
+                      <td>
+                        <span>{{ domain.sub1 }}</span>
+                        <div class="dropdown d-inline ml-2">
+                          <button class="btn btn-sm border" type="button" @click="showQuickAct(domain.id)">
+                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu px-2 quick-action" :class="{ 'show': showQuickActions === domain.id }">
+                            <a class="btn btn-sm btn-default border" :href="`/campaigns/${campaign.id}/domains/${domain.id}/block`" @click.prevent="blockSite"><i class="fas fa-plus"></i></a>
+                            <a class="btn btn-sm btn-default border" :href="`/campaigns/${campaign.id}/domains/${domain.id}/un-block`" @click.prevent="unBlockSite"><i class="fas fa-trash"></i></a>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{{ domain.clicks }}</td>
+                      <td>{{ domain.lp_views }}</td>
+                      <td>{{ domain.lp_clicks }}</td>
+                      <td>{{ domain.prelp_clicks }}</td>
+                      <td>{{ domain.lp_ctr }}</td>
+                      <td>{{ domain.conversions }}</td>
+                      <td>{{ domain.cr }}</td>
+                      <td>{{ domain.total_actions }}</td>
+                      <td>{{ domain.tr }}</td>
+                      <td>{{ domain.conversion_revenue }}</td>
+                      <td>{{ domain.total_revenue }}</td>
+                      <td>{{ domain.cost }}</td>
+                      <td>{{ domain.profit }}</td>
+                      <td>{{ domain.roi }}</td>
+                      <td>{{ domain.cpc }}</td>
+                      <td>{{ domain.cpa }}</td>
+                      <td>{{ domain.epc }}</td>
+                    </tr>
+                  </tbody>
                 </data-table>
               </div>
               <div class="tab-pane fade" :class="{ 'show active': show === 4 }" id="rules" role="tabpanel" aria-labelledby="rules-tab">
@@ -384,7 +453,8 @@ export default {
         end: this.$moment().format('YYYY-MM-DD')
       },
       show: 0,
-      isLoading: false
+      isLoading: false,
+      showQuickActions: '',
     }
   },
   methods: {
@@ -694,6 +764,49 @@ export default {
       }).finally(() => {
         this.isLoading = false;
       });
+    },
+    showQuickAct(domainId) {
+      if (this.showQuickActions === domainId) {
+        this.showQuickActions = ''
+      } else {
+        this.showQuickActions = domainId
+      }
+    },
+    blockSite(e) {
+      this.isLoading = true;
+      axios.post(e.target.getAttribute('href'))
+        .then((response) => {
+          if (response.data.errors) {
+            alert(response.data.errors[0])
+          } else {
+            this.getData();
+            alert('Block the site successfully!');
+          }
+        })
+        .catch((err) => {
+          alert(err);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    unBlockSite(e) {
+      this.isLoading = true;
+      axios.post(e.target.getAttribute('href'))
+        .then((response) => {
+          if (response.data.errors) {
+            alert(response.data.errors[0])
+          } else {
+            this.getData();
+            alert('Unblock the site successfully!');
+          }
+        })
+        .catch((err) => {
+          alert(err);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     }
   }
 }
@@ -705,5 +818,8 @@ export default {
   white-space: nowrap;
   width: 1%;
   border: 1px dashed #dee2e6;
+}
+.quick-action {
+  min-width: 0;
 }
 </style>

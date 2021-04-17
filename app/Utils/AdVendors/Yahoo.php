@@ -1003,6 +1003,28 @@ class Yahoo extends Root implements AdVendorInterface
         ]);
     }
 
+    public function blockSite($campaign, $domain_id)
+    {
+        $data = $campaign->redtrackDomainStats()->find($domain_id);
+
+        if ($data) {
+            $this->addSiteBlock($campaign, $data);
+        }
+
+        return [];
+    }
+
+    public function unBlockSite($campaign, $domain_id)
+    {
+        $data = $campaign->redtrackDomainStats()->find($domain_id);
+
+        if ($data) {
+            $this->removeSiteBlock($campaign, $data);
+        }
+
+        return [];
+    }
+
     public function targets(Campaign $campaign, $status)
     {
         $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());

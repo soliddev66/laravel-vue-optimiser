@@ -531,4 +531,18 @@ class CampaignController extends Controller
     {
         return Excel::download(new CampaignExport(), 'campaigns' . Carbon::now()->format('Y-m-d-H-i-s') . '.csv', \Maatwebsite\Excel\Excel::CSV);
     }
+
+    public function blockSite(Campaign $campaign, $domain_id)
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+
+        return (new $adVendorClass())->blockSite($campaign, $domain_id);
+    }
+
+    public function unBlockSite(Campaign $campaign, $domain_id)
+    {
+        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+
+        return (new $adVendorClass())->unBlockSite($campaign, $domain_id);
+    }
 }
