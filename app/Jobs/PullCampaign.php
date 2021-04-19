@@ -3,12 +3,14 @@
 namespace App\Jobs;
 
 use App\Models\User;
+use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class PullCampaign implements ShouldQueue
 {
@@ -40,7 +42,11 @@ class PullCampaign implements ShouldQueue
         foreach ($this->user->providers as $user_provider) {
             $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($user_provider->provider->slug);
 
-            (new $adVendorClass())->pullCampaign($user_provider);
+            try {
+                (new $adVendorClass())->pullCampaign($user_provider);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
         }
     }
 }

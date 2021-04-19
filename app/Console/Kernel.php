@@ -57,7 +57,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('contents:pull')->everyTenMinutes();
 
         // Rules
-        foreach (Rule::all() as $rule) {
+        foreach (Rule::where('status', 'ACTIVE')->get() as $rule) {
             $schedule->command('rule:action', [
                 $rule->id
             ])->cron($this->getFrequency($rule))->appendOutputTo(storage_path('logs/commands.log'));
