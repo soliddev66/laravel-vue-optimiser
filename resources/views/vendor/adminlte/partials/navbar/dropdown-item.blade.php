@@ -1,4 +1,4 @@
-@inject('menuItemHelper', \JeroenNoten\LaravelAdminLte\Helpers\MenuItemHelper)
+@inject('menuItemHelper', \JeroenNoten\LaravelAdminLte\Helpers\MenuItemHelper::class)
 
 @if ($menuItemHelper->isSubmenu($item))
 
