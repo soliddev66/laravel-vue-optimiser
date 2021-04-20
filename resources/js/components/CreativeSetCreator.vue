@@ -45,6 +45,14 @@
         </div>
       </div>
     </div>
+
+    <modal width="60%" height="80%" name="mediaModal">
+      <file-manager v-bind:settings="settings" :props="{
+          upload: true,
+          viewType: 'grid',
+          selectionType: 'single'
+      }"></file-manager>
+    </modal>
   </div>
 </template>
 
@@ -74,6 +82,20 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
+
+    let vm = this
+    this.$root.$on('fm-selected-items', (value) => {
+      const selectedFilePath = value[0].path
+
+      if (this.openingFileSelector === 'mediaImage') {
+        this.creativeSets[this.fileSelectorIndex].image = selectedFilePath
+      }
+      if (this.openingFileSelector === 'mediaVideo') {
+        this.creativeSets[this.fileSelectorIndex].video = selectedFilePath
+      }
+      console.log(this.creativeSets)
+      vm.$modal.hide('mediaModal')
+    });
   },
   watch: {
 
@@ -83,14 +105,26 @@ export default {
       errors: {},
       isLoading: false,
       fullPage: true,
+      openingFileSelector: '',
+      fileSelectorIndex: 0,
       creativeSetName: this.creativeSet ? this.creativeSet.name : '',
       creativeSets: [{
         image: '',
         video: ''
-      }]
+      }],
+      settings: {
+        baseUrl: '/file-manager', // overwrite base url Axios
+        windowsConfig: 2, // overwrite config
+        lang: 'en'
+      }
     }
   },
   methods: {
+    openChooseFile(name, index) {
+      this.openingFileSelector = name
+      this.fileSelectorIndex = index
+      this.$modal.show('mediaModal')
+    },
     addSet() {
       this.creativeSets.push({
         image: '',
