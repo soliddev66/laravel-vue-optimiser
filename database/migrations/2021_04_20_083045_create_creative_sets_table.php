@@ -16,7 +16,7 @@ class CreateCreativeSetsTable extends Migration
         Schema::create('creative_sets', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('user_id');
-            $table->string('title');
+            $table->string('name');
             $table->tinyInteger('type');
             $table->timestamps();
         });

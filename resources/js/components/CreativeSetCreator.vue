@@ -6,24 +6,43 @@
     <div class="row justify-content-center">
       <div class="col-md-12">
         <div class="card">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <label class="pt-1 mb-0">VENDOR</label>
+          <div class="card-header">
+            <h2 class="mb-0">New Creative Set</h2>
           </div>
           <div class="card-body">
-            <div class="row form-inline">
-              <div class="col-6">
-                <select2 v-model="selectedProvider" :options="formatedProviders" :settings="{ templateSelection: formatState, templateResult: formatState, multiple: false, placeholder: 'Select Traffic Source' }" @change="selectedProviderChanged()" :disabled="instance != null" />
-              </div>
-              <div class="col-6">
-                <select class="form-control" v-if="accounts.length" v-model="selectedAccount" :disabled="instance">
-                  <option value="">Select Account</option>
-                  <option :value="account.open_id" v-for="account in accounts" :key="account.id">{{ account.open_id }}</option>
-                </select>
-              </div>
-            </div>
+            <errors :errors="errors" v-if="errors.errors"></errors>
+            <form class="form-horizontal">
+              <fieldset class="mb-4 p-3 rounded border">
+                <div class="form-group row">
+                  <label for="name" class="col-sm-2 control-label mt-2">Creative Set Name</label>
+                  <div class="col-sm-10">
+                    <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="creativeSetName" />
+                  </div>
+                </div>
+                <div v-if="type == 'media'">
+                  <fieldset class="mb-3 p-3 rounded border" v-for="(media, index) in creativeSets" :key="index">
+                    <div class="form-group row">
+                      <label for="image" class="col-sm-2 control-label mt-2">Image</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="image" placeholder="Image" class="form-control" v-model="media.image" disabled />
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('mediaImage', index)">Choose File</button>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="video" class="col-sm-2 control-label mt-2">Video</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="video" placeholder="Video" class="form-control" v-model="media.video" disabled />
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('mediaVideo', index)">Choose File</button>
+                      </div>
+                    </div>
+                    <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeSet(index)" v-if="index > 0">Remove Set</button>
+                  </fieldset>
+                  <button class="btn btn-primary btn-sm" @click.prevent="addSet()">Add Set</button>
+                </div>
+              </fieldset>
+            </form>
           </div>
         </div>
-        <component :is="selectedProvider" :providers="providers" :instance="instance" :action="action" :selectedProvider="selectedProvider" :selectedAccount="selectedAccount" v-if="selectedAccount" />
       </div>
     </div>
   </div>
@@ -37,92 +56,49 @@ import axios from 'axios'
 
 import 'vue-loading-overlay/dist/vue-loading.css'
 
-import {
-  yahoo,
-  outbrain,
-  twitter,
-  taboola,
-  yahoojp
-} from './ad-vendors'
-
 export default {
   props: {
-    providers: {
-      type: Array,
-      default: []
-    },
-    instance: {
-      type: Object,
-      default: null
+    type: {
+      type: String,
+      default: 'media'
     },
     action: {
       type: String,
       default: 'create'
-    },
-    step: {
-      type: Number,
-      default: 1
     }
   },
   components: {
     Loading,
-    Select2,
-    yahoo,
-    outbrain,
-    twitter,
-    taboola,
-    yahoojp
   },
   computed: {
-    formatedProviders() {
-      return this.providers.map(provider => {
-        provider.id = provider.slug
-        provider.text = provider.label
-        return provider
-      })
-    }
   },
   mounted() {
     console.log('Component mounted.')
-    this.getAccounts()
   },
   watch: {
 
   },
   data() {
     return {
+      errors: {},
       isLoading: false,
       fullPage: true,
-      selectedProvider: this.instance ? this.instance.provider : 'yahoo',
-      accounts: [],
-      selectedAccount: this.instance ? this.instance.open_id : '',
+      creativeSetName: this.creativeSet ? this.creativeSet.name : '',
+      creativeSets: [{
+        image: '',
+        video: ''
+      }]
     }
   },
   methods: {
-    formatState(state) {
-      if (!state.id) {
-        return state.text;
-      }
-      var $state = $(
-        '<span><img src="' + state.icon + '" width="20px" height="20px" /> ' + state.text + '</span>'
-      );
-      return $state;
-    },
-    selectedProviderChanged() {
-      this.selectedAccount = ''
-      this.getAccounts()
-    },
-    getAccounts() {
-      this.accounts = []
-      this.isLoading = true
-      axios.get(`/account/accounts?provider=${this.selectedProvider}`).then(response => {
-        this.accounts = response.data
-        this.selectedAccount = this.accounts[0].open_id
-      }).catch(err => {
-        console.log(err)
-      }).finally(() => {
-        this.isLoading = false
+    addSet() {
+      this.creativeSets.push({
+        image: '',
+        video: ''
       })
+    },
+    removeSet(index) {
+      this.creativeSets.splice(index, 1);
     }
   }
 }

@@ -269,7 +269,7 @@ return [
         ],
         [
             'text' => 'Creative Sets',
-            'url'  => 'creative',
+            'url'  => 'creatives',
             'icon' => 'fas fa-rocket',
         ],
         [
