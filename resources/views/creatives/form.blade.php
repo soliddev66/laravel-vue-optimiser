@@ -1,14 +1,14 @@
 @extends('adminlte::page')
 
-@section('title', 'Rule ' . ucfirst(request()->route()->getActionMethod()))
+@section('title', 'Creative ' . ucfirst(request()->route()->getActionMethod()))
 
 @section('content_header')
-    <h1>Rule {{ ucfirst(request()->route()->getActionMethod()) }}</h1>
+    <h1>Creative {{ ucfirst(request()->route()->getActionMethod()) }}</h1>
 @stop
 
 @section('content')
-    <creative-creator :action="'{{ request()->route()->getActionMethod() }}'">
-    </creative-creator>
+    <creative-set-creator type="{{ $type }}" :action="'{{ request()->route()->getActionMethod() }}'">
+    </creative-set-creator>
 @stop
 
 @section('css')

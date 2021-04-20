@@ -17,6 +17,8 @@ class CreativeController extends Controller
     {
         $type = request('type') ?? 'media';
 
-        return view('creatives.form');
+        return view('creatives.form', [
+            'type' => $type
+        ]);
     }
 }
