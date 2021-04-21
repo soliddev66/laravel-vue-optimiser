@@ -18,4 +18,16 @@ class CreativeSet extends Model
     {
         return $this->belongsToMany('App\Models\TitleSet', 'creative_set_sets', 'creative_set_id', 'set_id');
     }
+
+    public function creativeSetSets()
+    {
+        return $this->hasMany('App\Models\CreativeSetSet');
+    }
+
+    public function deleteRelations()
+    {
+        $this->mediaSets()->delete();
+        $this->titleSets()->delete();
+        $this->creativeSetSets()->delete();
+    }
 }

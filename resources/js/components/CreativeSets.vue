@@ -20,20 +20,18 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th colspan="2">Actions</th>
                   <th>Name</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="creativeSet in data" :key="creativeSet.id">
                   <td>{{ creativeSet.id }}</td>
+                  <td>{{ creativeSet.name }}</td>
                   <td class="border-right-0 px-1">
-                    <a class="btn btn-sm btn-default border" :href="'/creativeSets/edit/' + creativeSet.id"><i class="fas fa-edit"></i> Edit</a>
+                    <a class="btn btn-sm btn-default border" :href="'/creatives/edit/' + creativeSet.id"><i class="fas fa-edit"></i> Edit</a>
+                    <a class="btn btn-sm btn-default border" :href="'/creatives/delete/' + creativeSet.id" @click.prevent="deleteCreativeSet"><i class="fas fa-trash"></i> Delete</a>
                   </td>
-                  <td class="px-1">
-                    <a class="btn btn-sm btn-default border" :href="'/creativeSets/delete/' + creativeSet.id" @click.prevent="deleteCreativeSet"><i class="fas fa-trash"></i> Delete</a>
-                  </td>
-                  <td>{{ creativeSet.title }}</td>
                 </tr>
               </tbody>
             </table>
@@ -74,9 +72,9 @@ export default {
   methods: {
     getData() {
       this.isLoading = true;
-      return axios.get('/rules/data')
+      return axios.get('/creatives/data')
         .then(response => {
-          this.data = response.data.rules
+          this.data = response.data.creativeSets
         })
         .catch(error => {
           this.errors = error.response.data
@@ -85,8 +83,8 @@ export default {
           this.isLoading = false;
         });
     },
-    deleteRule(e) {
-      if (confirm('Are you sure to delete this rule?')) {
+    deleteCreativeSet(e) {
+      if (confirm('Are you sure to delete this creative sets?')) {
         this.isLoading = true;
         axios.post(e.target.getAttribute('href'))
           .then(response => {
@@ -104,7 +102,7 @@ export default {
                   pageLength: 10,
                 });
               });
-              alert('Delete the rule successfully!');
+              alert('Delete the creative sets successfully!');
             }
           })
           .catch(error => {
@@ -114,33 +112,6 @@ export default {
             this.isLoading = false;
           });
       }
-    },
-    updateRuleStatus(e) {
-      this.isLoading = true;
-      axios.post(e.target.getAttribute('href'))
-        .then((response) => {
-          if (response.data.errors) {
-            alert(response.data.errors[0])
-          } else {
-            this.getData().then(() => {
-              $('#creativeSetsTable').DataTable({
-                retrieve: true,
-                paging: true,
-                ordering: true,
-                info: true,
-                stateSave: false,
-                autoWidth: false,
-                pageLength: 10,
-              });
-            });
-          }
-        })
-        .catch((err) => {
-          this.errors = error.response.data;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
     }
   }
 }
