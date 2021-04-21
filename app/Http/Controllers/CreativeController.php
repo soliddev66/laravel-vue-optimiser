@@ -6,14 +6,15 @@ use App\Models\CreativeSet;
 use App\Models\MediaSet;
 use App\Models\TitleSet;
 
+use DB;
+use Illuminate\Support\Facades\Gate;
+
 class CreativeController extends Controller
 {
     public function index()
     {
-        $creativeSets = auth()->user()->creativeSets()->get();
-
         return view('creatives.index', [
-            'creativeSets' => $creativeSets
+            'creativeSets' => auth()->user()->creativeSets
         ]);
     }
 
@@ -67,5 +68,37 @@ class CreativeController extends Controller
             'creativeSets.*.image' => 'required_if:creativeSetType,media',
             'creativeSets.*.title' => 'required_if:creativeSetType,title',
         ]);
+    }
+
+    public function data()
+    {
+        return response()->json([
+            'creativeSets' => auth()->user()->creativeSets
+        ]);
+    }
+
+    public function delete(CreativeSet $creativeSet)
+    {
+        if (Gate::denies('modifiable', $creativeSet)) {
+            return response()->json([
+                'errors' => ['Not found']
+            ], 404);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $creativeSet->deleteRelations();
+            $creativeSet->delete();
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'errors' => [$e->getMessage()]
+            ], 500);
+        }
+
+        return [];
     }
 }
