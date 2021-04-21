@@ -24,7 +24,7 @@ class CreateCreativeSetsTable extends Migration
         Schema::create('media_sets', function (Blueprint $table) {
             $table->id();
             $table->string('image');
-            $table->string('video');
+            $table->string('video')->nullable();
             $table->timestamps();
         });
 
