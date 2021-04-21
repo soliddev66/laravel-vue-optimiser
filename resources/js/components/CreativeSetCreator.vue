@@ -19,28 +19,41 @@
                     <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="creativeSetName" />
                   </div>
                 </div>
-                <div v-if="type == 'media'">
-                  <fieldset class="mb-3 p-3 rounded border" v-for="(media, index) in creativeSets" :key="index">
+
+                <fieldset class="mb-3 p-3 rounded border" v-for="(item, index) in creativeSets" :key="index">
+                  <div v-if="type == 'media'">
                     <div class="form-group row">
                       <label for="image" class="col-sm-2 control-label mt-2">Image</label>
                       <div class="col-sm-8">
-                        <input type="text" name="image" placeholder="Image" class="form-control" v-model="media.image" disabled />
+                        <input type="text" name="image" placeholder="Image" class="form-control" v-model="item.image" disabled />
                         <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('mediaImage', index)">Choose File</button>
                       </div>
                     </div>
                     <div class="form-group row">
                       <label for="video" class="col-sm-2 control-label mt-2">Video</label>
                       <div class="col-sm-8">
-                        <input type="text" name="video" placeholder="Video" class="form-control" v-model="media.video" disabled />
+                        <input type="text" name="video" placeholder="Video" class="form-control" v-model="item.video" disabled />
                         <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('mediaVideo', index)">Choose File</button>
                       </div>
                     </div>
-                    <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeSet(index)" v-if="index > 0">Remove Set</button>
-                  </fieldset>
-                  <button class="btn btn-primary btn-sm" @click.prevent="addSet()">Add Set</button>
-                </div>
+                  </div>
+                  <div v-if="type == 'title'">
+                    <div class="form-group row">
+                      <label for="title" class="col-sm-2 control-label mt-2">Title</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="item.title" />
+                      </div>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeSet(index)" v-if="index > 0">Remove Set</button>
+                </fieldset>
+                <button class="btn btn-primary btn-sm" @click.prevent="addSet()">Add Set</button>
               </fieldset>
             </form>
+          </div>
+
+          <div class="card-footer d-flex justify-content-end">
+            <button type="button" class="btn btn-primary" :disabled="!creativeSetNameState || !creativeSetState" @click.prevent="saveCreativeSet">Save</button>
           </div>
         </div>
       </div>
@@ -79,6 +92,22 @@ export default {
     Loading,
   },
   computed: {
+    creativeSetNameState() {
+      return this.creativeSetName !== ''
+    },
+
+    creativeSetState() {
+      for (let i = 0; i < this.creativeSets.length; i++) {
+        if (this.type == 'media' && !this.creativeSets[i].image) {
+          return false
+        }
+        if (this.type == 'title' && !this.creativeSets[i].title) {
+          return false
+        }
+      }
+
+      return true
+    }
   },
   mounted() {
     console.log('Component mounted.')
@@ -93,7 +122,6 @@ export default {
       if (this.openingFileSelector === 'mediaVideo') {
         this.creativeSets[this.fileSelectorIndex].video = selectedFilePath
       }
-      console.log(this.creativeSets)
       vm.$modal.hide('mediaModal')
     });
   },
@@ -108,9 +136,12 @@ export default {
       openingFileSelector: '',
       fileSelectorIndex: 0,
       creativeSetName: this.creativeSet ? this.creativeSet.name : '',
-      creativeSets: [{
+      creativeSetType: this.type,
+      creativeSets: [this.type == 'media' ? {
         image: '',
         video: ''
+      } : {
+        title: ''
       }],
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
@@ -126,13 +157,47 @@ export default {
       this.$modal.show('mediaModal')
     },
     addSet() {
-      this.creativeSets.push({
-        image: '',
-        video: ''
-      })
+      if (this.type == 'media') {
+        this.creativeSets.push({
+          image: '',
+          video: ''
+        })
+      } else {
+        this.creativeSets.push({
+          title: ''
+        })
+      }
     },
     removeSet(index) {
       this.creativeSets.splice(index, 1);
+    },
+    saveCreativeSet() {
+      this.isLoading = true
+
+      this.postData = {
+        creativeSetName: this.creativeSetName,
+        creativeSetType: this.creativeSetType,
+        creativeSets: this.creativeSets
+      }
+
+      let url = '/creatives';
+
+      if (this.action == 'edit') {
+        url += '/update/' + this.creativeSet.id;
+      }
+
+      axios.post(url, this.postData).then(response => {
+        if (response.data.errors) {
+          alert(response.data.errors[0])
+        } else {
+          alert('Save successfully!')
+          this.errors = {}
+        }
+      }).catch(error => {
+        this.errors = error.response.data
+      }).finally(() => {
+        this.isLoading = false
+      })
     }
   }
 }
