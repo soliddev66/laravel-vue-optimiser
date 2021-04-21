@@ -86,6 +86,10 @@ export default {
     action: {
       type: String,
       default: 'create'
+    },
+    creativeSet: {
+      type: Object,
+      default: null
     }
   },
   components: {
@@ -129,6 +133,34 @@ export default {
 
   },
   data() {
+    let creativeSets = [this.type == 'media' ? {
+        image: '',
+        video: ''
+      } : {
+        title: ''
+      }]
+
+    if (this.creativeSet) {
+      creativeSets = [];
+      console.log(this.type)
+      for (let i = 0; i < this.creativeSet.sets.length; i++) {
+        if (this.type == 'media') {
+          creativeSets.push({
+            id: this.creativeSet.sets[i].id,
+            image: this.creativeSet.sets[i].image,
+            video: this.creativeSet.sets[i].video
+          })
+        } else {
+          creativeSets.push({
+            id: this.creativeSet.sets[i].id,
+            title: this.creativeSet.sets[i].title
+          });
+        }
+      }
+
+      console.log(creativeSets)
+    }
+
     return {
       errors: {},
       isLoading: false,
@@ -137,12 +169,7 @@ export default {
       fileSelectorIndex: 0,
       creativeSetName: this.creativeSet ? this.creativeSet.name : '',
       creativeSetType: this.type,
-      creativeSets: [this.type == 'media' ? {
-        image: '',
-        video: ''
-      } : {
-        title: ''
-      }],
+      creativeSets: creativeSets,
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config

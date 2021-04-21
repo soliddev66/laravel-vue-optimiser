@@ -59,6 +59,26 @@ class CreativeController extends Controller
         return [];
     }
 
+    public function edit(CreativeSet $creativeSet)
+    {
+        if (Gate::denies('modifiable', $creativeSet)) {
+            return response()->json([
+                'errors' => ['Not found']
+            ], 404);
+        }
+
+        if ($creativeSet->type == 1) {
+            $creativeSet->sets = $creativeSet->mediaSets()->get();
+        } else {
+            $creativeSet->sets = $creativeSet->titleSets()->get();
+        }
+
+        return view('creatives.form', [
+            'type' => $creativeSet->type == 1 ? 'media' : 'title',
+            'creativeSet' => $creativeSet
+        ]);
+    }
+
     private function validateRequest()
     {
         return request()->validate([
