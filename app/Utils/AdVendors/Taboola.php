@@ -829,7 +829,7 @@ class Taboola extends Root implements AdVendorInterface
         if ($data['search']) {
             $campaigns_query->where('name', 'LIKE', '%' . $data['search'] . '%');
         }
-        $campaigns_query->groupBy('campaigns.campaign_id');
+        $campaigns_query->groupBy('campaigns.id', 'campaigns.campaign_id');
 
         return $campaigns_query;
     }
