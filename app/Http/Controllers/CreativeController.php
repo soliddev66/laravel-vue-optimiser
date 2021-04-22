@@ -27,16 +27,8 @@ class CreativeController extends Controller
         ]);
     }
 
-    public function store()
+    public function storeCreativeSets($creativeSet, $data)
     {
-        $data = $this->validateRequest();
-
-        $creativeSet = new CreativeSet;
-        $creativeSet->user_id = auth()->id();
-        $creativeSet->name = $data['creativeSetName'];
-        $creativeSet->type = $data['creativeSetType'] == 'media' ? 1 : 2;
-        $creativeSet->save();
-
         foreach ($data['creativeSets'] as $set) {
             if ($creativeSet->type == 1) {
                 $mediaSet = new MediaSet;
@@ -55,6 +47,19 @@ class CreativeController extends Controller
                 $creativeSet->titleSets()->save($titleSet);
             }
         }
+    }
+
+    public function store()
+    {
+        $data = $this->validateRequest();
+
+        $creativeSet = new CreativeSet;
+        $creativeSet->user_id = auth()->id();
+        $creativeSet->name = $data['creativeSetName'];
+        $creativeSet->type = $data['creativeSetType'] == 'media' ? 1 : 2;
+        $creativeSet->save();
+
+        $this->storeCreativeSets($creativeSet, $data);
 
         return [];
     }
@@ -77,6 +82,26 @@ class CreativeController extends Controller
             'type' => $creativeSet->type == 1 ? 'media' : 'title',
             'creativeSet' => $creativeSet
         ]);
+    }
+
+    public function update(CreativeSet $creativeSet)
+    {
+        if (Gate::denies('modifiable', $creativeSet)) {
+            return response()->json([
+                'errors' => ['Not found']
+            ], 404);
+        }
+
+        $data = $this->validateRequest();
+
+        $creativeSet->name = $data['creativeSetName'];
+        $creativeSet->save();
+
+        $creativeSet->deleteRelations();
+
+        $this->storeCreativeSets($creativeSet, $data);
+
+        return [];
     }
 
     private function validateRequest()

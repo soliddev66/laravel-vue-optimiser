@@ -157,8 +157,6 @@ export default {
           });
         }
       }
-
-      console.log(creativeSets)
     }
 
     return {
@@ -217,7 +215,9 @@ export default {
         if (response.data.errors) {
           alert(response.data.errors[0])
         } else {
-          alert('Save successfully!')
+          this.$dialog.alert('Save successfully!').then(function(dialog) {
+            window.location = '/creatives';
+          });
           this.errors = {}
         }
       }).catch(error => {
