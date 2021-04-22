@@ -343,6 +343,7 @@
                             <div class="col-sm-4">
                               <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle); loadPreviewEvent($event, index)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
                               <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length"><i class="fa fa-plus"></i></button>
+                              <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".creative-set-modal" v-if="indexTitle == 0" @click="loadTitleSet"><i class="far fa-folder-open"></i></button>
                             </div>
                           </div>
                         </div>
@@ -415,6 +416,7 @@
                           <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeImage(index, indexImage); loadPreviewEvent($event, index)" v-if="indexImage > 0">Remove Image</button>
                         </fieldset>
                         <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)">Add Image</button>
+                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadMediaSet(index)">Load from Sets</button>
                       </div>
 
                       <div v-if="content.adType == 'VIDEO'">
@@ -447,6 +449,7 @@
                           <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeVideo(index, indexVideo); loadPreviewEvent($event, index)" v-if="indexVideo > 0">Remove Video</button>
                         </fieldset>
                         <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)">Add Video</button>
+                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadMediaSet(index)">Load from Sets</button>
                       </div>
                     </div>
                     <div class="col-sm-5">
@@ -526,6 +529,18 @@
         </div>
       </div>
     </div>
+
+    <div class="modal fade creative-set-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="col mt-3">
+            <h1>Select Creative Set</h1>
+          </div>
+          <creative-set-sets :type="setType" :ad-type="setAdType"></creative-set-sets>
+        </div>
+      </div>
+    </div>
+
     <modal width="60%" height="80%" name="imageModal">
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
@@ -577,7 +592,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 1
+      default: 2
     }
   },
   components: {
@@ -969,7 +984,9 @@ export default {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
         lang: 'en'
-      }
+      },
+      setType: 'media',
+      setAdType: 'IMAGE'
     }
   },
   methods: {
@@ -978,6 +995,13 @@ export default {
       this.fileSelectorIndex = index
       this.fileSelectorIndexImage = indexImage
       this.$modal.show('imageModal')
+    },
+    loadTitleSet() {
+      this.setType = 'title'
+    },
+    loadMediaSet(index) {
+      this.setType = 'media'
+      this.setAdType = this.contents[index].adType
     },
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;

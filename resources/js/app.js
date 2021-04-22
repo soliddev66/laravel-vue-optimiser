@@ -91,6 +91,7 @@ Vue.component('errors', require('./components/Errors.vue').default);
 
 Vue.component('creative-sets', require('./components/CreativeSets.vue').default);
 Vue.component('creative-set-creator', require('./components/CreativeSetCreator.vue').default);
+Vue.component('creative-set-sets', require('./components/CreativeSetSets.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
