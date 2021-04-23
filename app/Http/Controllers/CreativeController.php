@@ -117,8 +117,18 @@ class CreativeController extends Controller
 
     public function data()
     {
+        $data = auth()->user()->creativeSets();
+
+        if (request('type') == 'media') {
+            $data = $data->where('type', 1);
+        }
+
+        if (request('type') == 'title') {
+            $data = $data->where('type', 2);
+        }
+
         return response()->json([
-            'creativeSets' => auth()->user()->creativeSets
+            'creativeSets' => $data->get()
         ]);
     }
 
