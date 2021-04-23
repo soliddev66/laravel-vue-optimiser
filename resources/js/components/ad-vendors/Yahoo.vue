@@ -343,7 +343,7 @@
                             <div class="col-sm-4">
                               <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle); loadPreviewEvent($event, index)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
                               <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length"><i class="fa fa-plus"></i></button>
-                              <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".creative-set-modal" v-if="indexTitle == 0" @click="loadTitleSet"><i class="far fa-folder-open"></i></button>
+                              <button type="button" class="btn btn-primary" v-if="indexTitle == 0" @click="loadTitleSet(index)"><i class="far fa-folder-open"></i></button>
                             </div>
                           </div>
                         </div>
@@ -530,13 +530,13 @@
       </div>
     </div>
 
-    <div class="modal fade creative-set-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal fade creative-set-modal" id="creative-set-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
           <div class="col mt-3">
             <h1>Select Creative Set</h1>
           </div>
-          <creative-set-sets :type="setType" :ad-type="setAdType"></creative-set-sets>
+          <creative-set-sets :type="setType" @selectCreativeSet="selectCreativeSet"></creative-set-sets>
         </div>
       </div>
     </div>
@@ -985,8 +985,7 @@ export default {
         windowsConfig: 2, // overwrite config
         lang: 'en'
       },
-      setType: 'media',
-      setAdType: 'IMAGE'
+      setType: 'media'
     }
   },
   methods: {
@@ -996,12 +995,18 @@ export default {
       this.fileSelectorIndexImage = indexImage
       this.$modal.show('imageModal')
     },
-    loadTitleSet() {
+    loadTitleSet(index) {
       this.setType = 'title'
+      this.adSelectorIndex = index
+      $('#creative-set-modal').modal('show')
     },
     loadMediaSet(index) {
       this.setType = 'media'
-      this.setAdType = this.contents[index].adType
+      this.adSelectorIndex = index
+    },
+    selectCreativeSet(id) {
+      console.log(id)
+      $('#creative-set-modal').modal('hide')
     },
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;

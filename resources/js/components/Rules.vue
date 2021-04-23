@@ -10,10 +10,10 @@
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group mr-3" role="group">
                 <div class="dropdown">
-                  <button class="btn btn-primary dropdown-toggle" type="button" id="ruleAction" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-plus"></i> Create
-                  </button>
-                  <div class="dropdown-menu" aria-labelledby="ruleAction" id="ruleActionDropdown">
+                  <a href="#" class="btn btn-primary dropdown-toggle" role="button" id="ruleAction" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Create
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="ruleAction">
                     <a class="dropdown-item" :href="`/rules/create?action=${ruleAction.id}`" v-for="ruleAction in ruleActions" :key="ruleAction.id">{{ ruleAction.name }}</a>
                   </div>
                 </div>
