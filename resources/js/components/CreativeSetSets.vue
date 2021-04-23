@@ -12,6 +12,7 @@
                 <tr>
                   <th>ID</th>
                   <th>Name</th>
+                  <th>Type</th>
                   <th></th>
                 </tr>
               </thead>
@@ -19,7 +20,8 @@
                 <tr v-for="item in data" :key="item.id">
                   <td>{{ item.id }}</td>
                   <td>{{ item.name }}</td>
-                  <td><button type="button" class="btn btn-primary" @click="selectCreativeSet(item.id)"><i class="fas fa-check"></i></button></td>
+                  <td>{{ item.type == 1 ? 'MEDIA' : 'TITLE' }}</td>
+                  <td><button :disabled="(item.type == 1 && type == 'title') || (item.type == 2 && type == 'media')" type="button" class="btn btn-primary" @click="selectCreativeSet(item.id)"><i class="fas fa-check"></i></button></td>
                 </tr>
               </tbody>
             </table>
@@ -47,9 +49,7 @@ export default {
   },
 
   watch: {
-    type: function () {
-      this.getData()
-    }
+
   },
 
   mounted() {
@@ -67,7 +67,7 @@ export default {
   methods: {
     getData() {
       this.isLoading = true;
-      return axios.get(`/creatives/data?type=${this.type}`)
+      return axios.get('/creatives/data')
         .then(response => {
           this.data = response.data.creativeSets
         })
