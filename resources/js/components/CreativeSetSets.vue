@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <div class="col">
     <div class="vld-parent">
       <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
     </div>
@@ -12,12 +12,14 @@
                 <tr>
                   <th>ID</th>
                   <th>Name</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="item in data" :key="item.id">
                   <td>{{ item.id }}</td>
                   <td>{{ item.name }}</td>
+                  <td><button type="button" class="btn btn-primary" @click="selectCreativeSet(item.id)"><i class="fas fa-check"></i></button></td>
                 </tr>
               </tbody>
             </table>
@@ -25,7 +27,7 @@
         </div>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>
@@ -38,10 +40,6 @@ export default {
     type: {
       type: String,
       default: 'media'
-    },
-    adType: {
-      type: String,
-      default: 'image'
     }
   },
   components: {
@@ -51,14 +49,12 @@ export default {
   watch: {
     type: function () {
       this.getData()
-    },
-    adType: function () {
-      this.getData()
-    },
+    }
   },
 
   mounted() {
     console.log('Component mounted.')
+    this.getData()
   },
   data() {
     return {
@@ -71,7 +67,7 @@ export default {
   methods: {
     getData() {
       this.isLoading = true;
-      return axios.get(`/creatives/data?type=${this.type}&adType=${this.adType}`)
+      return axios.get(`/creatives/data?type=${this.type}`)
         .then(response => {
           this.data = response.data.creativeSets
         })
@@ -94,6 +90,9 @@ export default {
         });
     },
 
+    selectCreativeSet(id) {
+      this.$emit('selectCreativeSet', id)
+    }
   }
 }
 </script>
