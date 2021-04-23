@@ -21,6 +21,7 @@
                 <tr>
                   <th>ID</th>
                   <th>Name</th>
+                  <th>Type</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -28,6 +29,7 @@
                 <tr v-for="creativeSet in data" :key="creativeSet.id">
                   <td>{{ creativeSet.id }}</td>
                   <td>{{ creativeSet.name }}</td>
+                  <td>{{ creativeSet.type == 1 ? 'MEDIA' : 'TITLE' }}</td>
                   <td class="border-right-0 px-1">
                     <a class="btn btn-sm btn-default border" :href="'/creatives/edit/' + creativeSet.id"><i class="fas fa-edit"></i> Edit</a>
                     <a class="btn btn-sm btn-default border" :href="'/creatives/delete/' + creativeSet.id" @click.prevent="deleteCreativeSet"><i class="fas fa-trash"></i> Delete</a>

@@ -592,7 +592,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 1
+      default: 2
     }
   },
   components: {
