@@ -118,7 +118,7 @@ export default {
 
     creativeSetState() {
       for (let i = 0; i < this.creativeSets.length; i++) {
-        if (this.type == 'image' && (!this.creativeSets[i].image || !this.creativeSets[i].imageHQ)) {
+        if (this.type == 'image' && (!this.creativeSets[i].image || !this.creativeSets[i].hqImage)) {
           return false
         }
         if (this.type == 'video' && (!this.creativeSets[i].image || !this.creativeSets[i].video)) {
@@ -149,7 +149,7 @@ export default {
         this.creativeSets[this.fileSelectorIndex].image = selectedFilePath
       }
       if (this.openingFileSelector === 'videoVideo') {
-        this.creativeSets[this.fileSelectorIndex].vide = selectedFilePath
+        this.creativeSets[this.fileSelectorIndex].video = selectedFilePath
       }
       vm.$modal.hide('mediaModal')
     });
