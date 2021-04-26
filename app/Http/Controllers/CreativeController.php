@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\CreativeSet;
-use App\Models\MediaSet;
+use App\Models\ImageSet;
+use App\Models\VideoSet;
 use App\Models\TitleSet;
 
 use DB;
@@ -20,7 +21,7 @@ class CreativeController extends Controller
 
     public function create()
     {
-        $type = request('type') ?? 'media';
+        $type = request('type') ?? 'image';
 
         return view('creatives.form', [
             'type' => $type
@@ -31,13 +32,21 @@ class CreativeController extends Controller
     {
         foreach ($data['creativeSets'] as $set) {
             if ($creativeSet->type == 1) {
-                $mediaSet = new MediaSet;
+                $imageSet = new ImageSet;
 
-                $mediaSet->image = $set['image'];
-                $mediaSet->video = $set['video'];
-                $mediaSet->save();
+                $imageSet->image = $set['image'];
+                $imageSet->hq_image = $set['hqImage'];
+                $imageSet->save();
 
-                $creativeSet->mediaSets()->save($mediaSet);
+                $creativeSet->imageSets()->save($imageSet);
+            } else if ($creativeSet->type == 2) {
+                $videoSet = new VideoSet;
+
+                $videoSet->image = $set['image'];
+                $videoSet->video = $set['video'];
+                $videoSet->save();
+
+                $creativeSet->videoSets()->save($videoSet);
             } else {
                 $titleSet = new TitleSet;
 
@@ -56,7 +65,7 @@ class CreativeController extends Controller
         $creativeSet = new CreativeSet;
         $creativeSet->user_id = auth()->id();
         $creativeSet->name = $data['creativeSetName'];
-        $creativeSet->type = $data['creativeSetType'] == 'media' ? 1 : 2;
+        $creativeSet->type = $data['creativeSetType'] == 'image' ? 1 : ($data['creativeSetType'] == 'video' ? 2 : 3);
         $creativeSet->save();
 
         $this->storeCreativeSets($creativeSet, $data);
@@ -73,13 +82,15 @@ class CreativeController extends Controller
         }
 
         if ($creativeSet->type == 1) {
-            $creativeSet->sets = $creativeSet->mediaSets()->get();
+            $creativeSet->sets = $creativeSet->imageSets()->get();
+        } else if ($creativeSet->type == 2) {
+            $creativeSet->sets = $creativeSet->videoSets()->get();
         } else {
             $creativeSet->sets = $creativeSet->titleSets()->get();
         }
 
         return view('creatives.form', [
-            'type' => $creativeSet->type == 1 ? 'media' : 'title',
+            'type' => $creativeSet->type == 1 ? 'image' : ($creativeSet->type == 2 ? 'video' : 'title'),
             'creativeSet' => $creativeSet
         ]);
     }
@@ -110,7 +121,10 @@ class CreativeController extends Controller
             'creativeSetName' => 'required|max:255',
             'creativeSetType' => 'required',
             'creativeSets' => 'required|present|array',
-            'creativeSets.*.image' => 'required_if:creativeSetType,media',
+            'creativeSets.*.image' => 'required_if:creativeSetType,image',
+            'creativeSets.*.hqImage' => 'required_if:creativeSetType,image',
+            'creativeSets.*.image' => 'required_if:creativeSetType,video',
+            'creativeSets.*.video' => 'required_if:creativeSetType,video',
             'creativeSets.*.title' => 'required_if:creativeSetType,title',
         ]);
     }

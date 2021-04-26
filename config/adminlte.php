@@ -270,7 +270,7 @@ return [
         [
             'text' => 'Creative Sets',
             'url'  => 'creatives',
-            'icon' => 'fas fa-rocket',
+            'icon' => 'fas fa-atom',
         ],
         [
             'text' => 'Rules',

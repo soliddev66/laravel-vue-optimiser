@@ -21,19 +21,35 @@
                 </div>
 
                 <fieldset class="mb-3 p-3 rounded border" v-for="(item, index) in creativeSets" :key="index">
-                  <div v-if="type == 'media'">
+                  <div v-if="type == 'image'">
                     <div class="form-group row">
                       <label for="image" class="col-sm-2 control-label mt-2">Image</label>
                       <div class="col-sm-8">
                         <input type="text" name="image" placeholder="Image" class="form-control" v-model="item.image" disabled />
-                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('mediaImage', index)">Choose File</button>
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageImage', index)">Choose File</button>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="hq_image" class="col-sm-2 control-label mt-2">HQ Image</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="hq_image" placeholder="HQ Image" class="form-control" v-model="item.hqImage" disabled />
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQImage', index)">Choose File</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-if="type == 'video'">
+                    <div class="form-group row">
+                      <label for="image" class="col-sm-2 control-label mt-2">Image</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="image" placeholder="Image" class="form-control" v-model="item.image" disabled />
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoImage', index)">Choose File</button>
                       </div>
                     </div>
                     <div class="form-group row">
                       <label for="video" class="col-sm-2 control-label mt-2">Video</label>
                       <div class="col-sm-8">
                         <input type="text" name="video" placeholder="Video" class="form-control" v-model="item.video" disabled />
-                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('mediaVideo', index)">Choose File</button>
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoVideo', index)">Choose File</button>
                       </div>
                     </div>
                   </div>
@@ -47,7 +63,7 @@
                   </div>
                   <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeSet(index)" v-if="index > 0">Remove Set</button>
                 </fieldset>
-                <button class="btn btn-primary btn-sm" @click.prevent="addSet()">Add Set</button>
+                <button class="btn btn-primary btn-sm d-none" @click.prevent="addSet()">Add Set</button>
               </fieldset>
             </form>
           </div>
@@ -81,7 +97,7 @@ export default {
   props: {
     type: {
       type: String,
-      default: 'media'
+      default: 'image'
     },
     action: {
       type: String,
@@ -102,7 +118,10 @@ export default {
 
     creativeSetState() {
       for (let i = 0; i < this.creativeSets.length; i++) {
-        if (this.type == 'media' && !this.creativeSets[i].image) {
+        if (this.type == 'image' && (!this.creativeSets[i].image || !this.creativeSets[i].imageHQ)) {
+          return false
+        }
+        if (this.type == 'video' && (!this.creativeSets[i].image || !this.creativeSets[i].video)) {
           return false
         }
         if (this.type == 'title' && !this.creativeSets[i].title) {
@@ -120,11 +139,17 @@ export default {
     this.$root.$on('fm-selected-items', (value) => {
       const selectedFilePath = value[0].path
 
-      if (this.openingFileSelector === 'mediaImage') {
+      if (this.openingFileSelector === 'imageImage') {
         this.creativeSets[this.fileSelectorIndex].image = selectedFilePath
       }
-      if (this.openingFileSelector === 'mediaVideo') {
-        this.creativeSets[this.fileSelectorIndex].video = selectedFilePath
+      if (this.openingFileSelector === 'imageHQImage') {
+        this.creativeSets[this.fileSelectorIndex].hqImage = selectedFilePath
+      }
+      if (this.openingFileSelector === 'videoImage') {
+        this.creativeSets[this.fileSelectorIndex].image = selectedFilePath
+      }
+      if (this.openingFileSelector === 'videoVideo') {
+        this.creativeSets[this.fileSelectorIndex].vide = selectedFilePath
       }
       vm.$modal.hide('mediaModal')
     });
@@ -133,18 +158,35 @@ export default {
 
   },
   data() {
-    let creativeSets = [this.type == 'media' ? {
+    let creativeSets = null
+
+    if (this.type == 'image') {
+      creativeSets = [{
+        image: '',
+        hqImage: ''
+      }]
+    } else if (this.type == 'video') {
+      creativeSets = [{
         image: '',
         video: ''
-      } : {
+      }]
+    } else {
+      creativeSets = [{
         title: ''
       }]
+    }
 
     if (this.creativeSet) {
       creativeSets = [];
       console.log(this.type)
       for (let i = 0; i < this.creativeSet.sets.length; i++) {
-        if (this.type == 'media') {
+        if (this.type == 'image') {
+          creativeSets.push({
+            id: this.creativeSet.sets[i].id,
+            image: this.creativeSet.sets[i].image,
+            hqImage: this.creativeSet.sets[i].hq_image
+          })
+        }else if (this.type == 'video') {
           creativeSets.push({
             id: this.creativeSet.sets[i].id,
             image: this.creativeSet.sets[i].image,
@@ -182,7 +224,12 @@ export default {
       this.$modal.show('mediaModal')
     },
     addSet() {
-      if (this.type == 'media') {
+      if (this.type == 'image') {
+        this.creativeSets.push({
+          image: '',
+          hqImage: ''
+        })
+      } else if (this.type == 'video') {
         this.creativeSets.push({
           image: '',
           video: ''
