@@ -9,9 +9,14 @@ class CreativeSet extends Model
 {
     use HasFactory;
 
-    public function mediaSets()
+    public function imageSets()
     {
-        return $this->belongsToMany('App\Models\MediaSet', 'creative_set_sets', 'creative_set_id', 'set_id');
+        return $this->belongsToMany('App\Models\ImageSet', 'creative_set_sets', 'creative_set_id', 'set_id');
+    }
+
+    public function videoSets()
+    {
+        return $this->belongsToMany('App\Models\VideoSet', 'creative_set_sets', 'creative_set_id', 'set_id');
     }
 
     public function titleSets()
@@ -26,7 +31,8 @@ class CreativeSet extends Model
 
     public function deleteRelations()
     {
-        $this->mediaSets()->delete();
+        $this->imageSets()->delete();
+        $this->videoSets()->delete();
         $this->titleSets()->delete();
         $this->creativeSetSets()->delete();
     }

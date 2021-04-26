@@ -21,10 +21,17 @@ class CreateCreativeSetsTable extends Migration
             $table->timestamps();
         });
 
-        Schema::create('media_sets', function (Blueprint $table) {
+        Schema::create('image_sets', function (Blueprint $table) {
             $table->id();
             $table->string('image');
-            $table->string('video')->nullable();
+            $table->string('hq_image');
+            $table->timestamps();
+        });
+
+        Schema::create('video_sets', function (Blueprint $table) {
+            $table->id();
+            $table->string('image');
+            $table->string('video');
             $table->timestamps();
         });
 
@@ -48,7 +55,8 @@ class CreateCreativeSetsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('creative_sets');
-        Schema::dropIfExists('media_sets');
+        Schema::dropIfExists('image_sets');
+        Schema::dropIfExists('video_sets');
         Schema::dropIfExists('title_sets');
         Schema::dropIfExists('creative_set_sets');
     }
