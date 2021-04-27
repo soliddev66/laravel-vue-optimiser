@@ -399,7 +399,7 @@
                             </div>
                             <div class="col-sm-8 offset-sm-4">
                               <small class="text-danger" v-if="image.imageUrlHQ && !validURL(image.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
-                              <small class="text-danger" v-if="!image.imageUrlHQState">Image is invalid. You might need an 1200x627 image.</small>
+                              <small class="text-danger" v-if="!image.imageUrlHQState">Image is invalid. You might need an 1200 x 627 image.</small>
                             </div>
                           </div>
                           <div class="form-group row">
@@ -410,7 +410,7 @@
                             </div>
                             <div class="col-sm-8 offset-sm-4">
                               <small class="text-danger" v-if="image.imageUrl && !validURL(image.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
-                              <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
+                              <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627 x 627 image.</small>
                             </div>
                           </div>
                           <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeImage(index, indexImage); loadPreviewEvent($event, index)" v-if="indexImage > 0">Remove Image</button>
@@ -738,6 +738,7 @@ export default {
       contents = [{
         id: '',
         adType: 'IMAGE',
+        titleSet: '',
         titles: [{
           title: '',
           existing: false
@@ -746,6 +747,7 @@ export default {
         targetUrl: '',
         description: '',
         brandname: '',
+        imageSet: '',
         images: [{
           imageUrlHQ: '',
           imageUrlHQState: true,
@@ -753,6 +755,7 @@ export default {
           imageUrlState: true,
           existing: false
         }],
+        videoSet: '',
         videos: [{
           videoPrimaryUrl: '',
           videoPortraitUrl: '',
@@ -854,6 +857,7 @@ export default {
         contents.push({
           id: this.instance.ads[i]['id'],
           adType: this.instance.ads[i]['videoPrimaryUrl'] || this.instance.ads[i]['imagePortraitUrl'] ? 'VIDEO': 'IMAGE',
+          titleSet: '',
           titles: [{
             title: this.instance.ads[i]['title'],
             existing: true
@@ -862,6 +866,7 @@ export default {
           targetUrl: this.instance.ads[i]['landingUrl'],
           description: this.instance.ads[i]['description'],
           brandname: this.instance.ads[i]['sponsoredBy'],
+          imageSet: '',
           images: [{
             imageUrlHQ: this.instance.ads[i]['imageUrlHQ'],
             imageUrlHQState: true,
@@ -869,6 +874,7 @@ export default {
             imageUrlState: true,
             existing: true
           }],
+          videoSet: '',
           videos: [{
             videoPrimaryUrl: this.instance.ads[i]['videoPrimaryUrl'],
             videoPortraitUrl: this.instance.ads[i]['videoPortraitUrl'],
@@ -985,6 +991,7 @@ export default {
         windowsConfig: 2, // overwrite config
         lang: 'en'
       },
+      adSelectorIndex: 0,
       setType: 'image'
     }
   },
@@ -1001,7 +1008,9 @@ export default {
       $('#creative-set-modal').modal('show')
     },
     selectCreativeSet(id) {
-      console.log(id)
+      if (this.setType == 'title') {
+        this.contents[this.fileSelectorIndex].titleSet = id
+      }
       $('#creative-set-modal').modal('hide')
     },
     validURL(str) {
@@ -1021,6 +1030,7 @@ export default {
       this.contents.push({
         id: '',
         adType: 'IMAGE',
+        titleSet: '',
         titles: [{
           title: '',
           existing: false
@@ -1029,6 +1039,7 @@ export default {
         targetUrl: '',
         description: '',
         brandname: '',
+        imageSet: '',
         images: [{
           imageUrlHQ: '',
           imageUrlHQState: true,
@@ -1036,6 +1047,7 @@ export default {
           imageUrlState: true,
           existing: false
         }],
+        videoSet: '',
         videos: [{
           videoPrimaryUrl: '',
           videoPortraitUrl: '',
