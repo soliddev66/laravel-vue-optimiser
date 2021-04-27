@@ -23,7 +23,7 @@
                 <fieldset class="mb-3 p-3 rounded border" v-for="(item, index) in creativeSets" :key="index">
                   <div v-if="type == 'image'">
                     <div class="form-group row">
-                      <label for="image" class="col-sm-2 control-label mt-2">Image</label>
+                      <label for="image" class="col-sm-2 control-label mt-2">Image (627 x 627)</label>
                       <div class="col-sm-8">
                         <input type="text" name="image" placeholder="Image" class="form-control" v-model="item.image" disabled />
                         <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageImage', index)">Choose File</button>
@@ -31,7 +31,7 @@
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label for="hq_image" class="col-sm-2 control-label mt-2">HQ Image</label>
+                      <label for="hq_image" class="col-sm-2 control-label mt-2">HQ Image (1200 x 800)</label>
                       <div class="col-sm-8">
                         <input type="text" name="hq_image" placeholder="HQ Image" class="form-control" v-model="item.hqImage" disabled />
                         <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQImage', index)">Choose File</button>
@@ -45,6 +45,7 @@
                       <div class="col-sm-8">
                         <input type="text" name="image" placeholder="Image" class="form-control" v-model="item.portraitImage" disabled />
                         <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoPortraitImage', index)">Choose File</button>
+                        <small class="text-danger" v-if="!item.portraitImageState">Image is invalid. You might need an 1080 x 1920 image.</small>
                       </div>
                     </div>
                     <div class="form-group row">
@@ -52,6 +53,7 @@
                       <div class="col-sm-8">
                         <input type="text" name="image" placeholder="Image" class="form-control" v-model="item.landscapeImage" disabled />
                         <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoLandscapeImage', index)">Choose File</button>
+                        <small class="text-danger" v-if="!item.landscapeImageState">Image is invalid. You might need an 640 x 360 image.</small>
                       </div>
                     </div>
                     <div class="form-group row">
@@ -127,7 +129,7 @@ export default {
 
     creativeSetState() {
       for (let i = 0; i < this.creativeSets.length; i++) {
-        if (this.type == 'image' && (!this.creativeSets[i].image || !this.creativeSets[i].images[i].imageState || !this.creativeSets[i].hqImage || !this.creativeSets[i].images[i].hqImageState)) {
+        if (this.type == 'image' && (!this.creativeSets[i].image || !this.creativeSets[i].imageState || !this.creativeSets[i].hqImage || !this.creativeSets[i].hqImageState)) {
           return false
         }
         if (this.type == 'video' && (!this.creativeSets[i].portraitImage || !this.creativeSets[i].portraitImageState || !this.creativeSets[i].landscapeImage || !this.creativeSets[i].landscapeImageState || !this.creativeSets[i].video)) {
@@ -163,13 +165,13 @@ export default {
       if (this.openingFileSelector === 'videoPortraitImage') {
         this.creativeSets[this.fileSelectorIndex].portraitImage = selectedFilePath
         this.validImageSize(process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath, 1080, 1920).then(result => {
-          this.creativeSets[this.fileSelectorIndex].portraitImage = result
+          this.creativeSets[this.fileSelectorIndex].portraitImageState = result
         });
       }
       if (this.openingFileSelector === 'videoLandscapeImage') {
         this.creativeSets[this.fileSelectorIndex].landscapeImage = selectedFilePath
         this.validImageSize(process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath, 640, 360).then(result => {
-          this.creativeSets[this.fileSelectorIndex].landscapeImage = result
+          this.creativeSets[this.fileSelectorIndex].landscapeImageState = result
         });
       }
       if (this.openingFileSelector === 'videoVideo') {
