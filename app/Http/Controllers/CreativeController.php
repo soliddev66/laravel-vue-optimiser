@@ -30,6 +30,8 @@ class CreativeController extends Controller
 
     public function storeCreativeSets($creativeSet, $data)
     {
+        \Tinify\setKey(config('services.tinify.api_key'));
+
         foreach ($data['creativeSets'] as $set) {
             if ($creativeSet->type == 1) {
                 $imageSet = new ImageSet;
@@ -42,7 +44,8 @@ class CreativeController extends Controller
             } else if ($creativeSet->type == 2) {
                 $videoSet = new VideoSet;
 
-                $videoSet->image = $set['image'];
+                $videoSet->portrait_image = $set['portraitImage'];
+                $videoSet->landscape_image = $set['landscapeImage'];
                 $videoSet->video = $set['video'];
                 $videoSet->save();
 

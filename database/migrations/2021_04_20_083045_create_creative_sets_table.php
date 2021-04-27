@@ -30,7 +30,8 @@ class CreateCreativeSetsTable extends Migration
 
         Schema::create('video_sets', function (Blueprint $table) {
             $table->id();
-            $table->string('image');
+            $table->string('portrait_image');
+            $table->string('landscape_image');
             $table->string('video');
             $table->timestamps();
         });

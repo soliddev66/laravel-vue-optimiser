@@ -27,6 +27,7 @@
                       <div class="col-sm-8">
                         <input type="text" name="image" placeholder="Image" class="form-control" v-model="item.image" disabled />
                         <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageImage', index)">Choose File</button>
+                        <small class="text-danger" v-if="!item.imageState">Image is invalid. You might need an 627 x 627 image.</small>
                       </div>
                     </div>
                     <div class="form-group row">
@@ -34,15 +35,23 @@
                       <div class="col-sm-8">
                         <input type="text" name="hq_image" placeholder="HQ Image" class="form-control" v-model="item.hqImage" disabled />
                         <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQImage', index)">Choose File</button>
+                        <small class="text-danger" v-if="!item.hqImageState">Image is invalid. You might need an 1200 x 800 image.</small>
                       </div>
                     </div>
                   </div>
                   <div v-if="type == 'video'">
                     <div class="form-group row">
-                      <label for="image" class="col-sm-2 control-label mt-2">Image</label>
+                      <label for="image" class="col-sm-2 control-label mt-2">Portrait Image (1080 x 1920)</label>
                       <div class="col-sm-8">
-                        <input type="text" name="image" placeholder="Image" class="form-control" v-model="item.image" disabled />
-                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoImage', index)">Choose File</button>
+                        <input type="text" name="image" placeholder="Image" class="form-control" v-model="item.portraitImage" disabled />
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoPortraitImage', index)">Choose File</button>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="image" class="col-sm-2 control-label mt-2">Landscape Image (640 x 360)</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="image" placeholder="Image" class="form-control" v-model="item.landscapeImage" disabled />
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoLandscapeImage', index)">Choose File</button>
                       </div>
                     </div>
                     <div class="form-group row">
@@ -118,10 +127,10 @@ export default {
 
     creativeSetState() {
       for (let i = 0; i < this.creativeSets.length; i++) {
-        if (this.type == 'image' && (!this.creativeSets[i].image || !this.creativeSets[i].hqImage)) {
+        if (this.type == 'image' && (!this.creativeSets[i].image || !this.creativeSets[i].images[i].imageState || !this.creativeSets[i].hqImage || !this.creativeSets[i].images[i].hqImageState)) {
           return false
         }
-        if (this.type == 'video' && (!this.creativeSets[i].image || !this.creativeSets[i].video)) {
+        if (this.type == 'video' && (!this.creativeSets[i].portraitImage || !this.creativeSets[i].portraitImageState || !this.creativeSets[i].landscapeImage || !this.creativeSets[i].landscapeImageState || !this.creativeSets[i].video)) {
           return false
         }
         if (this.type == 'title' && !this.creativeSets[i].title) {
@@ -141,12 +150,27 @@ export default {
 
       if (this.openingFileSelector === 'imageImage') {
         this.creativeSets[this.fileSelectorIndex].image = selectedFilePath
+        this.validImageSize(process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath, 627, 627).then(result => {
+          this.creativeSets[this.fileSelectorIndex].imageState = result
+        });
       }
       if (this.openingFileSelector === 'imageHQImage') {
         this.creativeSets[this.fileSelectorIndex].hqImage = selectedFilePath
+        this.validImageSize(process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath, 1200, 800).then(result => {
+          this.creativeSets[this.fileSelectorIndex].hqImageState = result
+        });
       }
-      if (this.openingFileSelector === 'videoImage') {
-        this.creativeSets[this.fileSelectorIndex].image = selectedFilePath
+      if (this.openingFileSelector === 'videoPortraitImage') {
+        this.creativeSets[this.fileSelectorIndex].portraitImage = selectedFilePath
+        this.validImageSize(process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath, 1080, 1920).then(result => {
+          this.creativeSets[this.fileSelectorIndex].portraitImage = result
+        });
+      }
+      if (this.openingFileSelector === 'videoLandscapeImage') {
+        this.creativeSets[this.fileSelectorIndex].landscapeImage = selectedFilePath
+        this.validImageSize(process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath, 640, 360).then(result => {
+          this.creativeSets[this.fileSelectorIndex].landscapeImage = result
+        });
       }
       if (this.openingFileSelector === 'videoVideo') {
         this.creativeSets[this.fileSelectorIndex].video = selectedFilePath
@@ -163,11 +187,16 @@ export default {
     if (this.type == 'image') {
       creativeSets = [{
         image: '',
-        hqImage: ''
+        imageState: true,
+        hqImage: '',
+        hqImageState: true
       }]
     } else if (this.type == 'video') {
       creativeSets = [{
-        image: '',
+        portraitImage: '',
+        portraitImageState: true,
+        landscapeImage: '',
+        landscapeImageState: true,
         video: ''
       }]
     } else {
@@ -178,18 +207,23 @@ export default {
 
     if (this.creativeSet) {
       creativeSets = [];
-      console.log(this.type)
+
       for (let i = 0; i < this.creativeSet.sets.length; i++) {
         if (this.type == 'image') {
           creativeSets.push({
             id: this.creativeSet.sets[i].id,
             image: this.creativeSet.sets[i].image,
-            hqImage: this.creativeSet.sets[i].hq_image
+            imageState: true,
+            hqImage: this.creativeSet.sets[i].hq_image,
+            hqImageState: true
           })
         }else if (this.type == 'video') {
           creativeSets.push({
             id: this.creativeSet.sets[i].id,
-            image: this.creativeSet.sets[i].image,
+            portraitImage: this.creativeSet.sets[i].portrait_image,
+            portraitImageState: true,
+            landscapeImage: this.creativeSet.sets[i].landscape_image,
+            landscapeImageState: true,
             video: this.creativeSet.sets[i].video
           })
         } else {
@@ -223,15 +257,29 @@ export default {
       this.fileSelectorIndex = index
       this.$modal.show('mediaModal')
     },
+    validImageSize(imageUrl, width, height) {
+      return new Promise((resolve) => {
+        var image = new Image();
+        image.onload = function() {
+          resolve(this.width == width && this.height == height);
+        };
+        image.src = imageUrl;
+      });
+    },
     addSet() {
       if (this.type == 'image') {
         this.creativeSets.push({
           image: '',
-          hqImage: ''
+          imageState: true,
+          hqImage: '',
+          hqImageState: true
         })
       } else if (this.type == 'video') {
         this.creativeSets.push({
-          image: '',
+          portraitImage: '',
+          portraitImageState: true,
+          landscapeImage: '',
+          landscapeImageState: true,
           video: ''
         })
       } else {
