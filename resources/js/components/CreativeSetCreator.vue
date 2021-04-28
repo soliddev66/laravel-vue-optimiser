@@ -288,7 +288,7 @@ export default {
             id: this.creativeSet.sets[i].id,
             image: this.creativeSet.sets[i].image,
             imageState: true,
-            isTiniPNGUsed: this.creativeSet.sets[i].hq_image !== '',
+            isTiniPNGUsed: this.creativeSet.sets[i].hq_image != null && this.creativeSet.sets[i].hq_image != '',
             hqImage: this.creativeSet.sets[i].hq_image,
             hqImageState: true,
             hq800x800Image: this.creativeSet.sets[i].hq_800x800_image,

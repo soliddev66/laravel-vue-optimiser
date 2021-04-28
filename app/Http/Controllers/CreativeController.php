@@ -147,6 +147,7 @@ class CreativeController extends Controller
         }
 
         \Tinify\setKey(config('services.tinify.api_key'));
+        \Tinify\validate();
 
         $compressed = \Tinify\compressionCount();
 
