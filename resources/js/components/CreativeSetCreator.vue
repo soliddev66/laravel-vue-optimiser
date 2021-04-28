@@ -31,11 +31,52 @@
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label for="hq_image" class="col-sm-2 control-label mt-2">HQ Image (1200 x 800)</label>
-                      <div class="col-sm-8">
-                        <input type="text" name="hq_image" placeholder="HQ Image" class="form-control" v-model="item.hqImage" disabled />
-                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQImage', index)">Choose File</button>
-                        <small class="text-danger" v-if="!item.hqImageState">Image is invalid. You might need an 1200 x 800 image.</small>
+                      <div class="col-sm-8 offset-sm-2 mt-2">
+                        <div class="row">
+                          <div class="col-12">
+                            <input type="checkbox" id="checkbox" v-model="item.isTiniPNGUsed">
+                            <label class="mb-0">The image will be generated, optimized by TinyPNG</label>
+                          </div>
+                          <div class="col-12" v-if="compressed >= 500">
+                            <small class="text-danger">Tinypng reached the limitation and we will be charged.</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-if="!item.isTiniPNGUsed">
+                      <div class="form-group row">
+                        <label for="hq_800x800_image" class="col-sm-2 control-label mt-2">HQ Image (800 x 800)</label>
+                        <div class="col-sm-8">
+                          <input type="text" name="hq_800x800_image" placeholder="Image" class="form-control" v-model="item.hq800x800Image" disabled />
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQ800x800Image', index)">Choose File</button>
+                          <small class="text-danger" v-if="!item.hq800x800ImageState">Image is invalid. You might need an 800 x 800 image.</small>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label for="hq_1200x627_image" class="col-sm-2 control-label mt-2">HQ Image (1200 x 627)</label>
+                        <div class="col-sm-8">
+                          <input type="text" name="hq_1200x627_image" placeholder="Image" class="form-control" v-model="item.hq1200x627Image" disabled />
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQ1200x627Image', index)">Choose File</button>
+                          <small class="text-danger" v-if="!item.hq1200x627ImageState">Image is invalid. You might need an 1200 x 627 image.</small>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label for="hq_1200x628_image" class="col-sm-2 control-label mt-2">HQ Image (1200 x 628)</label>
+                        <div class="col-sm-8">
+                          <input type="text" name="hq_1200x628_image" placeholder="Image" class="form-control" v-model="item.hq1200x628Image" disabled />
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQ1200x628Image', index)">Choose File</button>
+                          <small class="text-danger" v-if="!item.hq1200x628ImageState">Image is invalid. You might need an 1200 x 628 image.</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-if="item.isTiniPNGUsed">
+                      <div class="form-group row">
+                        <label for="hq_image" class="col-sm-2 control-label mt-2">HQ Image (1200 x 800)</label>
+                        <div class="col-sm-8">
+                          <input type="text" name="hq_image" placeholder="HQ Image" class="form-control" v-model="item.hqImage" disabled />
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQImage', index)">Choose File</button>
+                          <small class="text-danger" v-if="!item.hqImageState">Image is invalid. You might need an 1200 x 800 image.</small>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -110,6 +151,10 @@ export default {
       type: String,
       default: 'image'
     },
+    compressed: {
+      type: Number,
+      default: 0
+    },
     action: {
       type: String,
       default: 'create'
@@ -129,7 +174,9 @@ export default {
 
     creativeSetState() {
       for (let i = 0; i < this.creativeSets.length; i++) {
-        if (this.type == 'image' && (!this.creativeSets[i].image || !this.creativeSets[i].imageState || !this.creativeSets[i].hqImage || !this.creativeSets[i].hqImageState)) {
+        if (this.type == 'image' && (!this.creativeSets[i].image || !this.creativeSets[i].imageState
+          || (this.creativeSets[i].isTiniPNGUsed && (!this.creativeSets[i].hqImage || !this.creativeSets[i].hqImageState))
+          || (!this.creativeSets[i].isTiniPNGUsed && (!this.creativeSets[i].hq800x800Image || !this.creativeSets[i].hq800x800ImageState || !this.creativeSets[i].hq1200x627Image || !this.creativeSets[i].hq1200x627ImageState || !this.creativeSets[i].hq1200x628Image || !this.creativeSets[i].hq1200x628ImageState)))) {
           return false
         }
         if (this.type == 'video' && (!this.creativeSets[i].portraitImage || !this.creativeSets[i].portraitImageState || !this.creativeSets[i].landscapeImage || !this.creativeSets[i].landscapeImageState || !this.creativeSets[i].video)) {
@@ -162,6 +209,24 @@ export default {
           this.creativeSets[this.fileSelectorIndex].hqImageState = result
         });
       }
+      if (this.openingFileSelector === 'imageHQ800x800Image') {
+        this.creativeSets[this.fileSelectorIndex].hq800x800Image = selectedFilePath
+        this.validImageSize(process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath, 800, 800).then(result => {
+          this.creativeSets[this.fileSelectorIndex].hq800x800ImageState = result
+        });
+      }
+      if (this.openingFileSelector === 'imageHQ1200x627Image') {
+        this.creativeSets[this.fileSelectorIndex].hq1200x627Image = selectedFilePath
+        this.validImageSize(process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath, 1200, 627).then(result => {
+          this.creativeSets[this.fileSelectorIndex].hq1200x627ImageState = result
+        });
+      }
+      if (this.openingFileSelector === 'imageHQ1200x628Image') {
+        this.creativeSets[this.fileSelectorIndex].hq1200x628Image = selectedFilePath
+        this.validImageSize(process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath, 1200, 628).then(result => {
+          this.creativeSets[this.fileSelectorIndex].hq1200x628ImageState = result
+        });
+      }
       if (this.openingFileSelector === 'videoPortraitImage') {
         this.creativeSets[this.fileSelectorIndex].portraitImage = selectedFilePath
         this.validImageSize(process.env.MIX_APP_URL + '/storage/images/' + selectedFilePath, 1080, 1920).then(result => {
@@ -190,8 +255,15 @@ export default {
       creativeSets = [{
         image: '',
         imageState: true,
+        isTiniPNGUsed: false,
         hqImage: '',
-        hqImageState: true
+        hqImageState: true,
+        hq800x800Image: '',
+        hq800x800ImageState: true,
+        hq1200x627Image: '',
+        hq1200x627ImageState: true,
+        hq1200x628Image: '',
+        hq1200x628ImageState: true
       }]
     } else if (this.type == 'video') {
       creativeSets = [{
@@ -216,8 +288,15 @@ export default {
             id: this.creativeSet.sets[i].id,
             image: this.creativeSet.sets[i].image,
             imageState: true,
+            isTiniPNGUsed: this.creativeSet.sets[i].hq_image !== '',
             hqImage: this.creativeSet.sets[i].hq_image,
-            hqImageState: true
+            hqImageState: true,
+            hq800x800Image: this.creativeSet.sets[i].hq_800x800_image,
+            hq800x800ImageState: true,
+            hq1200x627Image: this.creativeSet.sets[i].hq_1200x627_image,
+            hq1200x627ImageState: true,
+            hq1200x628Image: this.creativeSet.sets[i].hq_1200x628_image,
+            hq1200x628ImageState: true
           })
         }else if (this.type == 'video') {
           creativeSets.push({
@@ -246,6 +325,7 @@ export default {
       creativeSetName: this.creativeSet ? this.creativeSet.name : '',
       creativeSetType: this.type,
       creativeSets: creativeSets,
+
       settings: {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
@@ -273,8 +353,15 @@ export default {
         this.creativeSets.push({
           image: '',
           imageState: true,
+          isTiniPNGUsed: false,
           hqImage: '',
-          hqImageState: true
+          hqImageState: true,
+          hq800x800Image: '',
+          hq800x800ImageState: true,
+          hq1200x627Image: '',
+          hq1200x627ImageState: true,
+          hq1200x628Image: '',
+          hq1200x628ImageState: true
         })
       } else if (this.type == 'video') {
         this.creativeSets.push({
