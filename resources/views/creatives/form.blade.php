@@ -7,7 +7,7 @@
 @stop
 
 @section('content')
-    <creative-set-creator type="{{ $type }}" :creative-set="{{ json_encode($creativeSet ?? null) }}" :action="'{{ request()->route()->getActionMethod() }}'">
+    <creative-set-creator :type="'{{ $type }}'" :compressed="{{ $compressed }}" :creative-set="{{ json_encode($creativeSet ?? null) }}" :action="'{{ request()->route()->getActionMethod() }}'">
     </creative-set-creator>
 @stop
 
