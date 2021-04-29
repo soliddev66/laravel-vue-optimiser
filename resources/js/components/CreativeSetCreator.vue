@@ -113,6 +113,14 @@
                       </div>
                     </div>
                   </div>
+                  <div v-if="type == 'description'">
+                    <div class="form-group row">
+                      <label for="description" class="col-sm-2 control-label mt-2">Description</label>
+                      <div class="col-sm-8">
+                        <textarea class="form-control" rows="3" placeholder="Enter description" v-model="item.description"></textarea>
+                      </div>
+                    </div>
+                  </div>
                   <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeSet(index)" v-if="index > 0">Remove Set</button>
                 </fieldset>
                 <button class="btn btn-primary btn-sm d-none" @click.prevent="addSet()">Add Set</button>
@@ -183,6 +191,9 @@ export default {
           return false
         }
         if (this.type == 'title' && !this.creativeSets[i].title) {
+          return false
+        }
+        if (this.type == 'description' && !this.creativeSets[i].description) {
           return false
         }
       }
@@ -273,9 +284,13 @@ export default {
         landscapeImageState: true,
         video: ''
       }]
-    } else {
+    } else if (this.type == 'title') {
       creativeSets = [{
         title: ''
+      }]
+    } else if (this.type == 'description') {
+      creativeSets = [{
+        description: ''
       }]
     }
 
@@ -307,10 +322,16 @@ export default {
             landscapeImageState: true,
             video: this.creativeSet.sets[i].video
           })
-        } else {
+        } else if (this.type == 'title') {
           creativeSets.push({
             id: this.creativeSet.sets[i].id,
             title: this.creativeSet.sets[i].title
+          });
+        } else if (this.type == 'description') {
+          console.log(this.creativeSet.sets[i])
+          creativeSets.push({
+            id: this.creativeSet.sets[i].id,
+            description: this.creativeSet.sets[i].description
           });
         }
       }
@@ -371,9 +392,13 @@ export default {
           landscapeImageState: true,
           video: ''
         })
-      } else {
+      } else if (this.type == 'title') {
         this.creativeSets.push({
           title: ''
+        })
+      } else if (this.type == 'description') {
+        this.creativeSets.push({
+          description: ''
         })
       }
     },
