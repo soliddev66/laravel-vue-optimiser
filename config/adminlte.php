@@ -268,6 +268,11 @@ return [
             ]
         ],
         [
+            'text' => 'Creative Sets',
+            'url'  => 'creatives',
+            'icon' => 'fas fa-atom',
+        ],
+        [
             'text' => 'Rules',
             'url'  => 'rules',
             'icon' => 'fas fa-puzzle-piece',

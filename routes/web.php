@@ -78,6 +78,16 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/{campaign}/ad-groups/selection', [App\Http\Controllers\CampaignController::class, 'adGroupSelection'])->name('campaigns.adGroupSelection');
 });
 
+Route::group(['middleware' => 'auth', 'prefix' => 'creatives'], function() {
+    Route::get('/', [App\Http\Controllers\CreativeController::class, 'index'])->name('creatives.index');
+    Route::get('/data', [App\Http\Controllers\CreativeController::class, 'data'])->name('creatives.data');
+    Route::get('/create', [App\Http\Controllers\CreativeController::class, 'create'])->name('creatives.create');
+    Route::get('/edit/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'edit'])->name('creatives.edit');
+    Route::post('/delete/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'delete'])->name('creatives.delete');
+    Route::post('/', [App\Http\Controllers\CreativeController::class, 'store'])->name('creatives.store');
+    Route::post('/update/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'update'])->name('creatives.update');
+});
+
 Route::post('user-providers', [\App\Http\Controllers\UserProviderController::class, 'store'])->name('userProviders.store');
 Route::patch('user-providers', [\App\Http\Controllers\UserProviderController::class, 'update'])->name('userProviders.update');
 

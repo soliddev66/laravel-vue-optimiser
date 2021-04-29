@@ -343,6 +343,7 @@
                             <div class="col-sm-4">
                               <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle); loadPreviewEvent($event, index)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
                               <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length"><i class="fa fa-plus"></i></button>
+                              <button type="button" class="btn btn-primary" v-if="indexTitle == 0" @click="loadCreativeSet('title', index)"><i class="far fa-folder-open"></i></button>
                             </div>
                           </div>
                         </div>
@@ -398,7 +399,7 @@
                             </div>
                             <div class="col-sm-8 offset-sm-4">
                               <small class="text-danger" v-if="image.imageUrlHQ && !validURL(image.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
-                              <small class="text-danger" v-if="!image.imageUrlHQState">Image is invalid. You might need an 1200x627 image.</small>
+                              <small class="text-danger" v-if="!image.imageUrlHQState">Image is invalid. You might need an 1200 x 627 image.</small>
                             </div>
                           </div>
                           <div class="form-group row">
@@ -409,12 +410,13 @@
                             </div>
                             <div class="col-sm-8 offset-sm-4">
                               <small class="text-danger" v-if="image.imageUrl && !validURL(image.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
-                              <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627x627 image.</small>
+                              <small class="text-danger" v-if="!image.imageUrlState">Image is invalid. You might need an 627 x 627 image.</small>
                             </div>
                           </div>
                           <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeImage(index, indexImage); loadPreviewEvent($event, index)" v-if="indexImage > 0">Remove Image</button>
                         </fieldset>
                         <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)">Add Image</button>
+                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
                       </div>
 
                       <div v-if="content.adType == 'VIDEO'">
@@ -447,6 +449,7 @@
                           <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeVideo(index, indexVideo); loadPreviewEvent($event, index)" v-if="indexVideo > 0">Remove Video</button>
                         </fieldset>
                         <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)">Add Video</button>
+                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('video', index)">Load from Sets</button>
                       </div>
                     </div>
                     <div class="col-sm-5">
@@ -526,6 +529,18 @@
         </div>
       </div>
     </div>
+
+    <div class="modal fade creative-set-modal" id="creative-set-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="col mt-3">
+            <h1>Select Creative Set</h1>
+          </div>
+          <creative-set-sets :type="setType" @selectCreativeSet="selectCreativeSet"></creative-set-sets>
+        </div>
+      </div>
+    </div>
+
     <modal width="60%" height="80%" name="imageModal">
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
@@ -723,6 +738,7 @@ export default {
       contents = [{
         id: '',
         adType: 'IMAGE',
+        titleSet: '',
         titles: [{
           title: '',
           existing: false
@@ -731,6 +747,7 @@ export default {
         targetUrl: '',
         description: '',
         brandname: '',
+        imageSet: '',
         images: [{
           imageUrlHQ: '',
           imageUrlHQState: true,
@@ -738,6 +755,7 @@ export default {
           imageUrlState: true,
           existing: false
         }],
+        videoSet: '',
         videos: [{
           videoPrimaryUrl: '',
           videoPortraitUrl: '',
@@ -839,6 +857,7 @@ export default {
         contents.push({
           id: this.instance.ads[i]['id'],
           adType: this.instance.ads[i]['videoPrimaryUrl'] || this.instance.ads[i]['imagePortraitUrl'] ? 'VIDEO': 'IMAGE',
+          titleSet: '',
           titles: [{
             title: this.instance.ads[i]['title'],
             existing: true
@@ -847,6 +866,7 @@ export default {
           targetUrl: this.instance.ads[i]['landingUrl'],
           description: this.instance.ads[i]['description'],
           brandname: this.instance.ads[i]['sponsoredBy'],
+          imageSet: '',
           images: [{
             imageUrlHQ: this.instance.ads[i]['imageUrlHQ'],
             imageUrlHQState: true,
@@ -854,6 +874,7 @@ export default {
             imageUrlState: true,
             existing: true
           }],
+          videoSet: '',
           videos: [{
             videoPrimaryUrl: this.instance.ads[i]['videoPrimaryUrl'],
             videoPortraitUrl: this.instance.ads[i]['videoPortraitUrl'],
@@ -969,7 +990,9 @@ export default {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
         lang: 'en'
-      }
+      },
+      adSelectorIndex: 0,
+      setType: 'image'
     }
   },
   methods: {
@@ -978,6 +1001,17 @@ export default {
       this.fileSelectorIndex = index
       this.fileSelectorIndexImage = indexImage
       this.$modal.show('imageModal')
+    },
+    loadCreativeSet(type, index) {
+      this.setType = type
+      this.adSelectorIndex = index
+      $('#creative-set-modal').modal('show')
+    },
+    selectCreativeSet(id) {
+      if (this.setType == 'title') {
+        this.contents[this.fileSelectorIndex].titleSet = id
+      }
+      $('#creative-set-modal').modal('hide')
     },
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
@@ -996,6 +1030,7 @@ export default {
       this.contents.push({
         id: '',
         adType: 'IMAGE',
+        titleSet: '',
         titles: [{
           title: '',
           existing: false
@@ -1004,6 +1039,7 @@ export default {
         targetUrl: '',
         description: '',
         brandname: '',
+        imageSet: '',
         images: [{
           imageUrlHQ: '',
           imageUrlHQState: true,
@@ -1011,6 +1047,7 @@ export default {
           imageUrlState: true,
           existing: false
         }],
+        videoSet: '',
         videos: [{
           videoPrimaryUrl: '',
           videoPortraitUrl: '',

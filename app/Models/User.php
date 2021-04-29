@@ -83,4 +83,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(RuleGroup::class);
     }
+
+    public function creativeSets()
+    {
+        return $this->hasMany(CreativeSet::class);
+    }
 }

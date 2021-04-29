@@ -60,4 +60,8 @@ return [
         'client_secret' => env('TABOOLA_CLIENT_SECRET'),
         'redirect'      => env('TABOOLA_REDIRECT'),
     ],
+
+    'tinify'  => [
+        'api_key'  => env('TINIFY_API_KEY'),
+    ],
 ];
