@@ -7,6 +7,7 @@ use App\Models\GeminiJob;
 use App\Models\UserProvider;
 use App\Vngodev\Token;
 use Carbon\Carbon;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -14,6 +15,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SubmitGeminiJobs implements ShouldQueue
 {
@@ -55,52 +57,108 @@ class SubmitGeminiJobs implements ShouldQueue
         $jobs = [];
         $user_info = UserProvider::where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first();
         Token::refresh($user_info, function () use ($campaign, $user_info, $date, $end, &$jobs) {
-            $job = self::getPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
-            $job['name'] = 'performance_stats';
-            array_push($jobs, $job);
-            $job = self::getSlotPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
-            $job['name'] = 'slot_performance_stats';
-            array_push($jobs, $job);
-            $job = self::getSitePerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
-            $job['name'] = 'site_performance_stats';
-            array_push($jobs, $job);
-            $job = self::getCampaignBidPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
-            $job['name'] = 'campaign_bid_performance_stats';
-            array_push($jobs, $job);
-            $job = self::getStructuredSnippetExtensionPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
-            $job['name'] = 'structured_snippet_extension';
-            array_push($jobs, $job);
-            $job = self::getProductAdPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
-            $job['name'] = 'product_ad_performance_stats';
-            array_push($jobs, $job);
-            $job = self::getAdjustmentDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
-            $job['name'] = 'adjustment_stats';
-            array_push($jobs, $job);
-            $job = self::getKeywordDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
-            $job['name'] = 'keyword_stats';
-            array_push($jobs, $job);
-            $job = self::getSearchDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
-            $job['name'] = 'search_stats';
-            array_push($jobs, $job);
-            $job = self::getAdExtensionDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
-            $job['name'] = 'ad_extension_details';
-            array_push($jobs, $job);
-            $job = self::getCallExtensionDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
-            $job['name'] = 'call_extension_stats';
-            array_push($jobs, $job);
+            try {
+                $job = self::getPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
+                $job['name'] = 'performance_stats';
+                array_push($jobs, $job);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
+            try {
+                $job = self::getSlotPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
+                $job['name'] = 'slot_performance_stats';
+                array_push($jobs, $job);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
+            try {
+                $job = self::getSitePerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
+                $job['name'] = 'site_performance_stats';
+                array_push($jobs, $job);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
+            try {
+                $job = self::getCampaignBidPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
+                $job['name'] = 'campaign_bid_performance_stats';
+                array_push($jobs, $job);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
+            try {
+                $job = self::getStructuredSnippetExtensionPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
+                $job['name'] = 'structured_snippet_extension';
+                array_push($jobs, $job);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
+            try {
+                $job = self::getProductAdPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
+                $job['name'] = 'product_ad_performance_stats';
+                array_push($jobs, $job);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
+            try {
+                $job = self::getAdjustmentDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
+                $job['name'] = 'adjustment_stats';
+                array_push($jobs, $job);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
+            try {
+                $job = self::getKeywordDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
+                $job['name'] = 'keyword_stats';
+                array_push($jobs, $job);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
+            try {
+                $job = self::getSearchDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
+                $job['name'] = 'search_stats';
+                array_push($jobs, $job);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
+            try {
+                $job = self::getAdExtensionDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
+                $job['name'] = 'ad_extension_details';
+                array_push($jobs, $job);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
+            try {
+                $job = self::getCallExtensionDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
+                $job['name'] = 'call_extension_stats';
+                array_push($jobs, $job);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
             // WON'T DO
             // $job = self::getUserDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
             // $job['name'] = 'user_stats';
             // array_push($jobs, $job);
-            $job = self::getProductAdsDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
-            $job['name'] = 'product_ads';
-            array_push($jobs, $job);
-            $job = self::getConversionRulesDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
-            $job['name'] = 'conversion_rules_stats';
-            array_push($jobs, $job);
-            $job = self::getDomainPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
-            $job['name'] = 'domain_performance_stats';
-            array_push($jobs, $job);
+            try {
+                $job = self::getProductAdsDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
+                $job['name'] = 'product_ads';
+                array_push($jobs, $job);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
+            try {
+                $job = self::getConversionRulesDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
+                $job['name'] = 'conversion_rules_stats';
+                array_push($jobs, $job);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
+            try {
+                $job = self::getDomainPerformanceDataByCampaign($user_info, $date, $campaign->campaign_id, $campaign->advertiser_id, $end);
+                $job['name'] = 'domain_performance_stats';
+                array_push($jobs, $job);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
         });
 
         foreach ($jobs as $index => $job) {
