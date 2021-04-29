@@ -6,6 +6,7 @@ use App\Models\CreativeSet;
 use App\Models\ImageSet;
 use App\Models\VideoSet;
 use App\Models\TitleSet;
+use App\Models\DescriptionSet;
 
 use DB;
 use Storage;
@@ -100,13 +101,20 @@ class CreativeController extends Controller
                 $videoSet->save();
 
                 $creativeSet->videoSets()->save($videoSet);
-            } else {
+            } else if ($creativeSet->type == 3) {
                 $titleSet = new TitleSet;
 
                 $titleSet->title = $set['title'];
                 $titleSet->save();
 
                 $creativeSet->titleSets()->save($titleSet);
+            } else if ($creativeSet->type == 4) {
+                $descriptionSet = new DescriptionSet;
+
+                $descriptionSet->description = $set['description'];
+                $descriptionSet->save();
+
+                $creativeSet->descriptionSets()->save($descriptionSet);
             }
         }
 
@@ -122,7 +130,7 @@ class CreativeController extends Controller
         $creativeSet = new CreativeSet;
         $creativeSet->user_id = auth()->id();
         $creativeSet->name = $data['creativeSetName'];
-        $creativeSet->type = $data['creativeSetType'] == 'image' ? 1 : ($data['creativeSetType'] == 'video' ? 2 : 3);
+        $creativeSet->type = $data['creativeSetType'] == 'image' ? 1 : ($data['creativeSetType'] == 'video' ? 2 : ($data['creativeSetType'] == 'title' ? 3 : 4));
         $creativeSet->save();
 
         $this->storeCreativeSets($creativeSet, $data);
@@ -142,8 +150,10 @@ class CreativeController extends Controller
             $creativeSet->sets = $creativeSet->imageSets()->get();
         } else if ($creativeSet->type == 2) {
             $creativeSet->sets = $creativeSet->videoSets()->get();
-        } else {
+        } else if ($creativeSet->type == 3) {
             $creativeSet->sets = $creativeSet->titleSets()->get();
+        } else {
+            $creativeSet->sets = $creativeSet->descriptionSets()->get();
         }
 
         \Tinify\setKey(config('services.tinify.api_key'));
@@ -152,7 +162,7 @@ class CreativeController extends Controller
         $compressed = \Tinify\compressionCount();
 
         return view('creatives.form', [
-            'type' => $creativeSet->type == 1 ? 'image' : ($creativeSet->type == 2 ? 'video' : 'title'),
+            'type' => $creativeSet->type == 1 ? 'image' : ($creativeSet->type == 2 ? 'video' : ($creativeSet->type == 3 ? 'title' : 'description')),
             'compressed' => $compressed,
             'creativeSet' => $creativeSet
         ]);
@@ -185,14 +195,31 @@ class CreativeController extends Controller
             'creativeSetType' => 'required',
             'creativeSets' => 'required|present|array',
             'creativeSets.*.image' => 'required_if:creativeSetType,image',
-            'creativeSets.*.hqImage' => 'required_if:creativeSetType=image,creativeSets.*.isTiniPNGUsed,true',
-            'creativeSets.*.hq800x800Image' => 'required_if:creativeSetType=image,creativeSets.*.isTiniPNGUsed=false',
-            'creativeSets.*.hq1200x627Image' => 'required_if:creativeSetType=image,creativeSets.*.isTiniPNGUsed=false',
-            'creativeSets.*.hq1200x628Image' => 'required_if:creativeSetType=image,creativeSets.*.isTiniPNGUsed=false',
+            'creativeSets.*.hqImage' => function ($attribute, $value, $fail) {
+                if (request()->input('creativeSetType') == 'image' && request()->input('creativeSets')[explode('.', $attribute)[1]]['isTiniPNGUsed'] && empty($value)) {
+                    $fail('The ' . $attribute . ' is required.');
+                }
+            },
+            'creativeSets.*.hq800x800Image' => function ($attribute, $value, $fail) {
+                if (request()->input('creativeSetType') == 'image' && !request()->input('creativeSets')[explode('.', $attribute)[1]]['isTiniPNGUsed'] && empty($value)) {
+                    $fail('The ' . $attribute . ' is required.');
+                }
+            },
+            'creativeSets.*.hq1200x627Image' => function ($attribute, $value, $fail) {
+                if (request()->input('creativeSetType') == 'image' && !request()->input('creativeSets')[explode('.', $attribute)[1]]['isTiniPNGUsed'] && empty($value)) {
+                    $fail('The ' . $attribute . ' is required.');
+                }
+            },
+            'creativeSets.*.hq1200x628Image' => function ($attribute, $value, $fail) {
+                if (request()->input('creativeSetType') == 'image' && !request()->input('creativeSets')[explode('.', $attribute)[1]]['isTiniPNGUsed'] && empty($value)) {
+                    $fail('The ' . $attribute . ' is required.');
+                }
+            },
             'creativeSets.*.portraitImage' => 'required_if:creativeSetType,video',
             'creativeSets.*.landscapeImage' => 'required_if:creativeSetType,video',
             'creativeSets.*.video' => 'required_if:creativeSetType,video',
             'creativeSets.*.title' => 'required_if:creativeSetType,title',
+            'creativeSets.*.description' => 'required_if:creativeSetType,description',
         ]);
     }
 

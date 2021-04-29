@@ -24,6 +24,11 @@ class CreativeSet extends Model
         return $this->belongsToMany('App\Models\TitleSet', 'creative_set_sets', 'creative_set_id', 'set_id');
     }
 
+    public function descriptionSets()
+    {
+        return $this->belongsToMany('App\Models\DescriptionSet', 'creative_set_sets', 'creative_set_id', 'set_id');
+    }
+
     public function creativeSetSets()
     {
         return $this->hasMany('App\Models\CreativeSetSet');
@@ -34,6 +39,7 @@ class CreativeSet extends Model
         $this->imageSets()->delete();
         $this->videoSets()->delete();
         $this->titleSets()->delete();
+        $this->descriptionSets()->delete();
         $this->creativeSetSets()->delete();
     }
 }

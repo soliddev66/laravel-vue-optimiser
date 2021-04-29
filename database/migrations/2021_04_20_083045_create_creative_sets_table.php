@@ -45,6 +45,12 @@ class CreateCreativeSetsTable extends Migration
             $table->timestamps();
         });
 
+        Schema::create('description_sets', function (Blueprint $table) {
+            $table->id();
+            $table->text('description');
+            $table->timestamps();
+        });
+
         Schema::create('creative_set_sets', function (Blueprint $table) {
             $table->unsignedInteger('creative_set_id');
             $table->unsignedInteger('set_id');
@@ -62,6 +68,7 @@ class CreateCreativeSetsTable extends Migration
         Schema::dropIfExists('image_sets');
         Schema::dropIfExists('video_sets');
         Schema::dropIfExists('title_sets');
+        Schema::dropIfExists('description_sets');
         Schema::dropIfExists('creative_set_sets');
     }
 }

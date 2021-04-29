@@ -8,7 +8,8 @@
         <div class="btn-toolbar" role="toolbar">
           <a href="/creatives/create?type=image" class="btn btn-primary mr-2"><i class="far fa-images"></i> Create image sets</a>
           <a href="/creatives/create?type=video" class="btn btn-primary mr-2"><i class="fas fa-photo-video"></i> Create video sets</a>
-          <a href="/creatives/create?type=title" class="btn btn-primary"><i class="far fa-folder-open"></i> Create title sets</a>
+          <a href="/creatives/create?type=title" class="btn btn-primary mr-2"><i class="far fa-folder-open"></i> Create title sets</a>
+          <a href="/creatives/create?type=description" class="btn btn-primary"><i class="fas fa-stream"></i> Create description sets</a>
         </div>
       </div>
     </div>
@@ -30,7 +31,7 @@
                 <tr v-for="creativeSet in data" :key="creativeSet.id">
                   <td>{{ creativeSet.id }}</td>
                   <td>{{ creativeSet.name }}</td>
-                  <td>{{ creativeSet.type == 1 ? 'IMAGE' : (creativeSet.type == 2 ? 'VIDEO' : 'TITLE') }}</td>
+                  <td>{{ creativeSet.type == 1 ? 'IMAGE' : (creativeSet.type == 2 ? 'VIDEO' : (creativeSet.type == 3 ? 'TITLE' : 'DESCRIPTION')) }}</td>
                   <td class="border-right-0 px-1">
                     <a class="btn btn-sm btn-default border" :href="'/creatives/edit/' + creativeSet.id"><i class="fas fa-edit"></i> Edit</a>
                     <a class="btn btn-sm btn-default border" :href="'/creatives/delete/' + creativeSet.id" @click.prevent="deleteCreativeSet"><i class="fas fa-trash"></i> Delete</a>
