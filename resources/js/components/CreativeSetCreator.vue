@@ -317,8 +317,6 @@ export default {
     if (this.creativeSet) {
       creativeSets = [];
 
-      console.log(this.creativeSet)
-
       for (let i = 0; i < this.creativeSet.sets.length; i++) {
         if (this.type == 'image') {
           creativeSets.push({
