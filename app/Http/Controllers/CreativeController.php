@@ -12,6 +12,8 @@ use DB;
 use Storage;
 use Illuminate\Support\Facades\Gate;
 
+use Intervention\Image\ImageManager;
+
 class CreativeController extends Controller
 {
     public function index()
@@ -50,44 +52,40 @@ class CreativeController extends Controller
                 if ($set['optimiser']) {
                     $imageSet->hq_image = $set['hqImage'];
 
+                    if (!Storage::disk('images')->exists('creatives/800x800/' . md5(auth()->id()))) {
+                        Storage::disk('images')->makeDirectory('creatives/800x800/' . md5(auth()->id()));
+                    }
+
+                    if (!Storage::disk('images')->exists('creatives/1200x627/' . md5(auth()->id()))) {
+                        Storage::disk('images')->makeDirectory('creatives/1200x627/' . md5(auth()->id()));
+                    }
+
+                    if (!Storage::disk('images')->exists('creatives/1200x628/' . md5(auth()->id()))) {
+                        Storage::disk('images')->makeDirectory('creatives/1200x628/' . md5(auth()->id()));
+                    }
+
                     if ($set['optimiser'] == 1) {
+                        $imageManager = new ImageManager();
 
-                        if (!Storage::disk('images')->exists('creatives/800x800/' . md5(auth()->id()))) {
-                            Storage::disk('images')->makeDirectory('creatives/800x800/' . md5(auth()->id()));
-                        }
+                        $resized = $imageManager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(800, 800);
+                        $resized->save(storage_path('app/public/images/creatives/800x800/') . $set['hqImage']);
 
-                        if (!Storage::disk('images')->exists('creatives/1200x627/' . md5(auth()->id()))) {
-                            Storage::disk('images')->makeDirectory('creatives/1200x627/' . md5(auth()->id()));
-                        }
+                        $resized = $imageManager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(1200, 627);
+                        $resized->save(storage_path('app/public/images/creatives/1200x627/') . $set['hqImage']);
 
-                        if (!Storage::disk('images')->exists('creatives/1200x628/' . md5(auth()->id()))) {
-                            Storage::disk('images')->makeDirectory('creatives/1200x628/' . md5(auth()->id()));
-                        }
-
+                        $resized = $imageManager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(1200, 628);
+                        $resized->save(storage_path('app/public/images/creatives/1200x628/') . $set['hqImage']);
+                    } else {
                         $source = \Tinify\fromFile(storage_path('app/public/images/') . $set['hqImage']);
 
-                        $resized = $source->resize([
-                            'method' => 'cover',
-                            'width' => 800,
-                            'height' => 800
-                        ]);
+                        $resized = $source->resize(['method' => 'cover', 'width' => 800, 'height' => 800]);
                         $resized->toFile(storage_path('app/public/images/creatives/800x800/') . $set['hqImage']);
 
-                        $resized = $source->resize([
-                            'method' => 'cover',
-                            'width' => 1200,
-                            'height' => 627
-                        ]);
+                        $resized = $source->resize(['method' => 'cover', 'width' => 1200, 'height' => 627]);
                         $resized->toFile(storage_path('app/public/images/creatives/1200x627/') . $set['hqImage']);
 
-                        $resized = $source->resize([
-                            'method' => 'cover',
-                            'width' => 1200,
-                            'height' => 628
-                        ]);
+                        $resized = $source->resize(['method' => 'cover', 'width' => 1200, 'height' => 628]);
                         $resized->toFile(storage_path('app/public/images/creatives/1200x628/') . $set['hqImage']);
-                    } else {
-
                     }
                 } else {
                     $imageSet->hq_800x800_image = $set['hq800x800Image'];

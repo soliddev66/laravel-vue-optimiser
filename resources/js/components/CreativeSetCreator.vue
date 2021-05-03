@@ -34,7 +34,7 @@
                       <div class="col-sm-8 offset-sm-2 mt-2">
                         <div class="row">
                           <div class="col-12">
-                            <input type="radio" value="0" name="optimiser" v-model="item.optimiser">
+                            <input type="radio" :value="0" name="optimiser" v-model="item.optimiser">
                             <label class="mb-0">Use seperate image sizes</label>
                           </div>
                         </div>
@@ -44,7 +44,7 @@
                       <div class="col-sm-8 offset-sm-2">
                         <div class="row">
                           <div class="col-12">
-                            <input type="radio" name="optimiser" v-model="item.optimiser">
+                            <input type="radio" :value="1" name="optimiser" v-model="item.optimiser">
                             <label class="mb-0">The image will be generated, optimized by Optimiser</label>
                           </div>
                         </div>
@@ -54,7 +54,7 @@
                       <div class="col-sm-8 offset-sm-2">
                         <div class="row">
                           <div class="col-12">
-                            <input type="radio" value="1" name="optimiser" v-model="item.optimiser">
+                            <input type="radio" :value="2" name="optimiser" v-model="item.optimiser">
                             <label class="mb-0">The image will be generated, optimized by TinyPNG</label>
                           </div>
                           <div class="col-12" v-if="compressed >= 500">
@@ -316,6 +316,8 @@ export default {
 
     if (this.creativeSet) {
       creativeSets = [];
+
+      console.log(this.creativeSet)
 
       for (let i = 0; i < this.creativeSet.sets.length; i++) {
         if (this.type == 'image') {
