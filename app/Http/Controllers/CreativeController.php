@@ -45,44 +45,50 @@ class CreativeController extends Controller
                 $imageSet = new ImageSet;
 
                 $imageSet->image = $set['image'];
+                $imageSet->optimiser = $set['optimiser'];
 
-                if ($set['isTiniPNGUsed']) {
+                if ($set['optimiser']) {
                     $imageSet->hq_image = $set['hqImage'];
 
-                    if (!Storage::disk('images')->exists('creatives/800x800/' . md5(auth()->id()))) {
-                        Storage::disk('images')->makeDirectory('creatives/800x800/' . md5(auth()->id()));
+                    if ($set['optimiser'] == 1) {
+
+                        if (!Storage::disk('images')->exists('creatives/800x800/' . md5(auth()->id()))) {
+                            Storage::disk('images')->makeDirectory('creatives/800x800/' . md5(auth()->id()));
+                        }
+
+                        if (!Storage::disk('images')->exists('creatives/1200x627/' . md5(auth()->id()))) {
+                            Storage::disk('images')->makeDirectory('creatives/1200x627/' . md5(auth()->id()));
+                        }
+
+                        if (!Storage::disk('images')->exists('creatives/1200x628/' . md5(auth()->id()))) {
+                            Storage::disk('images')->makeDirectory('creatives/1200x628/' . md5(auth()->id()));
+                        }
+
+                        $source = \Tinify\fromFile(storage_path('app/public/images/') . $set['hqImage']);
+
+                        $resized = $source->resize([
+                            'method' => 'cover',
+                            'width' => 800,
+                            'height' => 800
+                        ]);
+                        $resized->toFile(storage_path('app/public/images/creatives/800x800/') . $set['hqImage']);
+
+                        $resized = $source->resize([
+                            'method' => 'cover',
+                            'width' => 1200,
+                            'height' => 627
+                        ]);
+                        $resized->toFile(storage_path('app/public/images/creatives/1200x627/') . $set['hqImage']);
+
+                        $resized = $source->resize([
+                            'method' => 'cover',
+                            'width' => 1200,
+                            'height' => 628
+                        ]);
+                        $resized->toFile(storage_path('app/public/images/creatives/1200x628/') . $set['hqImage']);
+                    } else {
+
                     }
-
-                    if (!Storage::disk('images')->exists('creatives/1200x627/' . md5(auth()->id()))) {
-                        Storage::disk('images')->makeDirectory('creatives/1200x627/' . md5(auth()->id()));
-                    }
-
-                    if (!Storage::disk('images')->exists('creatives/1200x628/' . md5(auth()->id()))) {
-                        Storage::disk('images')->makeDirectory('creatives/1200x628/' . md5(auth()->id()));
-                    }
-
-                    $source = \Tinify\fromFile(storage_path('app/public/images/') . $set['hqImage']);
-
-                    $resized = $source->resize([
-                        'method' => 'cover',
-                        'width' => 800,
-                        'height' => 800
-                    ]);
-                    $resized->toFile(storage_path('app/public/images/creatives/800x800/') . $set['hqImage']);
-
-                    $resized = $source->resize([
-                        'method' => 'cover',
-                        'width' => 1200,
-                        'height' => 627
-                    ]);
-                    $resized->toFile(storage_path('app/public/images/creatives/1200x627/') . $set['hqImage']);
-
-                    $resized = $source->resize([
-                        'method' => 'cover',
-                        'width' => 1200,
-                        'height' => 628
-                    ]);
-                    $resized->toFile(storage_path('app/public/images/creatives/1200x628/') . $set['hqImage']);
                 } else {
                     $imageSet->hq_800x800_image = $set['hq800x800Image'];
                     $imageSet->hq_1200x627_image = $set['hq1200x627Image'];
@@ -196,22 +202,22 @@ class CreativeController extends Controller
             'creativeSets' => 'required|present|array',
             'creativeSets.*.image' => 'required_if:creativeSetType,image',
             'creativeSets.*.hqImage' => function ($attribute, $value, $fail) {
-                if (request()->input('creativeSetType') == 'image' && request()->input('creativeSets')[explode('.', $attribute)[1]]['isTiniPNGUsed'] && empty($value)) {
+                if (request()->input('creativeSetType') == 'image' && request()->input('creativeSets')[explode('.', $attribute)[1]]['optimiser'] && empty($value)) {
                     $fail('The ' . $attribute . ' is required.');
                 }
             },
             'creativeSets.*.hq800x800Image' => function ($attribute, $value, $fail) {
-                if (request()->input('creativeSetType') == 'image' && !request()->input('creativeSets')[explode('.', $attribute)[1]]['isTiniPNGUsed'] && empty($value)) {
+                if (request()->input('creativeSetType') == 'image' && !request()->input('creativeSets')[explode('.', $attribute)[1]]['optimiser'] && empty($value)) {
                     $fail('The ' . $attribute . ' is required.');
                 }
             },
             'creativeSets.*.hq1200x627Image' => function ($attribute, $value, $fail) {
-                if (request()->input('creativeSetType') == 'image' && !request()->input('creativeSets')[explode('.', $attribute)[1]]['isTiniPNGUsed'] && empty($value)) {
+                if (request()->input('creativeSetType') == 'image' && !request()->input('creativeSets')[explode('.', $attribute)[1]]['optimiser'] && empty($value)) {
                     $fail('The ' . $attribute . ' is required.');
                 }
             },
             'creativeSets.*.hq1200x628Image' => function ($attribute, $value, $fail) {
-                if (request()->input('creativeSetType') == 'image' && !request()->input('creativeSets')[explode('.', $attribute)[1]]['isTiniPNGUsed'] && empty($value)) {
+                if (request()->input('creativeSetType') == 'image' && !request()->input('creativeSets')[explode('.', $attribute)[1]]['optimiser'] && empty($value)) {
                     $fail('The ' . $attribute . ' is required.');
                 }
             },
