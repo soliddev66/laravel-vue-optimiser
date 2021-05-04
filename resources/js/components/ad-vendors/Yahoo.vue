@@ -1040,6 +1040,9 @@ export default {
       }
       if (this.setType == 'image') {
         this.contents[this.adSelectorIndex].imageSet = set
+        this.loadImageSets(this.adSelectorIndex).then(() => {
+          this.loadPreview(this.adSelectorIndex)
+        })
       }
       if (this.setType == 'video') {
         this.contents[this.adSelectorIndex].videoSet = set
@@ -1187,6 +1190,26 @@ export default {
         this.isLoading = false
       });
     },
+    loadImageSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/image-sets/${this.contents[index].imageSet.id}`).then(response => {
+        this.contents[index].imageSet.sets = response.data.sets.map(item => {
+          let hqImage = ''
+
+          if (item.optimiser == 0) {
+            hqImage = process.env.MIX_APP_URL + '/storage/images/' + item.hq_1200x627_image
+          } else {
+            hqImage = process.env.MIX_APP_URL + '/storage/images/creatives/1200x627/' + item.hq_image
+          }
+          return {
+            imageUrlHQ: hqImage,
+            imageUrl: process.env.MIX_APP_URL + '/storage/images/' + item.image,
+          }
+        })
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
     loadPreview(index, firstLoad = false) {
       if (!firstLoad && adPreviewCancels.length > 0) {
         for (let i = 0; i < adPreviewCancels.length; i++) {
@@ -1196,7 +1219,7 @@ export default {
       this.isLoading = true
       this.contents[index].adPreviews = [];
 
-      let contents = []
+      let contents = [], images = []
 
       if (this.contents[index].titleSet.id) {
         contents = this.contents[index].titleSet.sets
@@ -1204,8 +1227,14 @@ export default {
         contents = this.contents[index].titles
       }
 
+      if (this.contents[index].imageSet.id) {
+        images = this.contents[index].imageSet.sets
+      } else {
+        images = this.contents[index].images
+      }
+
       for (let i = 0; i < contents.length; i++) {
-        for (let y = 0; y < this.contents[index].images.length; y++) {
+        for (let y = 0; y < images.length; y++) {
           axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
             title: contents[i].title,
             displayUrl: this.contents[index].displayUrl,
@@ -1213,8 +1242,8 @@ export default {
             description: this.contents[index].description,
             sponsoredBy: this.contents[index].brandname,
             adType: this.contents[index].adType,
-            imageUrlHQ: this.contents[index].images[y].imageUrlHQ,
-            imageUrl: this.contents[index].images[y].imageUrl,
+            imageUrlHQ: images[y].imageUrlHQ,
+            imageUrl: images[y].imageUrl,
             videoPrimaryUrl: this.contents[index].videos[y].videoPrimaryUrl,
             videoPortraitUrl: this.contents[index].videos[y].videoPortraitUrl,
             imagePortraitUrl: this.contents[index].videos[y].imagePortraitUrl,
@@ -1479,6 +1508,22 @@ export default {
     submitStep4() {
       this.isLoading = true
       let url = '/campaigns';
+
+      for (let i = 0; i < this.contents.length; i++) {
+        if (this.contents[i].titleSet.id) {
+          delete this.contents[i].titleSet.sets
+        }
+        if (this.contents[i].videoSet.id) {
+          delete this.contents[i].videoSet.sets
+        }
+        if (this.contents[i].videoSet.id) {
+          delete this.contents[i].videoSet.sets
+        }
+      }
+
+      console.log(this.contents)
+
+      return;
 
       if (this.action == 'edit') {
         url += '/update/' + this.instance.instance_id;
