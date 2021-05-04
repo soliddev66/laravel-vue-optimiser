@@ -234,6 +234,13 @@ class CreativeController extends Controller
         ]);
     }
 
+    public function titleSets(CreativeSet $creativeSet)
+    {
+        return response()->json([
+            'sets' => $creativeSet->titleSets
+        ]);
+    }
+
     public function delete(CreativeSet $creativeSet)
     {
         if (Gate::denies('modifiable', $creativeSet)) {
