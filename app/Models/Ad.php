@@ -21,11 +21,18 @@ class Ad extends Model
         'video',
         'image',
         'description',
-        'synced'
+        'synced',
+        'status',
+        'image'
     ];
 
     public function redtrackContentStats()
     {
         return $this->hasMany(RedtrackContentStat::class, 'sub5', 'ad_id');
+    }
+
+    public function creativeSets()
+    {
+        return $this->hasMany(CreativeSet::class);
     }
 }

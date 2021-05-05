@@ -125,14 +125,14 @@ class Yahoo extends Root implements AdVendorInterface
 
     public function networkSetting()
     {
-        return NetworkSetting::where('user_id', auth()->id())->get();
+        return NetworkSetting::where('user_id', ()())->get();
     }
 
     public function storeNetworkSetting()
     {
         NetworkSetting::firstOrNew([
             'name' => request('networkSettingName'),
-            'user_id' => auth()->id(),
+            'user_id' => ()(),
             'site_block' => request('campaignSiteBlock'),
             'group_1a' => request('campaignSupplyGroup1A'),
             'group_1b' => request('incrementType1b') * request('campaignSupplyGroup1B'),
@@ -201,6 +201,17 @@ class Yahoo extends Root implements AdVendorInterface
         try {
             $campaign_data = $api->createCampaign();
 
+            $resource_importer->insertOrUpdate('campaigns', [[
+                'campaign_id' => $campaign_data['id'],
+                'provider_id' => 1,
+                'user_id' => auth()->id(),
+                'open_id' => request('account'),
+                'advertiser_id' => $campaign_data['advertiserId'],
+                'name' => $campaign_data['campaignName'],
+                'status' => $campaign_data['status'],
+                'budget' => $campaign_data['budget'],
+            ]], ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
+
             try {
                 $ad_group_data = $api->createAdGroup($campaign_data);
             } catch (Exception $e) {
@@ -210,10 +221,17 @@ class Yahoo extends Root implements AdVendorInterface
 
             try {
                 foreach (request('contents') as $content) {
+                    $ads = [];
                     $titles = [];
 
                     if (isset($content['titleSet']['id'])) {
-                        $titles = CreativeSet::find($content['titleSet']['id'])->titleSets;
+                        $titleCreativeSet = CreativeSet::find($content['titleSet']['id']);
+
+                        if ($titleCreativeSet) {
+                            $titles = $titleCreativeSet->titleSets;
+                        } else {
+                            throw('No creative set found.');
+                        }
                     } else {
                         $titles = $content['titles'];
                     }
@@ -221,7 +239,13 @@ class Yahoo extends Root implements AdVendorInterface
                     $description = '';
 
                     if (isset($content['descriptionSet']['id'])) {
-                        $description = CreativeSet::find($content['descriptionSet']['id'])->descriptionSets[0]['description'];
+                        $descriptionCreativeSet = CreativeSet::find($content['descriptionSet']['id']);
+
+                        if ($titleCreativeSet) {
+                            $description = $descriptionCreativeSet->descriptionSets[0]['description'];
+                        } else {
+                            throw('No creative set found.');
+                        }
                     } else {
                         $description = $content['description'];
                     }
@@ -243,7 +267,13 @@ class Yahoo extends Root implements AdVendorInterface
                             $videos = [];
 
                             if (isset($content['videoSet']['id'])) {
-                                $videos = CreativeSet::find($content['videoSet']['id'])->videoSets;
+                                $videoCreativeSet = CreativeSet::find($content['videoSet']['id']);
+
+                                if ($videoCreativeSet) {
+                                    $videos = $videoCreativeSet->videoSets;
+                                } else {
+                                    throw('No creative set found.');
+                                }
                             } else {
                                 $videos = $content['videos'];
                             }
@@ -260,7 +290,13 @@ class Yahoo extends Root implements AdVendorInterface
                             $imges = [];
 
                             if (isset($content['imageSet']['id'])) {
-                                $images = CreativeSet::find($content['imageSet']['id'])->imageSets;
+                                $imageCreativeSet = CreativeSet::find($content['imageSet']['id']);
+
+                                if ($imageCreativeSet) {
+                                    $images = $imageCreativeSet->imageSets;
+                                } else {
+                                    throw('No creative set found.');
+                                }
                             } else {
                                 $images = $content['images'];
                             }
@@ -271,9 +307,41 @@ class Yahoo extends Root implements AdVendorInterface
                             }
                         }
 
-                        $ad_data = $api->createAd([$ad]);
+                        $ads[] = $ad;
 
+                    }
 
+                    $ad_data = $api->createAd($ads);
+
+                    foreach ($ad_data as $ad) {
+                        $ad = Ad::create([
+                            'ad_id' => $ad['id'],
+                            'user_id' => auth()->id(),
+                            'provider_id' => 1,
+                            'campaign_id' => $campaign_data['id'],
+                            'advertiser_id' => request('selectedAdvertiser'),
+                            'ad_group_id' => $ad_group_data['id'],
+                            'open_id' => request('account'),
+                            'name' => $ad['adName'] ?? $ad['title'],
+                            'status' => $ad['status'],
+                            'image' => !empty($ad['imageUrl']) ? $ad['imageUrl'] : $ad['imagePortraitUrl'],
+                        ]);
+
+                        if (isset($content['titleSet']['id'])) {
+                            $ad->creativeSets()->save($titleCreativeSet);
+                        }
+
+                        if (isset($content['descriptionSet']['id'])) {
+                            $ad->creativeSets()->save($descriptionCreativeSet);
+                        }
+
+                        if ($content['adType'] == 'VIDEO' && isset($content['videoSet']['id'])) {
+                            $ad->creativeSets()->save($videoCreativeSet);
+                        }
+
+                        if ($content['adType'] == 'IMAGE' && isset($content['imageSet']['id'])) {
+                            $ad->creativeSets()->save($imageCreativeSet);
+                        }
                     }
                 }
 
