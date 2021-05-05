@@ -19,7 +19,6 @@
                     <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="creativeSetName" />
                   </div>
                 </div>
-
                 <fieldset class="mb-3 p-3 rounded border" v-for="(item, index) in creativeSets" :key="index">
                   <div v-if="type == 'image'">
                     <div class="form-group row">
@@ -34,8 +33,8 @@
                       <div class="col-sm-8 offset-sm-2 mt-2">
                         <div class="row">
                           <div class="col-12">
-                            <input type="radio" :value="0" name="optimiser" v-model="item.optimiser">
-                            <label class="mb-0">Use seperate image sizes</label>
+                            <input id="optimiser1" type="radio" :value="0" name="optimiser" v-model="item.optimiser">
+                            <label for="optimiser1" class="mb-0">Use seperate image sizes</label>
                           </div>
                         </div>
                       </div>
@@ -44,8 +43,8 @@
                       <div class="col-sm-8 offset-sm-2">
                         <div class="row">
                           <div class="col-12">
-                            <input type="radio" :value="1" name="optimiser" v-model="item.optimiser">
-                            <label class="mb-0">The image will be generated, optimized by Optimiser</label>
+                            <input id="optimiser2" type="radio" :value="1" name="optimiser" v-model="item.optimiser">
+                            <label for="optimiser2" class="mb-0">The image will be generated, optimized by Optimiser</label>
                           </div>
                         </div>
                       </div>
@@ -54,8 +53,8 @@
                       <div class="col-sm-8 offset-sm-2">
                         <div class="row">
                           <div class="col-12">
-                            <input type="radio" :value="2" name="optimiser" v-model="item.optimiser">
-                            <label class="mb-0">The image will be generated, optimized by TinyPNG</label>
+                            <input id="optimiser3" type="radio" :value="2" name="optimiser" v-model="item.optimiser">
+                            <label for="optimiser3" class="mb-0">The image will be generated, optimized by TinyPNG</label>
                           </div>
                           <div class="col-12" v-if="compressed >= 500">
                             <small class="text-danger">Tinypng reached the limitation and we will be charged.</small>
@@ -147,14 +146,12 @@
               </fieldset>
             </form>
           </div>
-
           <div class="card-footer d-flex justify-content-end">
             <button type="button" class="btn btn-primary" :disabled="!creativeSetNameState || !creativeSetState" @click.prevent="saveCreativeSet">Save</button>
           </div>
         </div>
       </div>
     </div>
-
     <modal width="60%" height="80%" name="mediaModal">
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
@@ -202,9 +199,7 @@ export default {
 
     creativeSetState() {
       for (let i = 0; i < this.creativeSets.length; i++) {
-        if (this.type == 'image' && (!this.creativeSets[i].image || !this.creativeSets[i].imageState
-          || (this.creativeSets[i].optimiser != 0 && (!this.creativeSets[i].hqImage || !this.creativeSets[i].hqImageState))
-          || (this.creativeSets[i].optimiser == 0 && (!this.creativeSets[i].hq800x800Image || !this.creativeSets[i].hq800x800ImageState || !this.creativeSets[i].hq1200x627Image || !this.creativeSets[i].hq1200x627ImageState || !this.creativeSets[i].hq1200x628Image || !this.creativeSets[i].hq1200x628ImageState)))) {
+        if (this.type == 'image' && (!this.creativeSets[i].image || !this.creativeSets[i].imageState || (this.creativeSets[i].optimiser != 0 && (!this.creativeSets[i].hqImage || !this.creativeSets[i].hqImageState)) || (this.creativeSets[i].optimiser == 0 && (!this.creativeSets[i].hq800x800Image || !this.creativeSets[i].hq800x800ImageState || !this.creativeSets[i].hq1200x627Image || !this.creativeSets[i].hq1200x627ImageState || !this.creativeSets[i].hq1200x628Image || !this.creativeSets[i].hq1200x628ImageState)))) {
           return false
         }
         if (this.type == 'video' && (!this.creativeSets[i].portraitImage || !this.creativeSets[i].portraitImageState || !this.creativeSets[i].landscapeImage || !this.creativeSets[i].landscapeImageState || !this.creativeSets[i].video)) {
@@ -333,7 +328,7 @@ export default {
             hq1200x628Image: this.creativeSet.sets[i].hq_1200x628_image,
             hq1200x628ImageState: true
           })
-        }else if (this.type == 'video') {
+        } else if (this.type == 'video') {
           creativeSets.push({
             id: this.creativeSet.sets[i].id,
             portraitImage: this.creativeSet.sets[i].portrait_image,
