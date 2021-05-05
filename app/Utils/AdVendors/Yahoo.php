@@ -208,16 +208,30 @@ class Yahoo extends Root implements AdVendorInterface
                 throw $e;
             }
 
-            $ads = [];
-
             try {
                 foreach (request('contents') as $content) {
-                    foreach ($content['titles'] as $title) {
+                    $titles = [];
+
+                    if (isset($content['titleSet']['id'])) {
+                        $titles = CreativeSet::find($content['titleSet']['id'])->titleSets;
+                    } else {
+                        $titles = $content['titles'];
+                    }
+
+                    $description = '';
+
+                    if (isset($content['descriptionSet']['id'])) {
+                        $description = CreativeSet::find($content['descriptionSet']['id'])->descriptionSets[0]['description'];
+                    } else {
+                        $description = $content['description'];
+                    }
+
+                    foreach ($titles as $title) {
                         $ad = [
                             'adGroupId' => $ad_group_data['id'],
                             'advertiserId' => request('selectedAdvertiser'),
                             'campaignId' => $campaign_data['id'],
-                            'description' => $content['description'],
+                            'description' => $description,
                             'displayUrl' => $content['displayUrl'],
                             'landingUrl' => $content['targetUrl'],
                             'sponsoredBy' => $content['brandname'],
@@ -226,26 +240,42 @@ class Yahoo extends Root implements AdVendorInterface
                         ];
 
                         if ($content['adType'] == 'VIDEO') {
-                            foreach ($content['videos'] as $video) {
+                            $videos = [];
+
+                            if (isset($content['videoSet']['id'])) {
+                                $videos = CreativeSet::find($content['videoSet']['id'])->videoSets;
+                            } else {
+                                $videos = $content['videos'];
+                            }
+
+                            foreach ($videos as $video) {
                                 if (in_array(request('campaignObjective'), ['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'])) {
-                                    $ad['videoPrimaryUrl'] = Helper::encodeUrl($video['videoPrimaryUrl']);
+                                    $ad['videoPrimaryUrl'] = Helper::encodeUrl(isset($content['videoSet']['id']) ? $video['video'] : $video['videoPrimaryUrl']);
                                 } else {
-                                    $ad['imagePortraitUrl'] = Helper::encodeUrl($video['imagePortraitUrl']);
-                                    $ad['videoPortraitUrl'] = Helper::encodeUrl($video['videoPortraitUrl']);
+                                    $ad['imagePortraitUrl'] = Helper::encodeUrl(isset($content['videoSet']['id']) ? $video['portrait_image'] : $video['imagePortraitUrl']);
+                                    $ad['videoPortraitUrl'] = Helper::encodeUrl(isset($content['videoSet']['id']) ? $video['video'] : $video['videoPortraitUrl']);
                                 }
                             }
                         } else {
-                            foreach ($content['images'] as $image) {
-                                $ad['imageUrl'] = Helper::encodeUrl($image['imageUrl']);
-                                $ad['imageUrlHQ'] = Helper::encodeUrl($image['imageUrlHQ']);
+                            $imges = [];
+
+                            if (isset($content['imageSet']['id'])) {
+                                $images = CreativeSet::find($content['imageSet']['id'])->imageSets;
+                            } else {
+                                $images = $content['images'];
+                            }
+
+                            foreach ($images as $image) {
+                                $ad['imageUrl'] = Helper::encodeUrl(isset($content['imageSet']['id']) ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['imageUrl']);
+                                $ad['imageUrlHQ'] = Helper::encodeUrl(isset($content['imageSet']['id']) ? (env('MIX_APP_URL') . ($image['optimiser'] == 0 ? ('/storage/images/' . $image['hq_1200x627_image']) : ('/storage/images/creatives/1200x627/' . $image['hq_image']))) : $image['imageUrlHQ']);
                             }
                         }
 
-                        $ads[] = $ad;
+                        $ad_data = $api->createAd([$ad]);
+
+
                     }
                 }
-
-                $ad_data = $api->createAd($ads);
 
                 Helper::pullCampaign();
             } catch (Exception $e) {

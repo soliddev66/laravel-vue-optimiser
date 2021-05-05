@@ -614,7 +614,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 2
+      default: 1
     }
   },
   components: {
