@@ -1603,10 +1603,6 @@ export default {
         delete this.contents[i].adPreviews
       }
 
-      console.log(this.contents)
-
-      return;
-
       if (this.action == 'edit') {
         url += '/update/' + this.instance.instance_id;
       }

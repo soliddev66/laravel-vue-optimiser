@@ -201,6 +201,8 @@ class Yahoo extends Root implements AdVendorInterface
         try {
             $campaign_data = $api->createCampaign();
 
+            $resource_importer = new ResourceImporter();
+
             $resource_importer->insertOrUpdate('campaigns', [[
                 'campaign_id' => $campaign_data['id'],
                 'provider_id' => 1,
