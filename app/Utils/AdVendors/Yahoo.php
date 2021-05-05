@@ -125,14 +125,14 @@ class Yahoo extends Root implements AdVendorInterface
 
     public function networkSetting()
     {
-        return NetworkSetting::where('user_id', ()())->get();
+        return NetworkSetting::where('user_id', auth()->id())->get();
     }
 
     public function storeNetworkSetting()
     {
         NetworkSetting::firstOrNew([
             'name' => request('networkSettingName'),
-            'user_id' => ()(),
+            'user_id' => auth()->id(),
             'site_block' => request('campaignSiteBlock'),
             'group_1a' => request('campaignSupplyGroup1A'),
             'group_1b' => request('incrementType1b') * request('campaignSupplyGroup1B'),
