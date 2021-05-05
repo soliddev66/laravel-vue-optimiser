@@ -81,6 +81,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
 Route::group(['middleware' => 'auth', 'prefix' => 'creatives'], function() {
     Route::get('/', [App\Http\Controllers\CreativeController::class, 'index'])->name('creatives.index');
     Route::get('/data', [App\Http\Controllers\CreativeController::class, 'data'])->name('creatives.data');
+    Route::get('/title-sets/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'titleSets'])->name('creatives.titleSets');
+    Route::get('/image-sets/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'imageSets'])->name('creatives.imageSets');
     Route::get('/create', [App\Http\Controllers\CreativeController::class, 'create'])->name('creatives.create');
     Route::get('/edit/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'edit'])->name('creatives.edit');
     Route::post('/delete/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'delete'])->name('creatives.delete');

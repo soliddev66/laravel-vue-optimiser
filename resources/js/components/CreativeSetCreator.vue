@@ -30,11 +30,31 @@
                         <small class="text-danger" v-if="!item.imageState">Image is invalid. You might need an 627 x 627 image.</small>
                       </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="form-group row mb-1">
                       <div class="col-sm-8 offset-sm-2 mt-2">
                         <div class="row">
                           <div class="col-12">
-                            <input type="checkbox" id="checkbox" v-model="item.isTiniPNGUsed">
+                            <input type="radio" :value="0" name="optimiser" v-model="item.optimiser">
+                            <label class="mb-0">Use seperate image sizes</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                      <div class="col-sm-8 offset-sm-2">
+                        <div class="row">
+                          <div class="col-12">
+                            <input type="radio" :value="1" name="optimiser" v-model="item.optimiser">
+                            <label class="mb-0">The image will be generated, optimized by Optimiser</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <div class="col-sm-8 offset-sm-2">
+                        <div class="row">
+                          <div class="col-12">
+                            <input type="radio" :value="2" name="optimiser" v-model="item.optimiser">
                             <label class="mb-0">The image will be generated, optimized by TinyPNG</label>
                           </div>
                           <div class="col-12" v-if="compressed >= 500">
@@ -43,7 +63,7 @@
                         </div>
                       </div>
                     </div>
-                    <div v-if="!item.isTiniPNGUsed">
+                    <div v-if="item.optimiser == 0">
                       <div class="form-group row">
                         <label for="hq_800x800_image" class="col-sm-2 control-label mt-2">HQ Image (800 x 800)</label>
                         <div class="col-sm-8">
@@ -69,7 +89,7 @@
                         </div>
                       </div>
                     </div>
-                    <div v-if="item.isTiniPNGUsed">
+                    <div v-if="item.optimiser != 0">
                       <div class="form-group row">
                         <label for="hq_image" class="col-sm-2 control-label mt-2">HQ Image (1200 x 800)</label>
                         <div class="col-sm-8">
@@ -183,8 +203,8 @@ export default {
     creativeSetState() {
       for (let i = 0; i < this.creativeSets.length; i++) {
         if (this.type == 'image' && (!this.creativeSets[i].image || !this.creativeSets[i].imageState
-          || (this.creativeSets[i].isTiniPNGUsed && (!this.creativeSets[i].hqImage || !this.creativeSets[i].hqImageState))
-          || (!this.creativeSets[i].isTiniPNGUsed && (!this.creativeSets[i].hq800x800Image || !this.creativeSets[i].hq800x800ImageState || !this.creativeSets[i].hq1200x627Image || !this.creativeSets[i].hq1200x627ImageState || !this.creativeSets[i].hq1200x628Image || !this.creativeSets[i].hq1200x628ImageState)))) {
+          || (this.creativeSets[i].optimiser != 0 && (!this.creativeSets[i].hqImage || !this.creativeSets[i].hqImageState))
+          || (this.creativeSets[i].optimiser == 0 && (!this.creativeSets[i].hq800x800Image || !this.creativeSets[i].hq800x800ImageState || !this.creativeSets[i].hq1200x627Image || !this.creativeSets[i].hq1200x627ImageState || !this.creativeSets[i].hq1200x628Image || !this.creativeSets[i].hq1200x628ImageState)))) {
           return false
         }
         if (this.type == 'video' && (!this.creativeSets[i].portraitImage || !this.creativeSets[i].portraitImageState || !this.creativeSets[i].landscapeImage || !this.creativeSets[i].landscapeImageState || !this.creativeSets[i].video)) {
@@ -266,7 +286,7 @@ export default {
       creativeSets = [{
         image: '',
         imageState: true,
-        isTiniPNGUsed: false,
+        optimiser: 0,
         hqImage: '',
         hqImageState: true,
         hq800x800Image: '',
@@ -303,7 +323,7 @@ export default {
             id: this.creativeSet.sets[i].id,
             image: this.creativeSet.sets[i].image,
             imageState: true,
-            isTiniPNGUsed: this.creativeSet.sets[i].hq_image != null && this.creativeSet.sets[i].hq_image != '',
+            optimiser: this.creativeSet.sets[i].optimiser,
             hqImage: this.creativeSet.sets[i].hq_image,
             hqImageState: true,
             hq800x800Image: this.creativeSet.sets[i].hq_800x800_image,
@@ -374,7 +394,7 @@ export default {
         this.creativeSets.push({
           image: '',
           imageState: true,
-          isTiniPNGUsed: false,
+          optimiser: 0,
           hqImage: '',
           hqImageState: true,
           hq800x800Image: '',

@@ -338,12 +338,17 @@
                         <div class="col-sm-8">
                           <div class="row mb-2" v-for="(title, indexTitle) in content.titles" :key="indexTitle">
                             <div class="col-sm-8">
-                              <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" v-on:blur="loadPreviewEvent($event, index)" />
+                              <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" v-on:blur="loadPreviewEvent($event, index)" :disabled="content.titleSet.id" />
                             </div>
                             <div class="col-sm-4">
-                              <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle); loadPreviewEvent($event, index)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
-                              <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length"><i class="fa fa-plus"></i></button>
+                              <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle); loadPreviewEvent($event, index)" v-if="indexTitle > 0" :disabled="content.titleSet.id"><i class="fa fa-minus"></i></button>
+                              <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length" :disabled="content.titleSet.id"><i class="fa fa-plus"></i></button>
                               <button type="button" class="btn btn-primary" v-if="indexTitle == 0" @click="loadCreativeSet('title', index)"><i class="far fa-folder-open"></i></button>
+                            </div>
+                          </div>
+                          <div class="row" v-if="content.titleSet.id">
+                            <div class="col">
+                              <span class="selected-set">{{ content.titleSet.name }}<span class="close" @click="removeTitleSet(index)"><i class="fas fa-times"></i></span></span>
                             </div>
                           </div>
                         </div>
@@ -357,9 +362,16 @@
                       <div class="form-group row">
                         <label for="description" class="col-sm-4 control-label mt-2">Description</label>
                         <div class="col-sm-8">
-                          <textarea class="form-control" rows="3" placeholder="Enter description" v-model="content.description" v-on:blur="loadPreviewEvent($event, index)"></textarea>
+                          <textarea class="form-control" rows="3" placeholder="Enter description" v-model="content.description" v-on:blur="loadPreviewEvent($event, index)" :disabled="content.descriptionSet.id"></textarea>
+                          <div class="row mt-2">
+                            <div class="col">
+                              <span v-if="content.descriptionSet.id" class="selected-set">{{ content.descriptionSet.name }}<span class="close" @click="removeDescriptionSet(index)"><i class="fas fa-times"></i></span></span>
+                            </div>
+                          </div>
+                          <button class="btn btn-primary btn-sm mt-2" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('description', index)">Load from Sets</button>
                         </div>
                       </div>
+
                       <div class="form-group row">
                         <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
                         <div class="col-sm-8 text-center">
@@ -394,8 +406,8 @@
                           <div class="form-group row">
                             <label for="image_hq_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> (1200 x 627 px)'"></label>
                             <div class="col-sm-8">
-                              <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index, indexImage)" />
-                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index, indexImage)">Choose File</button>
+                              <input type="text" name="image_hq_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrlHQ" v-on:blur="loadPreviewEvent($event, index); validImageHQSizeEvent($event, index, indexImage)" :disabled="content.imageSet.id" />
+                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageHQUrl', index, indexImage)" :disabled="content.imageSet.id">Choose File</button>
                             </div>
                             <div class="col-sm-8 offset-sm-4">
                               <small class="text-danger" v-if="image.imageUrlHQ && !validURL(image.imageUrlHQ)">URL is invalid. You might need http/https at the beginning.</small>
@@ -405,8 +417,8 @@
                           <div class="form-group row">
                             <label for="image_url" class="col-sm-4 control-label mt-2" v-html="'Image URL <br> (627 x 627 px)'"></label>
                             <div class="col-sm-8">
-                              <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index, indexImage)" />
-                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, indexImage)">Choose File</button>
+                              <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="image.imageUrl" v-on:blur="loadPreviewEvent($event, index); validImageSizeEvent($event, index, indexImage)" :disabled="content.imageSet.id" />
+                              <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, indexImage)" :disabled="content.imageSet.id">Choose File</button>
                             </div>
                             <div class="col-sm-8 offset-sm-4">
                               <small class="text-danger" v-if="image.imageUrl && !validURL(image.imageUrl)">URL is invalid. You might need http/https at the beginning.</small>
@@ -415,7 +427,12 @@
                           </div>
                           <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeImage(index, indexImage); loadPreviewEvent($event, index)" v-if="indexImage > 0">Remove Image</button>
                         </fieldset>
-                        <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)">Add Image</button>
+                        <div class="row mt-2 mb-2">
+                          <div class="col">
+                            <span v-if="content.imageSet.id" class="selected-set">{{ content.imageSet.name }}<span class="close" @click="removeImageSet(index)"><i class="fas fa-times"></i></span></span>
+                          </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)" :disabled="content.imageSet.id">Add Image</button>
                         <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
                       </div>
 
@@ -425,15 +442,15 @@
                             <div class="form-group row">
                               <label for="image_portrait_url" class="col-sm-4 control-label mt-2" v-html="'Image HQ URL <br> vertical (portrait) 9:16'"></label>
                               <div class="col-sm-8">
-                                <input type="text" name="image_portrait_url" placeholder="Enter a url" class="form-control" v-model="video.imagePortraitUrl" v-on:blur="loadPreviewEvent($event, index)" />
-                                <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imagePortraitUrl', index, indexVideo)">Choose File</button>
+                                <input type="text" name="image_portrait_url" placeholder="Enter a url" class="form-control" v-model="video.imagePortraitUrl" v-on:blur="loadPreviewEvent($event, index)" :disabled="content.videoSet.id" />
+                                <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imagePortraitUrl', index, indexVideo)" :disabled="content.videoSet.id">Choose File</button>
                               </div>
                             </div>
                             <div class="form-group row">
                               <label for="video_portrait_url" class="col-sm-4 control-label mt-2" v-html="'Video URL <br> vertical (portrait) 9:16'"></label>
                               <div class="col-sm-8">
-                                <input type="text" name="video_portrait_url" placeholder="Enter video URL" class="form-control" v-model="video.videoPortraitUrl" v-on:blur="loadPreviewEvent($event, index)" />
-                                <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoPortraitUrl', index, indexVideo)">Choose File</button>
+                                <input type="text" name="video_portrait_url" placeholder="Enter video URL" class="form-control" v-model="video.videoPortraitUrl" v-on:blur="loadPreviewEvent($event, index)" :disabled="content.videoSet.id" />
+                                <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoPortraitUrl', index, indexVideo)" :disabled="content.videoSet.id">Choose File</button>
                               </div>
                             </div>
                           </div>
@@ -441,14 +458,19 @@
                             <div class="form-group row">
                               <label for="video_primary_url" class="col-sm-4 control-label mt-2">Video URL</label>
                               <div class="col-sm-8">
-                                <input type="text" name="video_primary_url" placeholder="Enter video URL" class="form-control" v-model="video.videoPrimaryUrl" v-on:blur="loadPreviewEvent($event, index)" />
-                                <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoPrimaryUrl', index, indexVideo)">Choose File</button>
+                                <input type="text" name="video_primary_url" placeholder="Enter video URL" class="form-control" v-model="video.videoPrimaryUrl" v-on:blur="loadPreviewEvent($event, index)" :disabled="content.videoSet.id" />
+                                <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoPrimaryUrl', index, indexVideo)" :disabled="content.videoSet.id">Choose File</button>
                               </div>
                             </div>
                           </div>
                           <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeVideo(index, indexVideo); loadPreviewEvent($event, index)" v-if="indexVideo > 0">Remove Video</button>
                         </fieldset>
-                        <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)">Add Video</button>
+                        <div class="row mt-2 mb-2">
+                          <div class="col">
+                            <span v-if="content.videoSet.id" class="selected-set">{{ content.videoSet.name }}<span class="close" @click="removeVideoSet(index)"><i class="fas fa-times"></i></span></span>
+                          </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)" :disabled="content.videoSet.id">Add Video</button>
                         <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('video', index)">Load from Sets</button>
                       </div>
                     </div>
@@ -592,7 +614,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 1
+      default: 2
     }
   },
   components: {
@@ -746,6 +768,7 @@ export default {
         displayUrl: '',
         targetUrl: '',
         description: '',
+        descriptionSet: '',
         brandname: '',
         imageSet: '',
         images: [{
@@ -865,6 +888,7 @@ export default {
           displayUrl: this.instance.ads[i]['displayUrl'],
           targetUrl: this.instance.ads[i]['landingUrl'],
           description: this.instance.ads[i]['description'],
+          descriptionSet: '',
           brandname: this.instance.ads[i]['sponsoredBy'],
           imageSet: '',
           images: [{
@@ -1007,10 +1031,26 @@ export default {
       this.adSelectorIndex = index
       $('#creative-set-modal').modal('show')
     },
-    selectCreativeSet(id) {
+    selectCreativeSet(set) {
       if (this.setType == 'title') {
-        this.contents[this.fileSelectorIndex].titleSet = id
+        this.contents[this.adSelectorIndex].titleSet = set
+        this.loadTitleSets(this.adSelectorIndex).then(() => {
+          this.loadPreview(this.adSelectorIndex)
+        })
       }
+      if (this.setType == 'image') {
+        this.contents[this.adSelectorIndex].imageSet = set
+        this.loadImageSets(this.adSelectorIndex).then(() => {
+          this.loadPreview(this.adSelectorIndex)
+        })
+      }
+      if (this.setType == 'video') {
+        this.contents[this.adSelectorIndex].videoSet = set
+      }
+      if (this.setType == 'description') {
+        this.contents[this.adSelectorIndex].descriptionSet = set
+      }
+
       $('#creative-set-modal').modal('hide')
     },
     validURL(str) {
@@ -1038,6 +1078,7 @@ export default {
         displayUrl: '',
         targetUrl: '',
         description: '',
+        descriptionSet: '',
         brandname: '',
         imageSet: '',
         images: [{
@@ -1095,6 +1136,35 @@ export default {
     removeSupportedSite(index) {
       this.supportedSiteCollections.splice(index, 1);
     },
+    removeImageSet(index) {
+      this.contents[index].imageSet = ''
+      this.contents[index].images = [{
+        imageUrlHQ: '',
+        imageUrlHQState: true,
+        imageUrl: '',
+        imageUrlState: true,
+        existing: false
+      }]
+    },
+    removeVideoSet(index) {
+      this.contents[index].videoSet = ''
+      this.contents[index].videos = [{
+        videoPrimaryUrl: '',
+        videoPortraitUrl: '',
+        imagePortraitUrl: '',
+        existing: false
+      }]
+    },
+    removeTitleSet(index) {
+      this.contents[index].titleSet = ''
+      this.contents[index].titles = [{
+        title: '',
+        existing: false
+      }]
+    },
+    removeDescriptionSet(index) {
+      this.contents[index].descriptionSet = ''
+    },
     loadPreviewEvent(event, index) {
       this.loadPreview(index)
     },
@@ -1108,6 +1178,38 @@ export default {
         this.contents[index].images[indexImage].imageUrlState = result
       });
     },
+    loadTitleSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/title-sets/${this.contents[index].titleSet.id}`).then(response => {
+        this.contents[index].titleSet.sets = response.data.sets.map(item => {
+          return {
+            title: item.title
+          }
+        })
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+    loadImageSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/image-sets/${this.contents[index].imageSet.id}`).then(response => {
+        this.contents[index].imageSet.sets = response.data.sets.map(item => {
+          let hqImage = ''
+
+          if (item.optimiser == 0) {
+            hqImage = process.env.MIX_APP_URL + '/storage/images/' + item.hq_1200x627_image
+          } else {
+            hqImage = process.env.MIX_APP_URL + '/storage/images/creatives/1200x627/' + item.hq_image
+          }
+          return {
+            imageUrlHQ: hqImage,
+            imageUrl: process.env.MIX_APP_URL + '/storage/images/' + item.image,
+          }
+        })
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
     loadPreview(index, firstLoad = false) {
       if (!firstLoad && adPreviewCancels.length > 0) {
         for (let i = 0; i < adPreviewCancels.length; i++) {
@@ -1117,17 +1219,31 @@ export default {
       this.isLoading = true
       this.contents[index].adPreviews = [];
 
-      for (let i = 0; i < this.contents[index].titles.length; i++) {
-        for (let y = 0; y < this.contents[index].images.length; y++) {
+      let contents = [], images = []
+
+      if (this.contents[index].titleSet.id) {
+        contents = this.contents[index].titleSet.sets
+      } else {
+        contents = this.contents[index].titles
+      }
+
+      if (this.contents[index].imageSet.id) {
+        images = this.contents[index].imageSet.sets
+      } else {
+        images = this.contents[index].images
+      }
+
+      for (let i = 0; i < contents.length; i++) {
+        for (let y = 0; y < images.length; y++) {
           axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
-            title: this.contents[index].titles[i].title,
+            title: contents[i].title,
             displayUrl: this.contents[index].displayUrl,
             landingUrl: this.contents[index].targetUrl,
             description: this.contents[index].description,
             sponsoredBy: this.contents[index].brandname,
             adType: this.contents[index].adType,
-            imageUrlHQ: this.contents[index].images[y].imageUrlHQ,
-            imageUrl: this.contents[index].images[y].imageUrl,
+            imageUrlHQ: images[y].imageUrlHQ,
+            imageUrl: images[y].imageUrl,
             videoPrimaryUrl: this.contents[index].videos[y].videoPrimaryUrl,
             videoPortraitUrl: this.contents[index].videos[y].videoPortraitUrl,
             imagePortraitUrl: this.contents[index].videos[y].imagePortraitUrl,
@@ -1393,6 +1509,22 @@ export default {
       this.isLoading = true
       let url = '/campaigns';
 
+      for (let i = 0; i < this.contents.length; i++) {
+        if (this.contents[i].titleSet.id) {
+          delete this.contents[i].titleSet.sets
+        }
+        if (this.contents[i].videoSet.id) {
+          delete this.contents[i].videoSet.sets
+        }
+        if (this.contents[i].videoSet.id) {
+          delete this.contents[i].videoSet.sets
+        }
+      }
+
+      console.log(this.contents)
+
+      return;
+
       if (this.action == 'edit') {
         url += '/update/' + this.instance.instance_id;
       }
@@ -1416,5 +1548,17 @@ export default {
 <style>
 .select2 {
   width: 100% !important;
+}
+
+.selected-set {
+  position: relative;
+}
+
+.selected-set .close {
+  position: absolute;
+  right: -20px;
+  top: -3px;
+  cursor: pointer;
+  font-size: 0.9em;
 }
 </style>

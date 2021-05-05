@@ -25,6 +25,7 @@ class CreateCreativeSetsTable extends Migration
             $table->id();
             $table->string('image');
             $table->string('hq_image')->nullable();
+            $table->tinyInteger('optimiser');
             $table->string('hq_800x800_image')->nullable();
             $table->string('hq_1200x627_image')->nullable();
             $table->string('hq_1200x628_image')->nullable();
