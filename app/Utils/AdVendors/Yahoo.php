@@ -305,8 +305,8 @@ class Yahoo extends Root implements AdVendorInterface
                             }
 
                             foreach ($images as $image) {
-                                $ad['imageUrl'] = Helper::encodeUrl(isset($content['imageSet']['id']) ? 'http://vngodev.com/yahoo-1.png' : $image['imageUrl']);
-                                $ad['imageUrlHQ'] = Helper::encodeUrl(isset($content['imageSet']['id']) ? 'http://vngodev.com/yahoo-2.jpg' : $image['imageUrlHQ']);
+                                $ad['imageUrl'] = Helper::encodeUrl(isset($content['imageSet']['id']) ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['imageUrl']);
+                                $ad['imageUrlHQ'] = Helper::encodeUrl(isset($content['imageSet']['id']) ? (env('MIX_APP_URL') . ($image['optimiser'] == 0 ? ('/storage/images/' . $image['hq_1200x627_image']) : ('/storage/images/creatives/1200x627/' . $image['hq_image']))) : $image['imageUrlHQ']);
                             }
                         }
 
