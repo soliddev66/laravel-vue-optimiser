@@ -884,7 +884,7 @@ export default {
         contents.push({
           id: this.instance.ads[i]['id'],
           adType: this.instance.ads[i]['videoPrimaryUrl'] || this.instance.ads[i]['imagePortraitUrl'] ? 'VIDEO': 'IMAGE',
-          titleSet: '',
+          titleSet: this.instance.ads[i]['titleSet'] || '',
           titles: [{
             title: this.instance.ads[i]['title'],
             existing: true
@@ -892,9 +892,9 @@ export default {
           displayUrl: this.instance.ads[i]['displayUrl'],
           targetUrl: this.instance.ads[i]['landingUrl'],
           description: this.instance.ads[i]['description'],
-          descriptionSet: '',
+          descriptionSet:  this.instance.ads[i]['descriptionSet'] || '',
           brandname: this.instance.ads[i]['sponsoredBy'],
-          imageSet: '',
+          imageSet:  this.instance.ads[i]['imageSet'] || '',
           images: [{
             imageUrlHQ: this.instance.ads[i]['imageUrlHQ'],
             imageUrlHQState: true,
@@ -902,7 +902,7 @@ export default {
             imageUrlState: true,
             existing: true
           }],
-          videoSet: '',
+          videoSet:  this.instance.ads[i]['videoSet'] || '',
           videos: [{
             videoPrimaryUrl: this.instance.ads[i]['videoPrimaryUrl'],
             videoPortraitUrl: this.instance.ads[i]['videoPortraitUrl'],
@@ -1253,13 +1253,13 @@ export default {
 
       let titles = [], description = ''
 
-      if (this.contents[index].titleSet.id) {
+      if (!firstLoad && this.contents[index].titleSet.id) {
         titles = this.contents[index].titleSet.sets
       } else {
         titles = this.contents[index].titles
       }
 
-      if (this.contents[index].descriptionSet.id) {
+      if (!firstLoad && this.contents[index].descriptionSet.id) {
         description = this.contents[index].descriptionSet.sets[0].description
       } else {
         description = this.contents[index].description
@@ -1268,7 +1268,7 @@ export default {
       if (this.contents[index].adType == 'IMAGE') {
         let images = []
 
-        if (this.contents[index].imageSet.id) {
+        if (!firstLoad && this.contents[index].imageSet.id) {
           images = this.contents[index].imageSet.sets
         } else {
           images = this.contents[index].images
@@ -1305,7 +1305,7 @@ export default {
       } else {
         let videos = []
 
-        if (this.contents[index].videoSet.id) {
+        if (!firstLoad && this.contents[index].videoSet.id) {
           videos = this.contents[index].videoSet.sets
         } else {
           videos = this.contents[index].videos

@@ -163,10 +163,22 @@ class Yahoo extends Root implements AdVendorInterface
 
             if (count($instance['adGroups']) > 0) {
                 $instance['ads'] = $api->getAds([$instance['adGroups'][0]['id']], $campaign->advertiser_id);
+
+                foreach ($instance['ads'] as &$ad) {
+                    $db_ad = Ad::where('ad_id', $ad['id'])->first();
+
+                    if ($db_ad) {
+                        $ad['imageSet'] = $db_ad->creativeSets()->where('type', 1)->first();
+                        $ad['videoSet'] = $db_ad->creativeSets()->where('type', 2)->first();
+                        $ad['titleSet'] = $db_ad->creativeSets()->where('type', 3)->first();
+                        $ad['descriptionSet'] = $db_ad->creativeSets()->where('type', 4)->first();
+                    }
+                }
             }
 
             return $instance;
         } catch (Exception $e) {
+            var_dump($e->getMessage()); exit;
             return [];
         }
     }
