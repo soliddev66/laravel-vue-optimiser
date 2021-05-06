@@ -17,6 +17,7 @@ use App\Models\RedtrackDomainStat;
 use App\Models\RedtrackReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
+use App\Models\CreativeSet;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use App\Vngodev\ResourceImporter;
@@ -316,7 +317,7 @@ class Yahoo extends Root implements AdVendorInterface
                     $ad_data = $api->createAd($ads);
 
                     foreach ($ad_data as $ad) {
-                        $ad = Ad::create([
+                        $db_ad = Ad::create([
                             'ad_id' => $ad['id'],
                             'user_id' => auth()->id(),
                             'provider_id' => 1,
@@ -330,15 +331,15 @@ class Yahoo extends Root implements AdVendorInterface
                         ]);
 
                         if (isset($content['titleSet']['id'])) {
-                            $ad->creativeSets()->save($titleCreativeSet);
+                            $db_ad->creativeSets()->save($titleCreativeSet);
                         }
 
                         if (isset($content['descriptionSet']['id'])) {
-                            $ad->creativeSets()->save($descriptionCreativeSet);
+                            $db_ad->creativeSets()->save($descriptionCreativeSet);
                         }
 
                         if ($content['adType'] == 'VIDEO' && isset($content['videoSet']['id'])) {
-                            $ad->creativeSets()->save($videoCreativeSet);
+                            $db_ad->creativeSets()->save($videoCreativeSet);
                         }
 
                         if ($content['adType'] == 'IMAGE' && isset($content['imageSet']['id'])) {

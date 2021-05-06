@@ -19,7 +19,7 @@ class Ad extends Model
         'ad_group_id',
         'open_id',
         'video',
-        'image',
+        'name',
         'description',
         'synced',
         'status',
@@ -33,6 +33,6 @@ class Ad extends Model
 
     public function creativeSets()
     {
-        return $this->hasMany(CreativeSet::class);
+        return $this->belongsToMany(CreativeSet::class, 'ad_creative_sets');
     }
 }
