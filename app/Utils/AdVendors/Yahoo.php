@@ -407,6 +407,8 @@ class Yahoo extends Root implements AdVendorInterface
 
             $db_ad->save();
 
+            $db_ad->creativeSets()->detach();
+
             if ($titleCreativeSet) {
                 $db_ad->creativeSets()->save($titleCreativeSet);
             }
@@ -555,7 +557,7 @@ class Yahoo extends Root implements AdVendorInterface
                                 $ad['videoPortraitUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPortraitUrl']);
                             }
 
-                            if ((($titleCreativeSet && $content['titleSet']['existing']) || $title['existing']) && (($videoCreativeSet && $content['videoSet']['existing']) || $video['existing'])) {
+                            if (isset($content['id'])) {
                                 $ad['id'] = $content['id'];
                                 $update_ads[] = $ad;
                             } else {
@@ -581,7 +583,7 @@ class Yahoo extends Root implements AdVendorInterface
                             $ad['imageUrl'] = Helper::encodeUrl($imageCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['imageUrl']);
                             $ad['imageUrlHQ'] = Helper::encodeUrl($imageCreativeSet ? (env('MIX_APP_URL') . ($image['optimiser'] == 0 ? ('/storage/images/' . $image['hq_1200x627_image']) : ('/storage/images/creatives/1200x627/' . $image['hq_image']))) : $image['imageUrlHQ']);
 
-                            if ((($titleCreativeSet && $content['titleSet']['existing']) || $title['existing']) && (($imageCreativeSet && $content['imageSet']['existing']) || $image['existing'])) {
+                            if (isset($content['id'])) {
                                 $ad['id'] = $content['id'];
                                 $update_ads[] = $ad;
                             } else {
@@ -596,7 +598,7 @@ class Yahoo extends Root implements AdVendorInterface
 
                     $this->saveAd($ad_data, $campaign_data, $ad_group_data, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
                 }
-                $data_ad = $api->updateAd($update_ads);
+                $ad_data = $api->updateAd($update_ads);
                 $this->saveAd($ad_data, $campaign_data, $ad_group_data, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
             }
 

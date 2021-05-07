@@ -342,7 +342,7 @@
                             </div>
                             <div class="col-sm-4">
                               <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle); loadPreviewEvent($event, index)" v-if="indexTitle > 0" :disabled="content.titleSet.id"><i class="fa fa-minus"></i></button>
-                              <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length" :disabled="content.titleSet.id"><i class="fa fa-plus"></i></button>
+                              <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length" :disabled="content.id || content.titleSet.id"><i class="fa fa-plus"></i></button>
                               <button type="button" class="btn btn-primary" v-if="indexTitle == 0" @click="loadCreativeSet('title', index)"><i class="far fa-folder-open"></i></button>
                             </div>
                           </div>
@@ -432,7 +432,7 @@
                             <span v-if="content.imageSet.id" class="selected-set">{{ content.imageSet.name }}<span class="close" @click="removeImageSet(index)"><i class="fas fa-times"></i></span></span>
                           </div>
                         </div>
-                        <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)" :disabled="content.imageSet.id">Add Image</button>
+                        <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)" :disabled="content.id || content.imageSet.id">Add Image</button>
                         <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
                       </div>
 
