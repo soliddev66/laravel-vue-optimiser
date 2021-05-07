@@ -470,7 +470,7 @@
                             <span v-if="content.videoSet.id" class="selected-set">{{ content.videoSet.name }}<span class="close" @click="removeVideoSet(index)"><i class="fas fa-times"></i></span></span>
                           </div>
                         </div>
-                        <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)" :disabled="content.videoSet.id">Add Video</button>
+                        <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)" :disabled="content.id || content.videoSet.id">Add Video</button>
                         <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('video', index)">Load from Sets</button>
                       </div>
                     </div>
@@ -771,8 +771,8 @@ export default {
         }],
         displayUrl: '',
         targetUrl: '',
-        description: '',
         descriptionSet: '',
+        description: '',
         brandname: '',
         imageSet: '',
         images: [{
@@ -1087,8 +1087,8 @@ export default {
         }],
         displayUrl: '',
         targetUrl: '',
-        description: '',
         descriptionSet: '',
+        description: '',
         brandname: '',
         imageSet: '',
         images: [{
@@ -1256,11 +1256,11 @@ export default {
           for (let y = 0; y < images.length; y++) {
             axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
               title: titles[i].title,
+              adType: this.contents[index].adType,
               displayUrl: this.contents[index].displayUrl,
               landingUrl: this.contents[index].targetUrl,
               description: description,
               sponsoredBy: this.contents[index].brandname,
-              adType: this.contents[index].adType,
               imageUrlHQ: this.contents[index].imageSet.id ? process.env.MIX_APP_URL + (images[y].optimiser == 0 ? '/storage/images/' + images[y].hq_1200x627_image : '/storage/images/creatives/1200x627/' + images[y].hq_image) : images[y].imageUrlHQ,
               imageUrl: this.contents[index].imageSet.id ? process.env.MIX_APP_URL + '/storage/images/' + images[y].image : images[y].imageUrl,
               campaignObjective: this.campaignObjective,
@@ -1293,11 +1293,11 @@ export default {
           for (let y = 0; y < videos.length; y++) {
             axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
               title: titles[i].title,
+              adType: this.contents[index].adType,
               displayUrl: this.contents[index].displayUrl,
               landingUrl: this.contents[index].targetUrl,
               description: description,
               sponsoredBy: this.contents[index].brandname,
-              adType: this.contents[index].adType,
               videoPrimaryUrl: videos[y].videoPrimaryUrl,
               videoPortraitUrl: videos[y].videoPortraitUrl,
               imagePortraitUrl: this.contents[index].videoSet.id ? process.env.MIX_APP_URL + '/storage/images/' + videos[y].portrait_image : videos[y].imagePortraitUrl,
