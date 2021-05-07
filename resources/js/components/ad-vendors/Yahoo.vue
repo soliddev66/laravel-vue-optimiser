@@ -1191,11 +1191,7 @@ export default {
     loadTitleSets(index) {
       this.isLoading = true
       return axios.get(`/creatives/title-sets/${this.contents[index].titleSet.id}`).then(response => {
-        this.contents[index].titleSet.sets = response.data.sets.map(item => {
-          return {
-            title: item.title
-          }
-        })
+        this.contents[index].titleSet.sets = response.data.sets
       }).finally(() => {
         this.isLoading = false
       });
@@ -1203,19 +1199,7 @@ export default {
     loadImageSets(index) {
       this.isLoading = true
       return axios.get(`/creatives/image-sets/${this.contents[index].imageSet.id}`).then(response => {
-        this.contents[index].imageSet.sets = response.data.sets.map(item => {
-          let hqImage = ''
-
-          if (item.optimiser == 0) {
-            hqImage = process.env.MIX_APP_URL + '/storage/images/' + item.hq_1200x627_image
-          } else {
-            hqImage = process.env.MIX_APP_URL + '/storage/images/creatives/1200x627/' + item.hq_image
-          }
-          return {
-            imageUrlHQ: hqImage,
-            imageUrl: process.env.MIX_APP_URL + '/storage/images/' + item.image,
-          }
-        })
+        this.contents[index].imageSet.sets = response.data.sets
       }).finally(() => {
         this.isLoading = false
       });
@@ -1223,13 +1207,7 @@ export default {
     loadVideoSets(index) {
       this.isLoading = true
       return axios.get(`/creatives/video-sets/${this.contents[index].videoSet.id}`).then(response => {
-        this.contents[index].videoSet.sets = response.data.sets.map(item => {
-          return {
-            videoPrimaryUrl: item.video,
-            videoPortraitUrl: item.video,
-            imagePortraitUrl: item.portrait_image,
-          }
-        })
+        this.contents[index].videoSet.sets = response.data.sets
       }).finally(() => {
         this.isLoading = false
       });
@@ -1253,13 +1231,13 @@ export default {
 
       let titles = [], description = ''
 
-      if (!firstLoad && this.contents[index].titleSet.id) {
+      if (this.contents[index].titleSet.id) {
         titles = this.contents[index].titleSet.sets
       } else {
         titles = this.contents[index].titles
       }
 
-      if (!firstLoad && this.contents[index].descriptionSet.id) {
+      if (this.contents[index].descriptionSet.id) {
         description = this.contents[index].descriptionSet.sets[0].description
       } else {
         description = this.contents[index].description
@@ -1268,7 +1246,7 @@ export default {
       if (this.contents[index].adType == 'IMAGE') {
         let images = []
 
-        if (!firstLoad && this.contents[index].imageSet.id) {
+        if (this.contents[index].imageSet.id) {
           images = this.contents[index].imageSet.sets
         } else {
           images = this.contents[index].images
@@ -1283,8 +1261,8 @@ export default {
               description: description,
               sponsoredBy: this.contents[index].brandname,
               adType: this.contents[index].adType,
-              imageUrlHQ: images[y].imageUrlHQ,
-              imageUrl: images[y].imageUrl,
+              imageUrlHQ: this.contents[index].imageSet.id ? process.env.MIX_APP_URL + (images[y].optimiser == 0 ? '/storage/images/' + images[y].hq_1200x627_image : '/storage/images/creatives/1200x627/' + images[y].hq_image) : images[y].imageUrlHQ,
+              imageUrl: this.contents[index].imageSet.id ? process.env.MIX_APP_URL + '/storage/images/' + images[y].image : images[y].imageUrl,
               campaignObjective: this.campaignObjective,
               campaignLanguage: this.campaignLanguage
             }, {
@@ -1305,7 +1283,7 @@ export default {
       } else {
         let videos = []
 
-        if (!firstLoad && this.contents[index].videoSet.id) {
+        if (this.contents[index].videoSet.id) {
           videos = this.contents[index].videoSet.sets
         } else {
           videos = this.contents[index].videos
@@ -1322,7 +1300,7 @@ export default {
               adType: this.contents[index].adType,
               videoPrimaryUrl: videos[y].videoPrimaryUrl,
               videoPortraitUrl: videos[y].videoPortraitUrl,
-              imagePortraitUrl: videos[y].imagePortraitUrl,
+              imagePortraitUrl: this.contents[index].videoSet.id ? process.env.MIX_APP_URL + '/storage/images/' + videos[y].portrait_image : videos[y].imagePortraitUrl,
               campaignObjective: this.campaignObjective,
               campaignLanguage: this.campaignLanguage
             }, {
