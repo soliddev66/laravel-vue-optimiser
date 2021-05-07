@@ -200,7 +200,6 @@ class Yahoo extends Root implements AdVendorInterface
 
             return $instance;
         } catch (Exception $e) {
-            var_dump($e->getMessage()); exit;
             return [];
         }
     }
