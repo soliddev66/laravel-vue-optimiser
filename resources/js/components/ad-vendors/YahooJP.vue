@@ -388,13 +388,15 @@ export default {
           return false
         }
 
-        for (let j = 0; j < this.contents[i].headlines.length; j++) {
-          if (!this.contents[i].headlines[j].headline) {
-            return false
+        if (!this.contents[i].titleSet.id) {
+          for (let j = 0; j < this.contents[i].headlines.length; j++) {
+            if (!this.contents[i].headlines[j].headline) {
+              return false
+            }
           }
         }
 
-        if (this.contents[i].adType == 'RESPONSIVE_VIDEO_AD') {
+        if (this.contents[i].adType == 'RESPONSIVE_VIDEO_AD' && !this.contents[i].videoSet.id) {
           if (this.contents[i].videos.length == 0) {
             return false
           }
@@ -409,7 +411,7 @@ export default {
           }
         }
 
-        if (this.contents[i].adType == 'RESPONSIVE_IMAGE_AD') {
+        if (this.contents[i].adType == 'RESPONSIVE_IMAGE_AD' && !this.contents[i].imageSet.id) {
           if (this.contents[i].images.length == 0) {
             return false
           }
