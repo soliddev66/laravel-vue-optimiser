@@ -211,6 +211,7 @@ class Yahoojp extends Root implements AdVendorInterface
                             $image_name = $imageCreativeSet ? ($image['optimiser'] == 0 ? $image['hq_1200x628_image'] : $image['hq_image']) : $image['image'];
 
                             $file = $imageCreativeSet ? ($image['optimiser'] == 0 ? (storage_path('app/public/images/') . $image_name) : (storage_path('app/public/images/creatives/1200x628/') . $image_name)) : (storage_path('app/public/images/') . $image_name);
+
                             $data = file_get_contents($file);
                             $ext = explode('.', $image_name);
 
@@ -275,8 +276,7 @@ class Yahoojp extends Root implements AdVendorInterface
                         }
 
                         foreach ($videos as $video) {
-                            $video_name = $imageCreativeSet ? $video['video'] : $video['videoPath'];
-
+                            $video_name = $videoCreativeSet ? $video['video'] : $video['videoPath'];
                             $file = storage_path('app/public/images/') . $video_name;
                             $data = file_get_contents($file);
                             $ext = explode('.', $video_name);
@@ -296,7 +296,7 @@ class Yahoojp extends Root implements AdVendorInterface
                                 throw new Exception(json_encode($media));
                             }
 
-                            $image_name = $imageCreativeSet ? $video['landscape_image'] : $video['videoThumbnailPath'];
+                            $image_name = $videoCreativeSet ? $video['landscape_image'] : $video['videoThumbnailPath'];
                             $file = storage_path('app/public/images/') . $image_name;
                             $data = file_get_contents($file);
                             $ext = explode('.', $image_name);
@@ -394,6 +394,8 @@ class Yahoojp extends Root implements AdVendorInterface
     private function saveAd($ad_data, $campaign_id, $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet)
     {
         foreach ($ad_data as $ad) {
+            $ad = $ad['adGroupAd'];
+
             $db_ad = Ad::firstOrNew([
                 'ad_id' => $ad['adId'],
                 'user_id' => auth()->id(),
