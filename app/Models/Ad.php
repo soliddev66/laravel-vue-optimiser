@@ -19,13 +19,20 @@ class Ad extends Model
         'ad_group_id',
         'open_id',
         'video',
-        'image',
+        'name',
         'description',
-        'synced'
+        'synced',
+        'status',
+        'image'
     ];
 
     public function redtrackContentStats()
     {
         return $this->hasMany(RedtrackContentStat::class, 'sub5', 'ad_id');
+    }
+
+    public function creativeSets()
+    {
+        return $this->belongsToMany(CreativeSet::class, 'ad_creative_sets');
     }
 }

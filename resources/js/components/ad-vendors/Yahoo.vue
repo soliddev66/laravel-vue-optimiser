@@ -342,7 +342,7 @@
                             </div>
                             <div class="col-sm-4">
                               <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle); loadPreviewEvent($event, index)" v-if="indexTitle > 0" :disabled="content.titleSet.id"><i class="fa fa-minus"></i></button>
-                              <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length" :disabled="content.titleSet.id"><i class="fa fa-plus"></i></button>
+                              <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length" :disabled="content.id || content.titleSet.id"><i class="fa fa-plus"></i></button>
                               <button type="button" class="btn btn-primary" v-if="indexTitle == 0" @click="loadCreativeSet('title', index)"><i class="far fa-folder-open"></i></button>
                             </div>
                           </div>
@@ -432,7 +432,7 @@
                             <span v-if="content.imageSet.id" class="selected-set">{{ content.imageSet.name }}<span class="close" @click="removeImageSet(index)"><i class="fas fa-times"></i></span></span>
                           </div>
                         </div>
-                        <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)" :disabled="content.imageSet.id">Add Image</button>
+                        <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)" :disabled="content.id || content.imageSet.id">Add Image</button>
                         <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
                       </div>
 
@@ -470,7 +470,7 @@
                             <span v-if="content.videoSet.id" class="selected-set">{{ content.videoSet.name }}<span class="close" @click="removeVideoSet(index)"><i class="fas fa-times"></i></span></span>
                           </div>
                         </div>
-                        <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)" :disabled="content.videoSet.id">Add Video</button>
+                        <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)" :disabled="content.id || content.videoSet.id">Add Video</button>
                         <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('video', index)">Load from Sets</button>
                       </div>
                     </div>
@@ -614,7 +614,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 2
+      default: 1
     }
   },
   components: {
@@ -641,23 +641,27 @@ export default {
     },
     submitStep2State() {
       for (let i = 0; i < this.contents.length; i++) {
-        if (!this.contents[i].brandname || !this.contents[i].description || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl) || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)) {
+        if (!this.contents[i].brandname || (!this.contents[i].description && !this.contents[i].descriptionSet.id) || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl) || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl)) {
           return false
         }
 
-        for (let j = 0; j < this.contents[i].titles.length; j++) {
-          if (!this.contents[i].titles[j].title) {
-            return false
+        if (!this.contents[i].titleSet.id) {
+          for (let j = 0; j < this.contents[i].titles.length; j++) {
+            if (!this.contents[i].titles[j].title) {
+              return false
+            }
           }
         }
 
-        if (this.contents[i].adType == 'IMAGE') {
+        if (this.contents[i].adType == 'IMAGE' && !this.contents[i].imageSet.id) {
           for (let j = 0; j < this.contents[i].images.length; j++) {
             if (!this.contents[i].images[j].imageUrlHQ || !this.validURL(this.contents[i].images[j].imageUrlHQ) || !this.contents[i].images[j].imageUrl || !this.validURL(this.contents[i].images[j].imageUrl) || !this.contents[i].images[j].imageUrlHQState || !this.contents[i].images[j].imageUrlState) {
               return false
             }
           }
-        } else {
+        }
+
+        if (this.contents[i].adType == 'VIDEO' && !this.contents[i].videoSet.id) {
           for (let j = 0; j < this.contents[i].videos.length; j++) {
             if (['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'].includes(this.campaignObjective) && !this.contents[i].videos[j].videoPrimaryUrl) {
               return false
@@ -767,8 +771,8 @@ export default {
         }],
         displayUrl: '',
         targetUrl: '',
-        description: '',
         descriptionSet: '',
+        description: '',
         brandname: '',
         imageSet: '',
         images: [{
@@ -880,7 +884,7 @@ export default {
         contents.push({
           id: this.instance.ads[i]['id'],
           adType: this.instance.ads[i]['videoPrimaryUrl'] || this.instance.ads[i]['imagePortraitUrl'] ? 'VIDEO': 'IMAGE',
-          titleSet: '',
+          titleSet: this.instance.ads[i]['titleSet'] || '',
           titles: [{
             title: this.instance.ads[i]['title'],
             existing: true
@@ -888,9 +892,9 @@ export default {
           displayUrl: this.instance.ads[i]['displayUrl'],
           targetUrl: this.instance.ads[i]['landingUrl'],
           description: this.instance.ads[i]['description'],
-          descriptionSet: '',
+          descriptionSet:  this.instance.ads[i]['descriptionSet'] || '',
           brandname: this.instance.ads[i]['sponsoredBy'],
-          imageSet: '',
+          imageSet:  this.instance.ads[i]['imageSet'] || '',
           images: [{
             imageUrlHQ: this.instance.ads[i]['imageUrlHQ'],
             imageUrlHQState: true,
@@ -898,7 +902,7 @@ export default {
             imageUrlState: true,
             existing: true
           }],
-          videoSet: '',
+          videoSet:  this.instance.ads[i]['videoSet'] || '',
           videos: [{
             videoPrimaryUrl: this.instance.ads[i]['videoPrimaryUrl'],
             videoPortraitUrl: this.instance.ads[i]['videoPortraitUrl'],
@@ -1046,9 +1050,15 @@ export default {
       }
       if (this.setType == 'video') {
         this.contents[this.adSelectorIndex].videoSet = set
+        this.loadVideoSets(this.adSelectorIndex).then(() => {
+          this.loadPreview(this.adSelectorIndex)
+        })
       }
       if (this.setType == 'description') {
         this.contents[this.adSelectorIndex].descriptionSet = set
+        this.loadDescriptionSets(this.adSelectorIndex).then(() => {
+          this.loadPreview(this.adSelectorIndex)
+        })
       }
 
       $('#creative-set-modal').modal('hide')
@@ -1077,8 +1087,8 @@ export default {
         }],
         displayUrl: '',
         targetUrl: '',
-        description: '',
         descriptionSet: '',
+        description: '',
         brandname: '',
         imageSet: '',
         images: [{
@@ -1181,11 +1191,7 @@ export default {
     loadTitleSets(index) {
       this.isLoading = true
       return axios.get(`/creatives/title-sets/${this.contents[index].titleSet.id}`).then(response => {
-        this.contents[index].titleSet.sets = response.data.sets.map(item => {
-          return {
-            title: item.title
-          }
-        })
+        this.contents[index].titleSet.sets = response.data.sets
       }).finally(() => {
         this.isLoading = false
       });
@@ -1193,19 +1199,23 @@ export default {
     loadImageSets(index) {
       this.isLoading = true
       return axios.get(`/creatives/image-sets/${this.contents[index].imageSet.id}`).then(response => {
-        this.contents[index].imageSet.sets = response.data.sets.map(item => {
-          let hqImage = ''
-
-          if (item.optimiser == 0) {
-            hqImage = process.env.MIX_APP_URL + '/storage/images/' + item.hq_1200x627_image
-          } else {
-            hqImage = process.env.MIX_APP_URL + '/storage/images/creatives/1200x627/' + item.hq_image
-          }
-          return {
-            imageUrlHQ: hqImage,
-            imageUrl: process.env.MIX_APP_URL + '/storage/images/' + item.image,
-          }
-        })
+        this.contents[index].imageSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+    loadVideoSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/video-sets/${this.contents[index].videoSet.id}`).then(response => {
+        this.contents[index].videoSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+    loadDescriptionSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/description-sets/${this.contents[index].descriptionSet.id}`).then(response => {
+        this.contents[index].descriptionSet.sets = response.data.sets
       }).finally(() => {
         this.isLoading = false
       });
@@ -1219,49 +1229,94 @@ export default {
       this.isLoading = true
       this.contents[index].adPreviews = [];
 
-      let contents = [], images = []
+      let titles = [], description = ''
 
       if (this.contents[index].titleSet.id) {
-        contents = this.contents[index].titleSet.sets
+        titles = this.contents[index].titleSet.sets
       } else {
-        contents = this.contents[index].titles
+        titles = this.contents[index].titles
       }
 
-      if (this.contents[index].imageSet.id) {
-        images = this.contents[index].imageSet.sets
+      if (this.contents[index].descriptionSet.id) {
+        description = this.contents[index].descriptionSet.sets[0].description
       } else {
-        images = this.contents[index].images
+        description = this.contents[index].description
       }
 
-      for (let i = 0; i < contents.length; i++) {
-        for (let y = 0; y < images.length; y++) {
-          axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
-            title: contents[i].title,
-            displayUrl: this.contents[index].displayUrl,
-            landingUrl: this.contents[index].targetUrl,
-            description: this.contents[index].description,
-            sponsoredBy: this.contents[index].brandname,
-            adType: this.contents[index].adType,
-            imageUrlHQ: images[y].imageUrlHQ,
-            imageUrl: images[y].imageUrl,
-            videoPrimaryUrl: this.contents[index].videos[y].videoPrimaryUrl,
-            videoPortraitUrl: this.contents[index].videos[y].videoPortraitUrl,
-            imagePortraitUrl: this.contents[index].videos[y].imagePortraitUrl,
-            campaignObjective: this.campaignObjective,
-            campaignLanguage: this.campaignLanguage
-          }, {
-            cancelToken: new axios.CancelToken(function executor(c) {
-              adPreviewCancels.push(c);
+      if (this.contents[index].adType == 'IMAGE') {
+        let images = []
+
+        if (this.contents[index].imageSet.id) {
+          images = this.contents[index].imageSet.sets
+        } else {
+          images = this.contents[index].images
+        }
+
+        for (let i = 0; i < titles.length; i++) {
+          for (let y = 0; y < images.length; y++) {
+            axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
+              title: titles[i].title,
+              adType: this.contents[index].adType,
+              displayUrl: this.contents[index].displayUrl,
+              landingUrl: this.contents[index].targetUrl,
+              description: description,
+              sponsoredBy: this.contents[index].brandname,
+              imageUrlHQ: this.contents[index].imageSet.id ? process.env.MIX_APP_URL + (images[y].optimiser == 0 ? '/storage/images/' + images[y].hq_1200x627_image : '/storage/images/creatives/1200x627/' + images[y].hq_image) : images[y].imageUrlHQ,
+              imageUrl: this.contents[index].imageSet.id ? process.env.MIX_APP_URL + '/storage/images/' + images[y].image : images[y].imageUrl,
+              campaignObjective: this.campaignObjective,
+              campaignLanguage: this.campaignLanguage
+            }, {
+              cancelToken: new axios.CancelToken(function executor(c) {
+                adPreviewCancels.push(c);
+              })
+            }).then(response => {
+              this.contents[index].adPreviews.push({
+                data: response.data.replace('height="800"', 'height="450"').replace('width="400"', 'width="100%"')
+              })
+            }).catch(err => {
+              console.log(err)
+            }).finally(() => {
+              this.isLoading = false
             })
-          }).then(response => {
-            this.contents[index].adPreviews.push({
-              data: response.data.replace('height="800"', 'height="450"').replace('width="400"', 'width="100%"')
+          }
+        }
+      } else {
+        let videos = []
+
+        if (this.contents[index].videoSet.id) {
+          videos = this.contents[index].videoSet.sets
+        } else {
+          videos = this.contents[index].videos
+        }
+
+        for (let i = 0; i < titles.length; i++) {
+          for (let y = 0; y < videos.length; y++) {
+            axios.post(`/general/preview?provider=${this.selectedProvider}&account=${this.selectedAccount}`, {
+              title: titles[i].title,
+              adType: this.contents[index].adType,
+              displayUrl: this.contents[index].displayUrl,
+              landingUrl: this.contents[index].targetUrl,
+              description: description,
+              sponsoredBy: this.contents[index].brandname,
+              videoPrimaryUrl: videos[y].videoPrimaryUrl,
+              videoPortraitUrl: videos[y].videoPortraitUrl,
+              imagePortraitUrl: this.contents[index].videoSet.id ? process.env.MIX_APP_URL + '/storage/images/' + videos[y].portrait_image : videos[y].imagePortraitUrl,
+              campaignObjective: this.campaignObjective,
+              campaignLanguage: this.campaignLanguage
+            }, {
+              cancelToken: new axios.CancelToken(function executor(c) {
+                adPreviewCancels.push(c);
+              })
+            }).then(response => {
+              this.contents[index].adPreviews.push({
+                data: response.data.replace('height="800"', 'height="450"').replace('width="400"', 'width="100%"')
+              })
+            }).catch(err => {
+              console.log(err)
+            }).finally(() => {
+              this.isLoading = false
             })
-          }).catch(err => {
-            console.log(err)
-          }).finally(() => {
-            this.isLoading = false
-          })
+          }
         }
       }
     },
@@ -1513,17 +1568,18 @@ export default {
         if (this.contents[i].titleSet.id) {
           delete this.contents[i].titleSet.sets
         }
-        if (this.contents[i].videoSet.id) {
-          delete this.contents[i].videoSet.sets
+        if (this.contents[i].imageSet.id) {
+          delete this.contents[i].imageSet.sets
         }
         if (this.contents[i].videoSet.id) {
           delete this.contents[i].videoSet.sets
         }
+        if (this.contents[i].descriptionSet.id) {
+          delete this.contents[i].descriptionSet.sets
+        }
+
+        delete this.contents[i].adPreviews
       }
-
-      console.log(this.contents)
-
-      return;
 
       if (this.action == 'edit') {
         url += '/update/' + this.instance.instance_id;

@@ -248,6 +248,20 @@ class CreativeController extends Controller
         ]);
     }
 
+    public function videoSets(CreativeSet $creativeSet)
+    {
+        return response()->json([
+            'sets' => $creativeSet->videoSets
+        ]);
+    }
+
+    public function descriptionSets(CreativeSet $creativeSet)
+    {
+        return response()->json([
+            'sets' => $creativeSet->descriptionSets
+        ]);
+    }
+
     public function delete(CreativeSet $creativeSet)
     {
         if (Gate::denies('modifiable', $creativeSet)) {
