@@ -68,13 +68,13 @@ class CreativeController extends Controller
                         $imageManager = new ImageManager();
 
                         $resized = $imageManager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(800, 800);
-                        $resized->save(storage_path('app/public/images/creatives/800x800/') . $set['hqImage']);
+                        $resized->save(storage_path('app/public/images/creatives/800x800/') . $set['hqImage'], 100);
 
                         $resized = $imageManager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(1200, 627);
-                        $resized->save(storage_path('app/public/images/creatives/1200x627/') . $set['hqImage']);
+                        $resized->save(storage_path('app/public/images/creatives/1200x627/') . $set['hqImage'], 100);
 
                         $resized = $imageManager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(1200, 628);
-                        $resized->save(storage_path('app/public/images/creatives/1200x628/') . $set['hqImage']);
+                        $resized->save(storage_path('app/public/images/creatives/1200x628/') . $set['hqImage'], 100);
                     } else {
                         $source = \Tinify\fromFile(storage_path('app/public/images/') . $set['hqImage']);
 
@@ -185,7 +185,22 @@ class CreativeController extends Controller
         $creativeSet->name = $data['creativeSetName'];
         $creativeSet->save();
 
-        $creativeSet->deleteRelations();
+        switch ($creativeSet->type) {
+            case 1:
+                $creativeSet->imageSets()->delete();
+                break;
+            case 2:
+                $creativeSet->videoSets()->delete();
+                break;
+            case 3:
+                $creativeSet->titleSets()->delete();
+                break;
+            case 4:
+                $creativeSet->descriptionSets()->delete();
+                break;
+        }
+
+        $creativeSet->creativeSetSets()->delete();
 
         $this->storeCreativeSets($creativeSet, $data);
 
@@ -273,7 +288,11 @@ class CreativeController extends Controller
         DB::beginTransaction();
 
         try {
-            $creativeSet->deleteRelations();
+            $creativeSet->imageSets()->delete();
+            $creativeSet->videoSets()->delete();
+            $creativeSet->titleSets()->delete();
+            $creativeSet->descriptionSets()->delete();
+            $creativeSet->creativeSetSets()->delete();
             $creativeSet->delete();
 
             DB::commit();
