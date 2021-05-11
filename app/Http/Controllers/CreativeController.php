@@ -52,16 +52,25 @@ class CreativeController extends Controller
                 if ($set['optimiser']) {
                     $imageSet->hq_image = $set['hqImage'];
 
-                    if (!Storage::disk('images')->exists('creatives/800x800/' . md5(auth()->id()))) {
-                        Storage::disk('images')->makeDirectory('creatives/800x800/' . md5(auth()->id()));
+                    $directory = explode('/', $set['hqImage']);
+                    array_pop($directory);
+
+                    if (count($directory) > 0) {
+                        $directory = implode('/', $directory);
+                    } else {
+                        $directory = '';
                     }
 
-                    if (!Storage::disk('images')->exists('creatives/1200x627/' . md5(auth()->id()))) {
-                        Storage::disk('images')->makeDirectory('creatives/1200x627/' . md5(auth()->id()));
+                    if (!Storage::disk('images')->exists('creatives/800x800/' . $directory)) {
+                        Storage::disk('images')->makeDirectory('creatives/800x800/' . $directory);
                     }
 
-                    if (!Storage::disk('images')->exists('creatives/1200x628/' . md5(auth()->id()))) {
-                        Storage::disk('images')->makeDirectory('creatives/1200x628/' . md5(auth()->id()));
+                    if (!Storage::disk('images')->exists('creatives/1200x627/' . $directory)) {
+                        Storage::disk('images')->makeDirectory('creatives/1200x627/' . $directory);
+                    }
+
+                    if (!Storage::disk('images')->exists('creatives/1200x628/' . $directory)) {
+                        Storage::disk('images')->makeDirectory('creatives/1200x628/' . $directory);
                     }
 
                     if ($set['optimiser'] == 1) {
