@@ -116,7 +116,6 @@ class Yahoojp extends Root implements AdVendorInterface
     {
         $api = $this->api();
 
-        try {
             $campaign_data = $api->createCampaign();
 
             $errors = $this->getErrors($campaign_data);
@@ -275,6 +274,8 @@ class Yahoojp extends Root implements AdVendorInterface
                             $videos = $content['videos'];
                         }
 
+                        file_put_contents('aaa', json_encode($videos));
+
                         foreach ($videos as $video) {
                             $video_name = $videoCreativeSet ? $video['video'] : $video['videoPath'];
                             $file = storage_path('app/public/images/') . $video_name;
@@ -384,11 +385,6 @@ class Yahoojp extends Root implements AdVendorInterface
             Helper::pullCampaign();
 
             return [];
-        } catch (Exception $e) {
-            return [
-                'errors' => [$e->getMessage()]
-            ];
-        }
     }
 
     private function saveAd($ad_data, $campaign_id, $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet)

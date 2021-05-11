@@ -68,13 +68,13 @@ class CreativeController extends Controller
                         $imageManager = new ImageManager();
 
                         $resized = $imageManager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(800, 800);
-                        $resized->save(storage_path('app/public/images/creatives/800x800/') . $set['hqImage']);
+                        $resized->save(storage_path('app/public/images/creatives/800x800/') . $set['hqImage'], 100);
 
                         $resized = $imageManager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(1200, 627);
-                        $resized->save(storage_path('app/public/images/creatives/1200x627/') . $set['hqImage']);
+                        $resized->save(storage_path('app/public/images/creatives/1200x627/') . $set['hqImage'], 100);
 
                         $resized = $imageManager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(1200, 628);
-                        $resized->save(storage_path('app/public/images/creatives/1200x628/') . $set['hqImage']);
+                        $resized->save(storage_path('app/public/images/creatives/1200x628/') . $set['hqImage'], 100);
                     } else {
                         $source = \Tinify\fromFile(storage_path('app/public/images/') . $set['hqImage']);
 
