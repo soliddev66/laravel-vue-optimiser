@@ -185,7 +185,22 @@ class CreativeController extends Controller
         $creativeSet->name = $data['creativeSetName'];
         $creativeSet->save();
 
-        $creativeSet->deleteRelations();
+        switch ($creativeSet->type) {
+            case 1:
+                $creativeSet->imageSets()->delete();
+                break;
+            case 2:
+                $creativeSet->videoSets()->delete();
+                break;
+            case 3:
+                $creativeSet->titleSets()->delete();
+                break;
+            case 4:
+                $creativeSet->descriptionSets()->delete();
+                break;
+
+            $creativeSet->creativeSetSets()->delete();
+        }
 
         $this->storeCreativeSets($creativeSet, $data);
 
@@ -273,7 +288,11 @@ class CreativeController extends Controller
         DB::beginTransaction();
 
         try {
-            $creativeSet->deleteRelations();
+            $creativeSet->imageSets()->delete();
+            $creativeSet->videoSets()->delete();
+            $creativeSet->titleSets()->delete();
+            $creativeSet->descriptionSets()->delete();
+            $creativeSet->creativeSetSets()->delete();
             $creativeSet->delete();
 
             DB::commit();

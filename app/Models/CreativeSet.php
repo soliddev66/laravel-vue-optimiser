@@ -11,35 +11,26 @@ class CreativeSet extends Model
 
     public function imageSets()
     {
-        return $this->belongsToMany('App\Models\ImageSet', 'creative_set_sets', 'creative_set_id', 'set_id');
+        return $this->belongsToMany(ImageSet::class, 'creative_set_sets', 'creative_set_id', 'set_id');
     }
 
     public function videoSets()
     {
-        return $this->belongsToMany('App\Models\VideoSet', 'creative_set_sets', 'creative_set_id', 'set_id');
+        return $this->belongsToMany(VideoSet::class, 'creative_set_sets', 'creative_set_id', 'set_id');
     }
 
     public function titleSets()
     {
-        return $this->belongsToMany('App\Models\TitleSet', 'creative_set_sets', 'creative_set_id', 'set_id');
+        return $this->belongsToMany(TitleSet::class, 'creative_set_sets', 'creative_set_id', 'set_id');
     }
 
     public function descriptionSets()
     {
-        return $this->belongsToMany('App\Models\DescriptionSet', 'creative_set_sets', 'creative_set_id', 'set_id');
+        return $this->belongsToMany(DescriptionSet::class, 'creative_set_sets', 'creative_set_id', 'set_id');
     }
 
     public function creativeSetSets()
     {
-        return $this->hasMany('App\Models\CreativeSetSet');
-    }
-
-    public function deleteRelations()
-    {
-        $this->imageSets()->delete();
-        $this->videoSets()->delete();
-        $this->titleSets()->delete();
-        $this->descriptionSets()->delete();
-        $this->creativeSetSets()->delete();
+        return $this->hasMany(CreativeSetSet::class);
     }
 }
