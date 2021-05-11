@@ -198,9 +198,9 @@ class CreativeController extends Controller
             case 4:
                 $creativeSet->descriptionSets()->delete();
                 break;
-
-            $creativeSet->creativeSetSets()->delete();
         }
+
+        $creativeSet->creativeSetSets()->delete();
 
         $this->storeCreativeSets($creativeSet, $data);
 
