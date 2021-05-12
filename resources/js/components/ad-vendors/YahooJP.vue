@@ -739,18 +739,63 @@ export default {
     selectCreativeSet(set) {
       if (this.setType == 'title') {
         this.contents[this.adSelectorIndex].titleSet = set
+        this.loadTitleSets(this.adSelectorIndex).then(() => {
+          this.contents[this.adSelectorIndex].headlines = this.contents[this.adSelectorIndex].titleSet.sets.map(item => {
+            return {
+              headline: item.title
+            }
+          })
+        })
       }
       if (this.setType == 'image') {
         this.contents[this.adSelectorIndex].imageSet = set
+        this.loadImageSets(this.adSelectorIndex).then(() => {
+          this.contents[this.adSelectorIndex].images = this.contents[this.adSelectorIndex].imageSet.sets.map(item => {
+            return {
+              url: process.env.MIX_APP_URL + (item.optimiser == 0 ? '/storage/images/' + item.hq_1200x628_image : '/storage/images/creatives/1200x628/' + item.hq_image)
+            }
+          })
+        })
       }
       if (this.setType == 'video') {
         this.contents[this.adSelectorIndex].videoSet = set
+        this.loadVideoSets(this.adSelectorIndex).then(() => {
+          this.contents[this.adSelectorIndex].videos = this.contents[this.adSelectorIndex].videoSet.sets.map(item => {
+            return {
+              videoThumbnailUrl: process.env.MIX_APP_URL + '/storage/images/' + item.portrait_image
+            }
+          })
+        })
       }
       if (this.setType == 'description') {
         this.contents[this.adSelectorIndex].descriptionSet = set
       }
 
       $('#creative-set-modal').modal('hide')
+    },
+    loadTitleSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/title-sets/${this.contents[index].titleSet.id}`).then(response => {
+        this.contents[index].titleSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+    loadImageSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/image-sets/${this.contents[index].imageSet.id}`).then(response => {
+        this.contents[index].imageSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+    loadVideoSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/video-sets/${this.contents[index].videoSet.id}`).then(response => {
+        this.contents[index].videoSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
     },
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
