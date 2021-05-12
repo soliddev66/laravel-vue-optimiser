@@ -916,6 +916,13 @@ class Yahoojp extends Root implements AdVendorInterface
                         'accountId' => request('selectedAdvertiser'),
                         'operand' => $ads
                     ]);
+
+                    $errors = $this->getErrors($ad_data);
+
+                    if (count($errors)) {
+                        throw new Exception(json_encode($errors));
+                    }
+
                     $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
                 }
 
@@ -924,6 +931,12 @@ class Yahoojp extends Root implements AdVendorInterface
                         'accountId' => request('selectedAdvertiser'),
                         'operand' => $update_ads
                     ]);
+
+                    $errors = $this->getErrors($ad_data);
+
+                    if (count($errors)) {
+                        throw new Exception(json_encode($errors));
+                    }
 
                     $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
                 }
