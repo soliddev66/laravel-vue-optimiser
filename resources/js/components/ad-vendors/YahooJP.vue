@@ -526,18 +526,22 @@ export default {
         contents.push({
           id: this.instance.ads[i]['adGroupAd']['adId'],
           adType: adType,
+          titleSet: this.instance.ads[i]['titleSet'] || '',
           headlines: [{
             headline: this.instance.ads[i]['adGroupAd']['ad'][adKey]['headline'],
             existing: true
           }],
           displayUrl: this.instance.ads[i]['adGroupAd']['ad'][adKey]['displayUrl'],
           targetUrl: this.instance.ads[i]['adGroupAd']['ad'][adKey]['url'],
+          descriptionSet:  this.instance.ads[i]['descriptionSet'] || '',
           description: this.instance.ads[i]['adGroupAd']['ad'][adKey]['description'],
           principal: this.instance.ads[i]['adGroupAd']['ad'][adKey]['principal'],
+          imageSet:  this.instance.ads[i]['imageSet'] || '',
           images: [{
             mediaId: this.instance.ads[i]['adGroupAd']['mediaId'],
             existing: true
           }],
+          videoSet:  this.instance.ads[i]['videoSet'] || '',
           videos: [{
             mediaId: this.instance.ads[i]['adGroupAd']['mediaId'],
             videoPath: this.instance.ads[i]['adGroupAd']['mediaId'],

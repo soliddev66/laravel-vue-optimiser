@@ -99,6 +99,39 @@ class Yahoojp extends Root implements AdVendorInterface
             if (count($instance['adGroups']) > 0) {
                 $instance['ads'] = $api->getAds([$instance['adGroups'][0]['adGroup']['adGroupId']], $campaign->advertiser_id)['rval']['values'];
                 $instance['attributes'] = $api->getTargets($campaign->advertiser_id, [$instance['adGroups'][0]['adGroup']['adGroupId']], $campaign->campaign_id)['rval']['values'];
+
+                foreach ($instance['ads'] as &$ad) {
+                    $db_ad = Ad::where('ad_id', $ad['adGroupAd']['adId'])->first();
+
+                    if ($db_ad) {
+                        $imageSet = $db_ad->creativeSets()->where('type', 1)->first();
+                        if ($imageSet) {
+                            $imageSet->existing = true;
+                            $ad['imageSet'] = $imageSet;
+                            $ad['imageSet']['sets'] = $imageSet->imageSets;
+                        }
+
+                        $videoSet = $db_ad->creativeSets()->where('type', 2)->first();
+                        if ($videoSet) {
+                            $videoSet->existing = true;
+                            $ad['videoSet'] = $videoSet;
+                            $ad['videoSet']['sets'] = $videoSet->videoSets;
+                        }
+
+                        $titleSet = $db_ad->creativeSets()->where('type', 3)->first();
+                        if ($titleSet) {
+                            $titleSet->existing = true;
+                            $ad['titleSet'] = $titleSet;
+                            $ad['titleSet']['sets'] = $titleSet->titleSets;
+                        }
+
+                        $descriptionSet = $db_ad->creativeSets()->where('type', 4)->first();
+                        if ($descriptionSet) {
+                            $ad['descriptionSet'] = $descriptionSet;
+                            $ad['descriptionSet']['sets'] = $descriptionSet->descriptionSets;
+                        }
+                    }
+                }
             }
 
             return $instance;
