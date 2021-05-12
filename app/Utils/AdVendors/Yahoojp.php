@@ -106,21 +106,18 @@ class Yahoojp extends Root implements AdVendorInterface
                     if ($db_ad) {
                         $imageSet = $db_ad->creativeSets()->where('type', 1)->first();
                         if ($imageSet) {
-                            $imageSet->existing = true;
                             $ad['imageSet'] = $imageSet;
                             $ad['imageSet']['sets'] = $imageSet->imageSets;
                         }
 
                         $videoSet = $db_ad->creativeSets()->where('type', 2)->first();
                         if ($videoSet) {
-                            $videoSet->existing = true;
                             $ad['videoSet'] = $videoSet;
                             $ad['videoSet']['sets'] = $videoSet->videoSets;
                         }
 
                         $titleSet = $db_ad->creativeSets()->where('type', 3)->first();
                         if ($titleSet) {
-                            $titleSet->existing = true;
                             $ad['titleSet'] = $titleSet;
                             $ad['titleSet']['sets'] = $titleSet->titleSets;
                         }
@@ -157,7 +154,6 @@ class Yahoojp extends Root implements AdVendorInterface
             if (count($errors)) {
                 throw new Exception(json_encode($errors));
             }
-
 
             $campaign_data = $campaign_data['rval']['values'][0]['campaign'];
 
@@ -688,7 +684,8 @@ class Yahoojp extends Root implements AdVendorInterface
         $api = $this->api();
 
         try {
-            $campaign_data = $api->updateCampaign($campaign->campaign_id);
+            $campaign_data = $api->updateCampaign($campaign->campaign_id)['rval']['values'][0]['campaign'];
+
             $ad_group_data = $api->updateAdGroup($campaign->campaign_id);
 
             $ad_group_id = $ad_group_data['rval']['values'][0]['adGroup']['adGroupId'];
@@ -698,14 +695,66 @@ class Yahoojp extends Root implements AdVendorInterface
             $update_ads = [];
 
             foreach (request('contents') as $content) {
+                $ads = [];
+                $titles = [];
+
+                $titleCreativeSet = null;
+                $descriptionCreativeSet = null;
+                $imageCreativeSet = null;
+                $videoCreativeSet = null;
+
+                if (isset($content['titleSet']['id'])) {
+                    $titleCreativeSet = CreativeSet::find($content['titleSet']['id']);
+
+                    if ($titleCreativeSet) {
+                        $titles = $titleCreativeSet->titleSets;
+                    } else {
+                        throw('No creative set found.');
+                    }
+                } else {
+                    $titles = $content['headlines'];
+                }
+
+                $description = '';
+
+                if (isset($content['descriptionSet']['id'])) {
+                    $descriptionCreativeSet = CreativeSet::find($content['descriptionSet']['id']);
+
+                    if ($descriptionCreativeSet) {
+                        $description = $descriptionCreativeSet->descriptionSets[0]['description'];
+                    } else {
+                        throw('No creative set found.');
+                    }
+                } else {
+                    $description = $content['description'];
+                }
+
                 if ($content['adType'] == 'RESPONSIVE_IMAGE_AD') {
-                    foreach ($content['images'] as $image) {
-                        if ($image['existing']) {
+                    $imges = [];
+
+                    if (isset($content['imageSet']['id'])) {
+                        $imageCreativeSet = CreativeSet::find($content['imageSet']['id']);
+
+                        if ($imageCreativeSet) {
+                            $images = $imageCreativeSet->imageSets;
+                        } else {
+                            throw('No creative set found.');
+                        }
+                    } else {
+                        $images = $content['images'];
+                    }
+
+                    foreach ($images as $image) {
+                        if (!$imageCreativeSet && $image['existing']) {
                             $media_id = $image['mediaId'];
                         } else {
-                            $file = storage_path('app/public/images/') . $image['image'];
+                            $image_name = $imageCreativeSet ? ($image['optimiser'] == 0 ? $image['hq_1200x628_image'] : $image['hq_image']) : $image['image'];
+
+                            $file = $imageCreativeSet ? ($image['optimiser'] == 0 ? (storage_path('app/public/images/') . $image_name) : (storage_path('app/public/images/creatives/1200x628/') . $image_name)) : (storage_path('app/public/images/') . $image_name);
+
                             $data = file_get_contents($file);
-                            $ext = explode('.', $image['image']);
+                            $ext = explode('.', $image_name);
+
                             $media = $api->createMedia([
                                 'accountId' => request('selectedAdvertiser'),
                                 'operand' => [[
@@ -713,8 +762,8 @@ class Yahoojp extends Root implements AdVendorInterface
                                     'imageMedia' => [
                                         'data' => base64_encode($data)
                                     ],
-                                    'mediaName' => md5($image['image'] . time()) . '.' . end($ext),
-                                    'mediaTitle' => md5($image['image'] . time()),
+                                    'mediaName' => md5($image_name . time()) . '.' . end($ext),
+                                    'mediaTitle' => md5($image_name . time()),
                                     'userStatus' => 'ACTIVE'
                                 ]]
                             ]);
@@ -730,67 +779,66 @@ class Yahoojp extends Root implements AdVendorInterface
                             }
                         }
 
-                        foreach ($content['headlines'] as $headlines) {
-                            if ($headlines['existing']) {
-                                $update_ads[] = [
-                                    'accountId' => request('selectedAdvertiser'),
-                                    'ad' => [
-                                        'adType' => 'RESPONSIVE_IMAGE_AD',
-                                        'responsiveImageAd' => [
-                                            'buttonText' => 'FOR_MORE_INFO',
-                                            'description' => $content['description'],
-                                            'displayUrl' => $content['displayUrl'],
-                                            'headline' => $headlines['headline'],
-                                            'principal' => $content['principal'],
-                                            'url' => $content['targetUrl']
-                                        ]
-                                    ],
-                                    'adGroupId' => $ad_group_id,
-                                    'campaignId' => $campaign->campaign_id,
-                                    'adId' => $content['id'],
-                                    'adName' => $headlines['headline'],
-                                    'mediaId' => $media_id,
-                                    'userStatus' => request('campaignStatus')
-                                ];
+                        foreach ($titles as $title) {
+                            $ad = [
+                                'accountId' => request('selectedAdvertiser'),
+                                'ad' => [
+                                    'adType' => 'RESPONSIVE_IMAGE_AD',
+                                    'responsiveImageAd' => [
+                                        'buttonText' => 'FOR_MORE_INFO',
+                                        'description' => $description,
+                                        'displayUrl' => $content['displayUrl'],
+                                        'headline' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                        'principal' => $content['principal'],
+                                        'url' => $content['targetUrl']
+                                    ]
+                                ],
+                                'adGroupId' => $ad_group_id,
+                                'campaignId' => $campaign->campaign_id,
+                                'adName' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                'mediaId' => $media_id,
+                                'userStatus' => request('campaignStatus')
+                            ];
+
+                            if (isset($content['id'])) {
+                                $ad['adId'] = $content['id'];
+                                $update_ads[] = $ad;
                             } else {
-                                $ads[] = [
-                                    'accountId' => request('selectedAdvertiser'),
-                                    'ad' => [
-                                        'adType' => 'RESPONSIVE_IMAGE_AD',
-                                        'responsiveImageAd' => [
-                                            'buttonText' => 'FOR_MORE_INFO',
-                                            'description' => $content['description'],
-                                            'displayUrl' => $content['displayUrl'],
-                                            'headline' => $headlines['headline'],
-                                            'principal' => $content['principal'],
-                                            'url' => $content['targetUrl']
-                                        ]
-                                    ],
-                                    'adGroupId' => $ad_group_id,
-                                    'campaignId' => $campaign->campaign_id,
-                                    'adName' => $headlines['headline'],
-                                    'mediaId' => $media_id,
-                                    'userStatus' => request('campaignStatus')
-                                ];
+                                $ads[] = $ad;
                             }
                         }
                     }
                 } else if ($content['adType'] == 'RESPONSIVE_VIDEO_AD') {
-                    foreach ($content['videos'] as $video) {
-                        if ($video['existing']) {
+                    $videos = [];
+
+                    if (isset($content['videoSet']['id'])) {
+                        $videoCreativeSet = CreativeSet::find($content['videoSet']['id']);
+
+                        if ($videoCreativeSet) {
+                            $videos = $videoCreativeSet->videoSets;
+                        } else {
+                            throw('No creative set found.');
+                        }
+                    } else {
+                        $videos = $content['videos'];
+                    }
+
+                    foreach ($videos as $video) {
+                        if (!$videoCreativeSet && $video['existing']) {
                             $media_id = $video['mediaId'];
                             $thumbnail_media_id = $video['videoThumbnailId'];
                         } else {
-                            $file = storage_path('app/public/images/') . $video['videoPath'];
+                            $video_name = $videoCreativeSet ? $video['video'] : $video['videoPath'];
+                            $file = storage_path('app/public/images/') . $video_name;
                             $data = file_get_contents($file);
-                            $ext = explode('.', $video['videoPath']);
+                            $ext = explode('.', $video_name);
 
-                            $file_name = md5($video['videoPath'] . time()) . '.' . end($ext);
+                            $file_name = md5($video_name . time()) . '.' . end($ext);
 
                             $media = $api->uploadVideo([
                                 'accountId' => request('selectedAdvertiser'),
                                 'videoName' => $file_name,
-                                'videoTitle' => md5($video['videoPath'] . time()),
+                                'videoTitle' => md5($video_name . time()),
                                 'userStatus' => 'ACTIVE'
                             ], $file, $file_name);
 
@@ -800,11 +848,12 @@ class Yahoojp extends Root implements AdVendorInterface
                                 throw new Exception(json_encode($media));
                             }
 
-                            $file = storage_path('app/public/images/') . $video['videoThumbnailPath'];
+                            $image_name = $videoCreativeSet ? $video['landscape_image'] : $video['videoThumbnailPath'];
+                            $file = storage_path('app/public/images/') . $image_name;
                             $data = file_get_contents($file);
-                            $ext = explode('.', $video['videoThumbnailPath']);
+                            $ext = explode('.', $image_name);
 
-                            $file_name = md5($video['videoThumbnailPath'] . time()) . '.' . end($ext);
+                            $file_name = md5($image_name . time()) . '.' . end($ext);
 
                             $media = $api->createMedia([
                                 'accountId' => request('selectedAdvertiser'),
@@ -813,8 +862,8 @@ class Yahoojp extends Root implements AdVendorInterface
                                     'imageMedia' => [
                                         'data' => base64_encode($data)
                                     ],
-                                    'mediaName' => md5($video['videoThumbnailPath'] . time()) . '.' . end($ext),
-                                    'mediaTitle' => md5($video['videoThumbnailPath'] . time()),
+                                    'mediaName' => md5($image_name . time()) . '.' . end($ext),
+                                    'mediaTitle' => md5($image_name . time()),
                                     'thumbnailFlg' => 'TRUE',
                                     'userStatus' => 'ACTIVE'
                                 ]]
@@ -831,68 +880,53 @@ class Yahoojp extends Root implements AdVendorInterface
                             }
                         }
 
-                        foreach ($content['headlines'] as $headlines) {
-                            if ($headlines['existing']) {
-                                $update_ads[] = [
-                                    'accountId' => request('selectedAdvertiser'),
-                                    'ad' => [
-                                        'adType' => 'RESPONSIVE_VIDEO_AD',
-                                        'responsiveVideoAd' => [
-                                            'buttonText' => 'FOR_MORE_INFO',
-                                            'description' => $content['description'],
-                                            'displayUrl' => $content['displayUrl'],
-                                            'headline' => $headlines['headline'],
-                                            'principal' => $content['principal'],
-                                            'url' => $content['targetUrl'],
-                                            'thumbnailMediaId' => $thumbnail_media_id
-                                        ]
-                                    ],
-                                    'adGroupId' => $ad_group_id,
-                                    'campaignId' => $campaign->campaign_id,
-                                    'adId' => $content['id'],
-                                    'adName' => $headlines['headline'],
-                                    'mediaId' => $media_id,
-                                    'userStatus' => request('campaignStatus')
-                                ];
+                        foreach ($titles as $title) {
+                            $ad = [
+                                'accountId' => request('selectedAdvertiser'),
+                                'ad' => [
+                                    'adType' => 'RESPONSIVE_VIDEO_AD',
+                                    'responsiveVideoAd' => [
+                                        'buttonText' => 'FOR_MORE_INFO',
+                                        'description' => $description,
+                                        'displayUrl' => $content['displayUrl'],
+                                        'headline' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                        'principal' => $content['principal'],
+                                        'url' => $content['targetUrl'],
+                                        'thumbnailMediaId' => $thumbnail_media_id
+                                    ]
+                                ],
+                                'adGroupId' => $ad_group_id,
+                                'campaignId' => $campaign->campaign_id,
+                                'adName' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                'mediaId' => $media_id,
+                                'userStatus' => request('campaignStatus')
+                            ];
+                            if (isset($content['id'])) {
+                                $ad['adId'] = $content['id'];
+                                $update_ads[] = $ad;
                             } else {
-                                $update_ads[] = [
-                                    'accountId' => request('selectedAdvertiser'),
-                                    'ad' => [
-                                        'adType' => 'RESPONSIVE_VIDEO_AD',
-                                        'responsiveVideoAd' => [
-                                            'buttonText' => 'FOR_MORE_INFO',
-                                            'description' => $content['description'],
-                                            'displayUrl' => $content['displayUrl'],
-                                            'headline' => $headlines['headline'],
-                                            'principal' => $content['principal'],
-                                            'url' => $content['targetUrl'],
-                                            'thumbnailMediaId' => $thumbnail_media_id
-                                        ]
-                                    ],
-                                    'adGroupId' => $ad_group_id,
-                                    'campaignId' => $campaign->campaign_id,
-                                    'adName' => $headlines['headline'],
-                                    'mediaId' => $media_id,
-                                    'userStatus' => request('campaignStatus')
-                                ];
+                                $ads[] = $ad;
                             }
                         }
                     }
                 }
-            }
 
-            if (count($ads)) {
-                $ad_data = $api->createAd([
-                    'accountId' => request('selectedAdvertiser'),
-                    'operand' => $ads
-                ]);
-            }
+                if (count($ads)) {
+                    $ad_data = $api->createAd([
+                        'accountId' => request('selectedAdvertiser'),
+                        'operand' => $ads
+                    ]);
+                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
+                }
 
-            if (count($update_ads)) {
-                $update_ad_data = $api->updateAd([
-                    'accountId' => request('selectedAdvertiser'),
-                    'operand' => $update_ads
-                ]);
+                if (count($update_ads)) {
+                    $ad_data = $api->updateAd([
+                        'accountId' => request('selectedAdvertiser'),
+                        'operand' => $update_ads
+                    ]);
+
+                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
+                }
             }
 
             $target_data = $api->createTargets($campaign->campaign_id, $ad_group_id, true);
