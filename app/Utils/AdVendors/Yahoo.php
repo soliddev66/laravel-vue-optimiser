@@ -170,21 +170,18 @@ class Yahoo extends Root implements AdVendorInterface
                     if ($db_ad) {
                         $imageSet = $db_ad->creativeSets()->where('type', 1)->first();
                         if ($imageSet) {
-                            $imageSet->existing = true;
                             $ad['imageSet'] = $imageSet;
                             $ad['imageSet']['sets'] = $imageSet->imageSets;
                         }
 
                         $videoSet = $db_ad->creativeSets()->where('type', 2)->first();
                         if ($videoSet) {
-                            $videoSet->existing = true;
                             $ad['videoSet'] = $videoSet;
                             $ad['videoSet']['sets'] = $videoSet->videoSets;
                         }
 
                         $titleSet = $db_ad->creativeSets()->where('type', 3)->first();
                         if ($titleSet) {
-                            $titleSet->existing = true;
                             $ad['titleSet'] = $titleSet;
                             $ad['titleSet']['sets'] = $titleSet->titleSets;
                         }
