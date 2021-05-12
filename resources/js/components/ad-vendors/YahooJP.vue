@@ -274,8 +274,39 @@
                     </div>
                     <div class="col-sm-5">
                       <h1>Preview</h1>
-                      <div class="row mb-2" v-for="(preview, indexPreview) in content.adPreviews" :key="indexPreview">
-                        <div class="col" v-html="preview.data"></div>
+                      <div v-if="content.adType == 'RESPONSIVE_IMAGE_AD'">
+                        <section v-for="(title, indexTitle) in content.headlines" :key="indexTitle">
+                          <section v-for="(image, indexImage) in content.images" :key="indexImage">
+                            <div class="row no-gutters mb-2" v-if="image.url">
+                              <div class="col-sm-5" >
+                                <img :src="image.url" class="card-img-top h-100">
+                              </div>
+                              <div class="col-sm-7">
+                                <div class="card-body">
+                                  <h3 class="card-title">{{ title.headline }}</h3>
+                                  <h6 class="card-text mt-5"><i>{{ content.principal }}</i></h6>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </section>
+                      </div>
+                      <div v-if="content.adType == 'RESPONSIVE_VIDEO_AD'">
+                        <section v-for="(title, indexTitle) in content.headlines" :key="indexTitle">
+                          <section v-for="(video, indexVideo) in content.videos" :key="indexVideo">
+                            <div class="row no-gutters mb-2" v-if="video.videoThumbnailUrl">
+                              <div class="col-sm-5" >
+                                <img :src="video.videoThumbnailUrl" class="card-img-top h-100">
+                              </div>
+                              <div class="col-sm-7">
+                                <div class="card-body">
+                                  <h3 class="card-title">{{ title.headline }}</h3>
+                                  <h6 class="card-text mt-5"><i>{{ content.principal }}</i></h6>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </section>
                       </div>
                     </div>
                   </div>
@@ -440,6 +471,7 @@ export default {
         for (let i = 0; i < values.length; i++) {
           this.contents[this.fileSelectorIndex].images.push({
             image: values[i].path,
+            url: process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
             state: this.validDimensions(values[i].width, values[i].height, 1200, 628),
             existing: false
           })
@@ -450,6 +482,7 @@ export default {
         this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoPath = values[0].path
       } else if (this.openingFileSelector === 'videoThumbnailPath') {
         this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoThumbnailPath = values[0].path
+        this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoThumbnailUrl = process.env.MIX_APP_URL + '/storage/images/' + values[0].path
         this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoThumbnailState = this.validDimensions(values[0].width, values[0].height, 640, 360)
       }
       vm.$modal.hide('imageModal')
@@ -495,8 +528,7 @@ export default {
           videoThumbnailPath: '',
           existing: false
         }],
-        imagePath: '',
-        adPreviews: []
+        imagePath: ''
       }];
     if (this.instance) {
       if (this.instance.attributes) {
@@ -550,8 +582,7 @@ export default {
             videoThumbnailState: true,
             existing: true
           }],
-          imagePath: this.instance.ads[i]['adGroupAd']['mediaId'],
-          adPreviews: [],
+          imagePath: this.instance.ads[i]['adGroupAd']['mediaId']
         });
       }
     }
@@ -749,8 +780,7 @@ export default {
           videoThumbnailPath: '',
           existing: false
         }],
-        imagePath: '',
-        adPreviews: []
+        imagePath: ''
       })
     },
     removeContent(index) {
