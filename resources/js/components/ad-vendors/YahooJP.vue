@@ -808,18 +808,22 @@ export default {
       this.contents.push({
         id: '',
         adType: 'RESPONSIVE_IMAGE_AD',
+        titleSet: '',
         headlines: [{
           headline: '',
           existing: false
         }],
         displayUrl: '',
         targetUrl: '',
+        descriptionSet: '',
         description: '',
         principal: '',
+        imageSet: '',
         images: [{
           image: '',
           existing: false
         }],
+        videoSet: '',
         videos: [{
           videoPath: '',
           videoThumbnailPath: '',
