@@ -539,6 +539,7 @@
               <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!campaignNameState || !selectedAdvertiserState || !campaignBudgetState || !adGroupNameState || !bidAmountState">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
+              <button type="button" class="btn btn-primary mr-2" @click.prevent="loadAllPreview" v-if="loadAllPreviewState">Load Preview</button>
               <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!submitStep2State">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 3">
@@ -686,7 +687,15 @@ export default {
       }
 
       return false
+    },
+    loadAllPreviewState() {
+      for (let i = 0; i < this.contents.length; i++) {
+        if (this.contents[i].titles.length > 1 || this.contents[i].images.length > 1 || this.contents[i].videos.length > 1) {
+          return true
+        }
+      }
     }
+
   },
   mounted() {
     console.log('Component mounted.')
@@ -1176,6 +1185,9 @@ export default {
       this.contents[index].descriptionSet = ''
     },
     loadPreviewEvent(event, index) {
+      if (this.contents[index].titles.length > 1 || this.contents[index].images.length > 1 || this.contents[index].videos.length > 1) {
+        return
+      }
       this.loadPreview(index)
     },
     validImageHQSizeEvent(event, index, indexImage) {
@@ -1219,6 +1231,11 @@ export default {
       }).finally(() => {
         this.isLoading = false
       });
+    },
+    loadAllPreview() {
+      for (let i = 0; i < this.contents.length; i++) {
+        this.loadPreview(i, true)
+      }
     },
     loadPreview(index, firstLoad = false) {
       if (!firstLoad && adPreviewCancels.length > 0) {
