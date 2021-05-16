@@ -193,13 +193,12 @@ class ExecuteRule implements ShouldQueue
         $data = [];
         $this->log->data_text['info'] = &$data;
 
-        foreach ($rule->ruleConditionGroups as $rule_condition_group) {
+        $data_items = [];
+        foreach ($rule->ruleConditionGroups as $key => $rule_condition_group) {
             $is_adapt = true;
 
-            $data_items = [];
-
-            $data_items['group'] = $rule_condition_group->id;
-            $data_items['items'] = [];
+            $data_items[$key]['group'] = $rule_condition_group->id;
+            $data_items[$key]['items'] = [];
 
             foreach ($rule_condition_group->ruleConditions as $rule_condition) {
                 $data_item = [];
@@ -227,15 +226,15 @@ class ExecuteRule implements ShouldQueue
                     )
                 ) {
                     $data_item['passed'] = true;
+                    $data_items[$key]['items'][] = $data_item;
                     continue;
                 }
 
                 $is_adapt = false;
                 $data_item['passed'] = false;
+                $data_items[$key]['items'][] = $data_item;
                 break;
             }
-
-            $data_items['items'][] = $data_item;
 
             if ($is_adapt) {
                 $data[] = $data_items;

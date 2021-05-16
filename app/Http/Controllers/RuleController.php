@@ -83,7 +83,7 @@ class RuleController extends Controller
 
     public function logsData(Rule $rule)
     {
-        return new DataTableCollectionResource($rule->logs()->orderBy(request('column'), request('dir'))->paginate(request('length')));
+        return new DataTableCollectionResource($rule->logs()->where('data', 'like', '%' . request('search') . '%')->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
 
     public function edit(Rule $rule)
