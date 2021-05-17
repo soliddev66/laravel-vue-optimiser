@@ -207,7 +207,6 @@ class ExecuteRule implements ShouldQueue
                     )
                 ) {
                     $data_item['passed'] = true;
-
                     $data_items['items'][] = $data_item;
                     continue;
                 }
