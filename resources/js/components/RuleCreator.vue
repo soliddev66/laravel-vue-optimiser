@@ -116,7 +116,7 @@
                         <div class="input-group-prepend">
                           <div class="input-group-text">IF</div>
                         </div>
-                        <select name="rule_condition_type" class="form-control" v-model="condition.rule_condition_type_id">
+                        <select name="rule_condition_type" class="form-control" v-model="condition.rule_condition_type_id" @change="ruleConditionTypeChanged(condition)">
                           <option value="">Select Rule Condition Type</option>
                           <optgroup v-for="ruleConditionTypeGroup in ruleConditionTypeGroups" :label="ruleConditionTypeGroup.name" :key="ruleConditionTypeGroup.id">
                             <option :value="ruleConditionType.id" v-for="ruleConditionType in ruleConditionTypeGroup.options" :key="ruleConditionType.id">{{ ruleConditionType.name }}</option>
@@ -143,7 +143,7 @@
                     <div class="col-sm-3">
                       <div class="input-group">
                         <input type="number" :name="`rule_condition_amount${index}`" class="form-control" v-model="condition.amount" />
-                        <select :name="`rule_condition_unit${index}`" class="form-control" v-model="condition.unit">
+                        <select disabled="disabled" :name="`rule_condition_unit${index}`" class="form-control" v-model="condition.unit">
                           <option value="1">...</option>
                           <option value="2">%</option>
                         </select>
@@ -426,6 +426,13 @@ export default {
     },
     removeAction(index) {
       this.ruleActions.splice(index, 1)
+    },
+    ruleConditionTypeChanged(condition) {
+      if ([7, 8, 10, 15, 21, 22, 24].indexOf(condition.rule_condition_type_id) !== -1) {
+        condition.unit = 2
+      } else {
+        condition.unit = 1
+      }
     },
     saveRule() {
       this.isLoading = true
