@@ -11,6 +11,6 @@ class LandingPageCTR extends Root
         $clicks = ReportData::sum($campaign, $redtrack_data, 'lpClicks', $calculation_type);
         $views = ReportData::sum($campaign, $redtrack_data, 'lpViews', $calculation_type);
 
-        return parent::compare($views ? $clicks / $views : INF, $rule_condition->amount, $rule_condition->operation);
+        return parent::compare($views ? $clicks / $views * 100 : INF, $rule_condition->amount, $rule_condition->operation);
     }
 }
