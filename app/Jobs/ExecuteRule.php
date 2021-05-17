@@ -84,16 +84,10 @@ class ExecuteRule implements ShouldQueue
                                     $this->sendNotify();
                                 }
                             }
-                        } else {
-                            $this->log->passed = false;
-                            $this->log->data_text[$rule->run_type == 1 ? 'visual-effect' : 'effect'] = [
-                                'campaign' => $campaign->name,
-                                'passed' => false
-                            ];
-                        }
 
-                        $this->log->data = json_encode($this->log->data_text);
-                        $this->log->save();
+                            $this->log->data = json_encode($this->log->data_text);
+                            $this->log->save();
+                        }
 
                         break;
 
@@ -126,17 +120,10 @@ class ExecuteRule implements ShouldQueue
                                         $this->sendNotify();
                                     }
                                 }
-                            } else {
-                                $this->log->passed = false;
-                                $this->log->data_text[$rule->run_type == 1 ? 'visual-effect' : 'effect'] = [
-                                    'campaign' => $campaign->name,
-                                    'site' => $data,
-                                    'passed' => false
-                                ];
-                            }
 
-                            $this->log->data = json_encode($this->log->data_text);
-                            $this->log->save();
+                                $this->log->data = json_encode($this->log->data_text);
+                                $this->log->save();
+                            }
                         }
 
                         break;
@@ -169,17 +156,10 @@ class ExecuteRule implements ShouldQueue
                                         $this->sendNotify();
                                     }
                                 }
-                            } else {
-                                $this->log->passed = false;
-                                $this->log->data_text[$rule->run_type == 1 ? 'visual-effect' : 'effect'] = [
-                                    'campaign' => $campaign->name,
-                                    'ad' => $ad,
-                                    'passed' => false
-                                ];
-                            }
 
-                            $this->log->data = json_encode($this->log->data_text);
-                            $this->log->save();
+                                $this->log->data = json_encode($this->log->data_text);
+                                $this->log->save();
+                            }
                         }
 
                         break;
