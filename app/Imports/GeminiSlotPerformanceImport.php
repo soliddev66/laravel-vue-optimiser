@@ -29,6 +29,7 @@ class GeminiSlotPerformanceImport implements ToArray, WithChunkReading, ShouldQu
         if (count($rows) > 0) {
             foreach ($rows as &$row) {
                 $row['spend'] = $row['spend'] * self::CURRENCY_RATE;
+                $row['average_cpc'] = $row['average_cpc'] * self::CURRENCY_RATE;
             }
 
             $resource_importer = new ResourceImporter();
