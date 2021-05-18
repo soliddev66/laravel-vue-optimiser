@@ -30,6 +30,9 @@ class GeminiStructuredSnippetExtensionPerformanceImport implements ToArray, With
             foreach ($rows as &$row) {
                 $row['spend'] = $row['spend'] * self::CURRENCY_RATE;
                 $row['max_bid'] = $row['max_bid'] * self::CURRENCY_RATE;
+                $row['average_cpc'] = $row['average_cpc'] * self::CURRENCY_RATE;
+                $row['average_cost_per_action'] = $row['average_cost_per_action'] * self::CURRENCY_RATE;
+                $row['average_cpm'] = $row['average_cpm'] * self::CURRENCY_RATE;
             }
 
             $resource_importer = new ResourceImporter();

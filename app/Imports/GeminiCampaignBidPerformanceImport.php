@@ -31,6 +31,7 @@ class GeminiCampaignBidPerformanceImport implements ToArray, WithChunkReading, S
                 $row['cost'] = $row['cost'] * self::CURRENCY_RATE;
                 $row['average_bid'] = $row['average_bid'] * self::CURRENCY_RATE;
                 $row['modified_bid'] = $row['modified_bid'] * self::CURRENCY_RATE;
+                $row['average_cpc'] = $row['average_cpc'] * self::CURRENCY_RATE;
             }
 
             $resource_importer = new ResourceImporter();

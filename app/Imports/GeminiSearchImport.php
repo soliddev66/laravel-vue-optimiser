@@ -30,6 +30,7 @@ class GeminiSearchImport implements ToArray, WithChunkReading, ShouldQueue, With
             foreach ($rows as &$row) {
                 $row['spend'] = $row['spend'] * self::CURRENCY_RATE;
                 $row['max_bid'] = $row['max_bid'] * self::CURRENCY_RATE;
+                $row['average_cpc'] = $row['average_cpc'] * self::CURRENCY_RATE;
             }
 
             $resource_importer = new ResourceImporter();

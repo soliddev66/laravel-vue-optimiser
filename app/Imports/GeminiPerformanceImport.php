@@ -32,6 +32,9 @@ class GeminiPerformanceImport implements ToArray, WithChunkReading, ShouldQueue,
                 $row['spend'] = $row['spend'] * self::CURRENCY_RATE;
                 $row['max_bid'] = $row['max_bid'] * self::CURRENCY_RATE;
                 $row['ad_extn_spend'] = $row['ad_extn_spend'] * self::CURRENCY_RATE;
+                $row['average_cpc'] = $row['average_cpc'] * self::CURRENCY_RATE;
+                $row['average_cpm'] = $row['average_cpm'] * self::CURRENCY_RATE;
+                $row['cost_per_video_view'] = $row['cost_per_video_view'] * self::CURRENCY_RATE;
             }
 
             $resource_importer = new ResourceImporter();
