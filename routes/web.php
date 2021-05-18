@@ -36,6 +36,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'general'], function() {
 });
 
 Route::get('/create-campaign', [App\Http\Controllers\CampaignController::class, 'create'])->name('campaigns.createCampaign');
+Route::get('/campaign-vendors', [App\Http\Controllers\CampaignController::class, 'campaignVendors'])->name('campaigns.campaignVendors');
 Route::get('/queue', [App\Http\Controllers\CampaignController::class, 'queue'])->name('campaigns.queue');
 Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/', [App\Http\Controllers\CampaignController::class, 'index'])->name('campaigns.index');

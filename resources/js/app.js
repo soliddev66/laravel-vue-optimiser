@@ -71,6 +71,7 @@ Vue.component('campaigns', require('./components/Campaigns.vue').default);
 Vue.component('rules', require('./components/Rules.vue').default);
 Vue.component('campaign', require('./components/Campaign.vue').default);
 Vue.component('campaign-creator', require('./components/CampaignCreator.vue').default);
+Vue.component('campaign-vendors', require('./components/CampaignVendors.vue').default);
 
 Vue.component('rules', require('./components/Rules.vue').default);
 Vue.component('rule-creator', require('./components/RuleCreator.vue').default);

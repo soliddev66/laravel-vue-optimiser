@@ -550,4 +550,9 @@ class CampaignController extends Controller
 
         return (new $adVendorClass())->unBlockSite($campaign, $domain_id);
     }
+
+    public function campaignVendors()
+    {
+        return view('campaigns.campaignVendors');
+    }
 }
