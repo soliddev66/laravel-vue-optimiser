@@ -30,7 +30,7 @@
         </div>
 
         <div class="d-flex justify-content-end mb-5">
-          <button type="button" class="btn btn-vendor mr-5">Next <i class="fas fa-long-arrow-alt-right"></i></button>
+          <button type="button" class="btn btn-vendor mr-5" :disabled="!submitStep1State">Next <i class="fas fa-long-arrow-alt-right"></i></button>
         </div>
       </div>
     </div>
@@ -61,6 +61,15 @@ export default {
     Select2
   },
   computed: {
+    submitStep1State() {
+      for (let i = 0; i < this.vendors.length; i++) {
+        if (this.vendors[i].selected) {
+          return true
+        }
+      }
+
+      return false
+    },
   },
   mounted() {
     console.log('Component mounted.')
