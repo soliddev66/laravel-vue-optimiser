@@ -18,13 +18,20 @@
                     <div class="form-group row">
                       <label for="title" class="col-sm-4 control-label mt-2">Headline</label>
                       <div class="col-sm-8">
-                        <div class="row mb-2" v-for="(headline, indexHeadline) in content.headlines" :key="indexHeadline">
+                        <div class="row mb-2" v-for="(headline, indexTitle) in content.headlines" :key="indexTitle">
                           <div class="col-sm-8">
-                            <input type="text" name="headline" placeholder="Enter a headline" class="form-control" v-model="headline.headline" />
+                            <input type="text" name="headline" placeholder="Enter a headline" class="form-control" v-model="headline.headline" :disabled="content.titleSet.id" />
                           </div>
                           <div class="col-sm-4">
-                            <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexHeadline)" v-if="indexHeadline > 0"><i class="fa fa-minus"></i></button>
-                            <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexHeadline + 1 == content.headlines.length"><i class="fa fa-plus"></i></button>
+                            <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle)" v-if="indexTitle > 0" :disabled="content.titleSet.id"><i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.headlines.length" :disabled="content.id || content.titleSet.id"><i class="fa fa-plus"></i></button>
+                            <button type="button" class="btn btn-primary" v-if="indexTitle == 0" @click="loadCreativeSet('title', index)"><i class="far fa-folder-open"></i></button>
+                          </div>
+                        </div>
+
+                        <div class="row" v-if="content.titleSet.id">
+                          <div class="col">
+                            <span class="selected-set">{{ content.titleSet.name }}<span class="close" @click="removeTitleSet(index)"><i class="fas fa-times"></i></span></span>
                           </div>
                         </div>
                       </div>
@@ -53,7 +60,13 @@
                     <div class="form-group row">
                       <label for="description" class="col-sm-4 control-label mt-2">Description</label>
                       <div class="col-sm-8">
-                        <textarea class="form-control" rows="3" placeholder="Enter description" v-model="content.description"></textarea>
+                        <textarea class="form-control" rows="3" placeholder="Enter description" v-model="content.description" :disabled="content.descriptionSet.id"></textarea>
+                        <div class="row mt-2">
+                          <div class="col">
+                            <span v-if="content.descriptionSet.id" class="selected-set">{{ content.descriptionSet.name }}<span class="close" @click="removeDescriptionSet(index)"><i class="fas fa-times"></i></span></span>
+                          </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm mt-2" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('description', index)">Load from Sets</button>
                       </div>
                     </div>
                     <div class="form-group row">
@@ -73,13 +86,17 @@
                     <div class="form-group row" v-if="content.adType === 'RESPONSIVE_IMAGE_AD'">
                       <label for="image" class="col-sm-4 control-label mt-2">Images</label>
                       <div class="col-sm-8">
-                        <input type="text" name="image" placeholder="Images" class="form-control" disabled="disabled" v-model="content.imagePath" />
-                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imagePath', index)">Choose Files</button>
+                        <input type="text" name="image" placeholder="Images" class="form-control mb-2" disabled="disabled" v-model="content.imagePath" />
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imagePath', index)" :disabled="content.imageSet.id">Choose Files</button>
+                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
                       </div>
-                      <div class="col-sm-8 offset-sm-4">
+                      <div class="col-sm-8 offset-sm-4" v-if="!content.imageSet.id">
                         <small class="text-danger" v-for="(image, indexImage) in content.images" :key="indexImage">
                           <span class="d-inline-block" v-if="image.image && !image.state">Image {{ image.image }} is invalid. You might need an 1200 x 628 image.</span>
                         </small>
+                      </div>
+                      <div class="col-sm-8 offset-sm-4 mt-2">
+                        <span v-if="content.imageSet.id" class="selected-set">{{ content.imageSet.name }}<span class="close" @click="removeImageSet(index)"><i class="fas fa-times"></i></span></span>
                       </div>
                     </div>
                     <div v-if="content.adType === 'RESPONSIVE_VIDEO_AD'">
@@ -106,14 +123,52 @@
                         </div>
                         <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeVideo(index, videoIndex)" v-if="videoIndex > 0">Remove Video</button>
                       </fieldset>
-                      <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)">Add Video</button>
+
+                      <div class="row mt-2 mb-2">
+                        <div class="col">
+                          <span v-if="content.videoSet.id" class="selected-set">{{ content.videoSet.name }}<span class="close" @click="removeVideoSet(index)"><i class="fas fa-times"></i></span></span>
+                        </div>
+                      </div>
+                      <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)" :disabled="content.id || content.videoSet.id">Add Video</button>
+                      <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('video', index)">Load from Sets</button>
                     </div>
                   </div>
                   <div class="col-sm-5">
                     <h1>Preview</h1>
-                    <div class="row mb-2" v-for="(preview, indexPreview) in content.adPreviews" :key="indexPreview">
-                      <div class="col" v-html="preview.data"></div>
-                    </div>
+                    <div v-if="content.adType == 'RESPONSIVE_IMAGE_AD'">
+                        <section v-for="(title, indexTitle) in content.headlines" :key="indexTitle">
+                          <section v-for="(image, indexImage) in content.images" :key="indexImage">
+                            <div class="row no-gutters mb-2" v-if="image.url">
+                              <div class="col-sm-5" >
+                                <img :src="image.url" class="card-img-top h-100">
+                              </div>
+                              <div class="col-sm-7">
+                                <div class="card-body">
+                                  <h3 class="card-title">{{ title.headline }}</h3>
+                                  <h6 class="card-text mt-5"><i>{{ content.principal }}</i></h6>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </section>
+                      </div>
+                      <div v-if="content.adType == 'RESPONSIVE_VIDEO_AD'">
+                        <section v-for="(title, indexTitle) in content.headlines" :key="indexTitle">
+                          <section v-for="(video, indexVideo) in content.videos" :key="indexVideo">
+                            <div class="row no-gutters mb-2" v-if="video.videoThumbnailUrl">
+                              <div class="col-sm-5" >
+                                <img :src="video.videoThumbnailUrl" class="card-img-top h-100">
+                              </div>
+                              <div class="col-sm-7">
+                                <div class="card-body">
+                                  <h3 class="card-title">{{ title.headline }}</h3>
+                                  <h6 class="card-text mt-5"><i>{{ content.principal }}</i></h6>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </section>
+                      </div>
                   </div>
                 </div>
                 <div class="row" v-if="index > 0">
@@ -131,6 +186,18 @@
         </div>
       </div>
     </div>
+
+    <div class="modal fade creative-set-modal" id="creative-set-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="col mt-3">
+            <h1>Select Creative Set</h1>
+          </div>
+          <creative-set-sets :type="setType" @selectCreativeSet="selectCreativeSet"></creative-set-sets>
+        </div>
+      </div>
+    </div>
+
     <modal width="60%" height="80%" name="imageModal">
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
@@ -173,13 +240,15 @@ export default {
           return false
         }
 
-        for (let j = 0; j < this.contents[i].headlines.length; j++) {
-          if (!this.contents[i].headlines[j].headline) {
-            return false
+        if (!this.contents[i].titleSet.id) {
+          for (let j = 0; j < this.contents[i].headlines.length; j++) {
+            if (!this.contents[i].headlines[j].headline) {
+              return false
+            }
           }
         }
 
-        if (this.contents[i].adType == 'RESPONSIVE_VIDEO_AD') {
+        if (this.contents[i].adType == 'RESPONSIVE_VIDEO_AD' && !this.contents[i].videoSet.id) {
           if (this.contents[i].videos.length == 0) {
             return false
           }
@@ -194,7 +263,7 @@ export default {
           }
         }
 
-        if (this.contents[i].adType == 'RESPONSIVE_IMAGE_AD') {
+        if (this.contents[i].adType == 'RESPONSIVE_IMAGE_AD' && !this.contents[i].imageSet.id) {
           if (this.contents[i].images.length == 0) {
             return false
           }
@@ -223,6 +292,7 @@ export default {
         for (let i = 0; i < values.length; i++) {
           this.contents[this.fileSelectorIndex].images.push({
             image: values[i].path,
+            url: process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
             state: this.validDimensions(values[i].width, values[i].height, 1200, 628),
             existing: false
           })
@@ -233,6 +303,7 @@ export default {
         this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoPath = values[0].path
       } else if (this.openingFileSelector === 'videoThumbnailPath') {
         this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoThumbnailPath = values[0].path
+        this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoThumbnailUrl = process.env.MIX_APP_URL + '/storage/images/' + values[0].path
         this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoThumbnailState = this.validDimensions(values[0].width, values[0].height, 640, 360)
       }
       vm.$modal.hide('imageModal')
@@ -244,16 +315,20 @@ export default {
   data() {
     let contents = [{
       id: '',
-        adType: 'RESPONSIVE_IMAGE_AD',
+      adType: 'RESPONSIVE_IMAGE_AD',
+      titleSet: '',
       headlines: [{
         headline: '',
         existing: false
       }],
       displayUrl: '',
       targetUrl: '',
+      descriptionSet: '',
       description: '',
       principal: '',
+      imageSet: '',
       images: [],
+      videoSet: '',
       videos: [{
         videoPath: '',
         videoThumbnailPath: '',
@@ -276,7 +351,9 @@ export default {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
         lang: 'end'
-      }
+      },
+      adSelectorIndex: 0,
+      setType: 'image'
     }
   },
   methods: {
@@ -294,6 +371,72 @@ export default {
 
       this.$modal.show('imageModal')
     },
+    loadCreativeSet(type, index) {
+      this.setType = type
+      this.adSelectorIndex = index
+      $('#creative-set-modal').modal('show')
+    },
+    selectCreativeSet(set) {
+      if (this.setType == 'title') {
+        this.contents[this.adSelectorIndex].titleSet = set
+        this.loadTitleSets(this.adSelectorIndex).then(() => {
+          this.contents[this.adSelectorIndex].headlines = this.contents[this.adSelectorIndex].titleSet.sets.map(item => {
+            return {
+              headline: item.title
+            }
+          })
+        })
+      }
+      if (this.setType == 'image') {
+        this.contents[this.adSelectorIndex].imageSet = set
+        this.loadImageSets(this.adSelectorIndex).then(() => {
+          this.contents[this.adSelectorIndex].images = this.contents[this.adSelectorIndex].imageSet.sets.map(item => {
+            return {
+              url: process.env.MIX_APP_URL + (item.optimiser == 0 ? '/storage/images/' + item.hq_1200x628_image : '/storage/images/creatives/1200x628/' + item.hq_image)
+            }
+          })
+        })
+      }
+      if (this.setType == 'video') {
+        this.contents[this.adSelectorIndex].videoSet = set
+        this.loadVideoSets(this.adSelectorIndex).then(() => {
+          this.contents[this.adSelectorIndex].videos = this.contents[this.adSelectorIndex].videoSet.sets.map(item => {
+            return {
+              videoThumbnailUrl: process.env.MIX_APP_URL + '/storage/images/' + item.portrait_image
+            }
+          })
+        })
+      }
+      if (this.setType == 'description') {
+        this.contents[this.adSelectorIndex].descriptionSet = set
+      }
+
+      $('#creative-set-modal').modal('hide')
+    },
+    loadTitleSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/title-sets/${this.contents[index].titleSet.id}`).then(response => {
+        this.contents[index].titleSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+    loadImageSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/image-sets/${this.contents[index].imageSet.id}`).then(response => {
+        this.contents[index].imageSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+    loadVideoSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/video-sets/${this.contents[index].videoSet.id}`).then(response => {
+        this.contents[index].videoSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
@@ -305,18 +448,22 @@ export default {
       this.contents.push({
         id: '',
         adType: 'RESPONSIVE_IMAGE_AD',
+        titleSet: '',
         headlines: [{
           headline: '',
           existing: false
         }],
         displayUrl: '',
         targetUrl: '',
+        descriptionSet: '',
         description: '',
         principal: '',
+        imageSet: '',
         images: [{
           image: '',
           existing: false
         }],
+        videoSet: '',
         videos: [{
           videoPath: '',
           videoThumbnailPath: '',
@@ -349,6 +496,35 @@ export default {
     },
     removeVideo(index, videoIndex) {
       this.contents[index].videos.splice(videoIndex, 1)
+    },
+    removeImageSet(index) {
+      this.contents[index].imageSet = ''
+      this.contents[index].images = [{
+        imageUrlHQ: '',
+        imageUrlHQState: true,
+        imageUrl: '',
+        imageUrlState: true,
+        existing: false
+      }]
+    },
+    removeVideoSet(index) {
+      this.contents[index].videoSet = ''
+      this.contents[index].videos = [{
+        videoPrimaryUrl: '',
+        videoPortraitUrl: '',
+        imagePortraitUrl: '',
+        existing: false
+      }]
+    },
+    removeTitleSet(index) {
+      this.contents[index].titleSet = ''
+      this.contents[index].titles = [{
+        title: '',
+        existing: false
+      }]
+    },
+    removeDescriptionSet(index) {
+      this.contents[index].descriptionSet = ''
     },
 
     submit() {
