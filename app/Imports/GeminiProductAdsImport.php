@@ -19,13 +19,21 @@ class GeminiProductAdsImport implements ToArray, WithChunkReading, ShouldQueue, 
 {
     use Importable;
 
+    const CURRENCY_RATE = 0.13;
+
     /**
      * @param array $array
      */
     public function array(array $rows)
     {
-        $resource_importer = new ResourceImporter();
-        $resource_importer->insertOrUpdate('gemini_product_ads', $rows, []);
+        if (count($rows) > 0) {
+            foreach ($rows as &$row) {
+                $row['spend'] = $row['spend'] * self::CURRENCY_RATE;
+            }
+
+            $resource_importer = new ResourceImporter();
+            $resource_importer->insertOrUpdate('gemini_product_ads', $rows, []);
+        }
     }
 
     /**
