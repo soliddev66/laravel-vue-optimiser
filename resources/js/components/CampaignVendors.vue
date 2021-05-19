@@ -63,7 +63,7 @@
             </div>
           </div>
           <div class="card-footer d-flex justify-content-end" v-if="currentStep != 1">
-            <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 6 && currentStep > 1">
+            <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
 
@@ -80,11 +80,7 @@
             </div>
 
             <div class="d-flex justify-content-end" v-if="currentStep === 4">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep4">Next</button>
-            </div>
-
-            <div class="d-flex justify-content-end" v-if="currentStep === 5">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep5">Finish</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep4">Finish</button>
             </div>
           </div>
         </div>
@@ -102,6 +98,7 @@
 <script>
 import {
   yahoo,
+  outbrain,
   yahoojp
 } from './ad-vendors/creative-sets'
 
@@ -127,6 +124,7 @@ export default {
     Loading,
     Select2,
     yahoo,
+    outbrain,
     yahoojp
   },
   computed: {
@@ -224,7 +222,7 @@ export default {
     },
 
     submitStep4() {
-      this.currentStep = 5
+
     },
 
     getAccounts(vendor) {
