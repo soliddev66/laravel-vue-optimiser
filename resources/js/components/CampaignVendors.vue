@@ -3,36 +3,33 @@
     <div class="vld-parent">
       <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
     </div>
-    <div class="row justify-content-center">
-      <div class="col">
-        <div class="row justify-content-center">
-          <div class="col vendors">
-            <div class="row vendor" v-for="vendor in vendors" :key="vendor.id">
-              <div class="col">
-                <div class="card" v-bind:class="{active: vendor.selected}" @click="vendorClick($event, vendor)">
-                  <div class="card-body">
-                    <img :src="vendor.icon" alt="">
-                    <span class="pl-3">{{ vendor.label }}</span>
 
-                    <div class="row mt-3" v-if="vendor.selected">
-                      <div class="col">
-                        <select class="form-control" v-if="vendor.accounts.length" v-model="vendor.selectedAccount">
-                          <option value="">Select Account</option>
-                          <option :value="account.open_id" v-for="account in vendor.accounts" :key="account.id">{{ account.open_id }}</option>
-                        </select>
-                      </div>
-                    </div>
+    <div class="row justify-content-center">
+      <div class="col vendors mt-3">
+        <div class="row vendor" v-for="vendor in vendors" :key="vendor.id">
+          <div class="col">
+            <div class="card" v-bind:class="{active: vendor.selected}" @click="vendorClick($event, vendor)">
+              <div class="card-body">
+                <img :src="vendor.icon" alt="" width="40">
+                <span class="pl-3">{{ vendor.label }}</span>
+
+                <div class="row mt-3" v-if="vendor.selected">
+                  <div class="col">
+                    <select class="form-control" v-if="vendor.accounts.length" v-model="vendor.selectedAccount">
+                      <option value="">Select Account</option>
+                      <option :value="account.open_id" v-for="account in vendor.accounts" :key="account.id">{{ account.open_id }}</option>
+                    </select>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        <div class="d-flex justify-content-end mb-5">
-          <button type="button" class="btn btn-vendor mr-5" :disabled="!submitStep1State">Next <i class="fas fa-long-arrow-alt-right"></i></button>
-        </div>
       </div>
+    </div>
+
+    <div class="d-flex justify-content-end mb-5">
+      <button type="button" class="btn btn-vendor mr-5" :disabled="!submitStep1State">Next <i class="fas fa-long-arrow-alt-right"></i></button>
     </div>
   </div>
 </template>
@@ -104,16 +101,18 @@ export default {
         return
       }
 
-      vendor.selected = !vendor.selected
-
       if (vendor.accounts.length == 0) {
-        this.getAccounts(vendor)
+        this.getAccounts(vendor).then(() => {
+          vendor.selected = !vendor.selected
+        })
+      } else {
+        vendor.selected = !vendor.selected
       }
     },
 
     getAccounts(vendor) {
       this.isLoading = true
-      axios.get(`/account/accounts?provider=${vendor.slug}`).then(response => {
+      return axios.get(`/account/accounts?provider=${vendor.slug}`).then(response => {
         vendor.accounts = response.data
         vendor.selectedAccount = vendor.accounts[0].open_id
       }).catch(err => {
@@ -148,7 +147,13 @@ export default {
 
 .vendor .card {
   border: none;
-  transition: all 0.2s linear;
+  transition: all 0.3s linear;
+  height: 80px;
+  overflow: hidden;
+}
+
+.vendor .card.active {
+  height: 135px;
 }
 
 .vendor .card.active, .vendor .card:hover {
