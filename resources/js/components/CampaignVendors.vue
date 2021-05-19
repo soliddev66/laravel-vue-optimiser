@@ -5,7 +5,7 @@
     </div>
 
     <div class="row justify-content-center">
-      <div class="col vendors mt-3">
+      <div class="col vendors mt-3" v-if="currentStep == 1">
         <div class="row vendor" v-for="vendor in vendors" :key="vendor.id">
           <div class="col">
             <div class="card" v-bind:class="{active: vendor.selected}" @click="vendorClick($event, vendor)">
@@ -26,10 +26,33 @@
           </div>
         </div>
       </div>
+
+      <div class="col" v-if="currentStep != 1">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">General Information</label>
+            <i class="fas fa-arrow-right"></i>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Vendors</label>
+            <i class="fas fa-arrow-right"></i>
+            <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Ad Content</label>
+            <i class="fas fa-arrow-right"></i>
+          </div>
+          <div class="card-body">
+            <div class="form-group row">
+              <label for="name" class="col-sm-2 control-label mt-2">Campaign Name</label>
+              <div class="col-sm-8">
+                <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="campaignName" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="d-flex justify-content-end mb-5">
-      <button type="button" class="btn btn-vendor mr-5" :disabled="!submitStep1State">Next <i class="fas fa-long-arrow-alt-right"></i></button>
+    <div class="d-flex justify-content-end mb-5" v-if="currentStep == 1">
+      <button type="button" class="btn btn-vendor mr-5" :disabled="!submitStep1State" @click="submitStep1">
+        Next <i class="fas fa-long-arrow-alt-right"></i>
+      </button>
     </div>
   </div>
 </template>
@@ -92,6 +115,7 @@ export default {
     return {
       isLoading: false,
       fullPage: true,
+      currentStep: this.step,
       vendors: vendors
     }
   },
@@ -108,6 +132,10 @@ export default {
       } else {
         vendor.selected = !vendor.selected
       }
+    },
+
+    submitStep1() {
+      this.currentStep = 2
     },
 
     getAccounts(vendor) {
