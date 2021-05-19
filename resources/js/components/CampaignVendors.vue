@@ -15,9 +15,18 @@
 
                 <div class="row mt-3" v-if="vendor.selected">
                   <div class="col">
-                    <select class="form-control" v-if="vendor.accounts.length" v-model="vendor.selectedAccount">
+                    <select class="form-control" v-model="vendor.selectedAccount">
                       <option value="">Select Account</option>
                       <option :value="account.open_id" v-for="account in vendor.accounts" :key="account.id">{{ account.open_id }}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row mt-2" v-if="vendor.selected">
+                  <div class="col">
+                    <select class="form-control" v-model="vendor.selectedAdvertiser">
+                      <option value="">Select Advertiser</option>
+                      <option :value="advertiser.id" v-for="advertiser in vendor.advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.advertiserName || advertiser.name }}</option>
                     </select>
                   </div>
                 </div>
@@ -38,11 +47,44 @@
             <i class="fas fa-arrow-right"></i>
           </div>
           <div class="card-body">
-            <div class="form-group row">
-              <label for="name" class="col-sm-2 control-label mt-2">Campaign Name</label>
-              <div class="col-sm-8">
-                <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="campaignName" />
+            <div v-if="currentStep == 2">
+              <div class="form-group row">
+                <label for="name" class="col-sm-2 control-label mt-2">Campaign Name</label>
+                <div class="col-sm-8">
+                  <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="campaignName" />
+                </div>
               </div>
+            </div>
+
+            <div v-if="currentStep == 3">
+              <div v-for="vendor in vendors" :key="vendor.id">
+                <component :is="vendor.slug" v-if="vendor.selected && currentVendorStep == vendor.slug" />
+              </div>
+            </div>
+          </div>
+          <div class="card-footer d-flex justify-content-end" v-if="currentStep != 1">
+            <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 6 && currentStep > 1">
+              <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
+            </div>
+
+            <div class="d-flex justify-content-end" v-if="currentStep === 2">
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep2">Next</button>
+            </div>
+
+            <div v-if="currentStep === 3">
+              <div v-for="vendor in vendors" :key="vendor.id">
+                <div class="d-flex justify-content-end" v-if="vendor.selected && currentVendorStep == vendor.slug">
+                  <button type="button" class="btn btn-primary" @click.prevent="submitVendorStep(vendor)">Next</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end" v-if="currentStep === 4">
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep4">Next</button>
+            </div>
+
+            <div class="d-flex justify-content-end" v-if="currentStep === 5">
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep5">Finish</button>
             </div>
           </div>
         </div>
@@ -58,6 +100,11 @@
 </template>
 
 <script>
+import {
+  yahoo,
+  yahoojp
+} from './ad-vendors/creative-sets'
+
 import _ from 'lodash'
 import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
@@ -78,7 +125,9 @@ export default {
   },
   components: {
     Loading,
-    Select2
+    Select2,
+    yahoo,
+    yahoojp
   },
   computed: {
     submitStep1State() {
@@ -107,7 +156,9 @@ export default {
         label: this.providers[i].label,
         icon: this.providers[i].icon,
         accounts: [],
-        selectedAccount: null,
+        advertisers: [],
+        selectedAccount: '',
+        selectedAdvertiser: '',
         selected: false
       })
     }
@@ -116,7 +167,9 @@ export default {
       isLoading: false,
       fullPage: true,
       currentStep: this.step,
-      vendors: vendors
+      currentVendorStep: '',
+      vendors: vendors,
+      campaignName: ''
     }
   },
   methods: {
@@ -128,6 +181,8 @@ export default {
       if (vendor.accounts.length == 0) {
         this.getAccounts(vendor).then(() => {
           vendor.selected = !vendor.selected
+
+          this.getAdvertisers(vendor)
         })
       } else {
         vendor.selected = !vendor.selected
@@ -138,6 +193,40 @@ export default {
       this.currentStep = 2
     },
 
+    submitStep2() {
+      this.currentStep = 3
+
+      for (let i = 0; i < this.vendors.length; i++) {
+        if (this.vendors[i].selected) {
+          this.currentVendorStep = this.vendors[i].slug
+          break
+        }
+      }
+    },
+
+    submitVendorStep(vendor) {
+      let found = false
+
+      for (let i = 0; i < this.vendors.length; i++) {
+
+        if (this.vendors[i].slug == vendor.slug) {
+          found = true
+          continue
+        }
+
+        if (found && this.vendors[i].selected) {
+          this.currentVendorStep = this.vendors[i].slug
+          return
+        }
+      }
+
+      this.currentStep = 4
+    },
+
+    submitStep4() {
+      this.currentStep = 5
+    },
+
     getAccounts(vendor) {
       this.isLoading = true
       return axios.get(`/account/accounts?provider=${vendor.slug}`).then(response => {
@@ -145,6 +234,16 @@ export default {
         vendor.selectedAccount = vendor.accounts[0].open_id
       }).catch(err => {
         console.log(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
+    },
+
+    getAdvertisers(vendor) {
+      this.isLoading = true
+      return axios.get(`/account/advertisers?provider=${vendor.slug}&account=${encodeURIComponent(vendor.selectedAccount)}`).then(response => {
+        vendor.advertisers = response.data
+        vendor.selectedAdvertiser = vendor.advertisers[0].id
       }).finally(() => {
         this.isLoading = false
       })
@@ -181,7 +280,7 @@ export default {
 }
 
 .vendor .card.active {
-  height: 135px;
+  height: 180px;
 }
 
 .vendor .card.active, .vendor .card:hover {
