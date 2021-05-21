@@ -19,13 +19,22 @@ class GeminiSlotPerformanceImport implements ToArray, WithChunkReading, ShouldQu
 {
     use Importable;
 
+    const CURRENCY_RATE = 0.13;
+
     /**
      * @param array $array
      */
     public function array(array $rows)
     {
-        $resource_importer = new ResourceImporter();
-        $resource_importer->insertOrUpdate('gemini_slot_performance_stats', $rows, []);
+        if (count($rows) > 0) {
+            foreach ($rows as &$row) {
+                $row['spend'] = $row['spend'] * self::CURRENCY_RATE;
+                $row['average_cpc'] = $row['average_cpc'] * self::CURRENCY_RATE;
+            }
+
+            $resource_importer = new ResourceImporter();
+            $resource_importer->insertOrUpdate('gemini_slot_performance_stats', $rows, []);
+        }
     }
 
     /**

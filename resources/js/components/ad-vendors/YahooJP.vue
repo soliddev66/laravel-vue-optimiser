@@ -274,8 +274,39 @@
                     </div>
                     <div class="col-sm-5">
                       <h1>Preview</h1>
-                      <div class="row mb-2" v-for="(preview, indexPreview) in content.adPreviews" :key="indexPreview">
-                        <div class="col" v-html="preview.data"></div>
+                      <div v-if="content.adType == 'RESPONSIVE_IMAGE_AD'">
+                        <section v-for="(title, indexTitle) in content.headlines" :key="indexTitle">
+                          <section v-for="(image, indexImage) in content.images" :key="indexImage">
+                            <div class="row no-gutters mb-2" v-if="image.url">
+                              <div class="col-sm-5" >
+                                <img :src="image.url" class="card-img-top h-100">
+                              </div>
+                              <div class="col-sm-7">
+                                <div class="card-body">
+                                  <h3 class="card-title">{{ title.headline }}</h3>
+                                  <h6 class="card-text mt-5"><i>{{ content.principal }}</i></h6>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </section>
+                      </div>
+                      <div v-if="content.adType == 'RESPONSIVE_VIDEO_AD'">
+                        <section v-for="(title, indexTitle) in content.headlines" :key="indexTitle">
+                          <section v-for="(video, indexVideo) in content.videos" :key="indexVideo">
+                            <div class="row no-gutters mb-2" v-if="video.videoThumbnailUrl">
+                              <div class="col-sm-5" >
+                                <img :src="video.videoThumbnailUrl" class="card-img-top h-100">
+                              </div>
+                              <div class="col-sm-7">
+                                <div class="card-body">
+                                  <h3 class="card-title">{{ title.headline }}</h3>
+                                  <h6 class="card-text mt-5"><i>{{ content.principal }}</i></h6>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </section>
                       </div>
                     </div>
                   </div>
@@ -440,6 +471,7 @@ export default {
         for (let i = 0; i < values.length; i++) {
           this.contents[this.fileSelectorIndex].images.push({
             image: values[i].path,
+            url: process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
             state: this.validDimensions(values[i].width, values[i].height, 1200, 628),
             existing: false
           })
@@ -450,6 +482,7 @@ export default {
         this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoPath = values[0].path
       } else if (this.openingFileSelector === 'videoThumbnailPath') {
         this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoThumbnailPath = values[0].path
+        this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoThumbnailUrl = process.env.MIX_APP_URL + '/storage/images/' + values[0].path
         this.contents[this.fileSelectorIndex].videos[this.fileSelectorVideoIndex].videoThumbnailState = this.validDimensions(values[0].width, values[0].height, 640, 360)
       }
       vm.$modal.hide('imageModal')
@@ -495,8 +528,7 @@ export default {
           videoThumbnailPath: '',
           existing: false
         }],
-        imagePath: '',
-        adPreviews: []
+        imagePath: ''
       }];
     if (this.instance) {
       if (this.instance.attributes) {
@@ -526,18 +558,22 @@ export default {
         contents.push({
           id: this.instance.ads[i]['adGroupAd']['adId'],
           adType: adType,
+          titleSet: this.instance.ads[i]['titleSet'] || '',
           headlines: [{
             headline: this.instance.ads[i]['adGroupAd']['ad'][adKey]['headline'],
             existing: true
           }],
           displayUrl: this.instance.ads[i]['adGroupAd']['ad'][adKey]['displayUrl'],
           targetUrl: this.instance.ads[i]['adGroupAd']['ad'][adKey]['url'],
+          descriptionSet:  this.instance.ads[i]['descriptionSet'] || '',
           description: this.instance.ads[i]['adGroupAd']['ad'][adKey]['description'],
           principal: this.instance.ads[i]['adGroupAd']['ad'][adKey]['principal'],
+          imageSet:  this.instance.ads[i]['imageSet'] || '',
           images: [{
             mediaId: this.instance.ads[i]['adGroupAd']['mediaId'],
             existing: true
           }],
+          videoSet:  this.instance.ads[i]['videoSet'] || '',
           videos: [{
             mediaId: this.instance.ads[i]['adGroupAd']['mediaId'],
             videoPath: this.instance.ads[i]['adGroupAd']['mediaId'],
@@ -546,8 +582,7 @@ export default {
             videoThumbnailState: true,
             existing: true
           }],
-          imagePath: this.instance.ads[i]['adGroupAd']['mediaId'],
-          adPreviews: [],
+          imagePath: this.instance.ads[i]['adGroupAd']['mediaId']
         });
       }
     }
@@ -704,18 +739,63 @@ export default {
     selectCreativeSet(set) {
       if (this.setType == 'title') {
         this.contents[this.adSelectorIndex].titleSet = set
+        this.loadTitleSets(this.adSelectorIndex).then(() => {
+          this.contents[this.adSelectorIndex].headlines = this.contents[this.adSelectorIndex].titleSet.sets.map(item => {
+            return {
+              headline: item.title
+            }
+          })
+        })
       }
       if (this.setType == 'image') {
         this.contents[this.adSelectorIndex].imageSet = set
+        this.loadImageSets(this.adSelectorIndex).then(() => {
+          this.contents[this.adSelectorIndex].images = this.contents[this.adSelectorIndex].imageSet.sets.map(item => {
+            return {
+              url: process.env.MIX_APP_URL + (item.optimiser == 0 ? '/storage/images/' + item.hq_1200x628_image : '/storage/images/creatives/1200x628/' + item.hq_image)
+            }
+          })
+        })
       }
       if (this.setType == 'video') {
         this.contents[this.adSelectorIndex].videoSet = set
+        this.loadVideoSets(this.adSelectorIndex).then(() => {
+          this.contents[this.adSelectorIndex].videos = this.contents[this.adSelectorIndex].videoSet.sets.map(item => {
+            return {
+              videoThumbnailUrl: process.env.MIX_APP_URL + '/storage/images/' + item.portrait_image
+            }
+          })
+        })
       }
       if (this.setType == 'description') {
         this.contents[this.adSelectorIndex].descriptionSet = set
       }
 
       $('#creative-set-modal').modal('hide')
+    },
+    loadTitleSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/title-sets/${this.contents[index].titleSet.id}`).then(response => {
+        this.contents[index].titleSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+    loadImageSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/image-sets/${this.contents[index].imageSet.id}`).then(response => {
+        this.contents[index].imageSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+    loadVideoSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/video-sets/${this.contents[index].videoSet.id}`).then(response => {
+        this.contents[index].videoSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
     },
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
@@ -728,25 +808,28 @@ export default {
       this.contents.push({
         id: '',
         adType: 'RESPONSIVE_IMAGE_AD',
+        titleSet: '',
         headlines: [{
           headline: '',
           existing: false
         }],
         displayUrl: '',
         targetUrl: '',
+        descriptionSet: '',
         description: '',
         principal: '',
+        imageSet: '',
         images: [{
           image: '',
           existing: false
         }],
+        videoSet: '',
         videos: [{
           videoPath: '',
           videoThumbnailPath: '',
           existing: false
         }],
-        imagePath: '',
-        adPreviews: []
+        imagePath: ''
       })
     },
     removeContent(index) {
