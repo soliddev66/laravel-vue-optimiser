@@ -59,18 +59,26 @@
             <div v-if="currentStep == 3">
               <div v-for="vendor in vendors" :key="vendor.id">
                 <div class="d-none" :class="{ 'd-block': vendor.selected && currentVendorStep == vendor.slug }">
-                  <component :is="vendor.slug" :vendor="vendor" @submitVendor="submitVendor" @backVendor="backVendor" />
+                  <component :is="vendor.slug" :vendor="vendor" />
                 </div>
               </div>
             </div>
           </div>
-          <div class="card-footer d-flex justify-content-end" v-if="currentStep != 1 && currentStep != 3">
+          <div class="card-footer d-flex justify-content-end" v-if="currentStep != 1">
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1 && currentStep != 3">
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
 
             <div class="d-flex justify-content-end" v-if="currentStep == 2">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep2">Next</button>
+            </div>
+
+            <div v-if="currentStep === 3">
+              <div v-for="vendor in vendors" :key="vendor.id">
+                <div class="d-flex justify-content-end" v-if="vendor.selected && currentVendorStep == vendor.slug">
+                  <button type="button" class="btn btn-primary" @click.prevent="submitVendorStep(vendor)" :disabled="!vendor.state">Next</button>
+                </div>
+              </div>
             </div>
 
             <div class="d-flex justify-content-end" v-if="currentStep == 4">
@@ -155,7 +163,8 @@ export default {
         advertisers: [],
         selectedAccount: '',
         selectedAdvertiser: '',
-        selected: true
+        selected: true,
+        state: false
       })
     }
 
@@ -218,7 +227,7 @@ export default {
       this.currentStep = 2
     },
 
-    submitVendor(vendor) {
+    submitVendorStep(vendor) {
       let found = false
 
       for (let i = 0; i < this.vendors.length; i++) {

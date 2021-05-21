@@ -4,12 +4,13 @@
       <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
     </div>
     <div class="row justify-content-center">
-      <div class="card-footer">
+      Outbrain
+      <!-- <div class="card-footer">
             <div class="d-flex justify-content-between">
               <button type="button" class="btn btn-primary" @click.prevent="backVendor">Back</button>
               <button type="button" class="btn btn-primary" @click.prevent="submitVendor" :disabled="!submitState">Next</button>
             </div>
-          </div>
+          </div> -->
     </div>
   </section>
 </template>

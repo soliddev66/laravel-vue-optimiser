@@ -66,26 +66,27 @@
               <option value="REENGAGE_APP">Reengage App</option>
             </select>
           </div>
-        </div>
+        </div>-->
         <div class="form-group row">
           <label for="budget" class="col-sm-2 control-label mt-2">Budget</label>
           <div class="col-sm-2">
-            <input type="number" name="budget" min="40" class="form-control" v-model="campaignBudget" />
+            <input type="number" name="budget" min="40" class="form-control" v-model="vendor.campaignBudget" />
           </div>
           <div class="col-sm-4">
             <div class="btn-group btn-group-toggle">
-              <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'DAILY' }">
-                <input type="radio" name="type" id="campaignBudgetType1" autocomplete="off" value="DAILY" v-model="campaignBudgetType"> Per Day
+              <label class="btn bg-olive" :class="{ active: vendor.campaignBudgetType === 'DAILY' }">
+                <input type="radio" name="type" id="campaignBudgetType1" autocomplete="off" value="DAILY" v-model="vendor.campaignBudgetType"> Per Day
               </label>
-              <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'MONTHLY' }">
-                <input type="radio" name="type" id="campaignBudgetType2" autocomplete="off" value="MONTHLY" v-model="campaignBudgetType"> Per Month
+              <label class="btn bg-olive" :class="{ active: vendor.campaignBudgetType === 'MONTHLY' }">
+                <input type="radio" name="type" id="campaignBudgetType2" autocomplete="off" value="MONTHLY" v-model="vendor.campaignBudgetType"> Per Month
               </label>
-              <label class="btn bg-olive" :class="{ active: campaignBudgetType === 'LIFETIME' }">
-                <input type="radio" name="type" id="campaignBudgetType3" autocomplete="off" value="LIFETIME" v-model="campaignBudgetType"> In Total
+              <label class="btn bg-olive" :class="{ active: vendor.campaignBudgetType === 'LIFETIME' }">
+                <input type="radio" name="type" id="campaignBudgetType3" autocomplete="off" value="LIFETIME" v-model="vendor.campaignBudgetType"> In Total
               </label>
             </div>
           </div>
         </div>
+        <!--
         <div class="form-group row">
           <label for="bid_strategy" class="col-sm-2 control-label mt-2">Bid Strategy</label>
           <div class="col-sm-8">
@@ -245,27 +246,27 @@
               <option value="ONE_PER_INTERACTION">One per interaction</option>
             </select>
           </div>
-        </div>
+        </div>-->
         <h2>Create group</h2>
         <div class="form-group row">
           <label for="ad_group_name" class="col-sm-2 control-label mt-2">Ad group name</label>
           <div class="col-sm-8">
-            <input type="text" name="ad_group_name" class="form-control" v-model="adGroupName" />
+            <input type="text" name="ad_group_name" class="form-control" v-model="vendor.adGroupName" />
           </div>
         </div>
         <div class="form-group row">
           <label for="bid_strategy" class="col-sm-2 control-label mt-2">Bid strategy</label>
           <div class="col-sm-8">
-            <p>{{ campaignStrategy }}</p>
+            <p>{{ vendor.campaignStrategy }}</p>
           </div>
         </div>
         <div class="form-group row">
           <label for="bid_cpc" class="col-sm-2 control-label mt-2">Bid (CPC)</label>
           <div class="col-sm-8">
-            <input type="number" name="bid_cpc" min="1" class="form-control" v-model="bidAmount" />
+            <input type="number" name="bid_cpc" min="1" class="form-control" v-model="vendor.bidAmount" />
           </div>
         </div>
-        <div class="form-group row">
+        <!--<div class="form-group row">
           <label for="schedule" class="col-sm-2 control-label mt-2">Schedule</label>
           <div class="col-sm-8">
             <div class="btn-group btn-group-toggle">
@@ -288,10 +289,10 @@
             <VueCtkDateTimePicker id="end_date" v-model="campaignEndDate" format="YYYY-MM-DD" formatted="YYYY-MM-DD" :onlyDate="true"></VueCtkDateTimePicker>
           </div>
         </div> -->
-        <div class="d-flex justify-content-between">
+        <!-- <div class="d-flex justify-content-between">
           <button type="button" class="btn btn-primary" @click.prevent="backVendor">Back</button>
           <button type="button" class="btn btn-primary" @click.prevent="submitVendor" :disabled="!submitState">Next</button>
-        </div>
+        </div> -->
       </div>
     </div>
   </section>
@@ -318,7 +319,14 @@ export default {
   },
   computed: {
     submitState() {
-      return true
+      console.log('AAAA')
+      if (this.vendor.campaignBudget > 0 && this.vendor.adGroupName !== '' && this.vendor.bidAmount > 0) {
+        this.vendor.state = true
+      } else {
+        this.vendor.state = false
+      }
+
+      console.log(this.vendor.state)
     }
   },
   mounted() {
@@ -333,7 +341,7 @@ export default {
     Object.assign(this.vendor, {
       selectedAccount: '4PYGHZXE65D5HWTH7MNJQEPOPE',
       campaignType: this.vendor.campaignType || 'NATIVE',
-      campaignLanguage: this.vendor.campaignLanguage || 'en'
+      campaignLanguage: this.vendor.campaignLanguage || 'en',
     })
 
     return {
