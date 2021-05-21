@@ -293,9 +293,10 @@
               </div>
             </div> -->
           </div>
-          <div class="card-footer d-flex justify-content-end">
-            <div class="d-flex">
-              <button type="button" class="btn btn-primary" @click.prevent="submitVendor">Next</button>
+          <div class="card-footer">
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-primary" @click.prevent="backVendor">Back</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitVendor" :disabled="!submitState">Next</button>
             </div>
           </div>
         </div>
@@ -324,6 +325,9 @@ export default {
     Select2
   },
   computed: {
+    submitState() {
+      return true
+    }
   },
   mounted() {
     console.log('Component mounted.')
@@ -336,8 +340,8 @@ export default {
   data() {
     Object.assign(this.vendor, {
       selectedAccount: '4PYGHZXE65D5HWTH7MNJQEPOPE',
-      campaignType: 'NATIVE',
-      campaignLanguage: 'en'
+      campaignType: this.vendor.campaignType || 'NATIVE',
+      campaignLanguage: this.vendor.campaignLanguage || 'en'
     })
 
     return {
@@ -347,9 +351,14 @@ export default {
     }
   },
   methods: {
+    backVendor() {
+      this.$emit('backVendor', this.vendor)
+    },
+
     submitVendor() {
       this.$emit('submitVendor', this.vendor)
     },
+
     getLanguages() {
       this.isLoading = true
       this.languages = []

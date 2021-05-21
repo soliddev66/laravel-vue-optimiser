@@ -58,20 +58,20 @@
 
             <div v-if="currentStep == 3">
               <div v-for="vendor in vendors" :key="vendor.id">
-                <component :is="vendor.slug" :vendor="vendor" @submitVendor="submitVendor" v-if="vendor.selected && currentVendorStep == vendor.slug" />
+                <component :is="vendor.slug" :vendor="vendor" @submitVendor="submitVendor" @backVendor="backVendor" v-if="vendor.selected && currentVendorStep == vendor.slug" />
               </div>
             </div>
           </div>
           <div class="card-footer d-flex justify-content-end" v-if="currentStep != 1">
-            <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1">
+            <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1 && currentStep != 3">
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
 
-            <div class="d-flex justify-content-end" v-if="currentStep === 2">
+            <div class="d-flex justify-content-end" v-if="currentStep == 2">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep2">Next</button>
             </div>
 
-            <div class="d-flex justify-content-end" v-if="currentStep === 4">
+            <div class="d-flex justify-content-end" v-if="currentStep == 4">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep4">Finish</button>
             </div>
           </div>
@@ -198,6 +198,24 @@ export default {
       }
     },
 
+    backVendor(vendor) {
+      let found = false
+
+      for (let i = this.vendors.length - 1; i >= 0; i--) {
+        if (this.vendors[i].slug == vendor.slug) {
+          found = true
+          continue
+        }
+
+        if (found && this.vendors[i].selected) {
+          this.currentVendorStep = this.vendors[i].slug
+          return
+        }
+      }
+
+      this.currentStep = 2
+    },
+
     submitVendor(vendor) {
       let found = false
 
@@ -218,7 +236,7 @@ export default {
     },
 
     submitStep4() {
-
+      console.log(this.vendors)
     },
 
     getAccounts(vendor) {
