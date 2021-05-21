@@ -539,6 +539,7 @@
               <button type="button" class="btn btn-primary" @click.prevent="submitStep1" :disabled="!campaignNameState || !selectedAdvertiserState || !campaignBudgetState || !adGroupNameState || !bidAmountState">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
+              <button type="button" class="btn btn-primary mr-2" @click.prevent="loadAllPreview" v-if="loadAllPreviewState">Load Preview</button>
               <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!submitStep2State">Next</button>
             </div>
             <div class="d-flex justify-content-end" v-if="currentStep === 3">
@@ -686,7 +687,15 @@ export default {
       }
 
       return false
+    },
+    loadAllPreviewState() {
+      for (let i = 0; i < this.contents.length; i++) {
+        if (this.contents[i].titles.length > 1 || this.contents[i].images.length > 1 || this.contents[i].videos.length > 1) {
+          return true
+        }
+      }
     }
+
   },
   mounted() {
     console.log('Component mounted.')
@@ -766,8 +775,7 @@ export default {
         adType: 'IMAGE',
         titleSet: '',
         titles: [{
-          title: '',
-          existing: false
+          title: ''
         }],
         displayUrl: '',
         targetUrl: '',
@@ -779,15 +787,13 @@ export default {
           imageUrlHQ: '',
           imageUrlHQState: true,
           imageUrl: '',
-          imageUrlState: true,
-          existing: false
+          imageUrlState: true
         }],
         videoSet: '',
         videos: [{
           videoPrimaryUrl: '',
           videoPortraitUrl: '',
-          imagePortraitUrl: '',
-          existing: false
+          imagePortraitUrl: ''
         }],
         adPreviews: []
       }];
@@ -886,8 +892,7 @@ export default {
           adType: this.instance.ads[i]['videoPrimaryUrl'] || this.instance.ads[i]['imagePortraitUrl'] ? 'VIDEO': 'IMAGE',
           titleSet: this.instance.ads[i]['titleSet'] || '',
           titles: [{
-            title: this.instance.ads[i]['title'],
-            existing: true
+            title: this.instance.ads[i]['title']
           }],
           displayUrl: this.instance.ads[i]['displayUrl'],
           targetUrl: this.instance.ads[i]['landingUrl'],
@@ -899,15 +904,13 @@ export default {
             imageUrlHQ: this.instance.ads[i]['imageUrlHQ'],
             imageUrlHQState: true,
             imageUrl: this.instance.ads[i]['imageUrl'],
-            imageUrlState: true,
-            existing: true
+            imageUrlState: true
           }],
           videoSet:  this.instance.ads[i]['videoSet'] || '',
           videos: [{
             videoPrimaryUrl: this.instance.ads[i]['videoPrimaryUrl'],
             videoPortraitUrl: this.instance.ads[i]['videoPortraitUrl'],
-            imagePortraitUrl: this.instance.ads[i]['imagePortraitUrl'],
-            existing: true
+            imagePortraitUrl: this.instance.ads[i]['imagePortraitUrl']
           }],
           adPreviews: [],
         });
@@ -1082,8 +1085,7 @@ export default {
         adType: 'IMAGE',
         titleSet: '',
         titles: [{
-          title: '',
-          existing: false
+          title: ''
         }],
         displayUrl: '',
         targetUrl: '',
@@ -1095,15 +1097,13 @@ export default {
           imageUrlHQ: '',
           imageUrlHQState: true,
           imageUrl: '',
-          imageUrlState: true,
-          existing: false
+          imageUrlState: true
         }],
         videoSet: '',
         videos: [{
           videoPrimaryUrl: '',
           videoPortraitUrl: '',
-          imagePortraitUrl: '',
-          existing: false
+          imagePortraitUrl: ''
         }],
         adPreviews: []
       })
@@ -1113,8 +1113,7 @@ export default {
     },
     addTitle(index) {
       this.contents[index].titles.push({
-        title: '',
-        existing: false
+        title: ''
       })
     },
     removeTitle(index, indexTitle) {
@@ -1125,8 +1124,7 @@ export default {
         imageUrlHQ: '',
         imageUrlHQState: true,
         imageUrl: '',
-        imageUrlState: true,
-        existing: false
+        imageUrlState: true
       })
     },
     removeImage(index, indexImage) {
@@ -1136,8 +1134,7 @@ export default {
       this.contents[index].videos.push({
         videoPrimaryUrl: '',
         videoPortraitUrl: '',
-        imagePortraitUrl: '',
-        existing: false
+        imagePortraitUrl: ''
       })
     },
     removeVideo(index, indexVideo) {
@@ -1152,8 +1149,7 @@ export default {
         imageUrlHQ: '',
         imageUrlHQState: true,
         imageUrl: '',
-        imageUrlState: true,
-        existing: false
+        imageUrlState: true
       }]
     },
     removeVideoSet(index) {
@@ -1161,21 +1157,22 @@ export default {
       this.contents[index].videos = [{
         videoPrimaryUrl: '',
         videoPortraitUrl: '',
-        imagePortraitUrl: '',
-        existing: false
+        imagePortraitUrl: ''
       }]
     },
     removeTitleSet(index) {
       this.contents[index].titleSet = ''
       this.contents[index].titles = [{
-        title: '',
-        existing: false
+        title: ''
       }]
     },
     removeDescriptionSet(index) {
       this.contents[index].descriptionSet = ''
     },
     loadPreviewEvent(event, index) {
+      if (this.contents[index].titles.length > 1 || this.contents[index].images.length > 1 || this.contents[index].videos.length > 1) {
+        return
+      }
       this.loadPreview(index)
     },
     validImageHQSizeEvent(event, index, indexImage) {
@@ -1219,6 +1216,11 @@ export default {
       }).finally(() => {
         this.isLoading = false
       });
+    },
+    loadAllPreview() {
+      for (let i = 0; i < this.contents.length; i++) {
+        this.loadPreview(i, true)
+      }
     },
     loadPreview(index, firstLoad = false) {
       if (!firstLoad && adPreviewCancels.length > 0) {
