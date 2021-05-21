@@ -58,7 +58,7 @@
 
             <div v-if="currentStep == 3">
               <div v-for="vendor in vendors" :key="vendor.id">
-                <component :is="vendor.slug" v-if="vendor.selected && currentVendorStep == vendor.slug" />
+                <component :is="vendor.slug" :vendor="vendor" @submitVendor="submitVendor" v-if="vendor.selected && currentVendorStep == vendor.slug" />
               </div>
             </div>
           </div>
@@ -69,14 +69,6 @@
 
             <div class="d-flex justify-content-end" v-if="currentStep === 2">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep2">Next</button>
-            </div>
-
-            <div v-if="currentStep === 3">
-              <div v-for="vendor in vendors" :key="vendor.id">
-                <div class="d-flex justify-content-end" v-if="vendor.selected && currentVendorStep == vendor.slug">
-                  <button type="button" class="btn btn-primary" @click.prevent="submitVendorStep(vendor)">Next</button>
-                </div>
-              </div>
             </div>
 
             <div class="d-flex justify-content-end" v-if="currentStep === 4">
@@ -99,7 +91,9 @@
 import {
   yahoo,
   outbrain,
-  yahoojp
+  yahoojp,
+  twitter,
+  taboola
 } from './ad-vendors/creative-sets'
 
 import _ from 'lodash'
@@ -117,7 +111,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 1
+      default: 3
     }
   },
   components: {
@@ -125,7 +119,9 @@ export default {
     Select2,
     yahoo,
     outbrain,
-    yahoojp
+    yahoojp,
+    twitter,
+    taboola
   },
   computed: {
     submitStep1State() {
@@ -157,7 +153,7 @@ export default {
         advertisers: [],
         selectedAccount: '',
         selectedAdvertiser: '',
-        selected: false
+        selected: true
       })
     }
 
@@ -165,7 +161,7 @@ export default {
       isLoading: false,
       fullPage: true,
       currentStep: this.step,
-      currentVendorStep: '',
+      currentVendorStep: 'yahoo',
       vendors: vendors,
       campaignName: ''
     }
@@ -202,7 +198,7 @@ export default {
       }
     },
 
-    submitVendorStep(vendor) {
+    submitVendor(vendor) {
       let found = false
 
       for (let i = 0; i < this.vendors.length; i++) {
