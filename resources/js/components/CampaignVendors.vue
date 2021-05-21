@@ -58,11 +58,13 @@
 
             <div v-if="currentStep == 3">
               <div v-for="vendor in vendors" :key="vendor.id">
-                <component :is="vendor.slug" :vendor="vendor" @submitVendor="submitVendor" @backVendor="backVendor" v-if="vendor.selected && currentVendorStep == vendor.slug" />
+                <div class="d-none" :class="{ 'd-block': vendor.selected && currentVendorStep == vendor.slug }">
+                  <component :is="vendor.slug" :vendor="vendor" @submitVendor="submitVendor" @backVendor="backVendor" />
+                </div>
               </div>
             </div>
           </div>
-          <div class="card-footer d-flex justify-content-end" v-if="currentStep != 1">
+          <div class="card-footer d-flex justify-content-end" v-if="currentStep != 1 && currentStep != 3">
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1 && currentStep != 3">
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
