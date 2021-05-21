@@ -318,16 +318,7 @@ export default {
     Select2
   },
   computed: {
-    submitState() {
-      console.log('AAAA')
-      if (this.vendor.campaignBudget > 0 && this.vendor.adGroupName !== '' && this.vendor.bidAmount > 0) {
-        this.vendor.state = true
-      } else {
-        this.vendor.state = false
-      }
 
-      console.log(this.vendor.state)
-    }
   },
   mounted() {
     console.log('Component mounted.')

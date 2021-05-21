@@ -36,7 +36,7 @@
         </div>
       </div>
 
-      <div class="col" v-if="currentStep != 1">
+      <div class="col d-none" :class="{ 'd-block': currentStep != 1 }">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
             <label class="p-2" :class="{ 'bg-primary': currentStep === 2 }">General Information</label>
@@ -56,9 +56,9 @@
               </div>
             </div>
 
-            <div v-if="currentStep == 3">
+            <div class="d-none" :class="{ 'd-block': currentStep == 3 }">
               <div v-for="vendor in vendors" :key="vendor.id">
-                <div class="d-none" :class="{ 'd-block': vendor.selected && currentVendorStep == vendor.slug }">
+                <div class="d-none" :class="{ 'd-block': vendor.selected && currentVendor.slug == vendor.slug }" v-if="vendor.selected">
                   <component :is="vendor.slug" :vendor="vendor" />
                 </div>
               </div>
@@ -69,14 +69,20 @@
               <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
             </div>
 
+            <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep === 3">
+              <div v-for="vendor in vendors" :key="vendor.id">
+                <button type="button" class="btn btn-primary" v-if="vendor.selected && currentVendor.slug == vendor.slug" @click.prevent="backVendor(vendor)">Back</button>
+              </div>
+            </div>
+
             <div class="d-flex justify-content-end" v-if="currentStep == 2">
               <button type="button" class="btn btn-primary" @click.prevent="submitStep2">Next</button>
             </div>
 
             <div v-if="currentStep === 3">
               <div v-for="vendor in vendors" :key="vendor.id">
-                <div class="d-flex justify-content-end" v-if="vendor.selected && currentVendorStep == vendor.slug">
-                  <button type="button" class="btn btn-primary" @click.prevent="submitVendorStep(vendor)" :disabled="!vendor.state">Next</button>
+                <div class="d-flex justify-content-end" v-if="vendor.selected && currentVendor.slug == vendor.slug">
+                  <button type="button" class="btn btn-primary" @click.prevent="submitVendor(vendor)" :disabled="!vendorState">Next</button>
                 </div>
               </div>
             </div>
@@ -121,7 +127,7 @@ export default {
     },
     step: {
       type: Number,
-      default: 3
+      default: 1
     }
   },
   components: {
@@ -143,6 +149,16 @@ export default {
 
       return false
     },
+
+    vendorState() {
+      if (this.currentVendor.slug == 'yahoo') {
+        if (this.currentVendor.campaignBudget > 0 && this.currentVendor.adGroupName !== '' && this.currentVendor.bidAmount > 0) {
+          return true
+        } else {
+          return false
+        }
+      }
+    }
   },
   mounted() {
     console.log('Component mounted.')
@@ -163,7 +179,7 @@ export default {
         advertisers: [],
         selectedAccount: '',
         selectedAdvertiser: '',
-        selected: true,
+        selected: false,
         state: false
       })
     }
@@ -172,7 +188,7 @@ export default {
       isLoading: false,
       fullPage: true,
       currentStep: this.step,
-      currentVendorStep: 'yahoo',
+      currentVendor: vendors[0],
       vendors: vendors,
       campaignName: ''
     }
@@ -203,7 +219,7 @@ export default {
 
       for (let i = 0; i < this.vendors.length; i++) {
         if (this.vendors[i].selected) {
-          this.currentVendorStep = this.vendors[i].slug
+          this.currentVendor = this.vendors[i]
           break
         }
       }
@@ -219,7 +235,7 @@ export default {
         }
 
         if (found && this.vendors[i].selected) {
-          this.currentVendorStep = this.vendors[i].slug
+          this.currentVendor = this.vendors[i]
           return
         }
       }
@@ -227,7 +243,7 @@ export default {
       this.currentStep = 2
     },
 
-    submitVendorStep(vendor) {
+    submitVendor(vendor) {
       let found = false
 
       for (let i = 0; i < this.vendors.length; i++) {
@@ -238,7 +254,7 @@ export default {
         }
 
         if (found && this.vendors[i].selected) {
-          this.currentVendorStep = this.vendors[i].slug
+          this.currentVendor = this.vendors[i]
           return
         }
       }
