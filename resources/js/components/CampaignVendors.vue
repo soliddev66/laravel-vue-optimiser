@@ -59,7 +59,7 @@
             <div class="d-none" :class="{ 'd-block': currentStep == 3 }">
               <div v-for="vendor in vendors" :key="vendor.id">
                 <div class="d-none" :class="{ 'd-block': vendor.selected && currentVendor.slug == vendor.slug }" v-if="vendor.selected">
-                  <component :is="vendor.slug" :vendor="vendor" />
+                  <component :is="vendor.slug" :vendor="vendor" :ref="vendor.slug" />
                 </div>
               </div>
             </div>
@@ -180,7 +180,8 @@ export default {
         selectedAccount: '',
         selectedAdvertiser: '',
         selected: false,
-        state: false
+        state: false,
+        loaded: false
       })
     }
 
@@ -208,6 +209,8 @@ export default {
       } else {
         vendor.selected = !vendor.selected
       }
+
+      vendor.loaded = false
     },
 
     submitStep1() {
@@ -222,6 +225,11 @@ export default {
           this.currentVendor = this.vendors[i]
           break
         }
+      }
+
+      if (!this.currentVendor.loaded) {
+        this.$refs[this.currentVendor.slug][0].preparingData();
+        this.currentVendor.loaded = true;
       }
     },
 
@@ -255,8 +263,19 @@ export default {
 
         if (found && this.vendors[i].selected) {
           this.currentVendor = this.vendors[i]
+
+          if (!this.currentVendor.loaded) {
+            this.$refs[this.currentVendor.slug][0].preparingData();
+            this.currentVendor.loaded = true;
+          }
+
           return
         }
+      }
+
+      if (!this.currentVendor.loaded) {
+        this.$refs[this.currentVendor.slug][0].preparingData();
+        this.currentVendor.loaded = true;
       }
 
       this.currentStep = 4

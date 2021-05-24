@@ -5,12 +5,6 @@
     </div>
     <div class="row justify-content-center">
       Outbrain
-      <!-- <div class="card-footer">
-            <div class="d-flex justify-content-between">
-              <button type="button" class="btn btn-primary" @click.prevent="backVendor">Back</button>
-              <button type="button" class="btn btn-primary" @click.prevent="submitVendor" :disabled="!submitState">Next</button>
-            </div>
-          </div> -->
     </div>
   </section>
 </template>
@@ -56,13 +50,9 @@ export default {
     }
   },
   methods: {
-    backVendor() {
-      this.$emit('backVendor', this.vendor)
-    },
-
-    submitVendor() {
-      this.$emit('submitVendor', this.vendor)
-    },
+    preparingData() {
+      console.log('Load data')
+    }
   }
 }
 </script>
