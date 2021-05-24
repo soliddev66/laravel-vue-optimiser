@@ -195,7 +195,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="row" v-for="(supportedSiteItem, index) in supportedSiteCollections" :key="index">
+                <div class="row" v-for="(supportedSiteItem, index) in vendor.supportedSiteCollections" :key="index">
                   <label for="bid_adjustment_site_group" class="col-sm-5 control-label mt-2">{{ supportedSiteItem.label }} <small>{{ supportedSiteItem.subLabel }}</small></label>
                   <select class="form-control col-sm-2" v-model="vendor.supportedSiteItem.incrementType">
                     <option value="1">Increase By</option>
@@ -338,13 +338,54 @@ export default {
       fullPage: true,
       languages: [],
       countries: [],
-      genders: [],
-      ages: [],
-      devices: [],
+      genders: [{
+        id: '',
+        text: 'All'
+      }, {
+        id: 'MALE',
+        text: 'Male'
+      }, {
+        id: 'FEMALE',
+        text: 'Female'
+      }],
+      ages: [{
+        id: '',
+        text: 'All',
+      }, {
+        id: '18-24',
+        text: '18-24',
+      }, {
+        id: '25-34',
+        text: '25-34',
+      }, {
+        id: '35-44',
+        text: '35-44',
+      }, {
+        id: '45-54',
+        text: '45-54',
+      }, {
+        id: '55-64',
+        text: '55-64',
+      }, {
+        id: '65-120',
+        text: '65-120',
+      }],
+      devices: [{
+        id: '',
+        text: 'All',
+      }, {
+        id: 'SMARTPHONE',
+        text: 'SMARTPHONE',
+      }, {
+        id: 'TABLET',
+        text: 'TABLET',
+      }, {
+        id: 'DESKTOP',
+        text: 'DESKTOP',
+      }],
       supportedSites: [],
       networkSettings: [],
       saveNetworkSetting: true,
-      supportedSiteCollections: [],
       scheduleType: 'IMMEDIATELY',
       campaignSupplyGroupState: true
 
@@ -353,6 +394,10 @@ export default {
   methods: {
     preparingData() {
       this.getLanguages()
+      this.getCountries()
+      this.getAdvertisers()
+      this.getNetworkSettings()
+      this.getBbsxdSupportedSites()
     },
 
     getLanguages() {
@@ -372,8 +417,88 @@ export default {
       })
     },
 
+    getCountries() {
+      this.isLoading = true
+      this.countries = []
+      axios.get(`/general/countries?provider=yahoo&account=${this.vendor.selectedAccount}`).then(response => {
+        if (response.data) {
+          this.countries = response.data.map(country => {
+            return {
+              id: country.woeid,
+              text: country.name
+            }
+          })
+        }
+      }).catch(err => {}).finally(() => {
+        this.isLoading = false
+      })
+    },
+
+    getAdvertisers() {
+      this.advertisers = []
+      this.isLoading = true
+      axios.get(`/account/advertisers?provider=yahoo&account=${this.vendor.selectedAccount}`).then(response => {
+        this.advertisers = response.data
+      }).catch(err => {}).finally(() => {
+        this.isLoading = false
+      })
+    },
+
+    getNetworkSettings() {
+      this.isLoading = true
+      axios.get(`/general/network-setting?provider=yahoo&account=${this.vendor.selectedAccount}`).then(response => {
+        this.networkSettingData = response.data
+        if (response.data) {
+          this.networkSettings = response.data.map((item, index) => {
+            return {
+              id: index,
+              text: item.name
+            }
+          })
+        }
+      }).catch(err => {}).finally(() => {
+        this.isLoading = false
+      })
+    },
+
+    getBbsxdSupportedSites() {
+      this.isLoading = true
+      axios.get(`/general/bdsxd-supported-sites?provider=yahoo&account=${this.vendor.selectedAccount}`).then(response => {
+        if (response.data) {
+          this.supportedSites = response.data
+
+          let total = 0
+
+          for (let i = 0; i < response.data.length; i++) {
+            for (let j = 0; j < response.data[i].children.length; j++) {
+              for (let l = 0; l < this.vendor.supportedSiteCollections.length; l++) {
+                if (response.data[i].children[j].id == this.vendor.supportedSiteCollections[l].key) {
+                  this.vendor.supportedSiteCollections[l].label = response.data[i].children[j].label
+                  total++
+                }
+
+                if (total > this.vendor.supportedSiteCollections.length) {
+                  break
+                }
+              }
+
+              if (total > this.vendor.supportedSiteCollections.length) {
+                break
+              }
+            }
+
+            if (total > this.vendor.supportedSiteCollections.length) {
+              break
+            }
+          }
+        }
+      }).catch(err => {}).finally(() => {
+        this.isLoading = false
+      })
+    },
+
     supportedSiteChanged(node, instanceId) {
-      this.supportedSiteCollections.push({
+      this.vendor.supportedSiteCollections.push({
         label: node.label,
         subLabel: '(+800% — -80%)',
         key: node.id,
@@ -385,46 +510,46 @@ export default {
 
     networkSettingChanged() {
       let data = this.networkSettingData[this.networkSetting]
-      this.campaignSupplyGroup1A = data.group_1a
-      this.campaignSupplyGroup1B = data.group_1b
-      this.campaignSupplyGroup2A = data.group_2a
-      this.campaignSupplyGroup2B = data.group_2b
-      this.campaignSupplyGroup3A = data.group_3a
-      this.campaignSupplyGroup3B = data.group_3b
+      this.vendor.campaignSupplyGroup1A = data.group_1a
+      this.vendor.campaignSupplyGroup1B = data.group_1b
+      this.vendor.campaignSupplyGroup2A = data.group_2a
+      this.vendor.campaignSupplyGroup2B = data.group_2b
+      this.vendor.campaignSupplyGroup3A = data.group_3a
+      this.vendor.campaignSupplyGroup3B = data.group_3b
 
-      if (this.campaignSupplyGroup1B < 0) {
-        this.incrementType1b = -1
-        this.campaignSupplyGroup1B = -this.campaignSupplyGroup1B
+      if (this.vendor.campaignSupplyGroup1B < 0) {
+        this.vendor.incrementType1b = -1
+        this.vendor.campaignSupplyGroup1B = -this.campaignSupplyGroup1B
       }
 
-      if (this.campaignSupplyGroup2A < 0) {
-        this.incrementType2a = -1
-        this.campaignSupplyGroup2A = -this.campaignSupplyGroup2A
+      if (this.vendor.campaignSupplyGroup2A < 0) {
+        this.vendor.incrementType2a = -1
+        this.vendor.campaignSupplyGroup2A = -this.vendor.campaignSupplyGroup2A
       }
 
-      if (this.campaignSupplyGroup2B < 0) {
-        this.incrementType2b = -1
-        this.campaignSupplyGroup2B = -this.campaignSupplyGroup2B
+      if (this.vendor.campaignSupplyGroup2B < 0) {
+        this.vendor.incrementType2b = -1
+        this.vendor.campaignSupplyGroup2B = -this.vendor.campaignSupplyGroup2B
       }
 
-      if (this.campaignSupplyGroup3A < 0) {
-        this.incrementType3a = -1
-        this.campaignSupplyGroup3A = -this.campaignSupplyGroup3A
+      if (this.vendor.campaignSupplyGroup3A < 0) {
+        this.vendor.incrementType3a = -1
+        this.vendor.campaignSupplyGroup3A = -this.vendor.campaignSupplyGroup3A
       }
 
-      if (this.campaignSupplyGroup3B < 0) {
-        this.incrementType3b = -1
-        this.campaignSupplyGroup3B = -this.campaignSupplyGroup3B
+      if (this.vendor.campaignSupplyGroup3B < 0) {
+        this.vendor.incrementType3b = -1
+        this.vendor.campaignSupplyGroup3B = -this.vendor.campaignSupplyGroup3B
       }
 
-      this.campaignSiteBlock = data.site_block
+      this.vendor.campaignSiteBlock = data.site_block
 
       if (data.site_group) {
-        this.supportedSiteCollections = JSON.parse(data.site_group)
+        this.vendor.supportedSiteCollections = JSON.parse(data.site_group)
 
-        for (let i = 0; i < this.supportedSiteCollections.length; i++) {
-          if (this.supportedSiteCollections[i].bidModifier < 0) {
-            this.supportedSiteCollections[i].bidModifier = -this.supportedSiteCollections[i].bidModifier
+        for (let i = 0; i < this.vendor.supportedSiteCollections.length; i++) {
+          if (this.vendor.supportedSiteCollections[i].bidModifier < 0) {
+            this.vendor.supportedSiteCollections[i].bidModifier = -this.vendor.supportedSiteCollections[i].bidModifier
           }
         }
       }
