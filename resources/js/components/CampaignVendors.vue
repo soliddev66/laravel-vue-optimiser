@@ -82,7 +82,7 @@
             <div v-if="currentStep === 3">
               <div v-for="vendor in vendors" :key="vendor.id">
                 <div class="d-flex justify-content-end" v-if="vendor.selected && currentVendor.slug == vendor.slug">
-                  <button type="button" class="btn btn-primary" @click.prevent="submitVendor(vendor)" :disabled="!vendorState">Next</button>
+                  <button type="button" class="btn btn-primary" @click.prevent="submitVendor(vendor)" :disabled="!$refs[vendor.slug][0].vendorState">Next</button>
                 </div>
               </div>
             </div>
@@ -148,16 +148,6 @@ export default {
       }
 
       return false
-    },
-
-    vendorState() {
-      if (this.currentVendor.slug == 'yahoo') {
-        if (this.currentVendor.campaignBudget > 0 && this.currentVendor.adGroupName !== '' && this.currentVendor.bidAmount > 0) {
-          return true
-        } else {
-          return false
-        }
-      }
     }
   },
   mounted() {
@@ -170,7 +160,7 @@ export default {
     let vendors = []
 
     for (let i = 0; i < this.providers.length; i++) {
-      vendors.push({
+      let vendor = {
         id: this.providers[i].id,
         slug: this.providers[i].slug,
         label: this.providers[i].label,
@@ -180,9 +170,18 @@ export default {
         selectedAccount: '',
         selectedAdvertiser: '',
         selected: false,
-        state: false,
         loaded: false
-      })
+      }
+
+      if (this.providers[i].slug == 'yahoo') {
+        Object.assign(vendor, {
+          campaignBudget: '',
+          adGroupName: '',
+          bidAmount: ''
+        })
+      }
+
+      vendors.push(vendor)
     }
 
     return {

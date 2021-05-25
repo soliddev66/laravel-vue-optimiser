@@ -109,7 +109,7 @@
             </div>
             <div class="form-group row">
               <div class="col">
-                <select2 id="network_setting" name="network_setting" v-model="vendor.networkSetting" :options="networkSettings" @change="networkSettingChanged" placeholder="Load from setting..." />
+                <select2 id="network_setting" name="network_setting" v-model="networkSetting" :options="networkSettings" @change="networkSettingChanged" placeholder="Load from setting..." />
               </div>
             </div>
             <div class="row">
@@ -226,7 +226,7 @@
             </div>
             <div class="row mt-2">
               <div class="col-sm-4" v-if="!saveNetworkSetting">
-                <input type="text" name="network_setting_name" v-model="vendor.networkSettingName" class="form-control" placeholder="Enter setting name">
+                <input type="text" name="network_setting_name" v-model="networkSettingName" class="form-control" placeholder="Enter setting name">
               </div>
               <div class="col-sm-5" v-if="saveNetworkSetting && campaignSupplyGroupState">
                 <button type="button" class="btn btn-primary" @click.prevent="saveNetworkSetting = !saveNetworkSetting">Save these setting</button>
@@ -317,20 +317,47 @@ export default {
     Treeselect
   },
   computed: {
+    campaignSupplyGroupState() {
+      if (this.vendor.campaignSupplyGroup1A || this.vendor.campaignSupplyGroup1B || this.vendor.campaignSupplyGroup2A || this.vendor.campaignSupplyGroup2B || this.vendor.campaignSupplyGroup3A || this.vendor.campaignSupplyGroup3B) {
+        return true
+      }
 
+      for (let i = 0; i < this.vendor.supportedSiteCollections.length; i++) {
+        if (this.vendor.supportedSiteCollections[i].bidModifier > 0) {
+          return true
+        }
+      }
+
+      return false
+    },
+
+    vendorState() {
+      if (this.vendor.campaignBudget > 0 && this.vendor.adGroupName !== '' && this.vendor.bidAmount > 0) {
+        return true
+      }
+
+      return false
+    }
   },
   mounted() {
     console.log('Component mounted.')
+    //this.preparingData() // Temporary
   },
   watch: {
-    //
+
   },
   data() {
     Object.assign(this.vendor, {
-      selectedAccount: '4PYGHZXE65D5HWTH7MNJQEPOPE', // temp
+      //selectedAccount: '4PYGHZXE65D5HWTH7MNJQEPOPE', // Temporary
       campaignType: 'NATIVE',
       campaignLanguage: 'en',
       campaignStrategy: 'OPT_CLICK',
+      campaignObjective: 'VISIT_WEB',
+      campaignStartDate: this.$moment().format('YYYY-MM-DD'),
+      campaignBudgetType: 'DAILY',
+      campaignConversionCounting: 'ALL_PER_INTERACTION',
+      scheduleType: 'IMMEDIATELY',
+      supportedSiteCollections: []
     })
 
     return {
@@ -385,9 +412,10 @@ export default {
       }],
       supportedSites: [],
       networkSettings: [],
+      networkSetting: null,
       saveNetworkSetting: true,
-      scheduleType: 'IMMEDIATELY',
-      campaignSupplyGroupState: true
+      networkSettingName: '',
+      scheduleType: 'IMMEDIATELY'
 
     }
   },
@@ -554,6 +582,31 @@ export default {
         }
       }
     },
+
+    storeNetworkSetting() {
+      this.isLoading = true
+      axios.post(`/general/network-setting?provider=yahoo&account=${this.vendor.selectedAccount}`, {
+        networkSettingName: this.networkSettingName,
+        campaignSiteBlock: this.vendor.campaignSiteBlock,
+        campaignSupplyGroup1A: this.vendor.campaignSupplyGroup1A,
+        campaignSupplyGroup1B: this.vendor.campaignSupplyGroup1B,
+        campaignSupplyGroup2A: this.vendor.campaignSupplyGroup2A,
+        campaignSupplyGroup2B: this.vendor.campaignSupplyGroup2B,
+        campaignSupplyGroup3A: this.vendor.campaignSupplyGroup3A,
+        campaignSupplyGroup3B: this.vendor.campaignSupplyGroup3B,
+        incrementType1b: this.vendor.incrementType1b,
+        incrementType2a: this.vendor.incrementType2a,
+        incrementType2b: this.vendor.incrementType2b,
+        incrementType3a: this.vendor.incrementType3a,
+        incrementType3b: this.vendor.incrementType3b,
+        supportedSiteCollections: this.vendor.supportedSiteCollections
+      }).then(response => {
+        this.saveNetworkSetting = true
+        this.getNetworkSettings()
+      }).catch(err => {}).finally(() => {
+        this.isLoading = false
+      })
+    }
   }
 }
 </script>
