@@ -332,23 +332,21 @@ export default {
     },
 
     vendorState() {
-      if (this.vendor.campaignBudget > 0 && this.vendor.adGroupName !== '' && this.vendor.bidAmount > 0) {
-        return true
+      if (this.vendor.campaignBudget <= 0 || this.vendor.adGroupName == '' || this.vendor.bidAmount <= 0) {
+        return false
       }
 
-      return false
+      return true
     }
   },
   mounted() {
     console.log('Component mounted.')
-    //this.preparingData() // Temporary
   },
   watch: {
 
   },
   data() {
     Object.assign(this.vendor, {
-      //selectedAccount: '4PYGHZXE65D5HWTH7MNJQEPOPE', // Temporary
       campaignType: 'NATIVE',
       campaignLanguage: 'en',
       campaignStrategy: 'OPT_CLICK',
@@ -423,7 +421,6 @@ export default {
     preparingData() {
       this.getLanguages()
       this.getCountries()
-      this.getAdvertisers()
       this.getNetworkSettings()
       this.getBbsxdSupportedSites()
     },
@@ -457,16 +454,6 @@ export default {
             }
           })
         }
-      }).catch(err => {}).finally(() => {
-        this.isLoading = false
-      })
-    },
-
-    getAdvertisers() {
-      this.advertisers = []
-      this.isLoading = true
-      axios.get(`/account/advertisers?provider=yahoo&account=${this.vendor.selectedAccount}`).then(response => {
-        this.advertisers = response.data
       }).catch(err => {}).finally(() => {
         this.isLoading = false
       })

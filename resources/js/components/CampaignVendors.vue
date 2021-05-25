@@ -179,6 +179,13 @@ export default {
           adGroupName: '',
           bidAmount: ''
         })
+      } else if (this.providers[i].slug == 'outbrain') {
+        Object.assign(vendor, {
+          campaignStartDate: this.$moment().format('YYYY-MM-DD'),
+          campaignObjective: 'Awareness',
+          campaignBudget: 20,
+          campaignCostPerClick: ''
+        })
       }
 
       vendors.push(vendor)
