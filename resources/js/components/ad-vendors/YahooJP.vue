@@ -366,15 +366,8 @@ import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
-import Treeselect from '@riophae/vue-treeselect'
-import { LOAD_ROOT_OPTIONS } from '@riophae/vue-treeselect'
-
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css'
 import 'vue-loading-overlay/dist/vue-loading.css'
-
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-
-let adPreviewCancels = []
 
 export default {
   props: {
@@ -406,12 +399,11 @@ export default {
   components: {
     Loading,
     VueCtkDateTimePicker,
-    Select2,
-    Treeselect
+    Select2
   },
   computed: {
     submitStep1State() {
-      return !this.selectedAdvertiser || !this.campaignName || !this.campaignGoals.length || !this.campaignBudget || this.campaignBudget <= 0 || !this.campaignStartDate || !this.adGroupName
+      return !this.selectedAdvertiser || !this.campaignName || !this.campaignGoal || !this.campaignBudget || this.campaignBudget <= 0 || !this.campaignStartDate || !this.adGroupName
     },
     submitStep2State() {
       for (let i = 0; i < this.contents.length; i++) {

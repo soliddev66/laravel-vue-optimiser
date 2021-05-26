@@ -332,11 +332,7 @@ export default {
     },
 
     vendorState() {
-      if (this.vendor.campaignBudget <= 0 || this.vendor.adGroupName == '' || this.vendor.bidAmount <= 0) {
-        return false
-      }
-
-      return true
+      return this.vendor.campaignBudget <= 0 || this.vendor.adGroupName == '' || this.vendor.bidAmount <= 0
     }
   },
   mounted() {
