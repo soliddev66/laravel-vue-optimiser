@@ -26,25 +26,25 @@
         <div class="form-group row">
           <label for="language" class="col-sm-2 control-label mt-2">Language</label>
           <div class="col-sm-8">
-            <select2 id="language" name="language" :options="languages" v-model="vendor.campaignLanguage"></select2>
+            <select2 name="language" :options="languages" v-model="vendor.campaignLanguage"></select2>
           </div>
         </div>
         <div class="form-group row">
           <label for="location" class="col-sm-2 control-label mt-2">Location</label>
           <div class="col-sm-8">
-            <select2 id="location" name="location" v-model="vendor.campaignLocation" :options="countries" :settings="{ multiple: true }" />
+            <select2 name="location" v-model="vendor.campaignLocation" :options="countries" :settings="{ multiple: true }" />
           </div>
         </div>
         <div class="form-group row">
           <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
           <div class="col-sm-8">
-            <select2 id="gender" name="gender" v-model="vendor.campaignGender" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
+            <select2 name="gender" v-model="vendor.campaignGender" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
           </div>
         </div>
         <div class="form-group row">
           <label for="age" class="col-sm-2 control-label mt-2">Age</label>
           <div class="col-sm-8">
-            <select2 id="age" name="age" v-model="vendor.campaignAge" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
+            <select2 name="age" v-model="vendor.campaignAge" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
           </div>
         </div>
         <div class="form-group row">
@@ -109,7 +109,7 @@
             </div>
             <div class="form-group row">
               <div class="col">
-                <select2 id="network_setting" name="network_setting" v-model="networkSetting" :options="networkSettings" @change="networkSettingChanged" placeholder="Load from setting..." />
+                <select2 name="network_setting" v-model="networkSetting" :options="networkSettings" @change="networkSettingChanged" placeholder="Load from setting..." />
               </div>
             </div>
             <div class="row">
@@ -271,10 +271,10 @@
           <div class="col-sm-8">
             <div class="btn-group btn-group-toggle">
               <label class="btn bg-olive" :class="{ active: scheduleType === 'IMMEDIATELY' }">
-                <input type="radio" name="schedule" id="scheduleType1" autocomplete="off" value="IMMEDIATELY" v-model="vendor.scheduleType"> Start running ads immediately
+                <input type="radio" name="schedule" id="scheduleType1" autocomplete="off" value="IMMEDIATELY" v-model="scheduleType"> Start running ads immediately
               </label>
               <label class="btn bg-olive" :class="{ active: scheduleType === 'CUSTOM' }">
-                <input type="radio" name="schedule" id="scheduleType2" autocomplete="off" value="CUSTOM" v-model="vendor.scheduleType"> Set a start and end date
+                <input type="radio" name="schedule" id="scheduleType2" autocomplete="off" value="CUSTOM" v-model="scheduleType"> Set a start and end date
               </label>
             </div>
           </div>
@@ -299,9 +299,11 @@ import _ from 'lodash'
 import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
+import VueCtkDateTimePicker from 'vue-ctk-date-time-picker'
 
 import Treeselect from '@riophae/vue-treeselect'
 
+import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css'
 import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
@@ -314,6 +316,7 @@ export default {
   components: {
     Loading,
     Select2,
+    VueCtkDateTimePicker,
     Treeselect
   },
   computed: {
@@ -342,18 +345,6 @@ export default {
 
   },
   data() {
-    Object.assign(this.vendor, {
-      campaignType: 'NATIVE',
-      campaignLanguage: 'en',
-      campaignStrategy: 'OPT_CLICK',
-      campaignObjective: 'VISIT_WEB',
-      campaignStartDate: this.$moment().format('YYYY-MM-DD'),
-      campaignBudgetType: 'DAILY',
-      campaignConversionCounting: 'ALL_PER_INTERACTION',
-      scheduleType: 'IMMEDIATELY',
-      supportedSiteCollections: []
-    })
-
     return {
       isLoading: false,
       fullPage: true,

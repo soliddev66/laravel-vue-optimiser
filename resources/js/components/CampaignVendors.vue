@@ -173,14 +173,34 @@ export default {
         loaded: false
       }
 
-      if (this.providers[i].slug == 'outbrain') {
+      if (this.providers[i].slug == 'yahoo') {
         Object.assign(vendor, {
+          campaignType: 'NATIVE',
+          campaignLanguage: 'en',
+          campaignStrategy: 'OPT_CLICK',
+          campaignObjective: 'VISIT_WEB',
+          campaignStartDate: this.$moment().format('YYYY-MM-DD'),
+          campaignBudgetType: 'DAILY',
+          campaignConversionCounting: 'ALL_PER_INTERACTION',
+          scheduleType: 'IMMEDIATELY',
+          supportedSiteCollections: []
+        })
+      } else if (this.providers[i].slug == 'outbrain') {
+        Object.assign(vendor, {
+          campaignBudgetType: 'DAILY',
+          campaignPacing: 'SPEND_ASAP',
+          campaginPlatform: ['DESKTOP', 'MOBILE', 'TABLET'],
+          campaignOperatingSystem: ['Ios', 'MacOs', 'Android', 'Windows'],
+          campaignBrowser: ['Safari', 'Opera', 'Chrome', 'UCBrowser', 'InApp', 'Samsung', 'Firefox', 'InternetExplorer', 'Edge'],
+          campaignExcludeAdBlockUsers: true,
           campaignStartDate: this.$moment().format('YYYY-MM-DD'),
           campaignObjective: 'Awareness',
           campaignBudget: 20
         })
       } else if (this.providers[i].slug == 'yahoojp') {
         Object.assign(vendor, {
+          campaignCampaignBidStrategy: 'AUTO',
+          campaignStatus: 'ACTIVE',
           campaignStartDate: this.$moment().format('YYYY-MM-DD')
         })
       }

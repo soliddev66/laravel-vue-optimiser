@@ -112,25 +112,25 @@
         <div class="form-group row">
           <label for="location" class="col-sm-12 control-label mt-2">Location</label>
           <div class="col-sm-12">
-            <select2 id="location" v-model="vendor.campaignLocation" :options="countries" :settings="{ multiple: true }" />
+            <select2 v-model="vendor.campaignLocation" :options="countries" :settings="{ multiple: true }" />
           </div>
         </div>
         <div class="form-group row">
           <label for="platform" class="col-sm-12 control-label mt-2">Platform Targeting</label>
           <div class="col-sm-12">
-            <select2 id="platform" v-model="vendor.campaginPlatform" :options="platforms" :settings="{ multiple: true }" />
+            <select2 v-model="vendor.campaginPlatform" :options="platforms" :settings="{ multiple: true }" />
           </div>
         </div>
         <div class="form-group row">
           <label for="operatingSystem" class="col-sm-12 control-label mt-2">Operating System</label>
           <div class="col-sm-12">
-            <select2 id="operatingSystem" v-model="vendor.campaignOperatingSystem" :options="operatingSystems" :settings="{ multiple: true }" />
+            <select2 v-model="vendor.campaignOperatingSystem" :options="operatingSystems" :settings="{ multiple: true }" />
           </div>
         </div>
         <div class="form-group row">
           <label for="browser" class="col-sm-12 control-label mt-2">Browsers</label>
           <div class="col-sm-12">
-            <select2 id="browser" v-model="vendor.campaignBrowser" :options="browsers" :settings="{ multiple: true }" />
+            <select2 v-model="vendor.campaignBrowser" :options="browsers" :settings="{ multiple: true }" />
           </div>
         </div>
         <div class="form-group row">
@@ -193,15 +193,6 @@ export default {
     //
   },
   data() {
-    Object.assign(this.vendor, {
-      campaignBudgetType: 'DAILY',
-      campaignPacing: 'SPEND_ASAP',
-      campaginPlatform: ['DESKTOP', 'MOBILE', 'TABLET'],
-      campaignOperatingSystem: ['Ios', 'MacOs', 'Android', 'Windows'],
-      campaignBrowser: ['Safari', 'Opera', 'Chrome', 'UCBrowser', 'InApp', 'Samsung', 'Firefox', 'InternetExplorer', 'Edge'],
-      campaignExcludeAdBlockUsers: true
-    })
-
     return {
       isLoading: false,
       fullPage: true,

@@ -10,7 +10,7 @@
         <div class="form-group row">
           <label for="name" class="col-sm-2 control-label mt-2">Campaign Goal</label>
           <div class="col-sm-8">
-            <select2 id="goal" name="campaign_campaign_bid_strategy" :options="campaignGoals" v-model="vendor.campaignGoal" placeholder="Select campaign goal"></select2>
+            <select2 name="campaign_campaign_bid_strategy" :options="campaignGoals" v-model="vendor.campaignGoal" placeholder="Select campaign goal"></select2>
           </div>
         </div>
         <div class="form-group row">
@@ -49,9 +49,9 @@
           </div>
         </div>
         <div class="form-group row">
-          <label for="bid_strategy" class="col-sm-2 control-label mt-2">Campaign Bid Strategy</label>
+          <label class="col-sm-2 control-label mt-2">Campaign Bid Strategy</label>
           <div class="col-sm-8">
-            <select2 id="campaign_campaign_bid_strategy" name="campaign_campaign_bid_strategy" :options="campaignCampaignBidStrategies" v-model="vendor.campaignCampaignBidStrategy"></select2>
+            <select2 name="campaign_campaign_bid_strategy" :options="campaignCampaignBidStrategies" v-model="vendor.campaignCampaignBidStrategy"></select2>
           </div>
         </div>
         <div class="form-group row" v-if="vendor.campaignCampaignBidStrategy == 'MAX_CPC'">
@@ -96,33 +96,33 @@
           </div>
         </div>
         <div class="form-group row">
-          <label for="gender" class="col-sm-2 control-label mt-2">Gender</label>
+          <label class="col-sm-2 control-label mt-2">Gender</label>
           <div class="col-sm-8">
-            <select2 id="gender" name="gender" v-model="vendor.campaignGenders" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
+            <select2 name="gender" v-model="vendor.campaignGenders" :options="genders" :settings="{ multiple: true, placeholder: 'ALL' }" />
           </div>
         </div>
         <div class="form-group row">
-          <label for="age" class="col-sm-2 control-label mt-2">Age</label>
+          <label class="col-sm-2 control-label mt-2">Age</label>
           <div class="col-sm-8">
-            <select2 id="age" name="age" v-model="vendor.campaignAges" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
+            <select2 name="age" v-model="vendor.campaignAges" :options="ages" :settings="{ multiple: true, placeholder: 'ALL' }" />
           </div>
         </div>
         <div class="form-group row">
-          <label for="device" class="col-sm-2 control-label mt-2">Device</label>
+          <label class="col-sm-2 control-label mt-2">Device</label>
           <div class="col-sm-8">
-            <select2 id="device" name="device" v-model="vendor.campaignDevices" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
+            <select2 name="device" v-model="vendor.campaignDevices" :options="devices" :settings="{ multiple: true, placeholder: 'ALL' }" />
           </div>
         </div>
         <div class="form-group row">
-          <label for="device" class="col-sm-2 control-label mt-2">Device App</label>
+          <label class="col-sm-2 control-label mt-2">Device App</label>
           <div class="col-sm-8">
-            <select2 id="device_app" name="device_app" v-model="vendor.campaignDeviceApps" :options="deviceApps" :settings="{ multiple: true, placeholder: 'ALL' }" />
+            <select2 name="device_app" v-model="vendor.campaignDeviceApps" :options="deviceApps" :settings="{ multiple: true, placeholder: 'ALL' }" />
           </div>
         </div>
         <div class="form-group row">
-          <label for="device" class="col-sm-2 control-label mt-2">Device Os</label>
+          <label class="col-sm-2 control-label mt-2">Device Os</label>
           <div class="col-sm-8">
-            <select2 id="device_os" name="device_os" v-model="vendor.campaignDeviceOs" :options="deviceOs" :settings="{ multiple: true, placeholder: 'ALL' }" />
+            <select2 name="device_os" v-model="vendor.campaignDeviceOs" :options="deviceOs" :settings="{ multiple: true, placeholder: 'ALL' }" />
           </div>
         </div>
       </div>
@@ -164,11 +164,6 @@ export default {
     //
   },
   data() {
-    Object.assign(this.vendor, {
-      campaignCampaignBidStrategy: 'AUTO',
-      campaignStatus: 'ACTIVE'
-    })
-
     return {
       isLoading: false,
       fullPage: true,
