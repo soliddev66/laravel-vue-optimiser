@@ -371,7 +371,6 @@
                           <button class="btn btn-primary btn-sm mt-2" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('description', index)">Load from Sets</button>
                         </div>
                       </div>
-
                       <div class="form-group row">
                         <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
                         <div class="col-sm-8 text-center">
@@ -386,7 +385,6 @@
                           <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
-
                       <div class="form-group row">
                         <label for="ad_type" class="col-sm-4 control-label mt-2">Ad Type</label>
                         <div class="col-sm-8">
@@ -400,7 +398,6 @@
                           </div>
                         </div>
                       </div>
-
                       <div v-if="content.adType == 'IMAGE'">
                         <fieldset class="mb-3 p-3 rounded border" v-for="(image, indexImage) in content.images" :key="indexImage">
                           <div class="form-group row">
@@ -435,7 +432,6 @@
                         <button class="btn btn-primary btn-sm" @click.prevent="addImage(index)" :disabled="content.id || content.imageSet.id">Add Image</button>
                         <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
                       </div>
-
                       <div v-if="content.adType == 'VIDEO'">
                         <fieldset class="mb-3 p-3 rounded border" v-for="(video, indexVideo) in content.videos" :key="indexVideo">
                           <div v-if="!['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'].includes(campaignObjective)">
@@ -552,7 +548,6 @@
         </div>
       </div>
     </div>
-
     <div class="modal fade creative-set-modal" id="creative-set-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -563,7 +558,6 @@
         </div>
       </div>
     </div>
-
     <modal width="60%" height="80%" name="imageModal">
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
@@ -889,7 +883,7 @@ export default {
       for (let i = 0; i < this.instance.ads.length; i++) {
         contents.push({
           id: this.instance.ads[i]['id'],
-          adType: this.instance.ads[i]['videoPrimaryUrl'] || this.instance.ads[i]['imagePortraitUrl'] ? 'VIDEO': 'IMAGE',
+          adType: this.instance.ads[i]['videoPrimaryUrl'] || this.instance.ads[i]['imagePortraitUrl'] ? 'VIDEO' : 'IMAGE',
           titleSet: this.instance.ads[i]['titleSet'] || '',
           titles: [{
             title: this.instance.ads[i]['title']
@@ -897,16 +891,16 @@ export default {
           displayUrl: this.instance.ads[i]['displayUrl'],
           targetUrl: this.instance.ads[i]['landingUrl'],
           description: this.instance.ads[i]['description'],
-          descriptionSet:  this.instance.ads[i]['descriptionSet'] || '',
+          descriptionSet: this.instance.ads[i]['descriptionSet'] || '',
           brandname: this.instance.ads[i]['sponsoredBy'],
-          imageSet:  this.instance.ads[i]['imageSet'] || '',
+          imageSet: this.instance.ads[i]['imageSet'] || '',
           images: [{
             imageUrlHQ: this.instance.ads[i]['imageUrlHQ'],
             imageUrlHQState: true,
             imageUrl: this.instance.ads[i]['imageUrl'],
             imageUrlState: true
           }],
-          videoSet:  this.instance.ads[i]['videoSet'] || '',
+          videoSet: this.instance.ads[i]['videoSet'] || '',
           videos: [{
             videoPrimaryUrl: this.instance.ads[i]['videoPrimaryUrl'],
             videoPortraitUrl: this.instance.ads[i]['videoPortraitUrl'],
@@ -1231,7 +1225,8 @@ export default {
       this.isLoading = true
       this.contents[index].adPreviews = [];
 
-      let titles = [], description = ''
+      let titles = [],
+        description = ''
 
       if (this.contents[index].titleSet.id) {
         titles = this.contents[index].titleSet.sets

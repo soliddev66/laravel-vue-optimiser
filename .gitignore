@@ -2,6 +2,9 @@
 /public/hot
 /public/storage
 /public/reports
+/public/gemini_ad_extension_details
+/public/gemini_adjustment_stats
+/public/gemini_campaign_bid_performance_stats
 /storage/*.key
 /vendor
 .env

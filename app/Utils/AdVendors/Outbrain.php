@@ -588,7 +588,7 @@ class Outbrain extends Root implements AdVendorInterface
             DB::raw('ROUND(SUM(cost)/SUM(lp_clicks), 2) as lp_cpc')
         ]);
         $contents_query->leftJoin('redtrack_content_stats', function ($join) use ($data) {
-            $join->on('redtrack_content_stats.sub5', '=', 'ads.ad_id')->whereBetween('redtrack_content_stats.date', [$data['start'], $data['end']]);
+            $join->on('redtrack_content_stats.sub2', '=', 'ads.ad_id')->whereBetween('redtrack_content_stats.date', [$data['start'], $data['end']]);
         });
         $contents_query->where('ads.campaign_id', $campaign->campaign_id);
         $contents_query->where('name', 'LIKE', '%' . $data['search'] . '%');

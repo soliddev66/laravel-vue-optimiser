@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "37038936ef950a28697ef8c011e6a3a7",
+    "content-hash": "4461c2c779707411c5c58a9b5f9ee076",
     "packages": [
         {
             "name": "alexusmai/laravel-file-manager",
@@ -68,16 +68,16 @@
         },
         {
             "name": "almasaeed2010/adminlte",
-            "version": "v3.0.5",
+            "version": "v3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ColorlibHQ/AdminLTE.git",
-                "reference": "6b8b69261f1aacbb4be037c934f3c3652e6dff27"
+                "reference": "c641d7f5716ed47e76f70ab16e05ae41420120b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ColorlibHQ/AdminLTE/zipball/6b8b69261f1aacbb4be037c934f3c3652e6dff27",
-                "reference": "6b8b69261f1aacbb4be037c934f3c3652e6dff27",
+                "url": "https://api.github.com/repos/ColorlibHQ/AdminLTE/zipball/c641d7f5716ed47e76f70ab16e05ae41420120b8",
+                "reference": "c641d7f5716ed47e76f70ab16e05ae41420120b8",
                 "shasum": ""
             },
             "type": "library",
@@ -91,7 +91,7 @@
                 }
             ],
             "description": "AdminLTE - admin control panel and dashboard that's based on Bootstrap 4",
-            "homepage": "http://adminlte.io/",
+            "homepage": "https://adminlte.io/",
             "keywords": [
                 "JS",
                 "admin",
@@ -105,9 +105,9 @@
             ],
             "support": {
                 "issues": "https://github.com/ColorlibHQ/AdminLTE/issues",
-                "source": "https://github.com/ColorlibHQ/AdminLTE/tree/v3.0.5"
+                "source": "https://github.com/ColorlibHQ/AdminLTE/tree/v3.1.0"
             },
-            "time": "2020-05-19T20:41:11+00:00"
+            "time": "2021-03-22T07:30:50+00:00"
         },
         {
             "name": "asm89/stack-cors",
@@ -2054,20 +2054,20 @@
         },
         {
             "name": "jeroennoten/laravel-adminlte",
-            "version": "v3.5.4",
+            "version": "v3.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jeroennoten/Laravel-AdminLTE.git",
-                "reference": "4c155cf3b90b5679bc2edfbe873b2be5fa0f9815"
+                "reference": "29de1c28d386f282b799e6261e382a0c7993448b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jeroennoten/Laravel-AdminLTE/zipball/4c155cf3b90b5679bc2edfbe873b2be5fa0f9815",
-                "reference": "4c155cf3b90b5679bc2edfbe873b2be5fa0f9815",
+                "url": "https://api.github.com/repos/jeroennoten/Laravel-AdminLTE/zipball/29de1c28d386f282b799e6261e382a0c7993448b",
+                "reference": "29de1c28d386f282b799e6261e382a0c7993448b",
                 "shasum": ""
             },
             "require": {
-                "almasaeed2010/adminlte": "3.0.*",
+                "almasaeed2010/adminlte": "3.1.*",
                 "laravel/framework": ">=6.0",
                 "php": ">=7.2.0"
             },
@@ -2107,9 +2107,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jeroennoten/Laravel-AdminLTE/issues",
-                "source": "https://github.com/jeroennoten/Laravel-AdminLTE/tree/v3.5.4"
+                "source": "https://github.com/jeroennoten/Laravel-AdminLTE/tree/v3.6.0"
             },
-            "time": "2021-03-22T16:23:11+00:00"
+            "time": "2021-05-19T17:37:17+00:00"
         },
         {
             "name": "laravel/framework",
