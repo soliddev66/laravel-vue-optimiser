@@ -183,11 +183,7 @@ export default {
   },
   computed: {
     vendorState() {
-      if (this.vendor.campaignBudget <= 0 || this.vendor.campaignCostPerClick <= 0 || this.vendor.campaignObjective == '' || this.vendor.campaignStartDate == '') {
-        return false
-      }
-
-      return true
+      return this.vendor.campaignBudget > 0 && this.vendor.campaignCostPerClick > 0 && this.vendor.campaignObjective && this.vendor.campaignStartDate
     }
   },
   mounted() {

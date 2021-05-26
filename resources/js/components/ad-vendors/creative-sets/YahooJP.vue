@@ -142,6 +142,10 @@ import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
   props: {
+    vendor: {
+      type: Object,
+      default: null
+    }
   },
   components: {
     Loading,
@@ -150,7 +154,7 @@ export default {
   },
   computed: {
     vendorState() {
-      return !this.campaignGoal || !this.campaignBudget || this.campaignBudget <= 0 || !this.campaignStartDate || !this.adGroupName
+      return this.vendor.campaignGoal && this.vendor.campaignBudget > 0 && this.vendor.campaignStartDate && this.vendor.adGroupName
     }
   },
   mounted() {
