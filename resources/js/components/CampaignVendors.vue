@@ -63,6 +63,89 @@
                 </div>
               </div>
             </div>
+
+            <div v-if="currentStep == 4">
+              <fieldset class="mb-3 p-3 rounded border" v-for="(content, index) in contents" :key="index">
+                <div class="row">
+                    <div class="col-sm-7">
+                      <div class="form-group row">
+                        <label for="title" class="col-sm-4 control-label mt-2">Title Set</label>
+                        <div class="col-sm-8">
+                          <button type="button" class="btn btn-primary" @click="loadCreativeSet('title', index)">Load Set</button>
+                          <span v-if="content.titleSet.id" class="selected-set">{{ content.titleSet.name }}<span class="close" @click="removeTitleSet(index)"><i class="fas fa-times"></i></span></span>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
+                        <div class="col-sm-8">
+                          <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" v-on:blur="loadPreviewEvent($event, index)" />
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label for="description" class="col-sm-4 control-label mt-2">Description Set</label>
+                        <div class="col-sm-8">
+                          <button class="btn btn-primary" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('description', index)">Load from Sets</button>
+                          <span v-if="content.descriptionSet.id" class="selected-set">{{ content.descriptionSet.name }}<span class="close" @click="removeDescriptionSet(index)"><i class="fas fa-times"></i></span></span>
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
+                        <div class="col-sm-8 text-center">
+                          <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                          <small class="text-danger" v-if="content.displayUrl && !validURL(content.displayUrl)">URL is invalid. You might need http/https at the beginning.</small>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
+                        <div class="col-sm-8 text-center">
+                          <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                          <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label for="ad_type" class="col-sm-4 control-label mt-2">Ad Type</label>
+                        <div class="col-sm-8">
+                          <div class="btn-group btn-group-toggle">
+                            <label class="btn bg-olive" :class="{ active: content.adType === 'IMAGE' }">
+                              <input type="radio" name="ad_type" autocomplete="off" value="IMAGE" v-model="content.adType"> IMAGE
+                            </label>
+                            <label class="btn bg-olive" :class="{ active: content.adType === 'VIDEO' }">
+                              <input type="radio" name="ad_type" autocomplete="off" value="VIDEO" v-model="content.adType"> VIDEO
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div v-if="content.adType == 'IMAGE'">
+                        <div class="row">
+                          <label for="image_hq_url" class="col-sm-4 control-label mt-2">Image Set</label>
+                          <div class="col">
+                            <button class="btn btn-primary" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
+                            <span v-if="content.imageSet.id" class="selected-set">{{ content.imageSet.name }}<span class="close" @click="removeImageSet(index)"><i class="fas fa-times"></i></span></span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div v-if="content.adType == 'VIDEO'">
+                        <div class="row">
+                          <label for="image_hq_url" class="col-sm-4 control-label mt-2">Video Set</label>
+                          <div class="col">
+                            <button class="btn btn-primary" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('video', index)">Load from Sets</button>
+                            <span v-if="content.videoSet.id" class="selected-set">{{ content.videoSet.name }}<span class="close" @click="removeVideoSet(index)"><i class="fas fa-times"></i></span></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row" v-if="index > 0">
+                    <div class="col text-right">
+                      <button class="btn btn-warning btn-sm" @click.prevent="removeContent(index)">Remove</button>
+                    </div>
+                  </div>
+              </fieldset>
+            </div>
           </div>
           <div class="card-footer d-flex justify-content-end" v-if="currentStep != 1">
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1 && currentStep != 3">
@@ -230,6 +313,17 @@ export default {
       currentStep: this.step,
       currentVendor: vendors[0],
       vendors: vendors,
+      contents: [{
+        adType: 'IMAGE',
+        titleSet: '',
+        displayUrl: '',
+        targetUrl: '',
+        descriptionSet: '',
+        brandname: '',
+        principal: '',
+        imageSet: '',
+        videoSet: ''
+      }],
       campaignName: ''
     }
   },
