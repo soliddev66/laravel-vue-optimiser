@@ -5,7 +5,7 @@
     </div>
     <div class="row">
       <div class="col">
-        <h1>Yahoo Gemini</h1>
+        <h1 class="mb-2">Yahoo Gemini</h1>
         <div class="form-group row">
           <label for="type" class="col-sm-2 control-label mt-2">Type</label>
           <div class="col-sm-8">

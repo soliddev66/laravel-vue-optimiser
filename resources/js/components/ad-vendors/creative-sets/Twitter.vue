@@ -5,7 +5,7 @@
     </div>
     <div class="row">
       <div class="col">
-        <h1>Twitter</h1>
+        <h1 class="mb-2">Twitter</h1>
 
         <div class="form-group row">
           <label for="funding_instrument" class="col-sm-2 control-label mt-2">Funding Instrument</label>
@@ -209,7 +209,7 @@ export default {
   },
   computed: {
     vendorState() {
-      return this.selectedFundingInstrument && this.campaignStartTime && this.campaignDailyBudgetAmountLocalMicro && this.adGroupName
+      return this.vendor.selectedFundingInstrument && this.vendor.campaignStartTime && this.vendor.campaignDailyBudgetAmountLocalMicro && this.vendor.adGroupName
     },
   },
   mounted() {

@@ -5,7 +5,7 @@
     </div>
     <div class="row">
       <div class="col">
-        <h1>Taboola</h1>
+        <h1 class="mb-2">Taboola</h1>
 
         <div class="form-group row">
           <label for="branding_text" class="col-sm-2 control-label mt-2">Branding Name</label>

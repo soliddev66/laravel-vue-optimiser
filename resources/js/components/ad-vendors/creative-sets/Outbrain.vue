@@ -5,7 +5,7 @@
     </div>
      <div class="row">
       <div class="col">
-        <h1>Outbrain</h1>
+        <h1 class="mb-2">Outbrain</h1>
         <div class="form-group row">
           <div class="col-sm-6">
             <label class="control-label d-block">Campaign Objective</label>
