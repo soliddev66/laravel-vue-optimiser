@@ -197,13 +197,21 @@ export default {
           campaignObjective: 'Awareness',
           campaignBudget: 20
         })
+      } else if (this.providers[i].slug == 'twitter') {
+        Object.assign(vendor, {
+          campaignStartTime: this.$moment().format('YYYY-MM-DD'),
+          campaignStatus: 'PAUSED',
+          adGroupObjective: 'APP_ENGAGEMENTS',
+          adGroupStatus: 'PAUSED',
+          adGroupBidUnit: 'LINK_CLICK',
+          adGroupChargeBy: 'LINK_CLICK'
+        })
       } else if (this.providers[i].slug == 'taboola') {
         Object.assign(vendor, {
           campaignSpendingLimitModel: 'MONTHLY',
           campaignMarketingObjective: 'DRIVE_WEBSITE_TRAFFIC',
           campaignStartDate: this.$moment().format('YYYY-MM-DD'),
           campaignIsActive: false
-
         })
       } else if (this.providers[i].slug == 'yahoojp') {
         Object.assign(vendor, {
