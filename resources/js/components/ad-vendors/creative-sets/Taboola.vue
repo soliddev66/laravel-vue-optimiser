@@ -113,7 +113,7 @@ export default {
   },
   computed: {
     vendorState() {
-      return !this.vendor.selectedAdvertiser || !this.vendor.campaignName || !this.vendor.campaignBrandText || !this.vendor.campaignCPC || !this.vendor.campaignSpendingLimit
+      return this.vendor.campaignBrandText && this.vendor.campaignCPC && this.vendor.campaignSpendingLimit
     }
   },
   mounted() {
