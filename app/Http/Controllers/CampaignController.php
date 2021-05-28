@@ -555,4 +555,9 @@ class CampaignController extends Controller
     {
         return view('campaigns.campaignVendors');
     }
+
+    public function storeCampaignVendors()
+    {
+
+    }
 }

@@ -160,7 +160,7 @@
             </div>
 
             <div class="d-flex justify-content-end" v-if="currentStep == 2">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep2">Next</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!submitStep2State">Next 2</button>
             </div>
 
             <div v-if="currentStep === 3">
@@ -243,6 +243,10 @@ export default {
       }
 
       return false
+    },
+
+    submitStep2State() {
+      return this.campaignName
     },
 
     submitStep4State() {
@@ -531,7 +535,36 @@ export default {
     },
 
     submitStep4() {
-      console.log(this.vendors)
+      for (let i = 0; i < this.contents.length; i++) {
+        if (this.contents[i].titleSet.id) {
+          delete this.contents[i].titleSet.sets
+        }
+        if (this.contents[i].imageSet.id) {
+          delete this.contents[i].imageSet.sets
+        }
+        if (this.contents[i].videoSet.id) {
+          delete this.contents[i].videoSet.sets
+        }
+        if (this.contents[i].descriptionSet.id) {
+          delete this.contents[i].descriptionSet.sets
+        }
+      }
+
+      axios.post('/store-campaign-vendors', {
+        campaignName: this.campaignName,
+        vendors: this.vendors,
+        contents: this.contents
+      }).then(response => {
+        if (response.data.errors) {
+          alert(response.data.errors[0]);
+        } else {
+          this.$dialog.alert('Save successfully!').then(function(dialog) {
+            window.location = '/campaigns';
+          });
+        }
+      }).catch(error => {}).finally(() => {
+        this.isLoading = false
+      })
     },
 
     getAccounts(vendor) {
