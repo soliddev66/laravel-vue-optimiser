@@ -91,14 +91,14 @@
 
                       <div class="form-group row">
                         <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
-                        <div class="col-sm-8 text-center">
+                        <div class="col-sm-8">
                           <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" />
                           <small class="text-danger" v-if="content.displayUrl && !validURL(content.displayUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
-                        <div class="col-sm-8 text-center">
+                        <div class="col-sm-8">
                           <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" />
                           <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
@@ -145,7 +145,7 @@
                     </div>
                   </div>
               </fieldset>
-              <button class="btn btn-primary btn-sm" @click.prevent="addContent()">Add New</button>
+              <button class="btn btn-primary btn-sm d-none" @click.prevent="addContent()">Add New</button>
             </div>
           </div>
           <div class="card-footer d-flex justify-content-end" v-if="currentStep != 1">
@@ -160,7 +160,7 @@
             </div>
 
             <div class="d-flex justify-content-end" v-if="currentStep == 2">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!submitStep2State">Next 2</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep2" :disabled="!submitStep2State">Next</button>
             </div>
 
             <div v-if="currentStep === 3">
@@ -250,8 +250,9 @@ export default {
     },
 
     submitStep4State() {
+
       for (let i = 0; i < this.contents.length; i++) {
-        if (!this.contents[i].titleSet.id || (this.contents[i].adType == 'IMAGE' && !this.contents[i].imageSet.id) || (this.contents[i].adType == 'VIDEO' && !this.contents[i].videoSet.id) || !this.contents[i].descriptionSet.id) {
+        if (!this.contents[i].brandname || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl) || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl) || !this.contents[i].titleSet.id || (this.contents[i].adType == 'IMAGE' && !this.contents[i].imageSet.id) || (this.contents[i].adType == 'VIDEO' && !this.contents[i].videoSet.id) || !this.contents[i].descriptionSet.id) {
           return false
         }
       }
@@ -356,6 +357,33 @@ export default {
     }
   },
   methods: {
+    getAccounts(vendor) {
+      this.isLoading = true
+      return axios.get(`/account/accounts?provider=${vendor.slug}`).then(response => {
+        vendor.accounts = response.data
+        vendor.selectedAccount = vendor.accounts[0].open_id
+      }).catch(err => {
+        console.log(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
+    },
+
+    getAdvertisers(vendor) {
+      this.isLoading = true
+      return axios.get(`/account/advertisers?provider=${vendor.slug}&account=${encodeURIComponent(vendor.selectedAccount)}`).then(response => {
+        vendor.advertisers = response.data
+        vendor.selectedAdvertiser = vendor.advertisers[0].id
+      }).finally(() => {
+        this.isLoading = false
+      })
+    },
+
+    validURL(str) {
+      var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
+      return !!pattern.test(str);
+    },
+
     vendorClick(event, vendor) {
       if (event.target.className == 'form-control') {
         return
@@ -465,42 +493,6 @@ export default {
       $('#creative-set-modal').modal('hide')
     },
 
-    loadTitleSets(index) {
-      this.isLoading = true
-      return axios.get(`/creatives/title-sets/${this.contents[index].titleSet.id}`).then(response => {
-        this.contents[index].titleSet.sets = response.data.sets
-      }).finally(() => {
-        this.isLoading = false
-      });
-    },
-
-    loadImageSets(index) {
-      this.isLoading = true
-      return axios.get(`/creatives/image-sets/${this.contents[index].imageSet.id}`).then(response => {
-        this.contents[index].imageSet.sets = response.data.sets
-      }).finally(() => {
-        this.isLoading = false
-      });
-    },
-
-    loadVideoSets(index) {
-      this.isLoading = true
-      return axios.get(`/creatives/video-sets/${this.contents[index].videoSet.id}`).then(response => {
-        this.contents[index].videoSet.sets = response.data.sets
-      }).finally(() => {
-        this.isLoading = false
-      });
-    },
-
-    loadDescriptionSets(index) {
-      this.isLoading = true
-      return axios.get(`/creatives/description-sets/${this.contents[index].descriptionSet.id}`).then(response => {
-        this.contents[index].descriptionSet.sets = response.data.sets
-      }).finally(() => {
-        this.isLoading = false
-      });
-    },
-
     removeImageSet(index) {
       this.contents[index].imageSet = ''
     },
@@ -535,22 +527,7 @@ export default {
     },
 
     submitStep4() {
-      for (let i = 0; i < this.contents.length; i++) {
-        if (this.contents[i].titleSet.id) {
-          delete this.contents[i].titleSet.sets
-        }
-        if (this.contents[i].imageSet.id) {
-          delete this.contents[i].imageSet.sets
-        }
-        if (this.contents[i].videoSet.id) {
-          delete this.contents[i].videoSet.sets
-        }
-        if (this.contents[i].descriptionSet.id) {
-          delete this.contents[i].descriptionSet.sets
-        }
-      }
-
-      axios.post('/store-campaign-vendors', {
+      axios.post('/campaigns/store-campaign-vendors', {
         campaignName: this.campaignName,
         vendors: this.vendors,
         contents: this.contents
@@ -566,28 +543,6 @@ export default {
         this.isLoading = false
       })
     },
-
-    getAccounts(vendor) {
-      this.isLoading = true
-      return axios.get(`/account/accounts?provider=${vendor.slug}`).then(response => {
-        vendor.accounts = response.data
-        vendor.selectedAccount = vendor.accounts[0].open_id
-      }).catch(err => {
-        console.log(err)
-      }).finally(() => {
-        this.isLoading = false
-      })
-    },
-
-    getAdvertisers(vendor) {
-      this.isLoading = true
-      return axios.get(`/account/advertisers?provider=${vendor.slug}&account=${encodeURIComponent(vendor.selectedAccount)}`).then(response => {
-        vendor.advertisers = response.data
-        vendor.selectedAdvertiser = vendor.advertisers[0].id
-      }).finally(() => {
-        this.isLoading = false
-      })
-    }
   }
 }
 </script>
