@@ -78,7 +78,7 @@
                       <div class="form-group row">
                         <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
                         <div class="col-sm-8">
-                          <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" v-on:blur="loadPreviewEvent($event, index)" />
+                          <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" />
                         </div>
                       </div>
                       <div class="form-group row">
@@ -92,14 +92,14 @@
                       <div class="form-group row">
                         <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
                         <div class="col-sm-8 text-center">
-                          <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                          <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" />
                           <small class="text-danger" v-if="content.displayUrl && !validURL(content.displayUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
                         <div class="col-sm-8 text-center">
-                          <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" v-on:blur="loadPreviewEvent($event, index)" />
+                          <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" />
                           <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
                         </div>
                       </div>
@@ -182,6 +182,17 @@
       <button type="button" class="btn btn-vendor mr-5" :disabled="!submitStep1State" @click="submitStep1">
         Next <i class="fas fa-long-arrow-alt-right"></i>
       </button>
+    </div>
+
+    <div class="modal fade creative-set-modal" id="creative-set-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="col mt-3">
+            <h1>Select Creative Set</h1>
+          </div>
+          <creative-set-sets :type="setType" @selectCreativeSet="selectCreativeSet"></creative-set-sets>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -324,7 +335,9 @@ export default {
         imageSet: '',
         videoSet: ''
       }],
-      campaignName: ''
+      campaignName: '',
+      setType: 'image',
+      adSelectorIndex: 0,
     }
   },
   methods: {
@@ -412,6 +425,81 @@ export default {
       }
 
       this.currentStep = 4
+    },
+
+    loadCreativeSet(type, index) {
+      this.setType = type
+      this.adSelectorIndex = index
+      $('#creative-set-modal').modal('show')
+    },
+
+    selectCreativeSet(set) {
+      if (this.setType == 'title') {
+        this.contents[this.adSelectorIndex].titleSet = set
+      }
+      if (this.setType == 'image') {
+        this.contents[this.adSelectorIndex].imageSet = set
+      }
+      if (this.setType == 'video') {
+        this.contents[this.adSelectorIndex].videoSet = set
+      }
+      if (this.setType == 'description') {
+        this.contents[this.adSelectorIndex].descriptionSet = set
+      }
+
+      $('#creative-set-modal').modal('hide')
+    },
+
+    loadTitleSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/title-sets/${this.contents[index].titleSet.id}`).then(response => {
+        this.contents[index].titleSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+
+    loadImageSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/image-sets/${this.contents[index].imageSet.id}`).then(response => {
+        this.contents[index].imageSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+
+    loadVideoSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/video-sets/${this.contents[index].videoSet.id}`).then(response => {
+        this.contents[index].videoSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+
+    loadDescriptionSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/description-sets/${this.contents[index].descriptionSet.id}`).then(response => {
+        this.contents[index].descriptionSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+
+    removeImageSet(index) {
+      this.contents[index].imageSet = ''
+    },
+
+    removeVideoSet(index) {
+      this.contents[index].videoSet = ''
+    },
+
+    removeTitleSet(index) {
+      this.contents[index].titleSet = ''
+    },
+
+    removeDescriptionSet(index) {
+      this.contents[index].descriptionSet = ''
     },
 
     submitStep4() {
