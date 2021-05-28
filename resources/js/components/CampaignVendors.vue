@@ -145,6 +145,7 @@
                     </div>
                   </div>
               </fieldset>
+              <button class="btn btn-primary btn-sm" @click.prevent="addContent()">Add New</button>
             </div>
           </div>
           <div class="card-footer d-flex justify-content-end" v-if="currentStep != 1">
@@ -171,7 +172,7 @@
             </div>
 
             <div class="d-flex justify-content-end" v-if="currentStep == 4">
-              <button type="button" class="btn btn-primary" @click.prevent="submitStep4">Finish</button>
+              <button type="button" class="btn btn-primary" @click.prevent="submitStep4" :disabled="!submitStep4State">Finish</button>
             </div>
           </div>
         </div>
@@ -242,6 +243,16 @@ export default {
       }
 
       return false
+    },
+
+    submitStep4State() {
+      for (let i = 0; i < this.contents.length; i++) {
+        if (!this.contents[i].titleSet.id || (this.contents[i].adType == 'IMAGE' && !this.contents[i].imageSet.id) || (this.contents[i].adType == 'VIDEO' && !this.contents[i].videoSet.id) || !this.contents[i].descriptionSet.id) {
+          return false
+        }
+      }
+
+      return true
     }
   },
   mounted() {
@@ -500,6 +511,23 @@ export default {
 
     removeDescriptionSet(index) {
       this.contents[index].descriptionSet = ''
+    },
+
+    addContent() {
+      this.contents.push({
+        adType: 'IMAGE',
+        titleSet: '',
+        displayUrl: '',
+        targetUrl: '',
+        descriptionSet: '',
+        brandname: '',
+        imageSet: '',
+        videoSet: ''
+      })
+    },
+
+    removeContent(index) {
+      this.contents.splice(index, 1);
     },
 
     submitStep4() {
