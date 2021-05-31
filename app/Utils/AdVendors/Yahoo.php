@@ -230,7 +230,18 @@ class Yahoo extends Root implements AdVendorInterface
         $api = $this->api();
 
         try {
-            $campaign_data = $api->createCampaign();
+            $campaign_data = $api->createCampaign([
+                'advertiserId' => request('selectedAdvertiser'),
+                'budget' => request('campaignBudget'),
+                'budgetType' => request('campaignBudgetType'),
+                'campaignName' => request('campaignName'),
+                'objective' => request('campaignObjective'),
+                'channel' => request('campaignType'),
+                'language' => request('campaignLanguage'),
+                'biddingStrategy' => request('campaignStrategy'),
+                'conversionRuleConfig' => ['conversionCounting' => request('campaignConversionCounting')],
+                'status' => 'ACTIVE'
+            ]);
 
             $resource_importer = new ResourceImporter();
 
@@ -246,7 +257,22 @@ class Yahoo extends Root implements AdVendorInterface
             ]], ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
 
             try {
-                $ad_group_data = $api->createAdGroup($campaign_data);
+                $ad_group_body = [
+                    'adGroupName' => request('adGroupName'),
+                    'advertiserId' => request('selectedAdvertiser'),
+                    'bidSet' => [
+                        'bids' => $this->getBids(request('campaignType'), request('bidAmount'))
+                    ],
+                    'campaignId' => $campaign_data['id'],
+                    'startDateStr' => request('scheduleType') === 'IMMEDIATELY' ? Carbon::now()->format('Y-m-d') : request('campaignStartDate'),
+                    'endDateStr' => request('scheduleType') === 'IMMEDIATELY' ? '' : request('campaignEndDate'),
+                    'status' => 'ACTIVE'
+                ];
+
+                if (in_array(request('campaignStrategy'), ['OPT_ENHANCED_CPC', 'OPT_POST_INSTALL', 'OPT_CONVERSION'])) {
+                    $ad_group_body['biddingStrategy'] = request('campaignStrategy');
+                }
+                $ad_group_data = $api->createAdGroup($ad_group_body);
             } catch (Exception $e) {
                 $api->deleteCampaign($campaign_data['id']);
                 throw $e;
@@ -541,7 +567,24 @@ class Yahoo extends Root implements AdVendorInterface
         try {
             $api = new GeminiAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first());
             $campaign_data = $api->updateCampaign($campaign);
-            $ad_group_data = $api->updateAdGroup($campaign_data);
+
+            $ad_group_body = [
+                'id' => request('adGroupID'),
+                'adGroupName' => request('adGroupName'),
+                'advertiserId' => request('selectedAdvertiser'),
+                'bidSet' => [
+                    'bids' => $this->getBids(request('campaignType'), request('bidAmount'))
+                ],
+                'campaignId' => $campaign_data['id'],
+                'startDateStr' => request('scheduleType') === 'IMMEDIATELY' ? Carbon::now()->format('Y-m-d') : request('campaignStartDate'),
+                'endDateStr' => request('scheduleType') === 'IMMEDIATELY' ? '' : request('campaignEndDate'),
+                'status' => 'ACTIVE'
+            ];
+            if (in_array(request('campaignStrategy'), ['OPT_ENHANCED_CPC', 'OPT_POST_INSTALL', 'OPT_CONVERSION'])) {
+                $ad_group_body['biddingStrategy'] = request('campaignStrategy');
+            }
+
+            $ad_group_data = $api->updateAdGroups($ad_group_body);
 
             foreach (request('contents') as $content) {
                 $ads = [];
@@ -1430,5 +1473,193 @@ class Yahoo extends Root implements AdVendorInterface
         }
 
         $api->updateAdGroups($ad_group_body);
+    }
+
+    private function getBids($campaignType, $bidAmount)
+    {
+        if ($campaignType === 'SEARCH_AND_NATIVE') {
+            return [[
+                'priceType' => 'CPC',
+                'value' => $bidAmount,
+                'channel' => 'SEARCH'
+            ], [
+                'priceType' => 'CPC',
+                'value' => $bidAmount,
+                'channel' => 'NATIVE'
+            ]];
+        } else {
+            return [[
+                'priceType' => 'CPC',
+                'value' => $bidAmount,
+                'channel' => $campaignType
+            ]];
+        }
+    }
+
+    public function storeCampaignVendors($vendor) {
+        $api = $this->api();
+
+        try {
+            $campaign_data = $api->createCampaign([
+                'advertiserId' => $vendor['selectedAdvertiser'],
+                'budget' => $vendor['campaignBudget'],
+                'budgetType' => $vendor['campaignBudgetType'],
+                'campaignName' => request('campaignName'),
+                'objective' => $vendor['campaignObjective'],
+                'channel' => $vendor['campaignType'],
+                'language' => $vendor['campaignLanguage'],
+                'biddingStrategy' => $vendor['campaignStrategy'],
+                'conversionRuleConfig' => ['conversionCounting' => $vendor['campaignConversionCounting']],
+                'status' => 'ACTIVE'
+            ]);
+
+            $resource_importer = new ResourceImporter();
+
+            $resource_importer->insertOrUpdate('campaigns', [[
+                'campaign_id' => $campaign_data['id'],
+                'provider_id' => 1,
+                'user_id' => auth()->id(),
+                'open_id' => $vendor['selectedAccount'],
+                'advertiser_id' => $campaign_data['advertiserId'],
+                'name' => $campaign_data['campaignName'],
+                'status' => $campaign_data['status'],
+                'budget' => $campaign_data['budget'],
+            ]], ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
+
+            try {
+                $ad_group_body = [
+                    'adGroupName' => $vendor['adGroupName'],
+                    'advertiserId' => $vendor['selectedAdvertiser'],
+                    'bidSet' => [
+                        'bids' => $this->getBids($vendor['campaignType'], $vendor['bidAmount'])
+                    ],
+                    'campaignId' => $campaign_data['id'],
+                    'startDateStr' => $vendor['scheduleType'] === 'IMMEDIATELY' ? Carbon::now()->format('Y-m-d') : $vendor['campaignStartDate'],
+                    'endDateStr' => $vendor['scheduleType'] === 'IMMEDIATELY' ? '' : $vendor['campaignEndDate'],
+                    'status' => 'ACTIVE'
+                ];
+
+                if (in_array($vendor['campaignStrategy'], ['OPT_ENHANCED_CPC', 'OPT_POST_INSTALL', 'OPT_CONVERSION'])) {
+                    $ad_group_body['biddingStrategy'] = $vendor['campaignStrategy'];
+                }
+                $ad_group_data = $api->createAdGroup($ad_group_body);
+            } catch (Exception $e) {
+                $api->deleteCampaign($campaign_data['id']);
+                throw $e;
+            }
+
+            try {
+                foreach (request('contents') as $content) {
+                    $ads = [];
+                    $titles = [];
+
+                    $titleCreativeSet = null;
+                    $descriptionCreativeSet = null;
+                    $imageCreativeSet = null;
+                    $videoCreativeSet = null;
+
+                    $titleCreativeSet = CreativeSet::find($content['titleSet']['id']);
+
+                    if ($titleCreativeSet) {
+                        $titles = $titleCreativeSet->titleSets;
+                    } else {
+                        throw('No creative set found.');
+                    }
+
+                    $description = '';
+
+                    $descriptionCreativeSet = CreativeSet::find($content['descriptionSet']['id']);
+
+                    if ($descriptionCreativeSet) {
+                        $description = $descriptionCreativeSet->descriptionSets[0]['description'];
+                    } else {
+                        throw('No creative set found.');
+                    }
+
+                    foreach ($titles as $title) {
+                        $ad = [
+                            'adGroupId' => $ad_group_data['id'],
+                            'advertiserId' => $vendor['selectedAdvertiser'],
+                            'campaignId' => $campaign_data['id'],
+                            'description' => $description,
+                            'displayUrl' => $content['displayUrl'],
+                            'landingUrl' => $content['targetUrl'],
+                            'sponsoredBy' => $content['brandname'],
+                            'title' => $title['title'],
+                            'status' => 'ACTIVE'
+                        ];
+
+                        if ($content['adType'] == 'VIDEO') {
+                            $videos = [];
+
+                            $videoCreativeSet = CreativeSet::find($content['videoSet']['id']);
+
+                            if ($videoCreativeSet) {
+                                $videos = $videoCreativeSet->videoSets;
+                            } else {
+                                throw('No creative set found.');
+                            }
+
+                            foreach ($videos as $video) {
+                                if (in_array($vendor['campaignObjective'], ['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'])) {
+                                    $ad['videoPrimaryUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPrimaryUrl']);
+                                } else {
+                                    $ad['imagePortraitUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['portrait_image']) : $video['imagePortraitUrl']);
+                                    $ad['videoPortraitUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPortraitUrl']);
+                                }
+                            }
+                        } else {
+                            $imges = [];
+
+                            $imageCreativeSet = CreativeSet::find($content['imageSet']['id']);
+
+                            if ($imageCreativeSet) {
+                                $images = $imageCreativeSet->imageSets;
+                            } else {
+                                throw('No creative set found.');
+                            }
+
+                            foreach ($images as $image) {
+                                $ad['imageUrl'] = Helper::encodeUrl($imageCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['imageUrl']);
+                                $ad['imageUrlHQ'] = Helper::encodeUrl($imageCreativeSet ? (env('MIX_APP_URL') . ($image['optimiser'] == 0 ? ('/storage/images/' . $image['hq_1200x627_image']) : ('/storage/images/creatives/1200x627/' . $image['hq_image']))) : $image['imageUrlHQ']);
+                            }
+                        }
+
+                        $ads[] = $ad;
+                    }
+
+                    $ad_data = $api->createAd($ads);
+
+                    $this->saveAd($ad_data, $campaign_data['id'], $ad_group_data['id'], $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
+                }
+
+                Helper::pullCampaign();
+            } catch (Exception $e) {
+                $api->deleteCampaign($campaign_data['id']);
+                $api->deleteAdGroups([$ad_group_data['id']]);
+                throw $e;
+            }
+
+            try {
+                $api->createAttributes($campaign_data);
+            } catch (Exception $e) {
+                $api->deleteCampaign($campaign_data['id']);
+                $api->deleteAdGroups([$ad_group_data['id']]);
+
+                $ad_ids = [];
+
+                foreach ($ad_data as $ad) {
+                    $ad_ids[] = $ad['id'];
+                }
+                $api->deleteAds($ad_ids);
+                throw $e;
+            }
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+
+        return [];
     }
 }

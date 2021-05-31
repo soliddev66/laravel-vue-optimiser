@@ -109,20 +109,9 @@ class GeminiAPI
         return $this->client->call('PUT', 'ad', $body);
     }
 
-    public function createCampaign()
+    public function createCampaign($body)
     {
-        return $this->client->call('POST', 'campaign', [
-            'advertiserId' => request('selectedAdvertiser'),
-            'budget' => request('campaignBudget'),
-            'budgetType' => request('campaignBudgetType'),
-            'campaignName' => request('campaignName'),
-            'objective' => request('campaignObjective'),
-            'channel' => request('campaignType'),
-            'language' => request('campaignLanguage'),
-            'biddingStrategy' => request('campaignStrategy'),
-            'conversionRuleConfig' => ['conversionCounting' => request('campaignConversionCounting')],
-            'status' => 'ACTIVE'
-        ]);
+        return $this->client->call('POST', 'campaign', $body);
     }
 
     public function updateCampaign($campaign)
@@ -163,66 +152,9 @@ class GeminiAPI
         ]);
     }
 
-    private function getBids()
+    public function createAdGroup($body)
     {
-        if (request('campaignType') === 'SEARCH_AND_NATIVE') {
-            return [[
-                'priceType' => 'CPC',
-                'value' => request('bidAmount'),
-                'channel' => 'SEARCH'
-            ], [
-                'priceType' => 'CPC',
-                'value' => request('bidAmount'),
-                'channel' => 'NATIVE'
-            ]];
-        } else {
-            return [[
-                'priceType' => 'CPC',
-                'value' => request('bidAmount'),
-                'channel' => request('campaignType')
-            ]];
-        }
-    }
-
-    public function createAdGroup($campaign_data)
-    {
-        $data = [
-            'adGroupName' => request('adGroupName'),
-            'advertiserId' => request('selectedAdvertiser'),
-            'bidSet' => [
-                'bids' => $this->getBids()
-            ],
-            'campaignId' => $campaign_data['id'],
-            'startDateStr' => request('scheduleType') === 'IMMEDIATELY' ? Carbon::now()->format('Y-m-d') : request('campaignStartDate'),
-            'endDateStr' => request('scheduleType') === 'IMMEDIATELY' ? '' : request('campaignEndDate'),
-            'status' => 'ACTIVE'
-        ];
-        if (in_array(request('campaignStrategy'), ['OPT_ENHANCED_CPC', 'OPT_POST_INSTALL', 'OPT_CONVERSION'])) {
-            $data['biddingStrategy'] = request('campaignStrategy');
-        }
-
-        return $this->client->call('POST', 'adgroup', $data);
-    }
-
-    public function updateAdGroup($campaign_data)
-    {
-        $data = [
-            'id' => request('adGroupID'),
-            'adGroupName' => request('adGroupName'),
-            'advertiserId' => request('selectedAdvertiser'),
-            'bidSet' => [
-                'bids' => $this->getBids()
-            ],
-            'campaignId' => $campaign_data['id'],
-            'startDateStr' => request('scheduleType') === 'IMMEDIATELY' ? Carbon::now()->format('Y-m-d') : request('campaignStartDate'),
-            'endDateStr' => request('scheduleType') === 'IMMEDIATELY' ? '' : request('campaignEndDate'),
-            'status' => 'ACTIVE'
-        ];
-        if (in_array(request('campaignStrategy'), ['OPT_ENHANCED_CPC', 'OPT_POST_INSTALL', 'OPT_CONVERSION'])) {
-            $data['biddingStrategy'] = request('campaignStrategy');
-        }
-
-        return $this->client->call('PUT', 'adgroup', $data);
+        return $this->client->call('POST', 'adgroup', $body);
     }
 
     public function updateAdGroups($body)
