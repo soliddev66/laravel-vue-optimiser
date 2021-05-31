@@ -147,7 +147,29 @@ class Yahoojp extends Root implements AdVendorInterface
         $api = $this->api();
 
         try {
-            $campaign_data = $api->createCampaign();
+            $campaign_data = $api->createCampaign([
+                'accountId' => request('selectedAdvertiser'),
+                'operand' => [[
+                    'type' => 'STANDARD',
+                    'accountId' => request('selectedAdvertiser'),
+                    'budget' => [
+                        'amount' => request('campaignBudget'),
+                        'budgetDeliveryMethod' => request('campaignBudgetDeliveryMethod')
+                    ],
+                    'campaignBiddingStrategy' => $this->getCampaignBiddingStrategy([
+                        'campaignCampaignBidStrategy' => request('campaignCampaignBidStrategy'),
+                        'campaignMaxCpcBidValue' => request('campaignMaxCpcBidValue'),
+                        'campaignMaxVcpmBidValue' => request('campaignMaxVcpmBidValue'),
+                        'campaignMaxCpvBidValue' => request('campaignMaxCpvBidValue'),
+                        'campaignTargetCpaBidValue' => request('campaignTargetCpaBidValue')
+                    ]),
+                    'campaignGoal' => request('campaignGoal'),
+                    'campaignName' => request('campaignName'),
+                    'startDate' => request('campaignStartDate'),
+                    'endDate' => request('campaignEndDate'),
+                    'userStatus' => request('campaignStatus')
+                ]]
+            ]);
 
             $errors = $this->getErrors($campaign_data);
 
@@ -171,7 +193,25 @@ class Yahoojp extends Root implements AdVendorInterface
             ]], ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
 
             try {
-                $ad_group_data = $api->createAdGroup($campaign_data['campaignId']);
+                $ad_group_data = $api->createAdGroup([
+                    'accountId' => request('selectedAdvertiser'),
+                    'operand' => [[
+                        'accountId' => request('selectedAdvertiser'),
+                        'campaignId' => $campaign_data['campaignId'],
+                        'adGroupName' => request('adGroupName'),
+                        'adGroupBiddingStrategy' => $this->getCampaignBiddingStrategy([
+                            'campaignCampaignBidStrategy' => request('campaignCampaignBidStrategy'),
+                            'campaignMaxCpcBidValue' => request('campaignMaxCpcBidValue'),
+                            'campaignMaxVcpmBidValue' => request('campaignMaxVcpmBidValue'),
+                            'campaignMaxCpvBidValue' => request('campaignMaxCpvBidValue'),
+                            'campaignTargetCpaBidValue' => request('campaignTargetCpaBidValue')
+                        ]),
+                        'device' => count(request('campaignDevices')) ? request('campaignDevices') : ['NONE'],
+                        'deviceApp' => count(request('campaignDeviceApps')) ? request('campaignDeviceApps') : ['NONE'],
+                        'deviceOs' => count(request('campaignDeviceOs')) ? request('campaignDeviceOs') : ['NONE'],
+                        'userStatus' => request('campaignStatus')
+                    ]]
+                ]);
 
                 $errors = $this->getErrors($ad_group_data);
 
@@ -706,9 +746,51 @@ class Yahoojp extends Root implements AdVendorInterface
         $api = $this->api();
 
         try {
-            $campaign_data = $api->updateCampaign($campaign->campaign_id)['rval']['values'][0]['campaign'];
+            $campaign_data = $api->updateCampaign([
+                'accountId' => request('selectedAdvertiser'),
+                'operand' => [[
+                    'type' => 'STANDARD',
+                    'accountId' => request('selectedAdvertiser'),
+                    'budget' => [
+                        'amount' => request('campaignBudget'),
+                        'budgetDeliveryMethod' => request('campaignBudgetDeliveryMethod')
+                    ],
+                    'campaignBiddingStrategy' => $this->getCampaignBiddingStrategy([
+                        'campaignCampaignBidStrategy' => request('campaignCampaignBidStrategy'),
+                        'campaignMaxCpcBidValue' => request('campaignMaxCpcBidValue'),
+                        'campaignMaxVcpmBidValue' => request('campaignMaxVcpmBidValue'),
+                        'campaignMaxCpvBidValue' => request('campaignMaxCpvBidValue'),
+                        'campaignTargetCpaBidValue' => request('campaignTargetCpaBidValue')
+                    ]),
+                    'campaignGoal' => request('campaignGoal'),
+                    'campaignName' => request('campaignName'),
+                    'campaignId' => $campaign->campaign_id,
+                    'startDate' => request('campaignStartDate'),
+                    'endDate' => request('campaignEndDate'),
+                    'userStatus' => request('campaignStatus')
+                ]]
+            ])['rval']['values'][0]['campaign'];
 
-            $ad_group_data = $api->updateAdGroup($campaign->campaign_id);
+            $ad_group_data = $api->updateAdGroup([
+                'accountId' => request('selectedAdvertiser'),
+                'operand' => [[
+                    'accountId' => request('selectedAdvertiser'),
+                    'campaignId' => $campaign->campaign_id,
+                    'adGroupId' => request('adGroupID'),
+                    'adGroupName' => request('adGroupName'),
+                    'adGroupBiddingStrategy' => $this->getCampaignBiddingStrategy([
+                        'campaignCampaignBidStrategy' => request('campaignCampaignBidStrategy'),
+                        'campaignMaxCpcBidValue' => request('campaignMaxCpcBidValue'),
+                        'campaignMaxVcpmBidValue' => request('campaignMaxVcpmBidValue'),
+                        'campaignMaxCpvBidValue' => request('campaignMaxCpvBidValue'),
+                        'campaignTargetCpaBidValue' => request('campaignTargetCpaBidValue')
+                    ]),
+                    'device' => count(request('campaignDevices')) ? request('campaignDevices') : ['NONE'],
+                    'deviceApp' => count(request('campaignDeviceApps')) ? request('campaignDeviceApps') : ['NONE'],
+                    'deviceOs' => count(request('campaignDeviceOs')) ? request('campaignDeviceOs') : ['NONE'],
+                    'userStatus' => request('campaignStatus')
+                ]]
+            ]);
 
             $ad_group_id = $ad_group_data['rval']['values'][0]['adGroup']['adGroupId'];
 
@@ -1588,5 +1670,338 @@ class Yahoojp extends Root implements AdVendorInterface
                 'campaignBiddingStrategy' => $campaign_bidding_strategy
             ]]
         ]);
+    }
+
+
+
+    private function getCampaignBiddingStrategy($data)
+    {
+        $bidding_strategy = [
+            'campaignBiddingStrategyType' => $data['campaignCampaignBidStrategy']
+        ];
+
+        switch($data['campaignCampaignBidStrategy']) {
+            case 'MAX_CPC':
+                $bidding_strategy['maxCpcBidValue'] = $data['campaignMaxCpcBidValue'];
+                break;
+
+            case 'MAX_VCPM':
+                $bidding_strategy['maxVcpmBidValue'] = $data['campaignMaxVcpmBidValue'];
+                break;
+
+            case 'MAX_CPV':
+                $bidding_strategy['maxCpvBidValue'] = $data['campaignMaxCpvBidValue'];
+                break;
+
+            case 'MAX_VCPM':
+                $bidding_strategy['targetCpaBidValue'] = $data['campaignTargetCpaBidValue'];
+                break;
+        }
+
+        return $bidding_strategy;
+    }
+
+    public function storeCampaignVendors($vendor) {
+        $api = new GeminiAPI(auth()->user()->providers()->where([
+            'provider_id' => 5,
+            'open_id' => $vendor['selectedAccount']
+        ])->first());
+
+        try {
+            $campaign_data = $api->createCampaign([
+                'accountId' => $vendor['selectedAdvertiser'],
+                'operand' => [[
+                    'type' => 'STANDARD',
+                    'accountId' => $vendor['selectedAdvertiser'],
+                    'budget' => [
+                        'amount' => $vendor['campaignBudget'],
+                        'budgetDeliveryMethod' => $vendor['campaignBudgetDeliveryMethod']
+                    ],
+                    'campaignBiddingStrategy' => $this->getCampaignBiddingStrategy([
+                        'campaignCampaignBidStrategy' => $vendor['campaignCampaignBidStrategy'],
+                        'campaignMaxCpcBidValue' => $vendor['campaignMaxCpcBidValue'],
+                        'campaignMaxVcpmBidValue' => $vendor['campaignMaxVcpmBidValue'],
+                        'campaignMaxCpvBidValue' => $vendor['campaignMaxCpvBidValue'],
+                        'campaignTargetCpaBidValue' => $vendor['campaignTargetCpaBidValue']
+                    ]),
+                    'campaignGoal' => $vendor['campaignGoal'],
+                    'campaignName' => $vendor['campaignName'],
+                    'startDate' => $vendor['campaignStartDate'],
+                    'endDate' => $vendor['campaignEndDate'],
+                    'userStatus' => $vendor['campaignStatus']
+                ]]
+            ]);
+
+            $errors = $this->getErrors($campaign_data);
+
+            if (count($errors)) {
+                throw new Exception(json_encode($errors));
+            }
+
+            $campaign_data = $campaign_data['rval']['values'][0]['campaign'];
+
+            $resource_importer = new ResourceImporter();
+
+            $resource_importer->insertOrUpdate('campaigns', [[
+                'campaign_id' => $campaign_data['campaignId'],
+                'provider_id' => 5,
+                'user_id' => auth()->id(),
+                'open_id' => $vendor['selectedAccount'],
+                'advertiser_id' => $vendor['selectedAdvertiser'],
+                'name' => $campaign_data['campaignName'],
+                'status' => $campaign_data['userStatus'],
+                'budget' => $campaign_data['budget']['amount'],
+            ]], ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
+
+            try {
+                $ad_group_data = $api->createAdGroup([
+                    'accountId' => $vendor['selectedAdvertiser'],
+                    'operand' => [[
+                        'accountId' => $vendor['selectedAdvertiser'],
+                        'campaignId' => $campaign_data['campaignId'],
+                        'adGroupName' => $vendor['adGroupName'],
+                        'adGroupBiddingStrategy' => $this->getCampaignBiddingStrategy([
+                            'campaignCampaignBidStrategy' => $vendor['campaignCampaignBidStrategy'],
+                            'campaignMaxCpcBidValue' => $vendor['campaignMaxCpcBidValue'],
+                            'campaignMaxVcpmBidValue' => $vendor['campaignMaxVcpmBidValue'],
+                            'campaignMaxCpvBidValue' => $vendor['campaignMaxCpvBidValue'],
+                            'campaignTargetCpaBidValue' => $vendor['campaignTargetCpaBidValue']
+                        ]),
+                        'device' => count($vendor['campaignDevices']) ? $vendor['campaignDevices'] : ['NONE'],
+                        'deviceApp' => count($vendor['campaignDeviceApps']) ? $vendor['campaignDeviceApps'] : ['NONE'],
+                        'deviceOs' => count($vendor['campaignDeviceOs']) ? $vendor['campaignDeviceOs'] : ['NONE'],
+                        'userStatus' => $vendor['campaignStatus']
+                    ]]
+                ]);
+
+                $errors = $this->getErrors($ad_group_data);
+
+                if (count($errors)) {
+                    throw new Exception(json_encode($errors));
+                }
+
+                $ad_group_id = $ad_group_data['rval']['values'][0]['adGroup']['adGroupId'];
+            } catch (Exception $e) {
+                $api->deleteCampaign(request('selectedAdvertiser'), $campaign_data['campaignId']);
+                throw $e;
+            }
+
+            try {
+                foreach (request('contents') as $content) {
+                    $ads = [];
+                    $titles = [];
+
+                    $titleCreativeSet = null;
+                    $descriptionCreativeSet = null;
+                    $imageCreativeSet = null;
+                    $videoCreativeSet = null;
+
+                    $titleCreativeSet = CreativeSet::find($content['titleSet']['id']);
+
+                    if ($titleCreativeSet) {
+                        $titles = $titleCreativeSet->titleSets;
+                    } else {
+                        throw('No creative set found.');
+                    }
+
+                    $description = '';
+
+                    $descriptionCreativeSet = CreativeSet::find($content['descriptionSet']['id']);
+
+                    if ($descriptionCreativeSet) {
+                        $description = $descriptionCreativeSet->descriptionSets[0]['description'];
+                    } else {
+                        throw('No creative set found.');
+                    }
+
+                    if ($content['adType'] == 'RESPONSIVE_IMAGE_AD') {
+                        $imges = [];
+
+                        $imageCreativeSet = CreativeSet::find($content['imageSet']['id']);
+
+                        if ($imageCreativeSet) {
+                            $images = $imageCreativeSet->imageSets;
+                        } else {
+                            throw('No creative set found.');
+                        }
+
+                        foreach ($images as $image) {
+                            $image_name = $imageCreativeSet ? $image['optimiser'] == 0 ? $image['hq_1200x628_image'] : $image['hq_image'];
+
+                            $file = ($image['optimiser'] == 0 ? storage_path('app/public/images/') : storage_path('app/public/images/creatives/1200x628/')) . $image_name;
+
+                            $data = file_get_contents($file);
+                            $ext = explode('.', $image_name);
+
+                            $media = $api->createMedia([
+                                'accountId' => $vendor['selectedAdvertiser'],
+                                'operand' => [[
+                                    'accountId' => $vendor['selectedAdvertiser'],
+                                    'imageMedia' => [
+                                        'data' => base64_encode($data)
+                                    ],
+                                    'mediaName' => md5($image_name . time()) . '.' . end($ext),
+                                    'mediaTitle' => md5($image_name . time()),
+                                    'userStatus' => 'ACTIVE'
+                                ]]
+                            ]);
+
+                            $media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
+
+                            if ($media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
+                                $media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
+                            }
+
+                            if (!$media_id) {
+                                throw new Exception(json_encode($media));
+                            }
+
+                            foreach ($titles as $title) {
+                                $ads[] = [
+                                    'accountId' => $vendor['selectedAdvertiser'],
+                                    'ad' => [
+                                        'adType' => $content['adType'],
+                                        'responsiveImageAd' => [
+                                            'buttonText' => 'FOR_MORE_INFO',
+                                            'description' => $description,
+                                            'displayUrl' => $content['displayUrl'],
+                                            'headline' => $title['title'],
+                                            'principal' => $content['principal'],
+                                            'url' => $content['targetUrl']
+                                        ]
+                                    ],
+                                    'adGroupId' => $ad_group_id,
+                                    'campaignId' => $campaign_data['campaignId'],
+                                    'adName' => $title['title'],
+                                    'mediaId' => $media_id,
+                                    'userStatus' => $vendor['campaignStatus']
+                                ];
+                            }
+                        }
+                    } else if ($content['adType'] == 'RESPONSIVE_VIDEO_AD') {
+                        $videos = [];
+
+                        $videoCreativeSet = CreativeSet::find($content['videoSet']['id']);
+
+                        if ($videoCreativeSet) {
+                            $videos = $videoCreativeSet->videoSets;
+                        } else {
+                            throw('No creative set found.');
+                        }
+
+                        foreach ($videos as $video) {
+                            $video_name = $video['video'];
+                            $file = storage_path('app/public/images/') . $video_name;
+                            $data = file_get_contents($file);
+                            $ext = explode('.', $video_name);
+
+                            $file_name = md5($video_name . time()) . '.' . end($ext);
+
+                            $media = $api->uploadVideo([
+                                'accountId' => $vendor['selectedAdvertiser'],
+                                'videoName' => $file_name,
+                                'videoTitle' => md5($video_name . time()),
+                                'userStatus' => 'ACTIVE'
+                            ], $file, $file_name);
+
+                            $media_id = $media['rval']['values'][0]['uploadData']['mediaId'] ?? null;
+
+                            if (!$media_id) {
+                                throw new Exception(json_encode($media));
+                            }
+
+                            $image_name = $video['landscape_image'];
+                            $file = storage_path('app/public/images/') . $image_name;
+                            $data = file_get_contents($file);
+                            $ext = explode('.', $image_name);
+
+                            $file_name = md5($image_name . time()) . '.' . end($ext);
+
+                            $media = $api->createMedia([
+                                'accountId' => $vendor['selectedAdvertiser'],
+                                'operand' => [[
+                                    'accountId' => $vendor['selectedAdvertiser'],
+                                    'imageMedia' => [
+                                        'data' => base64_encode($data)
+                                    ],
+                                    'mediaName' => md5($image_name . time()) . '.' . end($ext),
+                                    'mediaTitle' => md5($image_name . time()),
+                                    'thumbnailFlg' => 'TRUE',
+                                    'userStatus' => 'ACTIVE'
+                                ]]
+                            ]);
+
+                            $thumbnail_media_id = $media['rval']['values'][0]['mediaRecord']['mediaId'] ?? null;
+
+                            if ($thumbnail_media_id == null && isset($media['rval']['values'][0]['errors'][0]['details'][0]['requestValue']) && $media['rval']['values'][0]['errors'][0]['details'][0]['requestKey'] == 'mediaId') {
+                                $thumbnail_media_id = $media['rval']['values'][0]['errors'][0]['details'][0]['requestValue'];
+                            }
+
+                            if (!$thumbnail_media_id) {
+                                throw new Exception(json_encode($media));
+                            }
+
+                            foreach ($titles as $title) {
+                                $ads[] = [
+                                    'accountId' => $vendor['selectedAdvertiser'],
+                                    'ad' => [
+                                        'adType' => $content['adType'],
+                                        'responsiveVideoAd' => [
+                                            'buttonText' => 'FOR_MORE_INFO',
+                                            'description' => $description,
+                                            'displayUrl' => $content['displayUrl'],
+                                            'headline' => $title['title'],
+                                            'principal' => $content['principal'],
+                                            'url' => $content['targetUrl'],
+                                            'thumbnailMediaId' => $thumbnail_media_id
+                                        ]
+                                    ],
+                                    'adGroupId' => $ad_group_id,
+                                    'campaignId' => $campaign_data['campaignId'],
+                                    'adName' => $title['title'],
+                                    'mediaId' => $media_id,
+                                    'userStatus' => $vendor['campaignStatus']
+                                ];
+                            }
+                        }
+                    }
+
+                    $ad_data = $api->createAd([
+                        'accountId' => $vendor['selectedAdvertiser'],
+                        'operand' => $ads
+                    ]);
+
+                    $errors = $this->getErrors($ad_data);
+
+                    if (count($errors)) {
+                        throw new Exception(json_encode($errors));
+                    }
+
+                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
+                }
+
+                if (count($vendor['campaignAges']) || count($vendor['campaignGenders']) || count($vendor['campaignDevices'])) {
+                    $target_data = $api->createTargets($campaign_data['campaignId'], $ad_group_id);
+
+                    $errors = $this->getErrors($target_data);
+
+                    if (count($errors)) {
+                        throw new Exception(json_encode($errors));
+                    }
+                }
+            } catch (Exception $e) {
+                $api->deleteCampaign($vendor['selectedAdvertiser'], $campaign_data['campaignId']);
+                $api->deleteAdGroup($campaign_data['campaignId'], $ad_group_id);
+                throw $e;
+            }
+
+            Helper::pullCampaign();
+
+            return [];
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 }

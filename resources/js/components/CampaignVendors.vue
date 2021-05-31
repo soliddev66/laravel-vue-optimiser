@@ -444,7 +444,6 @@ export default {
       let found = false
 
       for (let i = 0; i < this.vendors.length; i++) {
-
         if (this.vendors[i].slug == vendor.slug) {
           found = true
           continue
