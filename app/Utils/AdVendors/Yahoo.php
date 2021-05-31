@@ -1497,7 +1497,10 @@ class Yahoo extends Root implements AdVendorInterface
     }
 
     public function storeCampaignVendors($vendor) {
-        $api = $this->api();
+        $api = new GeminiAPI(auth()->user()->providers()->where([
+            'provider_id' => 1,
+            'open_id' => $vendor['selectedAccount']
+        ])->first());
 
         try {
             $campaign_data = $api->createCampaign([
@@ -1602,10 +1605,10 @@ class Yahoo extends Root implements AdVendorInterface
 
                             foreach ($videos as $video) {
                                 if (in_array($vendor['campaignObjective'], ['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'])) {
-                                    $ad['videoPrimaryUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPrimaryUrl']);
+                                    $ad['videoPrimaryUrl'] = Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['video']);
                                 } else {
-                                    $ad['imagePortraitUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['portrait_image']) : $video['imagePortraitUrl']);
-                                    $ad['videoPortraitUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPortraitUrl']);
+                                    $ad['imagePortraitUrl'] = Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['portrait_image']);
+                                    $ad['videoPortraitUrl'] = Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['video']);
                                 }
                             }
                         } else {
@@ -1620,8 +1623,8 @@ class Yahoo extends Root implements AdVendorInterface
                             }
 
                             foreach ($images as $image) {
-                                $ad['imageUrl'] = Helper::encodeUrl($imageCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['imageUrl']);
-                                $ad['imageUrlHQ'] = Helper::encodeUrl($imageCreativeSet ? (env('MIX_APP_URL') . ($image['optimiser'] == 0 ? ('/storage/images/' . $image['hq_1200x627_image']) : ('/storage/images/creatives/1200x627/' . $image['hq_image']))) : $image['imageUrlHQ']);
+                                $ad['imageUrl'] = Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['image']);
+                                $ad['imageUrlHQ'] = Helper::encodeUrl(env('MIX_APP_URL') . ($image['optimiser'] == 0 ? ('/storage/images/' . $image['hq_1200x627_image']) : ('/storage/images/creatives/1200x627/' . $image['hq_image'])));
                             }
                         }
 

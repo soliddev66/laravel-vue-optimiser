@@ -559,9 +559,9 @@ class CampaignController extends Controller
     public function storeCampaignVendors()
     {
         foreach (request('vendors') as $vendor) {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($vendor->slug);
+            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($vendor['slug']);
 
-            $adVendorClass->storeCampaignVendors($vendor);
+            return (new $adVendorClass())->storeCampaignVendors($vendor);
         }
     }
 }

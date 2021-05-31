@@ -527,6 +527,7 @@ export default {
     },
 
     submitStep4() {
+      this.isLoading = true
       axios.post('/campaigns/store-campaign-vendors', {
         campaignName: this.campaignName,
         vendors: this.vendors,
