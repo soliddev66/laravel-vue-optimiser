@@ -539,7 +539,7 @@ export default {
             window.location = '/campaigns';
           });
         }
-      }).catch(error => {}).finally(() => {
+      }).catch(error => console.log(error)).finally(() => {
         this.isLoading = false
       })
     },

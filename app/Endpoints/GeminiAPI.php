@@ -189,66 +189,66 @@ class GeminiAPI
         return $this->client->call('DELETE', 'targetingattribute?id=' . implode('&id=', request('dataAttributes')));
     }
 
-    public function createAttributes($campaign_data)
+    public function createAttributes($campaign_data, $data)
     {
         $request_body = [];
         $body = [
-            'advertiserId' => request('selectedAdvertiser'),
+            'advertiserId' => $data['selectedAdvertiser'],
             'parentType' => 'CAMPAIGN',
             'parentId' => $campaign_data['id'],
             'status' => 'ACTIVE'
         ];
 
-        if (count(request('campaignLocation'))) {
-            foreach (request('campaignLocation') as $key => $item) {
+        if (count($data['campaignLocation'])) {
+            foreach ($data['campaignLocation'] as $key => $item) {
                 $request_body[] = $body + ['type' => 'WOEID', 'value' => $item];
             }
         }
 
-        if (count(request('campaignGender'))) {
-            foreach (request('campaignGender') as $key => $item) {
+        if (count($data['campaignGender'])) {
+            foreach ($data['campaignGender'] as $key => $item) {
                 $request_body[] = $body + ['type' => 'GENDER', 'value' => $item];
             }
         }
 
-        if (count(request('campaignAge'))) {
-            foreach (request('campaignAge') as $key => $item) {
+        if (count($data['campaignAge'])) {
+            foreach ($data['campaignAge'] as $key => $item) {
                 $request_body[] = $body + ['type' => 'AGE', 'value' => $item];
             }
         }
 
-        if (count(request('campaignDevice'))) {
-            foreach (request('campaignDevice') as $key => $item) {
+        if (count($data['campaignDevice'])) {
+            foreach ($data['campaignDevice'] as $key => $item) {
                 $request_body[] = $body + ['type' => 'DEVICE', 'value' => $item];
             }
         }
 
-        if (!empty(request('campaignSupplyGroup1A'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_1_A', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('campaignSupplyGroup1A') / 100))];
+        if (!empty($data['campaignSupplyGroup1A'])) {
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_1_A', 'bidModifier' => $data['bidAmount'] + ($data['bidAmount'] * ($data['campaignSupplyGroup1A'] / 100))];
         }
 
-        if (!empty(request('campaignSupplyGroup1B'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_1_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('incrementType1b') * request('campaignSupplyGroup1B') / 100))];
+        if (!empty($data['campaignSupplyGroup1B'])) {
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_1_B', 'bidModifier' => $data['bidAmount'] + ($data['bidAmount'] * ($data['incrementType1b'] * $data['campaignSupplyGroup1B'] / 100))];
         }
 
-        if (!empty(request('campaignSupplyGroup2A'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_A', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('incrementType2a') * request('campaignSupplyGroup2A') / 100))];
+        if (!empty($data['campaignSupplyGroup2A'])) {
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_A', 'bidModifier' => $data['bidAmount'] + ($data['bidAmount'] * ($data['incrementType2a'] * $data['campaignSupplyGroup2A'] / 100))];
         }
 
-        if (!empty(request('campaignSupplyGroup2B'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('incrementType2b') * request('campaignSupplyGroup2B') / 100))];
+        if (!empty($data['campaignSupplyGroup2B'])) {
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_2_B', 'bidModifier' => $data['bidAmount'] + ($data['bidAmount'] * ($data['incrementType2b'] * $data['campaignSupplyGroup2B'] / 100))];
         }
 
-        if (!empty(request('campaignSupplyGroup3A'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_A', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('incrementType3a') * request('campaignSupplyGroup3A') / 100))];
+        if (!empty($data['campaignSupplyGroup3A'])) {
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_A', 'bidModifier' => $data['bidAmount'] + ($data['bidAmount'] * ($data['incrementType3a'] * $data['campaignSupplyGroup3A'] / 100))];
         }
 
-        if (!empty(request('campaignSupplyGroup3B'))) {
-            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_B', 'bidModifier' => request('bidAmount') + (request('bidAmount') * (request('incrementType3b') * request('campaignSupplyGroup3B') / 100))];
+        if (!empty($data['campaignSupplyGroup3B'])) {
+            $request_body[] = $body + ['type' => 'SUPPLY_GROUP', 'value' => 'GROUP_3_B', 'bidModifier' => $data['bidAmount'] + ($data['bidAmount'] * ($data['incrementType3b'] * $data['campaignSupplyGroup3B'] / 100))];
         }
 
-        if (!empty(request('campaignSiteBlock'))) {
-            $campaign_site_blocks = explode(PHP_EOL, request('campaignSiteBlock'));
+        if (!empty($data['campaignSiteBlock'])) {
+            $campaign_site_blocks = explode(PHP_EOL, $data['campaignSiteBlock']);
 
             if (count($campaign_site_blocks) > 0) {
                 foreach ($campaign_site_blocks as $item) {
@@ -257,12 +257,12 @@ class GeminiAPI
             }
         }
 
-        if (count(request('supportedSiteCollections'))) {
-            foreach (request('supportedSiteCollections') as $item) {
+        if (count($data['supportedSiteCollections'])) {
+            foreach ($data['supportedSiteCollections'] as $item) {
                 if ($item['type'] == 'site') {
-                    $request_body[] = $body + ['type' => 'SITE_X_DEVICE', 'exclude' => 'FALSE', 'value' => $item['key'], 'bidModifier' => request('bidAmount') + $item['incrementType'] * request('bidAmount') * $item['bidModifier'] / 100];
+                    $request_body[] = $body + ['type' => 'SITE_X_DEVICE', 'exclude' => 'FALSE', 'value' => $item['key'], 'bidModifier' => $data['bidAmount'] + $item['incrementType'] * $data['bidAmount'] * $item['bidModifier'] / 100];
                 } elseif ($item['type'] == 'group') {
-                    $request_body[] = $body + ['type' => 'SITE_GROUP_X_DEVICE', 'exclude' => 'FALSE', 'value' => $item['key'], 'bidModifier' => request('bidAmount') + $item['incrementType'] * request('bidAmount') * $item['bidModifier'] / 100];
+                    $request_body[] = $body + ['type' => 'SITE_GROUP_X_DEVICE', 'exclude' => 'FALSE', 'value' => $item['key'], 'bidModifier' => $data['bidAmount'] + $item['incrementType'] * $data['bidAmount'] * $item['bidModifier'] / 100];
                 }
             }
         }

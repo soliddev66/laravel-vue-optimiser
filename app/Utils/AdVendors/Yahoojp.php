@@ -1826,7 +1826,7 @@ class Yahoojp extends Root implements AdVendorInterface
                         }
 
                         foreach ($images as $image) {
-                            $image_name = $imageCreativeSet ? $image['optimiser'] == 0 ? $image['hq_1200x628_image'] : $image['hq_image'];
+                            $image_name = $image['optimiser'] == 0 ? $image['hq_1200x628_image'] : $image['hq_image'];
 
                             $file = ($image['optimiser'] == 0 ? storage_path('app/public/images/') : storage_path('app/public/images/creatives/1200x628/')) . $image_name;
 

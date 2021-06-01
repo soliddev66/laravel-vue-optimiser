@@ -283,16 +283,16 @@ class Yahoo extends Root implements AdVendorInterface
                     $ads = [];
                     $titles = [];
 
-                    $titleCreativeSet = null;
-                    $descriptionCreativeSet = null;
-                    $imageCreativeSet = null;
-                    $videoCreativeSet = null;
+                    $title_creative_set = null;
+                    $description_creative_set = null;
+                    $image_creative_set = null;
+                    $video_creative_set = null;
 
                     if (isset($content['titleSet']['id'])) {
-                        $titleCreativeSet = CreativeSet::find($content['titleSet']['id']);
+                        $title_creative_set = CreativeSet::find($content['titleSet']['id']);
 
-                        if ($titleCreativeSet) {
-                            $titles = $titleCreativeSet->titleSets;
+                        if ($title_creative_set) {
+                            $titles = $title_creative_set->titleSets;
                         } else {
                             throw('No creative set found.');
                         }
@@ -303,10 +303,10 @@ class Yahoo extends Root implements AdVendorInterface
                     $description = '';
 
                     if (isset($content['descriptionSet']['id'])) {
-                        $descriptionCreativeSet = CreativeSet::find($content['descriptionSet']['id']);
+                        $description_creative_set = CreativeSet::find($content['descriptionSet']['id']);
 
-                        if ($descriptionCreativeSet) {
-                            $description = $descriptionCreativeSet->descriptionSets[0]['description'];
+                        if ($description_creative_set) {
+                            $description = $description_creative_set->descriptionSets[0]['description'];
                         } else {
                             throw('No creative set found.');
                         }
@@ -331,10 +331,10 @@ class Yahoo extends Root implements AdVendorInterface
                             $videos = [];
 
                             if (isset($content['videoSet']['id'])) {
-                                $videoCreativeSet = CreativeSet::find($content['videoSet']['id']);
+                                $video_creative_set = CreativeSet::find($content['videoSet']['id']);
 
-                                if ($videoCreativeSet) {
-                                    $videos = $videoCreativeSet->videoSets;
+                                if ($video_creative_set) {
+                                    $videos = $video_creative_set->videoSets;
                                 } else {
                                     throw('No creative set found.');
                                 }
@@ -344,20 +344,20 @@ class Yahoo extends Root implements AdVendorInterface
 
                             foreach ($videos as $video) {
                                 if (in_array(request('campaignObjective'), ['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'])) {
-                                    $ad['videoPrimaryUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPrimaryUrl']);
+                                    $ad['videoPrimaryUrl'] = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPrimaryUrl']);
                                 } else {
-                                    $ad['imagePortraitUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['portrait_image']) : $video['imagePortraitUrl']);
-                                    $ad['videoPortraitUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPortraitUrl']);
+                                    $ad['imagePortraitUrl'] = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['portrait_image']) : $video['imagePortraitUrl']);
+                                    $ad['videoPortraitUrl'] = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPortraitUrl']);
                                 }
                             }
                         } else {
                             $imges = [];
 
                             if (isset($content['imageSet']['id'])) {
-                                $imageCreativeSet = CreativeSet::find($content['imageSet']['id']);
+                                $image_creative_set = CreativeSet::find($content['imageSet']['id']);
 
-                                if ($imageCreativeSet) {
-                                    $images = $imageCreativeSet->imageSets;
+                                if ($image_creative_set) {
+                                    $images = $image_creative_set->imageSets;
                                 } else {
                                     throw('No creative set found.');
                                 }
@@ -366,8 +366,8 @@ class Yahoo extends Root implements AdVendorInterface
                             }
 
                             foreach ($images as $image) {
-                                $ad['imageUrl'] = Helper::encodeUrl($imageCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['imageUrl']);
-                                $ad['imageUrlHQ'] = Helper::encodeUrl($imageCreativeSet ? (env('MIX_APP_URL') . ($image['optimiser'] == 0 ? ('/storage/images/' . $image['hq_1200x627_image']) : ('/storage/images/creatives/1200x627/' . $image['hq_image']))) : $image['imageUrlHQ']);
+                                $ad['imageUrl'] = Helper::encodeUrl($image_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['imageUrl']);
+                                $ad['imageUrlHQ'] = Helper::encodeUrl($image_creative_set ? (env('MIX_APP_URL') . ($image['optimiser'] == 0 ? ('/storage/images/' . $image['hq_1200x627_image']) : ('/storage/images/creatives/1200x627/' . $image['hq_image']))) : $image['imageUrlHQ']);
                             }
                         }
 
@@ -376,7 +376,7 @@ class Yahoo extends Root implements AdVendorInterface
 
                     $ad_data = $api->createAd($ads);
 
-                    $this->saveAd($ad_data, $campaign_data['id'], $ad_group_data['id'], $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
+                    $this->saveAd($ad_data, $campaign_data['id'], $ad_group_data['id'], $title_creative_set, $description_creative_set, $video_creative_set, $image_creative_set, request('selectedAdvertiser'), request('account'));
                 }
 
                 Helper::pullCampaign();
@@ -387,7 +387,27 @@ class Yahoo extends Root implements AdVendorInterface
             }
 
             try {
-                $api->createAttributes($campaign_data);
+                $api->createAttributes($campaign_data, [
+                    'selectedAdvertiser' => request('selectedAdvertiser'),
+                    'campaignLocation' => request('campaignLocation'),
+                    'campaignGender' => request('campaignGender'),
+                    'campaignAge' => request('campaignAge'),
+                    'campaignDevice' => request('campaignDevice'),
+                    'campaignSupplyGroup1A' => request('campaignSupplyGroup1A'),
+                    'bidAmount' => request('bidAmount'),
+                    'campaignSupplyGroup1B' => request('campaignSupplyGroup1B'),
+                    'incrementType1b' => request('incrementType1b'),
+                    'campaignSupplyGroup2A' => request('campaignSupplyGroup2A'),
+                    'incrementType2a' => request('incrementType2a'),
+                    'campaignSupplyGroup2B' => request('campaignSupplyGroup2B'),
+                    'incrementType2b' => request('incrementType2b'),
+                    'campaignSupplyGroup3A' => request('campaignSupplyGroup3A'),
+                    'incrementType3a' => request('incrementType3a'),
+                    'campaignSupplyGroup3B' => request('campaignSupplyGroup3B'),
+                    'incrementType3b' => request('incrementType3b'),
+                    'campaignSiteBlock' => request('campaignSiteBlock'),
+                    'supportedSiteCollections' => request('supportedSiteCollections'),
+                ]);
             } catch (Exception $e) {
                 $api->deleteCampaign($campaign_data['id']);
                 $api->deleteAdGroups([$ad_group_data['id']]);
@@ -409,7 +429,7 @@ class Yahoo extends Root implements AdVendorInterface
         return [];
     }
 
-    private function saveAd($ad_data, $campaign_id, $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet)
+    private function saveAd($ad_data, $campaign_id, $ad_group_id, $title_creative_set, $description_creative_set, $video_creative_set, $image_creative_set, $advertiser_id, $account)
     {
         foreach ($ad_data as $ad) {
             $db_ad = Ad::firstOrNew([
@@ -417,9 +437,9 @@ class Yahoo extends Root implements AdVendorInterface
                 'user_id' => auth()->id(),
                 'provider_id' => 1,
                 'campaign_id' => $campaign_id,
-                'advertiser_id' => request('selectedAdvertiser'),
+                'advertiser_id' => $advertiser_id,
                 'ad_group_id' => $ad_group_id,
-                'open_id' => request('account'),
+                'open_id' => $account,
             ]);
 
             $db_ad->name = $ad['adName'] ?? $ad['title'];
@@ -430,20 +450,20 @@ class Yahoo extends Root implements AdVendorInterface
 
             $db_ad->creativeSets()->detach();
 
-            if ($titleCreativeSet) {
-                $db_ad->creativeSets()->save($titleCreativeSet);
+            if ($title_creative_set) {
+                $db_ad->creativeSets()->save($title_creative_set);
             }
 
-            if ($descriptionCreativeSet) {
-                $db_ad->creativeSets()->save($descriptionCreativeSet);
+            if ($description_creative_set) {
+                $db_ad->creativeSets()->save($description_creative_set);
             }
 
-            if ($videoCreativeSet) {
-                $db_ad->creativeSets()->save($videoCreativeSet);
+            if ($video_creative_set) {
+                $db_ad->creativeSets()->save($video_creative_set);
             }
 
-            if ($imageCreativeSet) {
-                $db_ad->creativeSets()->save($imageCreativeSet);
+            if ($image_creative_set) {
+                $db_ad->creativeSets()->save($image_creative_set);
             }
         }
     }
@@ -457,16 +477,16 @@ class Yahoo extends Root implements AdVendorInterface
                 $ads = [];
                 $titles = [];
 
-                $titleCreativeSet = null;
-                $descriptionCreativeSet = null;
-                $imageCreativeSet = null;
-                $videoCreativeSet = null;
+                $title_creative_set = null;
+                $description_creative_set = null;
+                $image_creative_set = null;
+                $video_creative_set = null;
 
                 if (isset($content['titleSet']['id'])) {
-                    $titleCreativeSet = CreativeSet::find($content['titleSet']['id']);
+                    $title_creative_set = CreativeSet::find($content['titleSet']['id']);
 
-                    if ($titleCreativeSet) {
-                        $titles = $titleCreativeSet->titleSets;
+                    if ($title_creative_set) {
+                        $titles = $title_creative_set->titleSets;
                     } else {
                         throw('No creative set found.');
                     }
@@ -477,10 +497,10 @@ class Yahoo extends Root implements AdVendorInterface
                 $description = '';
 
                 if (isset($content['descriptionSet']['id'])) {
-                    $descriptionCreativeSet = CreativeSet::find($content['descriptionSet']['id']);
+                    $description_creative_set = CreativeSet::find($content['descriptionSet']['id']);
 
-                    if ($descriptionCreativeSet) {
-                        $description = $descriptionCreativeSet->descriptionSets[0]['description'];
+                    if ($description_creative_set) {
+                        $description = $description_creative_set->descriptionSets[0]['description'];
                     } else {
                         throw('No creative set found.');
                     }
@@ -505,10 +525,10 @@ class Yahoo extends Root implements AdVendorInterface
                         $videos = [];
 
                         if (isset($content['videoSet']['id'])) {
-                            $videoCreativeSet = CreativeSet::find($content['videoSet']['id']);
+                            $video_creative_set = CreativeSet::find($content['videoSet']['id']);
 
-                            if ($videoCreativeSet) {
-                                $videos = $videoCreativeSet->videoSets;
+                            if ($video_creative_set) {
+                                $videos = $video_creative_set->videoSets;
                             } else {
                                 throw('No creative set found.');
                             }
@@ -518,20 +538,20 @@ class Yahoo extends Root implements AdVendorInterface
 
                         foreach ($videos as $video) {
                             if (in_array(request('campaignObjective'), ['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'])) {
-                                $ad['videoPrimaryUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPrimaryUrl']);
+                                $ad['videoPrimaryUrl'] = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPrimaryUrl']);
                             } else {
-                                $ad['imagePortraitUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['portrait_image']) : $video['imagePortraitUrl']);
-                                $ad['videoPortraitUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPortraitUrl']);
+                                $ad['imagePortraitUrl'] = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['portrait_image']) : $video['imagePortraitUrl']);
+                                $ad['videoPortraitUrl'] = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPortraitUrl']);
                             }
                         }
                     } else {
                         $imges = [];
 
                         if (isset($content['imageSet']['id'])) {
-                            $imageCreativeSet = CreativeSet::find($content['imageSet']['id']);
+                            $image_creative_set = CreativeSet::find($content['imageSet']['id']);
 
-                            if ($imageCreativeSet) {
-                                $images = $imageCreativeSet->imageSets;
+                            if ($image_creative_set) {
+                                $images = $image_creative_set->imageSets;
                             } else {
                                 throw('No creative set found.');
                             }
@@ -540,8 +560,8 @@ class Yahoo extends Root implements AdVendorInterface
                         }
 
                         foreach ($images as $image) {
-                            $ad['imageUrl'] = Helper::encodeUrl($imageCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['imageUrl']);
-                            $ad['imageUrlHQ'] = Helper::encodeUrl($imageCreativeSet ? (env('MIX_APP_URL') . ($image['optimiser'] == 0 ? ('/storage/images/' . $image['hq_1200x627_image']) : ('/storage/images/creatives/1200x627/' . $image['hq_image']))) : $image['imageUrlHQ']);
+                            $ad['imageUrl'] = Helper::encodeUrl($image_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['imageUrl']);
+                            $ad['imageUrlHQ'] = Helper::encodeUrl($image_creative_set ? (env('MIX_APP_URL') . ($image['optimiser'] == 0 ? ('/storage/images/' . $image['hq_1200x627_image']) : ('/storage/images/creatives/1200x627/' . $image['hq_image']))) : $image['imageUrlHQ']);
                         }
                     }
 
@@ -549,7 +569,7 @@ class Yahoo extends Root implements AdVendorInterface
                 }
                 $ad_data = $api->createAd($ads);
 
-                $this->saveAd($ad_data, $campaign->campaign_id, $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
+                $this->saveAd($ad_data, $campaign->campaign_id, $ad_group_id, $title_creative_set, $description_creative_set, $video_creative_set, $image_creative_set, request('selectedAdvertiser'), request('account'));
             }
 
             Helper::pullAd();
@@ -591,16 +611,16 @@ class Yahoo extends Root implements AdVendorInterface
                 $update_ads = [];
                 $titles = [];
 
-                $titleCreativeSet = null;
-                $descriptionCreativeSet = null;
-                $imageCreativeSet = null;
-                $videoCreativeSet = null;
+                $title_creative_set = null;
+                $description_creative_set = null;
+                $image_creative_set = null;
+                $video_creative_set = null;
 
                 if (isset($content['titleSet']['id'])) {
-                    $titleCreativeSet = CreativeSet::find($content['titleSet']['id']);
+                    $title_creative_set = CreativeSet::find($content['titleSet']['id']);
 
-                    if ($titleCreativeSet) {
-                        $titles = $titleCreativeSet->titleSets;
+                    if ($title_creative_set) {
+                        $titles = $title_creative_set->titleSets;
                     } else {
                         throw('No creative set found.');
                     }
@@ -611,10 +631,10 @@ class Yahoo extends Root implements AdVendorInterface
                 $description = '';
 
                 if (isset($content['descriptionSet']['id'])) {
-                    $descriptionCreativeSet = CreativeSet::find($content['descriptionSet']['id']);
+                    $description_creative_set = CreativeSet::find($content['descriptionSet']['id']);
 
-                    if ($descriptionCreativeSet) {
-                        $description = $descriptionCreativeSet->descriptionSets[0]['description'];
+                    if ($description_creative_set) {
+                        $description = $description_creative_set->descriptionSets[0]['description'];
                     } else {
                         throw('No creative set found.');
                     }
@@ -639,10 +659,10 @@ class Yahoo extends Root implements AdVendorInterface
                         $videos = [];
 
                         if (isset($content['videoSet']['id'])) {
-                            $videoCreativeSet = CreativeSet::find($content['videoSet']['id']);
+                            $video_creative_set = CreativeSet::find($content['videoSet']['id']);
 
-                            if ($videoCreativeSet) {
-                                $videos = $videoCreativeSet->videoSets;
+                            if ($video_creative_set) {
+                                $videos = $video_creative_set->videoSets;
                             } else {
                                 throw('No creative set found.');
                             }
@@ -652,10 +672,10 @@ class Yahoo extends Root implements AdVendorInterface
 
                         foreach ($videos as $video) {
                             if (in_array(request('campaignObjective'), ['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'])) {
-                                $ad['videoPrimaryUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPrimaryUrl']);
+                                $ad['videoPrimaryUrl'] = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPrimaryUrl']);
                             } else {
-                                $ad['imagePortraitUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['portrait_image']) : $video['imagePortraitUrl']);
-                                $ad['videoPortraitUrl'] = Helper::encodeUrl($videoCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPortraitUrl']);
+                                $ad['imagePortraitUrl'] = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['portrait_image']) : $video['imagePortraitUrl']);
+                                $ad['videoPortraitUrl'] = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoPortraitUrl']);
                             }
 
                             if (isset($content['id'])) {
@@ -669,10 +689,10 @@ class Yahoo extends Root implements AdVendorInterface
                         $imges = [];
 
                         if (isset($content['imageSet']['id'])) {
-                            $imageCreativeSet = CreativeSet::find($content['imageSet']['id']);
+                            $image_creative_set = CreativeSet::find($content['imageSet']['id']);
 
-                            if ($imageCreativeSet) {
-                                $images = $imageCreativeSet->imageSets;
+                            if ($image_creative_set) {
+                                $images = $image_creative_set->imageSets;
                             } else {
                                 throw('No creative set found.');
                             }
@@ -681,8 +701,8 @@ class Yahoo extends Root implements AdVendorInterface
                         }
 
                         foreach ($content['images'] as $image) {
-                            $ad['imageUrl'] = Helper::encodeUrl($imageCreativeSet ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['imageUrl']);
-                            $ad['imageUrlHQ'] = Helper::encodeUrl($imageCreativeSet ? (env('MIX_APP_URL') . ($image['optimiser'] == 0 ? ('/storage/images/' . $image['hq_1200x627_image']) : ('/storage/images/creatives/1200x627/' . $image['hq_image']))) : $image['imageUrlHQ']);
+                            $ad['imageUrl'] = Helper::encodeUrl($image_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['imageUrl']);
+                            $ad['imageUrlHQ'] = Helper::encodeUrl($image_creative_set ? (env('MIX_APP_URL') . ($image['optimiser'] == 0 ? ('/storage/images/' . $image['hq_1200x627_image']) : ('/storage/images/creatives/1200x627/' . $image['hq_image']))) : $image['imageUrlHQ']);
 
                             if (isset($content['id'])) {
                                 $ad['id'] = $content['id'];
@@ -697,14 +717,34 @@ class Yahoo extends Root implements AdVendorInterface
                 if (count($ads) > 0) {
                     $ad_data = $api->createAd($ads);
 
-                    $this->saveAd($ad_data, $campaign_data['id'], $ad_group_data['id'], $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
+                    $this->saveAd($ad_data, $campaign_data['id'], $ad_group_data['id'], $title_creative_set, $description_creative_set, $video_creative_set, $image_creative_set, request('selectedAdvertiser'), request('account'));
                 }
                 $ad_data = $api->updateAd($update_ads);
-                $this->saveAd($ad_data, $campaign_data['id'], $ad_group_data['id'], $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
+                $this->saveAd($ad_data, $campaign_data['id'], $ad_group_data['id'], $title_creative_set, $description_creative_set, $video_creative_set, $image_creative_set, request('selectedAdvertiser'), request('account'));
             }
 
             $api->deleteAttributes();
-            $api->createAttributes($campaign_data);
+            $api->createAttributes($campaign_data, [
+                'selectedAdvertiser' => request('selectedAdvertiser'),
+                'campaignLocation' => request('campaignLocation'),
+                'campaignGender' => request('campaignGender'),
+                'campaignAge' => request('campaignAge'),
+                'campaignDevice' => request('campaignDevice'),
+                'campaignSupplyGroup1A' => request('campaignSupplyGroup1A'),
+                'bidAmount' => request('bidAmount'),
+                'campaignSupplyGroup1B' => request('campaignSupplyGroup1B'),
+                'incrementType1b' => request('incrementType1b'),
+                'campaignSupplyGroup2A' => request('campaignSupplyGroup2A'),
+                'incrementType2a' => request('incrementType2a'),
+                'campaignSupplyGroup2B' => request('campaignSupplyGroup2B'),
+                'incrementType2b' => request('incrementType2b'),
+                'campaignSupplyGroup3A' => request('campaignSupplyGroup3A'),
+                'incrementType3a' => request('incrementType3a'),
+                'campaignSupplyGroup3B' => request('campaignSupplyGroup3B'),
+                'incrementType3b' => request('incrementType3b'),
+                'campaignSiteBlock' => request('campaignSiteBlock'),
+                'supportedSiteCollections' => request('supportedSiteCollections'),
+            ]);
         } catch (Exception $e) {
             return [
                 'errors' => [$e->getMessage()]
@@ -1502,7 +1542,6 @@ class Yahoo extends Root implements AdVendorInterface
             'open_id' => $vendor['selectedAccount']
         ])->first());
 
-        try {
             $campaign_data = $api->createCampaign([
                 'advertiserId' => $vendor['selectedAdvertiser'],
                 'budget' => $vendor['campaignBudget'],
@@ -1556,25 +1595,25 @@ class Yahoo extends Root implements AdVendorInterface
                     $ads = [];
                     $titles = [];
 
-                    $titleCreativeSet = null;
-                    $descriptionCreativeSet = null;
-                    $imageCreativeSet = null;
-                    $videoCreativeSet = null;
+                    $title_creative_set = null;
+                    $description_creative_set = null;
+                    $image_creative_set = null;
+                    $video_creative_set = null;
 
-                    $titleCreativeSet = CreativeSet::find($content['titleSet']['id']);
+                    $title_creative_set = CreativeSet::find($content['titleSet']['id']);
 
-                    if ($titleCreativeSet) {
-                        $titles = $titleCreativeSet->titleSets;
+                    if ($title_creative_set) {
+                        $titles = $title_creative_set->titleSets;
                     } else {
                         throw('No creative set found.');
                     }
 
                     $description = '';
 
-                    $descriptionCreativeSet = CreativeSet::find($content['descriptionSet']['id']);
+                    $description_creative_set = CreativeSet::find($content['descriptionSet']['id']);
 
-                    if ($descriptionCreativeSet) {
-                        $description = $descriptionCreativeSet->descriptionSets[0]['description'];
+                    if ($description_creative_set) {
+                        $description = $description_creative_set->descriptionSets[0]['description'];
                     } else {
                         throw('No creative set found.');
                     }
@@ -1595,10 +1634,10 @@ class Yahoo extends Root implements AdVendorInterface
                         if ($content['adType'] == 'VIDEO') {
                             $videos = [];
 
-                            $videoCreativeSet = CreativeSet::find($content['videoSet']['id']);
+                            $video_creative_set = CreativeSet::find($content['videoSet']['id']);
 
-                            if ($videoCreativeSet) {
-                                $videos = $videoCreativeSet->videoSets;
+                            if ($video_creative_set) {
+                                $videos = $video_creative_set->videoSets;
                             } else {
                                 throw('No creative set found.');
                             }
@@ -1614,17 +1653,17 @@ class Yahoo extends Root implements AdVendorInterface
                         } else {
                             $imges = [];
 
-                            $imageCreativeSet = CreativeSet::find($content['imageSet']['id']);
+                            $image_creative_set = CreativeSet::find($content['imageSet']['id']);
 
-                            if ($imageCreativeSet) {
-                                $images = $imageCreativeSet->imageSets;
+                            if ($image_creative_set) {
+                                $images = $image_creative_set->imageSets;
                             } else {
                                 throw('No creative set found.');
                             }
 
                             foreach ($images as $image) {
-                                $ad['imageUrl'] = Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['image']);
-                                $ad['imageUrlHQ'] = Helper::encodeUrl(env('MIX_APP_URL') . ($image['optimiser'] == 0 ? ('/storage/images/' . $image['hq_1200x627_image']) : ('/storage/images/creatives/1200x627/' . $image['hq_image'])));
+                                $ad['imageUrl'] = Helper::encodeUrl('https://vngodev.com/yahoo-1.png');
+                                $ad['imageUrlHQ'] = Helper::encodeUrl('https://vngodev.com/yahoo-2.jpg');
                             }
                         }
 
@@ -1633,7 +1672,7 @@ class Yahoo extends Root implements AdVendorInterface
 
                     $ad_data = $api->createAd($ads);
 
-                    $this->saveAd($ad_data, $campaign_data['id'], $ad_group_data['id'], $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
+                    $this->saveAd($ad_data, $campaign_data['id'], $ad_group_data['id'], $title_creative_set, $description_creative_set, $video_creative_set, $image_creative_set, $vendor['selectedAdvertiser'], $vendor['selectedAccount']);
                 }
 
                 Helper::pullCampaign();
@@ -1644,7 +1683,27 @@ class Yahoo extends Root implements AdVendorInterface
             }
 
             try {
-                $api->createAttributes($campaign_data);
+                $api->createAttributes($campaign_data, [
+                    'selectedAdvertiser' => $vendor['selectedAdvertiser'],
+                    'campaignLocation' => $vendor['campaignLocation'] ?? [],
+                    'campaignGender' => $vendor['campaignGender'] ?? [],
+                    'campaignAge' => $vendor['campaignAge'] ?? [],
+                    'campaignDevice' => $vendor['campaignDevice'] ?? [],
+                    'campaignSupplyGroup1A' => $vendor['campaignSupplyGroup1A'] ?? null,
+                    'bidAmount' => $vendor['bidAmount'],
+                    'campaignSupplyGroup1B' => $vendor['campaignSupplyGroup1B'] ?? null,
+                    'incrementType1b' => $vendor['incrementType1b'] ?? null,
+                    'campaignSupplyGroup2A' => $vendor['campaignSupplyGroup2A'] ?? null,
+                    'incrementType2a' => $vendor['incrementType2a'] ?? null,
+                    'campaignSupplyGroup2B' => $vendor['campaignSupplyGroup2B'] ?? null,
+                    'incrementType2b' => $vendor['incrementType2b'] ?? null,
+                    'campaignSupplyGroup3A' => $vendor['campaignSupplyGroup3A'] ?? null,
+                    'incrementType3a' => $vendor['incrementType3a'] ?? null,
+                    'campaignSupplyGroup3B' => $vendor['campaignSupplyGroup3B'] ?? null,
+                    'incrementType3b' => $vendor['incrementType3b'] ?? null,
+                    'campaignSiteBlock' => $vendor['campaignSiteBlock'] ?? null,
+                    'supportedSiteCollections' => $vendor['supportedSiteCollections'] ?? [],
+                ]);
             } catch (Exception $e) {
                 $api->deleteCampaign($campaign_data['id']);
                 $api->deleteAdGroups([$ad_group_data['id']]);
@@ -1657,11 +1716,6 @@ class Yahoo extends Root implements AdVendorInterface
                 $api->deleteAds($ad_ids);
                 throw $e;
             }
-        } catch (Exception $e) {
-            return [
-                'errors' => [$e->getMessage()]
-            ];
-        }
 
         return [];
     }
