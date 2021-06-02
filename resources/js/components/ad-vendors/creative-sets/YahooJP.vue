@@ -6,7 +6,7 @@
 
     <div class="row">
       <div class="col">
-        <h1 class="mb-2">Yahoo Japan</h1>
+        <h1 class="mb-3">Yahoo Japan</h1>
         <div class="form-group row">
           <label for="name" class="col-sm-2 control-label mt-2">Campaign Goal</label>
           <div class="col-sm-8">

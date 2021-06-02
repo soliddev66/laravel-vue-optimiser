@@ -76,7 +76,7 @@
                         </div>
                       </div>
                       <div class="form-group row">
-                        <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
+                        <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name / Principal</label>
                         <div class="col-sm-8">
                           <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" />
                         </div>
@@ -347,7 +347,6 @@ export default {
         targetUrl: '',
         descriptionSet: '',
         brandname: '',
-        principal: '',
         imageSet: '',
         videoSet: ''
       }],

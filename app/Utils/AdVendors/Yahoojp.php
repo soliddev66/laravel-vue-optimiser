@@ -432,11 +432,15 @@ class Yahoojp extends Root implements AdVendorInterface
                         throw new Exception(json_encode($errors));
                     }
 
-                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
+                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet, request('selectedAdvertiser'), request('account'));
                 }
 
                 if (count(request('campaignAges')) || count(request('campaignGenders')) || count(request('campaignDevices'))) {
-                    $target_data = $api->createTargets($campaign_data['campaignId'], $ad_group_id);
+                    $target_data = $api->createTargets($campaign_data['campaignId'], $ad_group_id, request('selectedAdvertiser'), [
+                        'campaignAges' => request('campaignAges'),
+                        'campaignGenders' => request('campaignGenders'),
+                        'campaignDevices' => request('campaignDevices')
+                    ]);
 
                     $errors = $this->getErrors($target_data);
 
@@ -460,7 +464,7 @@ class Yahoojp extends Root implements AdVendorInterface
         }
     }
 
-    private function saveAd($ad_data, $campaign_id, $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet)
+    private function saveAd($ad_data, $campaign_id, $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet, $advertiser_id, $account)
     {
         foreach ($ad_data as $ad) {
             $ad = $ad['adGroupAd'];
@@ -470,9 +474,9 @@ class Yahoojp extends Root implements AdVendorInterface
                 'user_id' => auth()->id(),
                 'provider_id' => 5,
                 'campaign_id' => $campaign_id,
-                'advertiser_id' => request('selectedAdvertiser'),
+                'advertiser_id' => $advertiser_id,
                 'ad_group_id' => $ad_group_id,
-                'open_id' => request('account'),
+                'open_id' => $account,
             ]);
 
             $db_ad->name = $ad['adName'];
@@ -728,7 +732,7 @@ class Yahoojp extends Root implements AdVendorInterface
                     throw new Exception(json_encode($errors));
                 }
 
-                $this->saveAd($ad_data['rval']['values'], $campaign->campaign_id, $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
+                $this->saveAd($ad_data['rval']['values'], $campaign->campaign_id, $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet, request('selectedAdvertiser'), request('account'));
             }
 
             Helper::pullAd();
@@ -1027,7 +1031,7 @@ class Yahoojp extends Root implements AdVendorInterface
                         throw new Exception(json_encode($errors));
                     }
 
-                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
+                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet, request('selectedAdvertiser'), request('account'));
                 }
 
                 if (count($update_ads)) {
@@ -1042,11 +1046,15 @@ class Yahoojp extends Root implements AdVendorInterface
                         throw new Exception(json_encode($errors));
                     }
 
-                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
+                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet, request('selectedAdvertiser'), request('account'));
                 }
             }
 
-            $target_data = $api->createTargets($campaign->campaign_id, $ad_group_id, true);
+            $target_data = $api->createTargets($campaign->campaign_id, $ad_group_id, request('selectedAdvertiser'), [
+                'campaignAges' => request('campaignAges'),
+                'campaignGenders' => request('campaignGenders'),
+                'campaignDevices' => request('campaignDevices')
+            ], true);
 
             return [];
         } catch (Exception $e) {
@@ -1702,7 +1710,7 @@ class Yahoojp extends Root implements AdVendorInterface
     }
 
     public function storeCampaignVendors($vendor) {
-        $api = new GeminiAPI(auth()->user()->providers()->where([
+        $api = new YahooJPAPI(auth()->user()->providers()->where([
             'provider_id' => 5,
             'open_id' => $vendor['selectedAccount']
         ])->first());
@@ -1715,19 +1723,19 @@ class Yahoojp extends Root implements AdVendorInterface
                     'accountId' => $vendor['selectedAdvertiser'],
                     'budget' => [
                         'amount' => $vendor['campaignBudget'],
-                        'budgetDeliveryMethod' => $vendor['campaignBudgetDeliveryMethod']
+                        'budgetDeliveryMethod' => $vendor['campaignBudgetDeliveryMethod'] ?? null
                     ],
                     'campaignBiddingStrategy' => $this->getCampaignBiddingStrategy([
                         'campaignCampaignBidStrategy' => $vendor['campaignCampaignBidStrategy'],
-                        'campaignMaxCpcBidValue' => $vendor['campaignMaxCpcBidValue'],
-                        'campaignMaxVcpmBidValue' => $vendor['campaignMaxVcpmBidValue'],
-                        'campaignMaxCpvBidValue' => $vendor['campaignMaxCpvBidValue'],
-                        'campaignTargetCpaBidValue' => $vendor['campaignTargetCpaBidValue']
+                        'campaignMaxCpcBidValue' => $vendor['campaignMaxCpcBidValue'] ?? '',
+                        'campaignMaxVcpmBidValue' => $vendor['campaignMaxVcpmBidValue'] ?? '',
+                        'campaignMaxCpvBidValue' => $vendor['campaignMaxCpvBidValue'] ?? '',
+                        'campaignTargetCpaBidValue' => $vendor['campaignTargetCpaBidValue'] ?? ''
                     ]),
                     'campaignGoal' => $vendor['campaignGoal'],
-                    'campaignName' => $vendor['campaignName'],
+                    'campaignName' => request('campaignName'),
                     'startDate' => $vendor['campaignStartDate'],
-                    'endDate' => $vendor['campaignEndDate'],
+                    'endDate' => $vendor['campaignEndDate'] ?? null,
                     'userStatus' => $vendor['campaignStatus']
                 ]]
             ]);
@@ -1762,14 +1770,14 @@ class Yahoojp extends Root implements AdVendorInterface
                         'adGroupName' => $vendor['adGroupName'],
                         'adGroupBiddingStrategy' => $this->getCampaignBiddingStrategy([
                             'campaignCampaignBidStrategy' => $vendor['campaignCampaignBidStrategy'],
-                            'campaignMaxCpcBidValue' => $vendor['campaignMaxCpcBidValue'],
-                            'campaignMaxVcpmBidValue' => $vendor['campaignMaxVcpmBidValue'],
-                            'campaignMaxCpvBidValue' => $vendor['campaignMaxCpvBidValue'],
-                            'campaignTargetCpaBidValue' => $vendor['campaignTargetCpaBidValue']
+                            'campaignMaxCpcBidValue' => $vendor['campaignMaxCpcBidValue'] ?? '',
+                            'campaignMaxVcpmBidValue' => $vendor['campaignMaxVcpmBidValue'] ?? '',
+                            'campaignMaxCpvBidValue' => $vendor['campaignMaxCpvBidValue'] ?? '',
+                            'campaignTargetCpaBidValue' => $vendor['campaignTargetCpaBidValue'] ?? ''
                         ]),
-                        'device' => count($vendor['campaignDevices']) ? $vendor['campaignDevices'] : ['NONE'],
-                        'deviceApp' => count($vendor['campaignDeviceApps']) ? $vendor['campaignDeviceApps'] : ['NONE'],
-                        'deviceOs' => count($vendor['campaignDeviceOs']) ? $vendor['campaignDeviceOs'] : ['NONE'],
+                        'device' => isset($vendor['campaignDevices']) && count($vendor['campaignDevices']) ? $vendor['campaignDevices'] : ['NONE'],
+                        'deviceApp' => isset($vendor['campaignDeviceApps']) && count($vendor['campaignDeviceApps']) ? $vendor['campaignDeviceApps'] : ['NONE'],
+                        'deviceOs' => isset($vendor['campaignDeviceOs']) && count($vendor['campaignDeviceOs']) ? $vendor['campaignDeviceOs'] : ['NONE'],
                         'userStatus' => $vendor['campaignStatus']
                     ]]
                 ]);
@@ -1814,7 +1822,7 @@ class Yahoojp extends Root implements AdVendorInterface
                         throw('No creative set found.');
                     }
 
-                    if ($content['adType'] == 'RESPONSIVE_IMAGE_AD') {
+                    if ($content['adType'] == 'IMAGE') {
                         $imges = [];
 
                         $imageCreativeSet = CreativeSet::find($content['imageSet']['id']);
@@ -1860,13 +1868,13 @@ class Yahoojp extends Root implements AdVendorInterface
                                 $ads[] = [
                                     'accountId' => $vendor['selectedAdvertiser'],
                                     'ad' => [
-                                        'adType' => $content['adType'],
+                                        'adType' => 'RESPONSIVE_IMAGE_AD',
                                         'responsiveImageAd' => [
                                             'buttonText' => 'FOR_MORE_INFO',
                                             'description' => $description,
                                             'displayUrl' => $content['displayUrl'],
                                             'headline' => $title['title'],
-                                            'principal' => $content['principal'],
+                                            'principal' => $content['brandname'],
                                             'url' => $content['targetUrl']
                                         ]
                                     ],
@@ -1878,7 +1886,7 @@ class Yahoojp extends Root implements AdVendorInterface
                                 ];
                             }
                         }
-                    } else if ($content['adType'] == 'RESPONSIVE_VIDEO_AD') {
+                    } else if ($content['adType'] == 'VIDEO') {
                         $videos = [];
 
                         $videoCreativeSet = CreativeSet::find($content['videoSet']['id']);
@@ -1945,13 +1953,13 @@ class Yahoojp extends Root implements AdVendorInterface
                                 $ads[] = [
                                     'accountId' => $vendor['selectedAdvertiser'],
                                     'ad' => [
-                                        'adType' => $content['adType'],
+                                        'adType' => 'RESPONSIVE_VIDEO_AD',
                                         'responsiveVideoAd' => [
                                             'buttonText' => 'FOR_MORE_INFO',
                                             'description' => $description,
                                             'displayUrl' => $content['displayUrl'],
                                             'headline' => $title['title'],
-                                            'principal' => $content['principal'],
+                                            'principal' => $content['brandname'],
                                             'url' => $content['targetUrl'],
                                             'thumbnailMediaId' => $thumbnail_media_id
                                         ]
@@ -1977,11 +1985,15 @@ class Yahoojp extends Root implements AdVendorInterface
                         throw new Exception(json_encode($errors));
                     }
 
-                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet);
+                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet, $vendor['selectedAdvertiser'], $vendor['selectedAccount']);
                 }
 
-                if (count($vendor['campaignAges']) || count($vendor['campaignGenders']) || count($vendor['campaignDevices'])) {
-                    $target_data = $api->createTargets($campaign_data['campaignId'], $ad_group_id);
+                if (isset($vendor['campaignAges']) || isset($vendor['campaignGenders']) || isset($vendor['campaignDevices'])) {
+                    $target_data = $api->createTargets($campaign_data['campaignId'], $ad_group_id, $vendor['selectedAdvertiser'], [
+                        'campaignAges' => $vendor['campaignAges'] ?? [],
+                        'campaignGenders' => $vendor['campaignGenders'] ?? [],
+                        'campaignDevices' => $vendor['campaignDevices'] ?? []
+                    ]);
 
                     $errors = $this->getErrors($target_data);
 

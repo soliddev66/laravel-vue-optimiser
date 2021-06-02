@@ -1542,6 +1542,7 @@ class Yahoo extends Root implements AdVendorInterface
             'open_id' => $vendor['selectedAccount']
         ])->first());
 
+        try {
             $campaign_data = $api->createCampaign([
                 'advertiserId' => $vendor['selectedAdvertiser'],
                 'budget' => $vendor['campaignBudget'],
@@ -1716,6 +1717,11 @@ class Yahoo extends Root implements AdVendorInterface
                 $api->deleteAds($ad_ids);
                 throw $e;
             }
+        } catch (Exception $e) {
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
 
         return [];
     }

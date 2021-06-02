@@ -179,21 +179,20 @@ class YahooJPAPI
         return $this->client->call('POST', 'AdGroupService/add', $body);
     }
 
-    public function createTargets($campaign_id, $ad_group_id, $is_replace = false)
+    public function createTargets($campaign_id, $ad_group_id, $advertiser_id, $data, $is_replace = false)
     {
         $data = [
-            'accountId' => request('selectedAdvertiser'),
+            'accountId' => $advertiser_id,
             'operand' => []
         ];
 
         $account = [
-            'accountId' => request('selectedAdvertiser'),
+            'accountId' => $advertiser_id,
             'campaignId' => $campaign_id,
             'adGroupId' => $ad_group_id
         ];
 
-
-        foreach (request('campaignAges') as $item) {
+        foreach ($data['campaignAges'] as $item) {
             $data['operand'][] = $account + [
                 'target' => [
                     'targetType' => 'AGE_TARGET',
@@ -205,7 +204,7 @@ class YahooJPAPI
             ];
         }
 
-        foreach (request('campaignGenders') as $item) {
+        foreach ($data['campaignGenders'] as $item) {
             $data['operand'][] = $account + [
                 'target' => [
                     'targetType' => 'GENDER_TARGET',
@@ -217,7 +216,7 @@ class YahooJPAPI
             ];
         }
 
-        foreach (request('campaignDevices') as $item) {
+        foreach ($data['campaignDevices'] as $item) {
             $data['operand'][] = $account + [
                 'target' => [
                     'targetType' => 'DEVICE_TARGET',
