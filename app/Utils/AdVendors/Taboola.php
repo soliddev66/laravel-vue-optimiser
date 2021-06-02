@@ -13,6 +13,7 @@ use App\Models\RedtrackReport;
 use App\Models\TaboolaReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
+use App\Models\CreativeSet;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use App\Vngodev\ResourceImporter;
@@ -78,15 +79,61 @@ class Taboola extends Root implements AdVendorInterface
 
             $campaign_data = $api->createCampaign(request('advertiser'), $data);
 
-            $ads = [];
-
             foreach (request('campaignItems') as $campaign_item) {
-                foreach ($campaign_item['titles'] as $title) {
+                $ads = [];
+                $titles = [];
+
+                $title_creative_set = null;
+                $description_creative_set = null;
+                $image_creative_set = null;
+                $video_creative_set = null;
+
+                if (isset($content['titleSet']['id'])) {
+                    $title_creative_set = CreativeSet::find($content['titleSet']['id']);
+
+                    if ($title_creative_set) {
+                        $titles = $title_creative_set->titleSets;
+                    } else {
+                        throw('No creative set found.');
+                    }
+                } else {
+                    $titles = $content['titles'];
+                }
+
+                $description = '';
+
+                if (isset($content['descriptionSet']['id'])) {
+                    $description_creative_set = CreativeSet::find($content['descriptionSet']['id']);
+
+                    if ($description_creative_set) {
+                        $description = $description_creative_set->descriptionSets[0]['description'];
+                    } else {
+                        throw('No creative set found.');
+                    }
+                } else {
+                    $description = $content['description'];
+                }
+
+                foreach ($titles as $title) {
                     if ($campaign_item['adType'] == 'IMAGE') {
-                        foreach ($campaign_item['images'] as $image) {
+                        $imges = [];
+
+                        if (isset($content['imageSet']['id'])) {
+                            $image_creative_set = CreativeSet::find($content['imageSet']['id']);
+
+                            if ($image_creative_set) {
+                                $images = $image_creative_set->imageSets;
+                            } else {
+                                throw('No creative set found.');
+                            }
+                        } else {
+                            $images = $content['images'];
+                        }
+
+                        foreach ($images as $image) {
                             $campaign_item_data = $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
 
-                            $ads[] = [
+                            $db_ad = Ad::firstOrNew([
                                 'ad_id' => $campaign_item_data['id'],
                                 'user_id' => auth()->id(),
                                 'provider_id' => 4,
@@ -98,9 +145,29 @@ class Taboola extends Root implements AdVendorInterface
                                 'type' => 1,
                                 'image' => $image['image'],
                                 'status' => $campaign_item_data['status'],
-                                'description' => $campaign_item['description'],
+                                'description' => $description,
                                 'synced' => 0
-                            ];
+                            ]);
+
+                            $db_ad->save();
+
+                            $db_ad->creativeSets()->detach();
+
+                            if ($title_creative_set) {
+                                $db_ad->creativeSets()->save($title_creative_set);
+                            }
+
+                            if ($description_creative_set) {
+                                $db_ad->creativeSets()->save($description_creative_set);
+                            }
+
+                            if ($video_creative_set) {
+                                $db_ad->creativeSets()->save($video_creative_set);
+                            }
+
+                            if ($image_creative_set) {
+                                $db_ad->creativeSets()->save($image_creative_set);
+                            }
                         }
                     } else {
                         foreach ($campaign_item['videos'] as $video) {
@@ -112,7 +179,7 @@ class Taboola extends Root implements AdVendorInterface
                                 'fallback_url' => $video['imageUrl']
                             ]);
 
-                            $ads[] = [
+                            $db_ad = Ad::firstOrNew([
                                 'ad_id' => $campaign_item_data['id'],
                                 'user_id' => auth()->id(),
                                 'provider_id' => 4,
@@ -127,14 +194,33 @@ class Taboola extends Root implements AdVendorInterface
                                 'status' => $campaign_item_data['status'],
                                 'description' => $campaign_item['description'],
                                 'synced' => 1
-                            ];
+                            ]);
+
+                            $db_ad->save();
+
+                            $db_ad->creativeSets()->detach();
+
+                            if ($title_creative_set) {
+                                $db_ad->creativeSets()->save($title_creative_set);
+                            }
+
+                            if ($description_creative_set) {
+                                $db_ad->creativeSets()->save($description_creative_set);
+                            }
+
+                            if ($video_creative_set) {
+                                $db_ad->creativeSets()->save($video_creative_set);
+                            }
+
+                            if ($image_creative_set) {
+                                $db_ad->creativeSets()->save($image_creative_set);
+                            }
                         }
                     }
                 }
             }
 
             $resource_importer = new ResourceImporter();
-            $resource_importer->insertOrUpdate('ads', $ads, ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
 
             $resource_importer->insertOrUpdate('campaigns', [[
                 'campaign_id' => $campaign_data['id'],

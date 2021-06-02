@@ -124,11 +124,17 @@
                     <div class="col-sm-8">
                       <div class="row mb-2" v-for="(title, indexTitle) in campaignItem.titles" :key="indexTitle">
                         <div class="col-sm-8">
-                          <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" />
+                          <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" :disabled="campaignItem.titleSet.id" />
                         </div>
                         <div class="col-sm-4">
-                          <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
+                          <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle)" v-if="indexTitle > 0" :disabled="campaignItem.titleSet.id"><i class="fa fa-minus"></i></button>
                           <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == campaignItem.titles.length"><i class="fa fa-plus"></i></button>
+                          <button type="button" class="btn btn-primary" v-if="indexTitle == 0" @click="loadCreativeSet('title', index)"><i class="far fa-folder-open"></i></button>
+                        </div>
+                      </div>
+                      <div class="row" v-if="campaignItem.titleSet.id">
+                        <div class="col">
+                          <span class="selected-set">{{ campaignItem.titleSet.name }}<span class="close" @click="removeTitleSet(index)"><i class="fas fa-times"></i></span></span>
                         </div>
                       </div>
                     </div>
@@ -151,7 +157,13 @@
                   <div class="form-group row">
                     <label for="description" class="col-sm-2 control-label mt-2">Description</label>
                     <div class="col-sm-8">
-                      <textarea class="form-control" rows="3" placeholder="Enter description" v-model="campaignItem.description"></textarea>
+                      <textarea class="form-control" rows="3" placeholder="Enter description" v-model="campaignItem.description" :disabled="campaignItem.descriptionSet.id"></textarea>
+                      <div class="row mt-2">
+                        <div class="col">
+                          <span v-if="campaignItem.descriptionSet.id" class="selected-set">{{ campaignItem.descriptionSet.name }}<span class="close" @click="removeDescriptionSet(index)"><i class="fas fa-times"></i></span></span>
+                        </div>
+                      </div>
+                      <button class="btn btn-primary btn-sm mt-2" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('description', index)">Load from Sets</button>
                     </div>
                   </div>
                   <div v-if="campaignItem.adType == 'IMAGE'">
@@ -159,7 +171,14 @@
                       <label for="thumbnail_url" class="col-sm-2 control-label mt-2">Thumbnail Images</label>
                       <div class="col-sm-8">
                         <input type="text" name="thumbnail_url" placeholder="Thumbnail Images" class="form-control" disabled="disabled" v-model="campaignItem.imagePath" />
-                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('thumbnailUrl', index)">Choose Files</button>
+
+                        <div class="row mt-2 mb-2">
+                          <div class="col">
+                            <span v-if="campaignItem.imageSet.id" class="selected-set">{{ campaignItem.imageSet.name }}<span class="close" @click="removeImageSet(index)"><i class="fas fa-times"></i></span></span>
+                          </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('thumbnailUrl', index)" :disabled="campaignItem.imageSet.id">Choose Files</button>
+                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
                       </div>
                     </div>
                   </div>
@@ -169,20 +188,26 @@
                       <div class="form-group row">
                         <label for="video_url" class="col-sm-2 control-label mt-2">Video URL</label>
                         <div class="col-sm-8">
-                          <input type="text" name="video_url" placeholder="Enter video URL" class="form-control" v-model="video.videoUrl" />
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoUrl', index, videoIndex)">Choose File</button>
+                          <input type="text" name="video_url" placeholder="Enter video URL" class="form-control" v-model="video.videoUrl" :disabled="content.videoSet.id" />
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('videoUrl', index, videoIndex)" :disabled="content.videoSet.id">Choose File</button>
                         </div>
                       </div>
                       <div class="form-group row">
                         <label for="image_url" class="col-sm-2 control-label mt-2">Image URL</label>
                         <div class="col-sm-8">
-                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="video.imageUrl" />
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, videoIndex)">Choose File</button>
+                          <input type="text" name="image_url" placeholder="Enter a url" class="form-control" v-model="video.imageUrl" :disabled="content.videoSet.id" />
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageUrl', index, videoIndex)" :disabled="content.videoSet.id">Choose File</button>
                         </div>
                       </div>
                       <button type="button" class="btn btn-warning btn-sm" @click.prevent="removeVideo(index, videoIndex)" v-if="videoIndex > 0">Remove Video</button>
                     </fieldset>
-                    <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)">Add Video</button>
+                    <div class="row mt-2 mb-2">
+                      <div class="col">
+                        <span v-if="campaignItem.videoSet.id" class="selected-set">{{ campaignItem.videoSet.name }}<span class="close" @click="removeVideoSet(index)"><i class="fas fa-times"></i></span></span>
+                      </div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" @click.prevent="addVideo(index)" :disabled="campaignItem.id || campaignItem.videoSet.id">Add Video</button>
+                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('video', index)">Load from Sets</button>
                   </div>
 
                   <div class="row" v-if="index > 0 && action == 'create'">
@@ -212,6 +237,18 @@
         </div>
       </div>
     </div>
+
+    <div class="modal fade creative-set-modal" id="creative-set-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="col mt-3">
+            <h1>Select Creative Set</h1>
+          </div>
+          <creative-set-sets :type="setType" @selectCreativeSet="selectCreativeSet"></creative-set-sets>
+        </div>
+      </div>
+    </div>
+
     <modal width="60%" height="80%" name="imageModal">
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
@@ -315,15 +352,19 @@ export default {
     let campaignItems = [{
       url: '',
       adType: 'IMAGE',
+      titleSet: '',
       titles: [{
         title: '',
         existing: false
       }],
+      descriptionSet: '',
       description: '',
+      imageSet: '',
       images: [{
         image: '',
         existing: false
       }],
+      videoSet: '',
       videos: [{
         videoUrl: '',
         imageUrl: '',
@@ -414,7 +455,9 @@ export default {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
         lang: 'en'
-      }
+      },
+      adSelectorIndex: 0,
+      setType: 'image'
     }
   },
   methods: {
@@ -432,6 +475,7 @@ export default {
 
       this.$modal.show('imageModal')
     },
+
     getAdvertisers() {
       this.advertisers = []
       this.isLoading = true
@@ -446,6 +490,7 @@ export default {
         this.isLoading = false
       })
     },
+
     getCountries() {
       this.isLoading = true
       this.countries = []
@@ -462,40 +507,72 @@ export default {
         this.isLoading = false
       })
     },
+
+    loadCreativeSet(type, index) {
+      this.setType = type
+      this.adSelectorIndex = index
+      $('#creative-set-modal').modal('show')
+    },
+
+    selectCreativeSet(set) {
+      if (this.setType == 'title') {
+        this.campaignItems[this.adSelectorIndex].titleSet = set
+      }
+      if (this.setType == 'image') {
+        this.campaignItems[this.adSelectorIndex].imageSet = set
+      }
+      if (this.setType == 'video') {
+        this.campaignItems[this.adSelectorIndex].videoSet = set
+      }
+      if (this.setType == 'description') {
+        this.campaignItems[this.adSelectorIndex].descriptionSet = set
+      }
+
+      $('#creative-set-modal').modal('hide')
+    },
+
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g
       return !!pattern.test(str)
     },
+
     addCampaignItem() {
       this.campaignItems.push({
-      url: '',
-      adType: 'IMAGE',
-      titles: [{
-        title: '',
-        existing: false
-      }],
-      description: '',
-      images: [{
-        image: '',
-        existing: false
-      }],
-      videos: [{
-        videoUrl: '',
-        imageUrl: '',
-        existing: false
-      }],
-      imagePath: ''
-    })
+        url: '',
+        adType: 'IMAGE',
+        titleSet: '',
+        titles: [{
+          title: '',
+          existing: false
+        }],
+        description: '',
+        descriptionSet: '',
+        imageSet: '',
+        images: [{
+          image: '',
+          existing: false
+        }],
+        videoSet: '',
+        videos: [{
+          videoUrl: '',
+          imageUrl: '',
+          existing: false
+        }],
+        imagePath: ''
+      })
     },
+
     removeCampaignItem(index) {
       this.campaignItems.splice(index, 1)
     },
+
     addTitle(index) {
       this.campaignItems[index].titles.push({
         title: '',
         existing: false
       })
     },
+
     removeTitle(index, indexTitle) {
       this.campaignItems[index].titles.splice(indexTitle, 1)
     },
@@ -507,8 +584,38 @@ export default {
         existing: false
       })
     },
+
     removeVideo(index, videoIndex) {
       this.campaignItems[index].videos.splice(videoIndex, 1)
+    },
+
+    removeImageSet(index) {
+      this.campaignItems[index].imageSet = ''
+      this.campaignItems[index].images = [{
+        image: '',
+        existing: false
+      }]
+    },
+
+    removeVideoSet(index) {
+      this.campaignItems[index].videoSet = ''
+      this.campaignItems[index].videos = [{
+        videoUrl: '',
+        imageUrl: '',
+        existing: false
+      }]
+    },
+
+    removeTitleSet(index) {
+      this.campaignItems[index].titleSet = ''
+      this.campaignItems[index].titles = [{
+        title: '',
+        existing: false
+      }]
+    },
+
+    removeDescriptionSet(index) {
+      this.campaignItems[index].descriptionSet = ''
     },
 
     submitStep1() {
