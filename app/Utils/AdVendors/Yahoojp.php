@@ -230,16 +230,16 @@ class Yahoojp extends Root implements AdVendorInterface
                     $ads = [];
                     $titles = [];
 
-                    $titleCreativeSet = null;
-                    $descriptionCreativeSet = null;
-                    $imageCreativeSet = null;
-                    $videoCreativeSet = null;
+                    $title_creative_set = null;
+                    $description_creative_set = null;
+                    $image_creative_set = null;
+                    $video_creative_set = null;
 
                     if (isset($content['titleSet']['id'])) {
-                        $titleCreativeSet = CreativeSet::find($content['titleSet']['id']);
+                        $title_creative_set = CreativeSet::find($content['titleSet']['id']);
 
-                        if ($titleCreativeSet) {
-                            $titles = $titleCreativeSet->titleSets;
+                        if ($title_creative_set) {
+                            $titles = $title_creative_set->titleSets;
                         } else {
                             throw('No creative set found.');
                         }
@@ -250,10 +250,10 @@ class Yahoojp extends Root implements AdVendorInterface
                     $description = '';
 
                     if (isset($content['descriptionSet']['id'])) {
-                        $descriptionCreativeSet = CreativeSet::find($content['descriptionSet']['id']);
+                        $description_creative_set = CreativeSet::find($content['descriptionSet']['id']);
 
-                        if ($descriptionCreativeSet) {
-                            $description = $descriptionCreativeSet->descriptionSets[0]['description'];
+                        if ($description_creative_set) {
+                            $description = $description_creative_set->descriptionSets[0]['description'];
                         } else {
                             throw('No creative set found.');
                         }
@@ -265,10 +265,10 @@ class Yahoojp extends Root implements AdVendorInterface
                         $imges = [];
 
                         if (isset($content['imageSet']['id'])) {
-                            $imageCreativeSet = CreativeSet::find($content['imageSet']['id']);
+                            $image_creative_set = CreativeSet::find($content['imageSet']['id']);
 
-                            if ($imageCreativeSet) {
-                                $images = $imageCreativeSet->imageSets;
+                            if ($image_creative_set) {
+                                $images = $image_creative_set->imageSets;
                             } else {
                                 throw('No creative set found.');
                             }
@@ -277,9 +277,9 @@ class Yahoojp extends Root implements AdVendorInterface
                         }
 
                         foreach ($images as $image) {
-                            $image_name = $imageCreativeSet ? ($image['optimiser'] == 0 ? $image['hq_1200x628_image'] : $image['hq_image']) : $image['image'];
+                            $image_name = $image_creative_set ? ($image['optimiser'] == 0 ? $image['hq_1200x628_image'] : $image['hq_image']) : $image['image'];
 
-                            $file = $imageCreativeSet ? ($image['optimiser'] == 0 ? (storage_path('app/public/images/') . $image_name) : (storage_path('app/public/images/creatives/1200x628/') . $image_name)) : (storage_path('app/public/images/') . $image_name);
+                            $file = $image_creative_set ? ($image['optimiser'] == 0 ? (storage_path('app/public/images/') . $image_name) : (storage_path('app/public/images/creatives/1200x628/') . $image_name)) : (storage_path('app/public/images/') . $image_name);
 
                             $data = file_get_contents($file);
                             $ext = explode('.', $image_name);
@@ -316,14 +316,14 @@ class Yahoojp extends Root implements AdVendorInterface
                                             'buttonText' => 'FOR_MORE_INFO',
                                             'description' => $description,
                                             'displayUrl' => $content['displayUrl'],
-                                            'headline' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                            'headline' => $title_creative_set ? $title['title'] : $title['headline'],
                                             'principal' => $content['principal'],
                                             'url' => $content['targetUrl']
                                         ]
                                     ],
                                     'adGroupId' => $ad_group_id,
                                     'campaignId' => $campaign_data['campaignId'],
-                                    'adName' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                    'adName' => $title_creative_set ? $title['title'] : $title['headline'],
                                     'mediaId' => $media_id,
                                     'userStatus' => request('campaignStatus')
                                 ];
@@ -333,10 +333,10 @@ class Yahoojp extends Root implements AdVendorInterface
                         $videos = [];
 
                         if (isset($content['videoSet']['id'])) {
-                            $videoCreativeSet = CreativeSet::find($content['videoSet']['id']);
+                            $video_creative_set = CreativeSet::find($content['videoSet']['id']);
 
-                            if ($videoCreativeSet) {
-                                $videos = $videoCreativeSet->videoSets;
+                            if ($video_creative_set) {
+                                $videos = $video_creative_set->videoSets;
                             } else {
                                 throw('No creative set found.');
                             }
@@ -345,7 +345,7 @@ class Yahoojp extends Root implements AdVendorInterface
                         }
 
                         foreach ($videos as $video) {
-                            $video_name = $videoCreativeSet ? $video['video'] : $video['videoPath'];
+                            $video_name = $video_creative_set ? $video['video'] : $video['videoPath'];
                             $file = storage_path('app/public/images/') . $video_name;
                             $data = file_get_contents($file);
                             $ext = explode('.', $video_name);
@@ -365,7 +365,7 @@ class Yahoojp extends Root implements AdVendorInterface
                                 throw new Exception(json_encode($media));
                             }
 
-                            $image_name = $videoCreativeSet ? $video['landscape_image'] : $video['videoThumbnailPath'];
+                            $image_name = $video_creative_set ? $video['landscape_image'] : $video['videoThumbnailPath'];
                             $file = storage_path('app/public/images/') . $image_name;
                             $data = file_get_contents($file);
                             $ext = explode('.', $image_name);
@@ -405,7 +405,7 @@ class Yahoojp extends Root implements AdVendorInterface
                                             'buttonText' => 'FOR_MORE_INFO',
                                             'description' => $description,
                                             'displayUrl' => $content['displayUrl'],
-                                            'headline' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                            'headline' => $title_creative_set ? $title['title'] : $title['headline'],
                                             'principal' => $content['principal'],
                                             'url' => $content['targetUrl'],
                                             'thumbnailMediaId' => $thumbnail_media_id
@@ -413,7 +413,7 @@ class Yahoojp extends Root implements AdVendorInterface
                                     ],
                                     'adGroupId' => $ad_group_id,
                                     'campaignId' => $campaign_data['campaignId'],
-                                    'adName' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                    'adName' => $title_creative_set ? $title['title'] : $title['headline'],
                                     'mediaId' => $media_id,
                                     'userStatus' => request('campaignStatus')
                                 ];
@@ -432,7 +432,7 @@ class Yahoojp extends Root implements AdVendorInterface
                         throw new Exception(json_encode($errors));
                     }
 
-                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet, request('selectedAdvertiser'), request('account'));
+                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $title_creative_set, $description_creative_set, $video_creative_set, $image_creative_set, request('selectedAdvertiser'), request('account'));
                 }
 
                 if (count(request('campaignAges')) || count(request('campaignGenders')) || count(request('campaignDevices'))) {
@@ -464,7 +464,7 @@ class Yahoojp extends Root implements AdVendorInterface
         }
     }
 
-    private function saveAd($ad_data, $campaign_id, $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet, $advertiser_id, $account)
+    private function saveAd($ad_data, $campaign_id, $ad_group_id, $title_creative_set, $description_creative_set, $video_creative_set, $image_creative_set, $advertiser_id, $account)
     {
         foreach ($ad_data as $ad) {
             $ad = $ad['adGroupAd'];
@@ -486,20 +486,20 @@ class Yahoojp extends Root implements AdVendorInterface
 
             $db_ad->creativeSets()->detach();
 
-            if ($titleCreativeSet) {
-                $db_ad->creativeSets()->save($titleCreativeSet);
+            if ($title_creative_set) {
+                $db_ad->creativeSets()->save($title_creative_set);
             }
 
-            if ($descriptionCreativeSet) {
-                $db_ad->creativeSets()->save($descriptionCreativeSet);
+            if ($description_creative_set) {
+                $db_ad->creativeSets()->save($description_creative_set);
             }
 
-            if ($videoCreativeSet) {
-                $db_ad->creativeSets()->save($videoCreativeSet);
+            if ($video_creative_set) {
+                $db_ad->creativeSets()->save($video_creative_set);
             }
 
-            if ($imageCreativeSet) {
-                $db_ad->creativeSets()->save($imageCreativeSet);
+            if ($image_creative_set) {
+                $db_ad->creativeSets()->save($image_creative_set);
             }
         }
     }
@@ -531,16 +531,16 @@ class Yahoojp extends Root implements AdVendorInterface
                 $ads = [];
                 $titles = [];
 
-                $titleCreativeSet = null;
-                $descriptionCreativeSet = null;
-                $imageCreativeSet = null;
-                $videoCreativeSet = null;
+                $title_creative_set = null;
+                $description_creative_set = null;
+                $image_creative_set = null;
+                $video_creative_set = null;
 
                 if (isset($content['titleSet']['id'])) {
-                    $titleCreativeSet = CreativeSet::find($content['titleSet']['id']);
+                    $title_creative_set = CreativeSet::find($content['titleSet']['id']);
 
-                    if ($titleCreativeSet) {
-                        $titles = $titleCreativeSet->titleSets;
+                    if ($title_creative_set) {
+                        $titles = $title_creative_set->titleSets;
                     } else {
                         throw('No creative set found.');
                     }
@@ -551,10 +551,10 @@ class Yahoojp extends Root implements AdVendorInterface
                 $description = '';
 
                 if (isset($content['descriptionSet']['id'])) {
-                    $descriptionCreativeSet = CreativeSet::find($content['descriptionSet']['id']);
+                    $description_creative_set = CreativeSet::find($content['descriptionSet']['id']);
 
-                    if ($descriptionCreativeSet) {
-                        $description = $descriptionCreativeSet->descriptionSets[0]['description'];
+                    if ($description_creative_set) {
+                        $description = $description_creative_set->descriptionSets[0]['description'];
                     } else {
                         throw('No creative set found.');
                     }
@@ -566,10 +566,10 @@ class Yahoojp extends Root implements AdVendorInterface
                     $imges = [];
 
                     if (isset($content['imageSet']['id'])) {
-                        $imageCreativeSet = CreativeSet::find($content['imageSet']['id']);
+                        $image_creative_set = CreativeSet::find($content['imageSet']['id']);
 
-                        if ($imageCreativeSet) {
-                            $images = $imageCreativeSet->imageSets;
+                        if ($image_creative_set) {
+                            $images = $image_creative_set->imageSets;
                         } else {
                             throw('No creative set found.');
                         }
@@ -578,9 +578,9 @@ class Yahoojp extends Root implements AdVendorInterface
                     }
 
                     foreach ($images as $image) {
-                        $image_name = $imageCreativeSet ? ($image['optimiser'] == 0 ? $image['hq_1200x628_image'] : $image['hq_image']) : $image['image'];
+                        $image_name = $image_creative_set ? ($image['optimiser'] == 0 ? $image['hq_1200x628_image'] : $image['hq_image']) : $image['image'];
 
-                        $file = $imageCreativeSet ? ($image['optimiser'] == 0 ? (storage_path('app/public/images/') . $image_name) : (storage_path('app/public/images/creatives/1200x628/') . $image_name)) : (storage_path('app/public/images/') . $image_name);
+                        $file = $image_creative_set ? ($image['optimiser'] == 0 ? (storage_path('app/public/images/') . $image_name) : (storage_path('app/public/images/creatives/1200x628/') . $image_name)) : (storage_path('app/public/images/') . $image_name);
 
                         $data = file_get_contents($file);
                         $ext = explode('.', $image_name);
@@ -616,14 +616,14 @@ class Yahoojp extends Root implements AdVendorInterface
                                         'buttonText' => 'FOR_MORE_INFO',
                                         'description' => $description,
                                         'displayUrl' => $content['displayUrl'],
-                                        'headline' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                        'headline' => $title_creative_set ? $title['title'] : $title['headline'],
                                         'principal' => $content['principal'],
                                         'url' => $content['targetUrl']
                                     ]
                                 ],
                                 'adGroupId' => $ad_group_id,
                                 'campaignId' => $campaign->campaign_id,
-                                'adName' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                'adName' => $title_creative_set ? $title['title'] : $title['headline'],
                                 'mediaId' => $media_id,
                                 'userStatus' => $campaign->status
                             ];
@@ -633,10 +633,10 @@ class Yahoojp extends Root implements AdVendorInterface
                     $videos = [];
 
                     if (isset($content['videoSet']['id'])) {
-                        $videoCreativeSet = CreativeSet::find($content['videoSet']['id']);
+                        $video_creative_set = CreativeSet::find($content['videoSet']['id']);
 
-                        if ($videoCreativeSet) {
-                            $videos = $videoCreativeSet->videoSets;
+                        if ($video_creative_set) {
+                            $videos = $video_creative_set->videoSets;
                         } else {
                             throw('No creative set found.');
                         }
@@ -645,7 +645,7 @@ class Yahoojp extends Root implements AdVendorInterface
                     }
 
                     foreach ($videos as $video) {
-                        $video_name = $videoCreativeSet ? $video['video'] : $video['videoPath'];
+                        $video_name = $video_creative_set ? $video['video'] : $video['videoPath'];
                         $file = storage_path('app/public/images/') . $video_name;
                         $data = file_get_contents($file);
                         $ext = explode('.', $video_name);
@@ -665,7 +665,7 @@ class Yahoojp extends Root implements AdVendorInterface
                             throw new Exception(json_encode($media));
                         }
 
-                        $image_name = $videoCreativeSet ? $video['landscape_image'] : $video['videoThumbnailPath'];
+                        $image_name = $video_creative_set ? $video['landscape_image'] : $video['videoThumbnailPath'];
                         $file = storage_path('app/public/images/') . $image_name;
                         $data = file_get_contents($file);
                         $ext = explode('.', $image_name);
@@ -705,7 +705,7 @@ class Yahoojp extends Root implements AdVendorInterface
                                         'buttonText' => 'FOR_MORE_INFO',
                                         'description' => $description,
                                         'displayUrl' => $content['displayUrl'],
-                                        'headline' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                        'headline' => $title_creative_set ? $title['title'] : $title['headline'],
                                         'principal' => $content['principal'],
                                         'url' => $content['targetUrl'],
                                         'thumbnailMediaId' => $thumbnail_media_id
@@ -713,7 +713,7 @@ class Yahoojp extends Root implements AdVendorInterface
                                 ],
                                 'adGroupId' => $ad_group_id,
                                 'campaignId' => $campaign->campaign_id,
-                                'adName' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                'adName' => $title_creative_set ? $title['title'] : $title['headline'],
                                 'mediaId' => $media_id,
                                 'userStatus' => $campaign->status
                             ];
@@ -732,7 +732,7 @@ class Yahoojp extends Root implements AdVendorInterface
                     throw new Exception(json_encode($errors));
                 }
 
-                $this->saveAd($ad_data['rval']['values'], $campaign->campaign_id, $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet, request('selectedAdvertiser'), request('account'));
+                $this->saveAd($ad_data['rval']['values'], $campaign->campaign_id, $ad_group_id, $title_creative_set, $description_creative_set, $video_creative_set, $image_creative_set, request('selectedAdvertiser'), request('account'));
             }
 
             Helper::pullAd();
@@ -806,16 +806,16 @@ class Yahoojp extends Root implements AdVendorInterface
                 $ads = [];
                 $titles = [];
 
-                $titleCreativeSet = null;
-                $descriptionCreativeSet = null;
-                $imageCreativeSet = null;
-                $videoCreativeSet = null;
+                $title_creative_set = null;
+                $description_creative_set = null;
+                $image_creative_set = null;
+                $video_creative_set = null;
 
                 if (isset($content['titleSet']['id'])) {
-                    $titleCreativeSet = CreativeSet::find($content['titleSet']['id']);
+                    $title_creative_set = CreativeSet::find($content['titleSet']['id']);
 
-                    if ($titleCreativeSet) {
-                        $titles = $titleCreativeSet->titleSets;
+                    if ($title_creative_set) {
+                        $titles = $title_creative_set->titleSets;
                     } else {
                         throw('No creative set found.');
                     }
@@ -826,10 +826,10 @@ class Yahoojp extends Root implements AdVendorInterface
                 $description = '';
 
                 if (isset($content['descriptionSet']['id'])) {
-                    $descriptionCreativeSet = CreativeSet::find($content['descriptionSet']['id']);
+                    $description_creative_set = CreativeSet::find($content['descriptionSet']['id']);
 
-                    if ($descriptionCreativeSet) {
-                        $description = $descriptionCreativeSet->descriptionSets[0]['description'];
+                    if ($description_creative_set) {
+                        $description = $description_creative_set->descriptionSets[0]['description'];
                     } else {
                         throw('No creative set found.');
                     }
@@ -841,10 +841,10 @@ class Yahoojp extends Root implements AdVendorInterface
                     $imges = [];
 
                     if (isset($content['imageSet']['id'])) {
-                        $imageCreativeSet = CreativeSet::find($content['imageSet']['id']);
+                        $image_creative_set = CreativeSet::find($content['imageSet']['id']);
 
-                        if ($imageCreativeSet) {
-                            $images = $imageCreativeSet->imageSets;
+                        if ($image_creative_set) {
+                            $images = $image_creative_set->imageSets;
                         } else {
                             throw('No creative set found.');
                         }
@@ -853,12 +853,12 @@ class Yahoojp extends Root implements AdVendorInterface
                     }
 
                     foreach ($images as $image) {
-                        if (!$imageCreativeSet && $image['existing']) {
+                        if (!$image_creative_set && $image['existing']) {
                             $media_id = $image['mediaId'];
                         } else {
-                            $image_name = $imageCreativeSet ? ($image['optimiser'] == 0 ? $image['hq_1200x628_image'] : $image['hq_image']) : $image['image'];
+                            $image_name = $image_creative_set ? ($image['optimiser'] == 0 ? $image['hq_1200x628_image'] : $image['hq_image']) : $image['image'];
 
-                            $file = $imageCreativeSet ? ($image['optimiser'] == 0 ? (storage_path('app/public/images/') . $image_name) : (storage_path('app/public/images/creatives/1200x628/') . $image_name)) : (storage_path('app/public/images/') . $image_name);
+                            $file = $image_creative_set ? ($image['optimiser'] == 0 ? (storage_path('app/public/images/') . $image_name) : (storage_path('app/public/images/creatives/1200x628/') . $image_name)) : (storage_path('app/public/images/') . $image_name);
 
                             $data = file_get_contents($file);
                             $ext = explode('.', $image_name);
@@ -896,14 +896,14 @@ class Yahoojp extends Root implements AdVendorInterface
                                         'buttonText' => 'FOR_MORE_INFO',
                                         'description' => $description,
                                         'displayUrl' => $content['displayUrl'],
-                                        'headline' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                        'headline' => $title_creative_set ? $title['title'] : $title['headline'],
                                         'principal' => $content['principal'],
                                         'url' => $content['targetUrl']
                                     ]
                                 ],
                                 'adGroupId' => $ad_group_id,
                                 'campaignId' => $campaign->campaign_id,
-                                'adName' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                'adName' => $title_creative_set ? $title['title'] : $title['headline'],
                                 'mediaId' => $media_id,
                                 'userStatus' => request('campaignStatus')
                             ];
@@ -920,10 +920,10 @@ class Yahoojp extends Root implements AdVendorInterface
                     $videos = [];
 
                     if (isset($content['videoSet']['id'])) {
-                        $videoCreativeSet = CreativeSet::find($content['videoSet']['id']);
+                        $video_creative_set = CreativeSet::find($content['videoSet']['id']);
 
-                        if ($videoCreativeSet) {
-                            $videos = $videoCreativeSet->videoSets;
+                        if ($video_creative_set) {
+                            $videos = $video_creative_set->videoSets;
                         } else {
                             throw('No creative set found.');
                         }
@@ -932,11 +932,11 @@ class Yahoojp extends Root implements AdVendorInterface
                     }
 
                     foreach ($videos as $video) {
-                        if (!$videoCreativeSet && $video['existing']) {
+                        if (!$video_creative_set && $video['existing']) {
                             $media_id = $video['mediaId'];
                             $thumbnail_media_id = $video['videoThumbnailId'];
                         } else {
-                            $video_name = $videoCreativeSet ? $video['video'] : $video['videoPath'];
+                            $video_name = $video_creative_set ? $video['video'] : $video['videoPath'];
                             $file = storage_path('app/public/images/') . $video_name;
                             $data = file_get_contents($file);
                             $ext = explode('.', $video_name);
@@ -956,7 +956,7 @@ class Yahoojp extends Root implements AdVendorInterface
                                 throw new Exception(json_encode($media));
                             }
 
-                            $image_name = $videoCreativeSet ? $video['landscape_image'] : $video['videoThumbnailPath'];
+                            $image_name = $video_creative_set ? $video['landscape_image'] : $video['videoThumbnailPath'];
                             $file = storage_path('app/public/images/') . $image_name;
                             $data = file_get_contents($file);
                             $ext = explode('.', $image_name);
@@ -997,7 +997,7 @@ class Yahoojp extends Root implements AdVendorInterface
                                         'buttonText' => 'FOR_MORE_INFO',
                                         'description' => $description,
                                         'displayUrl' => $content['displayUrl'],
-                                        'headline' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                        'headline' => $title_creative_set ? $title['title'] : $title['headline'],
                                         'principal' => $content['principal'],
                                         'url' => $content['targetUrl'],
                                         'thumbnailMediaId' => $thumbnail_media_id
@@ -1005,7 +1005,7 @@ class Yahoojp extends Root implements AdVendorInterface
                                 ],
                                 'adGroupId' => $ad_group_id,
                                 'campaignId' => $campaign->campaign_id,
-                                'adName' => $titleCreativeSet ? $title['title'] : $title['headline'],
+                                'adName' => $title_creative_set ? $title['title'] : $title['headline'],
                                 'mediaId' => $media_id,
                                 'userStatus' => request('campaignStatus')
                             ];
@@ -1031,7 +1031,7 @@ class Yahoojp extends Root implements AdVendorInterface
                         throw new Exception(json_encode($errors));
                     }
 
-                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet, request('selectedAdvertiser'), request('account'));
+                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $title_creative_set, $description_creative_set, $video_creative_set, $image_creative_set, request('selectedAdvertiser'), request('account'));
                 }
 
                 if (count($update_ads)) {
@@ -1046,7 +1046,7 @@ class Yahoojp extends Root implements AdVendorInterface
                         throw new Exception(json_encode($errors));
                     }
 
-                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet, request('selectedAdvertiser'), request('account'));
+                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $title_creative_set, $description_creative_set, $video_creative_set, $image_creative_set, request('selectedAdvertiser'), request('account'));
                 }
             }
 
@@ -1799,25 +1799,25 @@ class Yahoojp extends Root implements AdVendorInterface
                     $ads = [];
                     $titles = [];
 
-                    $titleCreativeSet = null;
-                    $descriptionCreativeSet = null;
-                    $imageCreativeSet = null;
-                    $videoCreativeSet = null;
+                    $title_creative_set = null;
+                    $description_creative_set = null;
+                    $image_creative_set = null;
+                    $video_creative_set = null;
 
-                    $titleCreativeSet = CreativeSet::find($content['titleSet']['id']);
+                    $title_creative_set = CreativeSet::find($content['titleSet']['id']);
 
-                    if ($titleCreativeSet) {
-                        $titles = $titleCreativeSet->titleSets;
+                    if ($title_creative_set) {
+                        $titles = $title_creative_set->titleSets;
                     } else {
                         throw('No creative set found.');
                     }
 
                     $description = '';
 
-                    $descriptionCreativeSet = CreativeSet::find($content['descriptionSet']['id']);
+                    $description_creative_set = CreativeSet::find($content['descriptionSet']['id']);
 
-                    if ($descriptionCreativeSet) {
-                        $description = $descriptionCreativeSet->descriptionSets[0]['description'];
+                    if ($description_creative_set) {
+                        $description = $description_creative_set->descriptionSets[0]['description'];
                     } else {
                         throw('No creative set found.');
                     }
@@ -1825,10 +1825,10 @@ class Yahoojp extends Root implements AdVendorInterface
                     if ($content['adType'] == 'IMAGE') {
                         $imges = [];
 
-                        $imageCreativeSet = CreativeSet::find($content['imageSet']['id']);
+                        $image_creative_set = CreativeSet::find($content['imageSet']['id']);
 
-                        if ($imageCreativeSet) {
-                            $images = $imageCreativeSet->imageSets;
+                        if ($image_creative_set) {
+                            $images = $image_creative_set->imageSets;
                         } else {
                             throw('No creative set found.');
                         }
@@ -1889,10 +1889,10 @@ class Yahoojp extends Root implements AdVendorInterface
                     } else if ($content['adType'] == 'VIDEO') {
                         $videos = [];
 
-                        $videoCreativeSet = CreativeSet::find($content['videoSet']['id']);
+                        $video_creative_set = CreativeSet::find($content['videoSet']['id']);
 
-                        if ($videoCreativeSet) {
-                            $videos = $videoCreativeSet->videoSets;
+                        if ($video_creative_set) {
+                            $videos = $video_creative_set->videoSets;
                         } else {
                             throw('No creative set found.');
                         }
@@ -1985,7 +1985,7 @@ class Yahoojp extends Root implements AdVendorInterface
                         throw new Exception(json_encode($errors));
                     }
 
-                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $titleCreativeSet, $descriptionCreativeSet, $videoCreativeSet, $imageCreativeSet, $vendor['selectedAdvertiser'], $vendor['selectedAccount']);
+                    $this->saveAd($ad_data['rval']['values'], $campaign_data['campaignId'], $ad_group_id, $title_creative_set, $description_creative_set, $video_creative_set, $image_creative_set, $vendor['selectedAdvertiser'], $vendor['selectedAccount']);
                 }
 
                 if (isset($vendor['campaignAges']) || isset($vendor['campaignGenders']) || isset($vendor['campaignDevices'])) {
