@@ -88,8 +88,8 @@ class Taboola extends Root implements AdVendorInterface
                 $image_creative_set = null;
                 $video_creative_set = null;
 
-                if (isset($content['titleSet']['id'])) {
-                    $title_creative_set = CreativeSet::find($content['titleSet']['id']);
+                if (isset($campaign_item['titleSet']['id'])) {
+                    $title_creative_set = CreativeSet::find($campaign_item['titleSet']['id']);
 
                     if ($title_creative_set) {
                         $titles = $title_creative_set->titleSets;
@@ -97,13 +97,13 @@ class Taboola extends Root implements AdVendorInterface
                         throw('No creative set found.');
                     }
                 } else {
-                    $titles = $content['titles'];
+                    $titles = $campaign_item['titles'];
                 }
 
                 $description = '';
 
-                if (isset($content['descriptionSet']['id'])) {
-                    $description_creative_set = CreativeSet::find($content['descriptionSet']['id']);
+                if (isset($campaign_item['descriptionSet']['id'])) {
+                    $description_creative_set = CreativeSet::find($campaign_item['descriptionSet']['id']);
 
                     if ($description_creative_set) {
                         $description = $description_creative_set->descriptionSets[0]['description'];
@@ -111,15 +111,15 @@ class Taboola extends Root implements AdVendorInterface
                         throw('No creative set found.');
                     }
                 } else {
-                    $description = $content['description'];
+                    $description = $campaign_item['description'];
                 }
 
                 foreach ($titles as $title) {
                     if ($campaign_item['adType'] == 'IMAGE') {
                         $imges = [];
 
-                        if (isset($content['imageSet']['id'])) {
-                            $image_creative_set = CreativeSet::find($content['imageSet']['id']);
+                        if (isset($campaign_item['imageSet']['id'])) {
+                            $image_creative_set = CreativeSet::find($campaign_item['imageSet']['id']);
 
                             if ($image_creative_set) {
                                 $images = $image_creative_set->imageSets;
@@ -127,7 +127,7 @@ class Taboola extends Root implements AdVendorInterface
                                 throw('No creative set found.');
                             }
                         } else {
-                            $images = $content['images'];
+                            $images = $campaign_item['images'];
                         }
 
                         foreach ($images as $image) {
