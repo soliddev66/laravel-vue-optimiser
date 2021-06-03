@@ -374,7 +374,6 @@ export default {
     }]
 
     if (this.instance) {
-      console.log(this.instance.items)
       campaignItems = []
       for (let i = 0; i < this.instance.items.length; i++) {
         let campaignItem = {
@@ -413,8 +412,6 @@ export default {
 
         campaignItems.push(campaignItem)
       }
-
-      console.log(campaignItems)
     }
 
     return {
