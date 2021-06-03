@@ -168,28 +168,28 @@ class Yahoo extends Root implements AdVendorInterface
                     $db_ad = Ad::where('ad_id', $ad['id'])->first();
 
                     if ($db_ad) {
-                        $imageSet = $db_ad->creativeSets()->where('type', 1)->first();
-                        if ($imageSet) {
-                            $ad['imageSet'] = $imageSet;
-                            $ad['imageSet']['sets'] = $imageSet->imageSets;
+                        $image_set = $db_ad->creativeSets()->where('type', 1)->first();
+                        if ($image_set) {
+                            $ad['imageSet'] = $image_set;
+                            $ad['imageSet']['sets'] = $image_set->imageSets;
                         }
 
-                        $videoSet = $db_ad->creativeSets()->where('type', 2)->first();
-                        if ($videoSet) {
-                            $ad['videoSet'] = $videoSet;
-                            $ad['videoSet']['sets'] = $videoSet->videoSets;
+                        $video_set = $db_ad->creativeSets()->where('type', 2)->first();
+                        if ($video_set) {
+                            $ad['videoSet'] = $video_set;
+                            $ad['videoSet']['sets'] = $video_set->videoSets;
                         }
 
-                        $titleSet = $db_ad->creativeSets()->where('type', 3)->first();
-                        if ($titleSet) {
-                            $ad['titleSet'] = $titleSet;
-                            $ad['titleSet']['sets'] = $titleSet->titleSets;
+                        $title_set = $db_ad->creativeSets()->where('type', 3)->first();
+                        if ($title_set) {
+                            $ad['titleSet'] = $title_set;
+                            $ad['titleSet']['sets'] = $title_set->titleSets;
                         }
 
-                        $descriptionSet = $db_ad->creativeSets()->where('type', 4)->first();
-                        if ($descriptionSet) {
-                            $ad['descriptionSet'] = $descriptionSet;
-                            $ad['descriptionSet']['sets'] = $descriptionSet->descriptionSets;
+                        $description_set = $db_ad->creativeSets()->where('type', 4)->first();
+                        if ($description_set) {
+                            $ad['descriptionSet'] = $description_set;
+                            $ad['descriptionSet']['sets'] = $description_set->descriptionSets;
                         }
                     }
                 }

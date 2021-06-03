@@ -380,16 +380,20 @@ export default {
         let campaignItem = {
           id: this.instance.items[i].id,
           url: this.instance.items[i].url,
+          titleSet: this.instance.items[i]['titleSet'] || '',
           titles: [{
             title: this.instance.items[i].title,
             existing: true
           }],
+          descriptionSet: this.instance.items[i]['descriptionSet'] || '',
           description: this.instance.items[i].description,
 
         }
 
         if (this.instance.items[i].type == 1) {
           campaignItem.adType = 'IMAGE'
+
+          campaignItem.imageSet = this.instance.items[i]['imageSet'] || ''
           campaignItem.images = [{
             image: this.instance.items[i].thumbnail_url,
             existing: true
@@ -398,6 +402,8 @@ export default {
           campaignItem.imagePath = this.instance.items[i].thumbnail_url
         } else {
           campaignItem.adType = 'VIDEO'
+
+          campaignItem.videoSet = this.instance.ads[i]['videoSet'] || ''
           campaignItem.videos = [{
             videoUrl: this.instance.items[i].video_url,
             imageUrl: this.instance.items[i].fallback_url,

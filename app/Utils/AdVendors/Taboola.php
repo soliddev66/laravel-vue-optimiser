@@ -703,6 +703,31 @@ class Taboola extends Root implements AdVendorInterface
                         $item['thumbnail_url'] = $ad['image'];
                     }
 
+                    $image_set = $ad->creativeSets()->where('type', 1)->first();
+
+                    if ($image_set) {
+                        $item['imageSet'] = $image_set;
+                        $item['imageSet']['sets'] = $image_set->imageSets;
+                    }
+
+                    $video_set = $ad->creativeSets()->where('type', 2)->first();
+                    if ($video_set) {
+                        $item['videoSet'] = $video_set;
+                        $item['videoSet']['sets'] = $video_set->videoSets;
+                    }
+
+                    $title_set = $ad->creativeSets()->where('type', 3)->first();
+                    if ($title_set) {
+                        $item['titleSet'] = $title_set;
+                        $item['titleSet']['sets'] = $title_set->titleSets;
+                    }
+
+                    $description_set = $ad->creativeSets()->where('type', 4)->first();
+                    if ($description_set) {
+                        $item['descriptionSet'] = $description_set;
+                        $item['descriptionSet']['sets'] = $description_set->descriptionSets;
+                    }
+
                     $instance['items'][] = $item;
                 }
             }
@@ -723,6 +748,41 @@ class Taboola extends Root implements AdVendorInterface
                     }
                     if (empty($item['description'])) {
                         $item['description'] = $ad['description'];
+                    }
+
+                    if (empty($item['title'])) {
+                        $item['title'] = $ad['title'];
+                    }
+                    if (empty($item['description'])) {
+                        $item['description'] = $ad['description'];
+                    }
+                    if (empty($item['thumbnail_url'])) {
+                        $item['thumbnail_url'] = $ad['image'];
+                    }
+
+                    $image_set = $ad->creativeSets()->where('type', 1)->first();
+
+                    if ($image_set) {
+                        $item['imageSet'] = $image_set;
+                        $item['imageSet']['sets'] = $image_set->imageSets;
+                    }
+
+                    $video_set = $ad->creativeSets()->where('type', 2)->first();
+                    if ($video_set) {
+                        $item['videoSet'] = $video_set;
+                        $item['videoSet']['sets'] = $video_set->videoSets;
+                    }
+
+                    $title_set = $ad->creativeSets()->where('type', 3)->first();
+                    if ($title_set) {
+                        $item['titleSet'] = $title_set;
+                        $item['titleSet']['sets'] = $title_set->titleSets;
+                    }
+
+                    $description_set = $ad->creativeSets()->where('type', 4)->first();
+                    if ($description_set) {
+                        $item['descriptionSet'] = $description_set;
+                        $item['descriptionSet']['sets'] = $description_set->descriptionSets;
                     }
 
                     $instance['items'][] = $item;
