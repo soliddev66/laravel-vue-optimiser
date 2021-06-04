@@ -26,7 +26,7 @@
                   <div class="col">
                     <select class="form-control" v-model="vendor.selectedAdvertiser">
                       <option value="">Select Advertiser</option>
-                      <option :value="advertiser.id" v-for="advertiser in vendor.advertisers" :key="advertiser.id">{{ advertiser.id }} - {{ advertiser.advertiserName || advertiser.name }}</option>
+                      <option :value="vendor.slug == 'taboola' ? advertiser.account_id : advertiser.id" v-for="advertiser in vendor.advertisers" :key="advertiser.id">{{ vendor.slug == 'taboola' ? advertiser.account_id : advertiser.id }} - {{ advertiser.advertiserName || advertiser.name }}</option>
                     </select>
                   </div>
                 </div>
@@ -372,7 +372,7 @@ export default {
       this.isLoading = true
       return axios.get(`/account/advertisers?provider=${vendor.slug}&account=${encodeURIComponent(vendor.selectedAccount)}`).then(response => {
         vendor.advertisers = response.data
-        vendor.selectedAdvertiser = vendor.advertisers[0].id
+        vendor.selectedAdvertiser = vendor.slug == 'taboola' ? vendor.advertisers[0].account_id : vendor.advertisers[0].id
       }).finally(() => {
         this.isLoading = false
       })
