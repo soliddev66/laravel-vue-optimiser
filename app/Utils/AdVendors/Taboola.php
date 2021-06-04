@@ -137,16 +137,17 @@ class Taboola extends Root implements AdVendorInterface
                                 'user_id' => auth()->id(),
                                 'provider_id' => 4,
                                 'campaign_id' => $campaign_data['id'],
-                                'ad_group_id' => 'taboola',
                                 'advertiser_id' => request('advertiser'),
-                                'open_id' => request('account'),
-                                'name' => $title['title'],
-                                'type' => 1,
-                                'image' => $image_creative_set ? Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['image'],
-                                'status' => $campaign_item_data['status'],
-                                'description' => $description,
-                                'synced' => 0
+                                'ad_group_id' => 'taboola',
+                                'open_id' => request('account')
                             ]);
+
+                            $db_ad->name = $title['title'];
+                            $db_ad->type = 1;
+                            $db_ad->image = Helper::encodeUrl($image_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['image']);
+                            $db_ad->status = $campaign_item_data['status'];
+                            $db_ad->description = $description;
+                            $db_ad->synced = 0;
 
                             $db_ad->save();
 
@@ -188,7 +189,7 @@ class Taboola extends Root implements AdVendorInterface
                                 'url' => $campaign_item['url'],
                                 'title' => $title['title'],
                                 'description' => $description,
-                                'video_url' => $video_creative_set ? Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl'],
+                                'video_url' => Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl']),
                                 'fallback_url' => $video['imageUrl']
                             ]);
 
@@ -199,15 +200,16 @@ class Taboola extends Root implements AdVendorInterface
                                 'campaign_id' => $campaign_data['id'],
                                 'ad_group_id' => 'taboola',
                                 'advertiser_id' => request('advertiser'),
-                                'open_id' => request('account'),
-                                'name' => $title['title'],
-                                'type' => 2,
-                                'video' => $video_creative_set ? Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl'],
-                                'image' => $video_creative_set ? Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['landscape_image']) : $video['imageUrl'],
-                                'status' => $campaign_item_data['status'],
-                                'description' => $description,
-                                'synced' => 1
+                                'open_id' => request('account')
                             ]);
+
+                            $db_ad->name = $title['title'];
+                            $db_ad->type = 2;
+                            $db_ad->video = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl']);
+                            $db_ad->image = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['landscape_image']) : $video['imageUrl']);
+                            $db_ad->status = $campaign_item_data['status'];
+                            $db_ad->description = $description;
+                            $db_ad->synced = 1;
 
                             $db_ad->save();
 
@@ -343,13 +345,12 @@ class Taboola extends Root implements AdVendorInterface
 
                         foreach ($images as $image) {
                             $synced = 0;
-                            file_put_contents('bbbbb', $image_creative_set ? Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['image']);
                             if (isset($campaign_item['id'])) {
                                 $campaign_item_data = $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['id'], [
                                     'url' => $campaign_item['url'],
                                     'title' => $title['title'],
                                     'description' => $campaign_item['description'],
-                                    'thumbnail_url' => $image_creative_set ? Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['image']
+                                    'thumbnail_url' => Helper::encodeUrl($image_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['image'])
                                 ]);
 
                                 $synced = 1;
@@ -362,16 +363,17 @@ class Taboola extends Root implements AdVendorInterface
                                 'user_id' => auth()->id(),
                                 'provider_id' => 4,
                                 'campaign_id' => $campaign_data['id'],
-                                'ad_group_id' => 'taboola',
                                 'advertiser_id' => request('advertiser'),
-                                'open_id' => request('account'),
-                                'synced' => $synced,
-                                'type' => 1,
-                                'name' => $title['title'],
-                                'image' => $image_creative_set ? Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['image'],
-                                'status' => $campaign_item_data['status'],
-                                'description' => $campaign_item['description']
+                                'ad_group_id' => 'taboola',
+                                'open_id' => request('account')
                             ]);
+
+                            $db_ad->synced = $synced;
+                            $db_ad->type = 1;
+                            $db_ad->name = $title['title'];
+                            $db_ad->image = Helper::encodeUrl($image_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['image']);
+                            $db_ad->status = $campaign_item_data['status'];
+                            $db_ad->description = $campaign_item['description'];
 
                             $db_ad->save();
 
@@ -414,16 +416,16 @@ class Taboola extends Root implements AdVendorInterface
                                     'url' => $campaign_item['url'],
                                     'title' => $title['title'],
                                     'description' => $description,
-                                    'video_url' => $video_creative_set ? Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl'],
-                                    'fallback_url' => $video_creative_set ? Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['landscape_image']) : $video['imageUrl']
+                                    'video_url' => Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl']),
+                                    'fallback_url' => Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['landscape_image']) : $video['imageUrl'])
                                 ]);
                             } else {
                                 $campaign_item_data = $api->createCampaignVideoItem(request('advertiser'), $campaign_data['id'], [
                                     'url' => $campaign_item['url'],
                                     'title' => $title['title'],
                                     'description' => $description,
-                                    'video_url' => $video_creative_set ? Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl'],
-                                    'fallback_url' => $video_creative_set ? Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['landscape_image']) : $video['imageUrl']
+                                    'video_url' => Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl']),
+                                    'fallback_url' => Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['landscape_image']) : $video['imageUrl'])
                                 ]);
                             }
 
@@ -434,15 +436,16 @@ class Taboola extends Root implements AdVendorInterface
                                 'campaign_id' => $campaign_data['id'],
                                 'ad_group_id' => 'taboola',
                                 'advertiser_id' => request('advertiser'),
-                                'open_id' => request('account'),
-                                'type' => 2,
-                                'name' => $title['title'],
-                                'video' => $video_creative_set ? Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl'],
-                                'image' => $video_creative_set ? Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['landscape_image']) : $video['imageUrl'],
-                                'status' => $campaign_item_data['status'],
-                                'description' => $description,
-                                'synced' => 1
+                                'open_id' => request('account')
                             ]);
+
+                            $db_ad->type = 2;
+                            $db_ad->name = $title['title'];
+                            $db_ad->video = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl']);
+                            $db_ad->image = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['landscape_image']) : $video['imageUrl']);
+                            $db_ad->status = $campaign_item_data['status'];
+                            $db_ad->description = $description;
+                            $db_ad->synced = 1;
 
                             $db_ad->save();
 
@@ -467,9 +470,6 @@ class Taboola extends Root implements AdVendorInterface
                     }
                 }
             }
-
-            $resource_importer = new ResourceImporter();
-            $resource_importer->insertOrUpdate('ads', $ads, ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
 
             return $campaign_data;
         } catch (Exception $e) {
