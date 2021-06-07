@@ -212,6 +212,8 @@ import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
+import Echo from 'laravel-echo';
+
 import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
@@ -262,6 +264,18 @@ export default {
   },
   mounted() {
     console.log('Component mounted.')
+
+    window.Pusher = require('pusher-js');
+
+    window.Echo = new Echo({
+      broadcaster: 'pusher',
+      key: process.env.MIX_PUSHER_APP_KEY,
+      cluster: process.env.MIX_PUSHER_APP_CLUSTER
+    });
+
+    window.Echo.channel('campaign').listen('vendor', () => {
+      console.log("It is working :)");
+    });
   },
   watch: {
 

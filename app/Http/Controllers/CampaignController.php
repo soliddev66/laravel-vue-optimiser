@@ -22,6 +22,8 @@ use JamesDordoy\LaravelVueDatatable\Http\Resources\DataTableCollectionResource;
 use Maatwebsite\Excel\Facades\Excel;
 use Redis;
 
+use App\Events\VendorCampaignCreated;
+
 class CampaignController extends Controller
 {
     public function __construct()
@@ -31,6 +33,8 @@ class CampaignController extends Controller
 
     public function index()
     {
+        var_dump(auth()->id());
+        event(new VendorCampaignCreated(auth()->id())); exit;
         return view('campaigns.index');
     }
 
