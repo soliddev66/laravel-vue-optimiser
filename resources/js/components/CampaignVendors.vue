@@ -271,7 +271,7 @@ export default {
       cluster: process.env.MIX_PUSHER_APP_CLUSTER
     });
 
-    window.Echo.channel('campaign').listen('.VendorCampaignCreated', () => {
+    window.Echo.private('campaign.1').listen('VendorCampaignCreated', () => {
       console.log("It is working :)");
     });
   },

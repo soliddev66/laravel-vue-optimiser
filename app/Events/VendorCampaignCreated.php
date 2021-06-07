@@ -2,18 +2,14 @@
 
 namespace App\Events;
 
-use App\Models\User;
-
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
-class VendorCampaignCreated implements ShouldBroadcast
+class VendorCampaignCreated implements ShouldBroadcastNow
 {
-
     public $user_id;
 
     public function __construct($user_id)
@@ -23,6 +19,6 @@ class VendorCampaignCreated implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new Channel('campaign');
+        return new PrivateChannel('campaign.' . $this->user_id);
     }
 }

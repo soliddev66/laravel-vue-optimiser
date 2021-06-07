@@ -33,7 +33,6 @@ class CampaignController extends Controller
 
     public function index()
     {
-        var_dump(auth()->id());
         event(new VendorCampaignCreated(auth()->id())); exit;
         return view('campaigns.index');
     }

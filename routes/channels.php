@@ -13,6 +13,4 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('campaign.{userId}', function ($user, $userId) {
-    return (int) $user->id === (int) $userId;
-});
+Broadcast::channel('campaign.{userId}', \App\Broadcasting\CampaignChannel::class);
