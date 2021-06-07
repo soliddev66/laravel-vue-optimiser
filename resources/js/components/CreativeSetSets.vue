@@ -21,7 +21,9 @@
                   <td>{{ item.id }}</td>
                   <td>{{ item.name }}</td>
                   <td>{{ item.type == 1 ? 'IMAGE' : (item.type == 2 ? 'VIDEO' : (item.type == 3 ? 'TITLE' : 'DESCRIPTION')) }}</td>
-                  <td><button :disabled="(item.type == 1 && type != 'image') || (item.type == 2 && type != 'video') || (item.type == 3 && type != 'title') || (item.type == 4 && type != 'description')" type="button" class="btn btn-primary" @click="selectCreativeSet(item)"><i class="fas fa-check"></i></button></td>
+                  <td>
+                    <button :disabled="(item.type == 1 && type != 'image') || (item.type == 2 && type != 'video') || (item.type == 3 && type != 'title') || (item.type == 4 && type != 'description')" type="button" class="btn btn-primary" @click="selectCreativeSet(item)"><i class="fas fa-check"></i></button>
+                  </td>
                 </tr>
               </tbody>
             </table>
