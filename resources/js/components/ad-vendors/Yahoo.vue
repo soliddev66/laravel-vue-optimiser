@@ -692,7 +692,6 @@ export default {
 
   },
   mounted() {
-    console.log('Component mounted.')
     let vm = this
     this.$root.$on('fm-selected-items', (value) => {
       const selectedFilePath = value[0].path

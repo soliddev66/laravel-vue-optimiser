@@ -88,7 +88,6 @@ export default {
   computed: {
   },
   mounted() {
-    console.log('Component mounted.')
     this.loadCampaigns()
   },
   watch: {

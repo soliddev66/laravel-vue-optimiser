@@ -47,7 +47,6 @@ export default {
     Loading
   },
   mounted() {
-    console.log('Component mounted.')
     this.loadPreview()
   },
   data() {

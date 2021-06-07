@@ -45,7 +45,6 @@ export default {
     Loading
   },
   mounted() {
-    console.log('Component mounted.')
     this.getData(this.tableProps)
   },
   watch: {

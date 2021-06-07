@@ -263,8 +263,6 @@ export default {
     }
   },
   mounted() {
-    console.log('Component mounted.')
-
     window.Pusher = require('pusher-js');
 
     window.Echo = new Echo({
@@ -273,7 +271,7 @@ export default {
       cluster: process.env.MIX_PUSHER_APP_CLUSTER
     });
 
-    window.Echo.channel('campaign').listen('vendor', () => {
+    window.Echo.channel('campaign').listen('.VendorCampaignCreated', () => {
       console.log("It is working :)");
     });
   },
