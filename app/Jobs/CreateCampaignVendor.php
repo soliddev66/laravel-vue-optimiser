@@ -35,10 +35,6 @@ class CreateCampaignVendor implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->batch()->cancelled()) {
-            return;
-        }
-
         $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($this->vendor['slug']);
 
         return (new $ad_vendor_class())->storeCampaignVendors($this->vendor);

@@ -1269,6 +1269,10 @@ class Taboola extends Root implements AdVendorInterface
     }
 
     public function storeCampaignVendors($vendor) {
+        echo 'OKOKK';
+
+
+        event(new \App\Events\CampaignVendorCreated(auth()->id()));
         $api = new TaboolaAPI(UserProvider::where([
             'provider_id' => 4,
             'open_id' => $vendor['selectedAccount']

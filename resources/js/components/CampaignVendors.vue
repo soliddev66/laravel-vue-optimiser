@@ -540,6 +540,7 @@ export default {
       this.isLoading = true
 
       window.Echo.private('campaign.' + this.userId).listen('CampaignVendorCreated', () => {
+        console.log('It is ok');
         this.isLoading = false
         this.$dialog.alert('Save successfully!').then(() => {
           window.location = '/campaigns';

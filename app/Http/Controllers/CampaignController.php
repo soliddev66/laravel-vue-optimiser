@@ -560,7 +560,11 @@ class CampaignController extends Controller
 
     public function storeCampaignVendors()
     {
-        CreateCampaignVendors::dispatchNow(auth()->id(), request('vendors'));
+        foreach (request('vendors') as $vendor) {
+            if ($vendor['selected']) {
+                \App\Jobs\CreateCampaignVendor::dispatchNow($vendor);
+            }
+        }
 
         return [];
     }

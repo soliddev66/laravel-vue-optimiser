@@ -19,7 +19,6 @@ class CreateCampaignVendors implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $user_id;
     private $vendors;
 
     /**
@@ -27,9 +26,8 @@ class CreateCampaignVendors implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($user_id, $vendors)
+    public function __construct($vendors)
     {
-        $this->user_id = $user_id;
         $this->vendors = $vendors;
     }
 
@@ -51,10 +49,10 @@ class CreateCampaignVendors implements ShouldQueue
         Bus::batch($jobs)
             ->allowFailures()
             ->then(function (Batch $batch) {
-                //
+
             })
             ->finally(function (Batch $batch) {
-                event(new CampaignVendorCreated($this->user_id));
+
             })
             ->dispatch();
     }
