@@ -1269,10 +1269,6 @@ class Taboola extends Root implements AdVendorInterface
     }
 
     public function storeCampaignVendors($vendor) {
-        echo 'OKOKK';
-
-
-        event(new \App\Events\CampaignVendorCreated(auth()->id()));
         $api = new TaboolaAPI(UserProvider::where([
             'provider_id' => 4,
             'open_id' => $vendor['selectedAccount']
@@ -1480,9 +1476,17 @@ class Taboola extends Root implements AdVendorInterface
 
             Helper::pullCampaign();
 
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'success' => 1
+            ]));
+
             return $campaign_data;
 
         } catch (Exception $e) {
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'errors' => [$e->getMessage()]
+            ]));
+
             return [
                 'errors' => [$e->getMessage()]
             ];

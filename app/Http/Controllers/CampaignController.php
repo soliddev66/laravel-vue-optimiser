@@ -22,8 +22,6 @@ use JamesDordoy\LaravelVueDatatable\Http\Resources\DataTableCollectionResource;
 use Maatwebsite\Excel\Facades\Excel;
 use Redis;
 
-use App\Jobs\CreateCampaignVendors;
-
 class CampaignController extends Controller
 {
     public function __construct()

@@ -12,9 +12,13 @@ class CampaignVendorCreated implements ShouldBroadcastNow
 {
     public $user_id;
 
-    public function __construct($user_id)
+    public $data;
+
+    public function __construct($user_id, $data = null)
     {
         $this->user_id = $user_id;
+
+        $this->data = $data;
     }
 
     public function broadcastOn()

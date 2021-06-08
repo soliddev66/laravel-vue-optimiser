@@ -24,7 +24,6 @@ class CampaignChannel
      */
     public function join(User $user, $userId)
     {
-        file_put_contents('aaaa', $userId);
         return (int) $user->id === (int) $userId;
     }
 }

@@ -1718,10 +1718,18 @@ class Yahoo extends Root implements AdVendorInterface
                 throw $e;
             }
         } catch (Exception $e) {
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'errors' => [$e->getMessage()]
+            ]));
+
             return [
                 'errors' => [$e->getMessage()]
             ];
         }
+
+        event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+            'success' => 1
+        ]));
 
         return [];
     }
