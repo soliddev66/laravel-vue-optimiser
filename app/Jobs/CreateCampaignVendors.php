@@ -13,7 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-use App\Events\VendorCampaignCreated;
+use App\Events\CampaignVendorCreated;
 
 class CreateCampaignVendors implements ShouldQueue
 {
@@ -48,14 +48,13 @@ class CreateCampaignVendors implements ShouldQueue
             }
         }
 
-        $batch = Bus::batch($jobs)
+        Bus::batch($jobs)
             ->allowFailures()
             ->then(function (Batch $batch) {
                 //
             })
             ->finally(function (Batch $batch) {
-                file_put_contents('aaaaa', json_encode($batch));
-                event(new VendorCampaignCreated($this->user_id);
+                event(new CampaignVendorCreated($this->user_id));
             })
             ->dispatch();
     }

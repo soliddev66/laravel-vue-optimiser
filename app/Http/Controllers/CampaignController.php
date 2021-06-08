@@ -560,6 +560,8 @@ class CampaignController extends Controller
 
     public function storeCampaignVendors()
     {
-        CreateCampaignVendors::dispatchNow(request('vendors'));
+        CreateCampaignVendors::dispatchNow(auth()->id(), request('vendors'));
+
+        return [];
     }
 }
