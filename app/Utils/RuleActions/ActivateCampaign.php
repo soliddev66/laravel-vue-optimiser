@@ -15,8 +15,8 @@ class ActivateCampaign extends Root
         ];
 
         try {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            (new $adVendorClass)->status($campaign);
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            (new $ad_vendor_class)->status($campaign);
             $log['effect']['activated'] = true;
             echo 'Campaign was being activated', "\n";
         } catch (Exception $e) {

@@ -12,8 +12,8 @@ class UnBlockWidgetsPushlisher extends Root
         ];
 
         try {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            (new $adVendorClass)->unblockWidgets($campaign, $rule_data);
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            (new $ad_vendor_class)->unblockWidgets($campaign, $rule_data);
             $log['effect']['unblocked'] = true;
             echo "Campaign's widgets were being unblocked\n";
         } catch (Exception $e) {

@@ -222,6 +222,10 @@ export default {
       type: Array,
       default: []
     },
+    userId: {
+      type: Number,
+      default: 0
+    },
     step: {
       type: Number,
       default: 1
@@ -269,10 +273,6 @@ export default {
       broadcaster: 'pusher',
       key: process.env.MIX_PUSHER_APP_KEY,
       cluster: process.env.MIX_PUSHER_APP_CLUSTER
-    });
-
-    window.Echo.private('campaign.1').listen('VendorCampaignCreated', () => {
-      console.log("It is working :)");
     });
   },
   watch: {
@@ -538,6 +538,14 @@ export default {
 
     submitStep4() {
       this.isLoading = true
+
+      window.Echo.private('campaign.' + this.userId).listen('CampaignVendorCreated', () => {
+        this.isLoading = false
+        this.$dialog.alert('Save successfully!').then(() => {
+          window.location = '/campaigns';
+        });
+      });
+
       axios.post('/campaigns/store-campaign-vendors', {
         campaignName: this.campaignName,
         vendors: this.vendors,
@@ -545,13 +553,9 @@ export default {
       }).then(response => {
         if (response.data.errors) {
           alert(response.data.errors[0]);
-        } else {
-          this.$dialog.alert('Save successfully!').then(function(dialog) {
-            window.location = '/campaigns';
-          });
         }
       }).catch(error => console.log(error)).finally(() => {
-        this.isLoading = false
+
       })
     },
   }

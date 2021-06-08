@@ -8,7 +8,7 @@
 
 @section('content')
     <campaign-vendors
-        :providers="{{ App\Models\Provider::all() }}">
+        :providers="{{ App\Models\Provider::all() }}" :user-id="{{ auth()->id() }}">
     </campaign-vendors>
 @stop
 

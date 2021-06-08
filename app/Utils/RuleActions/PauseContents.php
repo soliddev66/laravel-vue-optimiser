@@ -17,8 +17,8 @@ class PauseContents extends Root
         ];
 
         try {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            (new $adVendorClass)->adStatus($campaign, $ad->ad_group_id, $ad->ad_id, Campaign::STATUS_PAUSED);
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            (new $ad_vendor_class)->adStatus($campaign, $ad->ad_group_id, $ad->ad_id, Campaign::STATUS_PAUSED);
             $log['effect']['paused'] = true;
             echo 'Ad was being paused', "\n";
         } catch (Exception $e) {

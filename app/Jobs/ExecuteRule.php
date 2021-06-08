@@ -62,8 +62,8 @@ class ExecuteRule implements ShouldQueue
 
                         $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
 
-                        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-                        $performance_data = (new $adVendorClass)->getPerformanceData($campaign, $time_range);
+                        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+                        $performance_data = (new $ad_vendor_class)->getPerformanceData($campaign, $time_range);
 
                         if ($this->checkConditions($campaign, $rule, $redtrack_data, $performance_data, 1)) {
                             $this->log->passed = true;
@@ -92,8 +92,8 @@ class ExecuteRule implements ShouldQueue
                         break;
 
                     case 2:
-                        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-                        $redtrack_domain_data = (new $adVendorClass)->getDomainData($campaign, $time_range);
+                        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+                        $redtrack_domain_data = (new $ad_vendor_class)->getDomainData($campaign, $time_range);
 
                         foreach ($redtrack_domain_data as $data) {
                             $this->log = new RuleLog();

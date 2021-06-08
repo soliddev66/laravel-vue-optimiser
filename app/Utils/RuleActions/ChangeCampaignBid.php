@@ -17,8 +17,8 @@ class ChangeCampaignBid extends Root
         ];
 
         try {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            (new $adVendorClass)->changeCampaignBid($campaign, $rule_data);
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            (new $ad_vendor_class)->changeCampaignBid($campaign, $rule_data);
             echo "Campaign's bid was being changed\n";
             $log['effect']['changed'] = true;
         } catch (Exception $e) {

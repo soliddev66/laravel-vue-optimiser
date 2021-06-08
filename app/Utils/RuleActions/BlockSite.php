@@ -16,8 +16,8 @@ class BlockSite extends Root
             'site' => $data
         ];
         try {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            (new $adVendorClass)->addSiteBlock($campaign, $data);
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            (new $ad_vendor_class)->addSiteBlock($campaign, $data);
             $log['effect']['blocked'] = true;
             echo "Campaign was being added site block\n";
         } catch (Exception $e) {

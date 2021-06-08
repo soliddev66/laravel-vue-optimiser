@@ -40,8 +40,8 @@ class DeleteAdGroup implements ShouldQueue
      */
     public function handle()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($this->provider);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($this->provider);
 
-        (new $adVendorClass)->deleteAdGroup($this->user, $this->ad_group_id, $this->provider, $this->account, $this->advertiser);
+        (new $ad_vendor_class)->deleteAdGroup($this->user, $this->ad_group_id, $this->provider, $this->account, $this->advertiser);
     }
 }

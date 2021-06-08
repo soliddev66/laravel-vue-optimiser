@@ -16,8 +16,8 @@ class UnBlockSite extends Root
             'site' => $data
         ];
         try {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            (new $adVendorClass)->removeSiteBlock($campaign, $data);
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            (new $ad_vendor_class)->removeSiteBlock($campaign, $data);
             $log['effect']['unblocked'] = true;
             echo "Campaign was being disabled site block\n";
         } catch (Exception $e) {
