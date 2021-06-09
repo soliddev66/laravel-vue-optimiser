@@ -547,7 +547,7 @@ export default {
         }
       }
 
-      window.Echo.private('campaign.' + this.userId).listen('CampaignVendorCreated', (response) => {
+      window.Echo.private('campaign.' + this.userId).listen('CampaignVendorCreated', response => {
         console.log('Processed.');
 
         processedTime ++

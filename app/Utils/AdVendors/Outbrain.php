@@ -13,6 +13,7 @@ use App\Models\RedtrackPublisherStat;
 use App\Models\RedtrackReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
+use App\Models\CreativeSet;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use App\Vngodev\ResourceImporter;
@@ -59,11 +60,37 @@ class Outbrain extends Root implements AdVendorInterface
         $api = $this->api();
 
         try {
-            $budget_data = $api->createBudget();
+            $budget_data = $api->createBudget([
+                'name' => request('campaignName') . '_' . Carbon::now(),
+                'amount' => request('campaignBudget'),
+                'startDate' => request('campaignStartDate'),
+                'endDate' => request('campaignEndDate'),
+                'runForever' => request('campaignEndDate') ? false : true,
+                'type' => request('campaignBudgetType'),
+                'pacing' => request('campaignPacing')
+            ]);
+
             Log::info('OUTBRAIN: Created budget: ' . $budget_data['id']);
 
             try {
-                $campaign_data = $api->createCampaign($budget_data);
+                $campaign_data = $api->createCampaign([
+                    'name' => request('campaignName'),
+                    'cpc' => request('campaignCostPerClick'),
+                    'enabled' => true,
+                    'budgetId' => $budget_data['id'],
+                    'targeting' => [
+                        'platform' => request('campaginPlatform'),
+                        'locations' => request('campaignLocation'),
+                        'operatingSystems' => request('campaignOperatingSystem'),
+                        'browsers' => request('campaignBrowser'),
+                        'excludeAdBlockUsers' => request('campaignExcludeAdBlockUsers')
+                    ],
+                    'suffixTrackingCode' => request('campaignTrackingCode'),
+                    'onAirType' => request('campaignStartTime') ? 'StartHour' : 'Scheduled',
+                    'startHour' => strtoupper(request('campaignStartTime')),
+                    'objective' => request('campaignObjective')
+                ]);
+
                 Log::info('OUTBRAIN: Created campaign: ' . $campaign_data['id']);
             } catch (Exception $e) {
                 $api->deleteBudget($budget_data);
@@ -71,7 +98,6 @@ class Outbrain extends Root implements AdVendorInterface
             }
 
             try {
-
                 $ads = [];
 
                 foreach (request('ads') as $ad) {
@@ -779,5 +805,160 @@ class Outbrain extends Root implements AdVendorInterface
         $api->updateCampaignData($campaign->campaign_id, [
             'cpc' => $data->bid
         ]);
+    }
+
+    public function storeCampaignVendors($vendor) {
+        $api = new OutbrainAPI(UserProvider::where(['provider_id' => 2, 'open_id' => $vendor['selectedAccount']])->first());
+
+        try {
+            $budget_data = $api->createBudget([
+                'name' => request('campaignName') . '_' . Carbon::now(),
+                'amount' => $vendor['campaignBudget'],
+                'startDate' => $vendor['campaignStartDate'],
+                'endDate' => $vendor['campaignEndDate'],
+                'runForever' => $vendor['campaignEndDate'] ? false : true,
+                'type' => $vendor['campaignBudgetType'],
+                'pacing' => $vendor['campaignPacing']
+            ]);
+            Log::info('OUTBRAIN: Created budget: ' . $budget_data['id']);
+
+            try {
+                $campaign_data = $api->createCampaign([
+                    'name' => request('campaignName'),
+                    'cpc' => $vendor['campaignCostPerClick'],
+                    'enabled' => true,
+                    'budgetId' => $budget_data['id'],
+                    'targeting' => [
+                        'platform' => $vendor['campaginPlatform'],
+                        'locations' => $vendor['campaignLocation'],
+                        'operatingSystems' => $vendor['campaignOperatingSystem'],
+                        'browsers' => $vendor['campaignBrowser'],
+                        'excludeAdBlockUsers' => $vendor['campaignExcludeAdBlockUsers']
+                    ],
+                    'suffixTrackingCode' => $vendor['campaignTrackingCode'],
+                    'onAirType' => $vendor['campaignStartTime'] ? 'StartHour' : 'Scheduled',
+                    'startHour' => strtoupper($vendor['campaignStartTime']),
+                    'objective' => $vendor['campaignObjective']
+                ]);
+
+                Log::info('OUTBRAIN: Created campaign: ' . $campaign_data['id']);
+            } catch (Exception $e) {
+                $api->deleteBudget($budget_data);
+                throw $e;
+            }
+
+            try {
+                foreach ($vendor['contents'] as $content) {
+                    $titles = [];
+
+                    $title_creative_set = null;
+                    $description_creative_set = null;
+                    $image_creative_set = null;
+                    $video_creative_set = null;
+
+                    $title_creative_set = CreativeSet::find($content['titleSet']['id']);
+
+                    if ($title_creative_set) {
+                        $titles = $title_creative_set->titleSets;
+                    } else {
+                        throw('No creative set found.');
+                    }
+
+                    $description = '';
+
+                    $description_creative_set = CreativeSet::find($content['descriptionSet']['id']);
+
+                    if ($description_creative_set) {
+                        $description = $description_creative_set->descriptionSets[0]['description'];
+                    } else {
+                        throw('No creative set found.');
+                    }
+
+                    foreach ($titles as $title) {
+                        $imges = [];
+
+                        $image_creative_set = CreativeSet::find($content['imageSet']['id']);
+
+                        if ($image_creative_set) {
+                            $images = $image_creative_set->imageSets;
+                        } else {
+                            throw('No creative set found.');
+                        }
+
+                        foreach ($images as $image) {
+                            $ad_data = $api->createAd($campaign_data['id'], [
+                                'text' => $title['title'],
+                                'url' => $content['targetUrl'],
+                                'enabled' => true,
+                                'imageMetadata' => [
+                                    'url' => Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['hq_1200x628_image'])
+                                ]
+                            ]);
+
+                            $db_ad = Ad::firstOrNew([
+                                'ad_id' => $ad_data['id'],
+                                'user_id' => auth()->id(),
+                                'provider_id' => 2,
+                                'campaign_id' => $campaign_data['id'],
+                                'advertiser_id' => $vendor['selectedAdvertiser'],
+                                'ad_group_id' => 'NA',
+                                'open_id' => $vendor['selectedAccount']
+                            ]);
+
+                            $db_ad->name = $title['title'];
+                            $db_ad->image = $ad_data['imageMetadata']['originalImageUrl'];
+                            $db_ad->status = $ad_data['status'];
+                            $db_ad->description = $description;
+
+                            $db_ad->save();
+
+                            $db_ad->creativeSets()->detach();
+
+                            if ($title_creative_set) {
+                                $db_ad->creativeSets()->save($title_creative_set);
+                            }
+
+                            if ($description_creative_set) {
+                                $db_ad->creativeSets()->save($description_creative_set);
+                            }
+
+                            if ($video_creative_set) {
+                                $db_ad->creativeSets()->save($video_creative_set);
+                            }
+
+                            if ($image_creative_set) {
+                                $db_ad->creativeSets()->save($image_creative_set);
+                            }
+
+                            Log::info('OUTBRAIN: Created ad: ' . $ad_data['id']);
+                        }
+                    }
+                }
+
+                Helper::pullCampaign();
+            } catch (Exception $e) {
+                $api->deleteCampaign($campaign_data['id']);
+                $api->deleteBudget($budget_data);
+                throw $e;
+            }
+        } catch (Exception $e) {
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'errors' => [$e->getMessage()],
+                'vendor' => 'outbrain',
+                'vendorName' => 'Outbrain'
+            ]));
+
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+
+        event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+            'success' => 1,
+            'vendor' => 'outbrain',
+            'vendorName' => 'Outbrain'
+        ]));
+
+        return [];
     }
 }
