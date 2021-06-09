@@ -1477,14 +1477,18 @@ class Taboola extends Root implements AdVendorInterface
             Helper::pullCampaign();
 
             event(new \App\Events\CampaignVendorCreated(auth()->id(), [
-                'success' => 1
+                'success' => 1,
+                'vendor' => 'taboola',
+                'vendorName' => 'Taboola'
             ]));
 
             return $campaign_data;
 
         } catch (Exception $e) {
             event(new \App\Events\CampaignVendorCreated(auth()->id(), [
-                'errors' => [$e->getMessage()]
+                'errors' => [$e->getMessage()],
+                'vendor' => 'taboola',
+                'vendorName' => 'Taboola'
             ]));
 
             return [

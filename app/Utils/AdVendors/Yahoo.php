@@ -1719,7 +1719,9 @@ class Yahoo extends Root implements AdVendorInterface
             }
         } catch (Exception $e) {
             event(new \App\Events\CampaignVendorCreated(auth()->id(), [
-                'errors' => [$e->getMessage()]
+                'errors' => [$e->getMessage()],
+                'vendor' => 'yahoo',
+                'vendorName' => 'Yahoo'
             ]));
 
             return [
@@ -1728,7 +1730,9 @@ class Yahoo extends Root implements AdVendorInterface
         }
 
         event(new \App\Events\CampaignVendorCreated(auth()->id(), [
-            'success' => 1
+            'success' => 1,
+            'vendor' => 'yahoo',
+            'vendorName' => 'Yahoo'
         ]));
 
         return [];

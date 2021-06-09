@@ -2009,8 +2009,20 @@ class Yahoojp extends Root implements AdVendorInterface
 
             Helper::pullCampaign();
 
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'success' => 1,
+                'vendor' => 'yahoojp',
+                'vendorName' => 'Yahoo Japan'
+            ]));
+
             return [];
         } catch (Exception $e) {
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'errors' => [$e->getMessage()],
+                'vendor' => 'yahoojp',
+                'vendorName' => 'Yahoo Japan'
+            ]));
+
             return [
                 'errors' => [$e->getMessage()]
             ];

@@ -539,12 +539,32 @@ export default {
     submitStep4() {
       this.isLoading = true
 
-      window.Echo.private('campaign.' + this.userId).listen('CampaignVendorCreated', () => {
-        console.log('It is ok');
-        this.isLoading = false
-        this.$dialog.alert('Save successfully!').then(() => {
-          window.location = '/campaigns';
-        });
+      let totalVendor = 0, processedTime = 0
+
+      for (let i = 0; i< this.vendors.length; i++) {
+        if (this.vendors[i].selected) {
+          totalVendor ++
+        }
+      }
+
+      window.Echo.private('campaign.' + this.userId).listen('CampaignVendorCreated', (response) => {
+        console.log('Processed.');
+
+        processedTime ++
+
+        if (processedTime == totalVendor) {
+          this.isLoading = false
+
+          this.$dialog.alert('All vendors have been processed!').then(() => {
+            window.location = '/campaigns';
+          });
+        } else {
+          if (response.data.success) {
+            this.$dialog.alert('Save campaign for ' + response.data.vendorName + ' successfully.');
+          } else {
+            alert(response.data.errors[0]);
+          }
+        }
       });
 
       axios.post('/campaigns/store-campaign-vendors', {
