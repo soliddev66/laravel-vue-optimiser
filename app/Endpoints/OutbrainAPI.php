@@ -78,9 +78,9 @@ class OutbrainAPI
         return $this->client->call('GET', 'marketers/' . $id . '/campaigns?offset=' . $offset);
     }
 
-    public function createBudget($body)
+    public function createBudget($advertiser, $body)
     {
-        return $this->client->call('POST', 'marketers/' . request('selectedAdvertiser') . '/budgets', $body);
+        return $this->client->call('POST', 'marketers/' . $advertiser . '/budgets', $body);
     }
 
     public function updateBudget($budget_id)

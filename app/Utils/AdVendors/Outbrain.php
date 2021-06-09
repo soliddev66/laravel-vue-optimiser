@@ -60,7 +60,7 @@ class Outbrain extends Root implements AdVendorInterface
         $api = $this->api();
 
         try {
-            $budget_data = $api->createBudget([
+            $budget_data = $api->createBudget(request('selectedAdvertiser'), [
                 'name' => request('campaignName') . '_' . Carbon::now(),
                 'amount' => request('campaignBudget'),
                 'startDate' => request('campaignStartDate'),
@@ -811,12 +811,12 @@ class Outbrain extends Root implements AdVendorInterface
         $api = new OutbrainAPI(UserProvider::where(['provider_id' => 2, 'open_id' => $vendor['selectedAccount']])->first());
 
         try {
-            $budget_data = $api->createBudget([
+            $budget_data = $api->createBudget($vendor['selectedAdvertiser'], [
                 'name' => request('campaignName') . '_' . Carbon::now(),
                 'amount' => $vendor['campaignBudget'],
                 'startDate' => $vendor['campaignStartDate'],
-                'endDate' => $vendor['campaignEndDate'],
-                'runForever' => $vendor['campaignEndDate'] ? false : true,
+                'endDate' => $vendor['campaignEndDate'] ?? null,
+                'runForever' => isset($vendor['campaignEndDate']) && $vendor['campaignEndDate'] ? false : true,
                 'type' => $vendor['campaignBudgetType'],
                 'pacing' => $vendor['campaignPacing']
             ]);
@@ -829,13 +829,13 @@ class Outbrain extends Root implements AdVendorInterface
                     'enabled' => true,
                     'budgetId' => $budget_data['id'],
                     'targeting' => [
-                        'platform' => $vendor['campaginPlatform'],
-                        'locations' => $vendor['campaignLocation'],
-                        'operatingSystems' => $vendor['campaignOperatingSystem'],
-                        'browsers' => $vendor['campaignBrowser'],
+                        'platform' => $vendor['campaginPlatform'] ?? [],
+                        'locations' => $vendor['campaignLocation'] ?? [],
+                        'operatingSystems' => $vendor['campaignOperatingSystem'] ?? [],
+                        'browsers' => $vendor['campaignBrowser'] ?? [],
                         'excludeAdBlockUsers' => $vendor['campaignExcludeAdBlockUsers']
                     ],
-                    'suffixTrackingCode' => $vendor['campaignTrackingCode'],
+                    'suffixTrackingCode' => $vendor['campaignTrackingCode'] ?? null,
                     'onAirType' => $vendor['campaignStartTime'] ? 'StartHour' : 'Scheduled',
                     'startHour' => strtoupper($vendor['campaignStartTime']),
                     'objective' => $vendor['campaignObjective']
@@ -941,6 +941,16 @@ class Outbrain extends Root implements AdVendorInterface
                 $api->deleteBudget($budget_data);
                 throw $e;
             }
+        } catch (RequestException $e) {
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'errors' => [$e->getMessage()],
+                'vendor' => 'outbrain',
+                'vendorName' => 'Outbrain'
+            ]));
+
+            return [
+                'errors' => [$e->getMessage()]
+            ];
         } catch (Exception $e) {
             event(new \App\Events\CampaignVendorCreated(auth()->id(), [
                 'errors' => [$e->getMessage()],
