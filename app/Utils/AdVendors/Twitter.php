@@ -800,4 +800,70 @@ class Twitter extends Root implements AdVendorInterface
             $api->updateLineItemBid($item->id, $item->data->bid);
         }
     }
+
+    public function storeCampaignVendors($vendor) {
+        $api = new TwitterAPI(UserProvider::where([
+            'provider_id' => 3,
+            'open_id' => $vendor['selectedAccount']
+        ])->first(), $vendor['selectedAdvertiser']);
+
+        try {
+            $promotable_users = $this->api()->getPromotableUsers();
+
+            $campaign_data = $api->saveCampaign();
+            $line_item_data = $api->saveLineItem($campaign_data);
+
+            foreach (request('cards') as $card) {
+                foreach ($card['media'] as $media_item) {
+                    $media = $this->api()->uploadMedia($promotable_users, $media_item['media']);
+                    $media_library = $this->api()->createMediaLibrary($media->media_key);
+
+                    if ($card['type'] == 'IMAGE') {
+                        $card_data = $api->createWebsiteCard($media->media_key, $card);
+                    } else {
+                        $card_data = $api->createVideoWebsiteCard($media->media_key, $card);
+                    }
+
+                    foreach ($card['tweetTexts'] as $tweet_text) {
+                        $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweet_text);
+                        $promoted_tweet = $api->createPromotedTweet($line_item_data->getId(), $tweet_data);
+                    }
+                }
+            }
+
+            Helper::pullCampaign();
+        } catch (Exception $e) {
+            $this->rollback($campaign_data ?? null, $line_item_data ?? null, $card_data ?? null);
+
+            if ($e instanceof TwitterAdsException && is_array($e->getErrors())) {
+                event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                    'errors' => [$e->getErrors()[0]->message],
+                    'vendor' => 'twitter',
+                    'vendorName' => 'Twitter'
+                ]));
+
+                return [
+                    'errors' => [$e->getErrors()[0]->message]
+                ];
+            } else {
+                event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                    'errors' => [$e->getMessage()],
+                    'vendor' => 'twitter',
+                    'vendorName' => 'Twitter'
+                ]));
+
+                return [
+                    'errors' => [$e->getMessage()]
+                ];
+            }
+        }
+
+        event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+            'success' => 1,
+            'vendor' => 'twitter',
+            'vendorName' => 'Twitter'
+        ]));
+
+        return [];
+    }
 }

@@ -119,7 +119,7 @@
                       </div>
 
                       <div v-if="content.adType == 'IMAGE'">
-                        <div class="row">
+                        <div class="form-group row">
                           <label for="image_hq_url" class="col-sm-4 control-label mt-2">Image Set</label>
                           <div class="col">
                             <button class="btn btn-primary" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
@@ -129,12 +129,40 @@
                       </div>
 
                       <div v-if="content.adType == 'VIDEO'">
-                        <div class="row">
+                        <div class="form-group row">
                           <label for="image_hq_url" class="col-sm-4 control-label mt-2">Video Set</label>
                           <div class="col">
                             <button class="btn btn-primary" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('video', index)">Load from Sets</button>
                             <span v-if="content.videoSet.id" class="selected-set">{{ content.videoSet.name }}<span class="close" @click="removeVideoSet(index)"><i class="fas fa-times"></i></span></span>
                           </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label for="tweet_nullcast" class="col-sm-4 control-label mt-2">Tweet Nullcast</label>
+                        <div class="col-lg-4 col-xl-3">
+                          <div class="btn-group btn-group-toggle">
+                            <label class="btn bg-olive" :class="{ active: content.tweetNullcast }">
+                              <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" v-model="content.tweetNullcast">TRUE
+                            </label>
+                            <label class="btn bg-olive" :class="{ active: !content.tweetNullcast }">
+                              <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" v-model="content.tweetNullcast">FALSE
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label for="card_name" class="col-sm-4 control-label mt-2">Card Name</label>
+                        <div class="col-lg-10 col-xl-8">
+                          <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="content.name" />
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label for="card_website_title" class="col-sm-4 control-label mt-2">Card Website Title</label>
+                        <div class="col-lg-10 col-xl-8">
+                          <input type="text" name="card_website_title" placeholder="Enter website title" class="form-control" v-model="content.websiteTitle" />
                         </div>
                       </div>
                     </div>
@@ -360,7 +388,10 @@ export default {
         descriptionSet: '',
         brandname: '',
         imageSet: '',
-        videoSet: ''
+        videoSet: '',
+        tweetNullcast: false,
+        cardName: '',
+        websiteTitle: ''
       }],
       campaignName: '',
       setType: 'image',
@@ -528,7 +559,10 @@ export default {
         descriptionSet: '',
         brandname: '',
         imageSet: '',
-        videoSet: ''
+        videoSet: '',
+        tweetNullcast: false,
+        cardName: '',
+        websiteTitle: ''
       })
     },
 
