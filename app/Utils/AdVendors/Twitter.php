@@ -886,10 +886,20 @@ class Twitter extends Root implements AdVendorInterface
                 $card['name'] = $card['cardName'];
                 $card['websiteUrl'] = $card['targetUrl'];
 
+                $titles = [];
+
+                $title_creative_set = CreativeSet::find($card['titleSet']['id']);
+
+                if ($title_creative_set) {
+                    $titles = $title_creative_set->titleSets;
+                } else {
+                    throw('No creative set found.');
+                }
+
                 if ($card['type'] == 'IMAGE') {
                     $imges = [];
 
-                    $image_creative_set = CreativeSet::find($content['imageSet']['id']);
+                    $image_creative_set = CreativeSet::find($card['imageSet']['id']);
 
                     if ($image_creative_set) {
                         $images = $image_creative_set->imageSets;
@@ -903,15 +913,48 @@ class Twitter extends Root implements AdVendorInterface
 
                         $card_data = $api->createWebsiteCard($media->media_key, $card);
 
-                        foreach ($card['tweetTexts'] as $tweet_text) {
+                        foreach ($titles as $tweet_text) {
                             $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweet_text);
                             $promoted_tweet = $api->createPromotedTweet($line_item_data->getId(), $tweet_data);
+
+                            $db_ad = [
+                                'ad_id' => $promoted_tweet->getId(),
+                                'user_id' => $user_provider->user_id,
+                                'provider_id' => $user_provider->provider_id,
+                                'campaign_id' => $ad_group->campaign_id,
+                                'advertiser_id' => $ad_group->advertiser_id,
+                                'ad_group_id' => $ad_group->ad_group_id,
+                                'open_id' => $user_provider->open_id
+                            ];
+
+                            $db_ad->name = $promoted_tweet->getTweetId();
+                            $db_ad->status => $promoted_tweet->getEntityStatus();
+
+                            $db_ad->save();
+
+                            $db_ad->creativeSets()->detach();
+
+                            if ($title_creative_set) {
+                                $db_ad->creativeSets()->save($title_creative_set);
+                            }
+
+                            if ($description_creative_set) {
+                                $db_ad->creativeSets()->save($description_creative_set);
+                            }
+
+                            if ($video_creative_set) {
+                                $db_ad->creativeSets()->save($video_creative_set);
+                            }
+
+                            if ($image_creative_set) {
+                                $db_ad->creativeSets()->save($image_creative_set);
+                            }
                         }
                     }
                 } else {
                     $videos = [];
 
-                    $video_creative_set = CreativeSet::find($content['videoSet']['id']);
+                    $video_creative_set = CreativeSet::find($card['videoSet']['id']);
 
                     if ($video_creative_set) {
                         $videos = $video_creative_set->videoSets;
@@ -925,9 +968,42 @@ class Twitter extends Root implements AdVendorInterface
 
                         $card_data = $api->createVideoWebsiteCard($media->media_key, $card);
 
-                        foreach ($card['tweetTexts'] as $tweet_text) {
+                        foreach ($titles as $tweet_text) {
                             $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweet_text);
                             $promoted_tweet = $api->createPromotedTweet($line_item_data->getId(), $tweet_data);
+
+                            $db_ad = [
+                                'ad_id' => $promoted_tweet->getId(),
+                                'user_id' => $user_provider->user_id,
+                                'provider_id' => $user_provider->provider_id,
+                                'campaign_id' => $ad_group->campaign_id,
+                                'advertiser_id' => $ad_group->advertiser_id,
+                                'ad_group_id' => $ad_group->ad_group_id,
+                                'open_id' => $user_provider->open_id
+                            ];
+
+                            $db_ad->name = $promoted_tweet->getTweetId();
+                            $db_ad->status => $promoted_tweet->getEntityStatus();
+
+                            $db_ad->save();
+
+                            $db_ad->creativeSets()->detach();
+
+                            if ($title_creative_set) {
+                                $db_ad->creativeSets()->save($title_creative_set);
+                            }
+
+                            if ($description_creative_set) {
+                                $db_ad->creativeSets()->save($description_creative_set);
+                            }
+
+                            if ($video_creative_set) {
+                                $db_ad->creativeSets()->save($video_creative_set);
+                            }
+
+                            if ($image_creative_set) {
+                                $db_ad->creativeSets()->save($image_creative_set);
+                            }
                         }
                     }
                 }
