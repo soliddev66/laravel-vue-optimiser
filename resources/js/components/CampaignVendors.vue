@@ -207,10 +207,14 @@
       </div>
     </div>
 
-    <div class="d-flex justify-content-end mb-5" v-if="currentStep == 1">
-      <button type="button" class="btn btn-vendor mr-5" :disabled="!submitStep1State" @click="submitStep1">
-        Next <i class="fas fa-long-arrow-alt-right"></i>
-      </button>
+    <div class="row">
+      <div class="col">
+        <div class="d-flex justify-content-end mb-5" v-if="currentStep == 1">
+          <button type="button" class="btn btn-vendor mr-5" :disabled="!submitStep1State" @click="submitStep1">
+            Next <i class="fas fa-long-arrow-alt-right"></i>
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="modal fade creative-set-modal" id="creative-set-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">

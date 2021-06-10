@@ -928,7 +928,7 @@ class Twitter extends Root implements AdVendorInterface
                             ];
 
                             $db_ad->name = $promoted_tweet->getTweetId();
-                            $db_ad->status => $promoted_tweet->getEntityStatus();
+                            $db_ad->status = $promoted_tweet->getEntityStatus();
 
                             $db_ad->save();
 
@@ -983,7 +983,7 @@ class Twitter extends Root implements AdVendorInterface
                             ];
 
                             $db_ad->name = $promoted_tweet->getTweetId();
-                            $db_ad->status => $promoted_tweet->getEntityStatus();
+                            $db_ad->status = $promoted_tweet->getEntityStatus();
 
                             $db_ad->save();
 
