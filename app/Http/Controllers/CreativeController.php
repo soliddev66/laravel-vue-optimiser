@@ -38,19 +38,19 @@ class CreativeController extends Controller
         ]);
     }
 
-    public function storeCreativeSets($creativeSet, $data)
+    public function storeCreativeSets($creative_set, $data)
     {
         \Tinify\setKey(config('services.tinify.api_key'));
 
         foreach ($data['creativeSets'] as $set) {
-            if ($creativeSet->type == 1) {
-                $imageSet = new ImageSet;
+            if ($creative_set->type == 1) {
+                $image_set = new ImageSet;
 
-                $imageSet->image = $set['image'];
-                $imageSet->optimiser = $set['optimiser'];
+                $image_set->image = $set['image'];
+                $image_set->optimiser = $set['optimiser'];
 
                 if ($set['optimiser']) {
-                    $imageSet->hq_image = $set['hqImage'];
+                    $image_set->hq_image = $set['hqImage'];
 
                     $directory = explode('/', $set['hqImage']);
                     array_pop($directory);
@@ -74,15 +74,15 @@ class CreativeController extends Controller
                     }
 
                     if ($set['optimiser'] == 1) {
-                        $imageManager = new ImageManager();
+                        $image_manager = new ImageManager();
 
-                        $resized = $imageManager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(800, 800);
+                        $resized = $image_manager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(800, 800);
                         $resized->save(storage_path('app/public/images/creatives/800x800/') . $set['hqImage'], 100);
 
-                        $resized = $imageManager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(1200, 627);
+                        $resized = $image_manager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(1200, 627);
                         $resized->save(storage_path('app/public/images/creatives/1200x627/') . $set['hqImage'], 100);
 
-                        $resized = $imageManager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(1200, 628);
+                        $resized = $image_manager->make(storage_path('app/public/images/') . $set['hqImage'])->fit(1200, 628);
                         $resized->save(storage_path('app/public/images/creatives/1200x628/') . $set['hqImage'], 100);
                     } else {
                         $source = \Tinify\fromFile(storage_path('app/public/images/') . $set['hqImage']);
@@ -97,37 +97,37 @@ class CreativeController extends Controller
                         $resized->toFile(storage_path('app/public/images/creatives/1200x628/') . $set['hqImage']);
                     }
                 } else {
-                    $imageSet->hq_800x800_image = $set['hq800x800Image'];
-                    $imageSet->hq_1200x627_image = $set['hq1200x627Image'];
-                    $imageSet->hq_1200x628_image = $set['hq1200x628Image'];
+                    $image_set->hq_800x800_image = $set['hq800x800Image'];
+                    $image_set->hq_1200x627_image = $set['hq1200x627Image'];
+                    $image_set->hq_1200x628_image = $set['hq1200x628Image'];
                 }
 
-                $imageSet->save();
+                $image_set->save();
 
-                $creativeSet->imageSets()->save($imageSet);
-            } else if ($creativeSet->type == 2) {
-                $videoSet = new VideoSet;
+                $creative_set->imageSets()->save($image_set);
+            } else if ($creative_set->type == 2) {
+                $video_set = new VideoSet;
 
-                $videoSet->portrait_image = $set['portraitImage'];
-                $videoSet->landscape_image = $set['landscapeImage'];
-                $videoSet->video = $set['video'];
-                $videoSet->save();
+                $video_set->portrait_image = $set['portraitImage'];
+                $video_set->landscape_image = $set['landscapeImage'];
+                $video_set->video = $set['video'];
+                $video_set->save();
 
-                $creativeSet->videoSets()->save($videoSet);
-            } else if ($creativeSet->type == 3) {
-                $titleSet = new TitleSet;
+                $creative_set->videoSets()->save($video_set);
+            } else if ($creative_set->type == 3) {
+                $title_set = new TitleSet;
 
-                $titleSet->title = $set['title'];
-                $titleSet->save();
+                $title_set->title = $set['title'];
+                $title_set->save();
 
-                $creativeSet->titleSets()->save($titleSet);
-            } else if ($creativeSet->type == 4) {
-                $descriptionSet = new DescriptionSet;
+                $creative_set->titleSets()->save($title_set);
+            } else if ($creative_set->type == 4) {
+                $description_set = new DescriptionSet;
 
-                $descriptionSet->description = $set['description'];
-                $descriptionSet->save();
+                $description_set->description = $set['description'];
+                $description_set->save();
 
-                $creativeSet->descriptionSets()->save($descriptionSet);
+                $creative_set->descriptionSets()->save($description_set);
             }
         }
 
@@ -140,33 +140,33 @@ class CreativeController extends Controller
     {
         $data = $this->validateRequest();
 
-        $creativeSet = new CreativeSet;
-        $creativeSet->user_id = auth()->id();
-        $creativeSet->name = $data['creativeSetName'];
-        $creativeSet->type = $data['creativeSetType'] == 'image' ? 1 : ($data['creativeSetType'] == 'video' ? 2 : ($data['creativeSetType'] == 'title' ? 3 : 4));
-        $creativeSet->save();
+        $creative_set = new CreativeSet;
+        $creative_set->user_id = auth()->id();
+        $creative_set->name = $data['creativeSetName'];
+        $creative_set->type = $data['creativeSetType'] == 'image' ? 1 : ($data['creativeSetType'] == 'video' ? 2 : ($data['creativeSetType'] == 'title' ? 3 : 4));
+        $creative_set->save();
 
-        $this->storeCreativeSets($creativeSet, $data);
+        $this->storeCreativeSets($creative_set, $data);
 
         return [];
     }
 
-    public function edit(CreativeSet $creativeSet)
+    public function edit(CreativeSet $creative_set)
     {
-        if (Gate::denies('modifiable', $creativeSet)) {
+        if (Gate::denies('modifiable', $creative_set)) {
             return response()->json([
                 'errors' => ['Not found']
             ], 404);
         }
 
-        if ($creativeSet->type == 1) {
-            $creativeSet->sets = $creativeSet->imageSets()->get();
-        } else if ($creativeSet->type == 2) {
-            $creativeSet->sets = $creativeSet->videoSets()->get();
-        } else if ($creativeSet->type == 3) {
-            $creativeSet->sets = $creativeSet->titleSets()->get();
+        if ($creative_set->type == 1) {
+            $creative_set->sets = $creative_set->imageSets()->get();
+        } else if ($creative_set->type == 2) {
+            $creative_set->sets = $creative_set->videoSets()->get();
+        } else if ($creative_set->type == 3) {
+            $creative_set->sets = $creative_set->titleSets()->get();
         } else {
-            $creativeSet->sets = $creativeSet->descriptionSets()->get();
+            $creative_set->sets = $creative_set->descriptionSets()->get();
         }
 
         \Tinify\setKey(config('services.tinify.api_key'));
@@ -175,15 +175,15 @@ class CreativeController extends Controller
         $compressed = \Tinify\compressionCount();
 
         return view('creatives.form', [
-            'type' => $creativeSet->type == 1 ? 'image' : ($creativeSet->type == 2 ? 'video' : ($creativeSet->type == 3 ? 'title' : 'description')),
+            'type' => $creative_set->type == 1 ? 'image' : ($creative_set->type == 2 ? 'video' : ($creative_set->type == 3 ? 'title' : 'description')),
             'compressed' => $compressed,
-            'creativeSet' => $creativeSet
+            'creativeSet' => $creative_set
         ]);
     }
 
-    public function update(CreativeSet $creativeSet)
+    public function update(CreativeSet $creative_set)
     {
-        if (Gate::denies('modifiable', $creativeSet)) {
+        if (Gate::denies('modifiable', $creative_set)) {
             return response()->json([
                 'errors' => ['Not found']
             ], 404);
@@ -191,27 +191,27 @@ class CreativeController extends Controller
 
         $data = $this->validateRequest();
 
-        $creativeSet->name = $data['creativeSetName'];
-        $creativeSet->save();
+        $creative_set->name = $data['creativeSetName'];
+        $creative_set->save();
 
-        switch ($creativeSet->type) {
+        switch ($creative_set->type) {
             case 1:
-                $creativeSet->imageSets()->delete();
+                $creative_set->imageSets()->delete();
                 break;
             case 2:
-                $creativeSet->videoSets()->delete();
+                $creative_set->videoSets()->delete();
                 break;
             case 3:
-                $creativeSet->titleSets()->delete();
+                $creative_set->titleSets()->delete();
                 break;
             case 4:
-                $creativeSet->descriptionSets()->delete();
+                $creative_set->descriptionSets()->delete();
                 break;
         }
 
-        $creativeSet->creativeSetSets()->delete();
+        $creative_set->creativeSetSets()->delete();
 
-        $this->storeCreativeSets($creativeSet, $data);
+        $this->storeCreativeSets($creative_set, $data);
 
         return [];
     }
@@ -258,37 +258,37 @@ class CreativeController extends Controller
         ]);
     }
 
-    public function titleSets(CreativeSet $creativeSet)
+    public function titleSets(CreativeSet $creative_set)
     {
         return response()->json([
-            'sets' => $creativeSet->titleSets
+            'sets' => $creative_set->titleSets
         ]);
     }
 
-    public function imageSets(CreativeSet $creativeSet)
+    public function imageSets(CreativeSet $creative_set)
     {
         return response()->json([
-            'sets' => $creativeSet->imageSets
+            'sets' => $creative_set->imageSets
         ]);
     }
 
-    public function videoSets(CreativeSet $creativeSet)
+    public function videoSets(CreativeSet $creative_set)
     {
         return response()->json([
-            'sets' => $creativeSet->videoSets
+            'sets' => $creative_set->videoSets
         ]);
     }
 
-    public function descriptionSets(CreativeSet $creativeSet)
+    public function descriptionSets(CreativeSet $creative_set)
     {
         return response()->json([
-            'sets' => $creativeSet->descriptionSets
+            'sets' => $creative_set->descriptionSets
         ]);
     }
 
-    public function delete(CreativeSet $creativeSet)
+    public function delete(CreativeSet $creative_set)
     {
-        if (Gate::denies('modifiable', $creativeSet)) {
+        if (Gate::denies('modifiable', $creative_set)) {
             return response()->json([
                 'errors' => ['Not found']
             ], 404);
@@ -297,12 +297,12 @@ class CreativeController extends Controller
         DB::beginTransaction();
 
         try {
-            $creativeSet->imageSets()->delete();
-            $creativeSet->videoSets()->delete();
-            $creativeSet->titleSets()->delete();
-            $creativeSet->descriptionSets()->delete();
-            $creativeSet->creativeSetSets()->delete();
-            $creativeSet->delete();
+            $creative_set->imageSets()->delete();
+            $creative_set->videoSets()->delete();
+            $creative_set->titleSets()->delete();
+            $creative_set->descriptionSets()->delete();
+            $creative_set->creativeSetSets()->delete();
+            $creative_set->delete();
 
             DB::commit();
         } catch (Exception $e) {

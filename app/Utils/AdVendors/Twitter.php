@@ -883,19 +883,52 @@ class Twitter extends Root implements AdVendorInterface
             ]);
 
             foreach (request('contents') as $card) {
-                foreach ($card['media'] as $media_item) {
-                    $media = $this->api()->uploadMedia($promotable_users, $media_item['media']);
-                    $media_library = $this->api()->createMediaLibrary($media->media_key);
+                $card['name'] = $card['cardName'];
+                $card['websiteUrl'] = $card['targetUrl'];
 
-                    if ($card['type'] == 'IMAGE') {
-                        $card_data = $api->createWebsiteCard($media->media_key, $card);
+                if ($card['type'] == 'IMAGE') {
+                    $imges = [];
+
+                    $image_creative_set = CreativeSet::find($content['imageSet']['id']);
+
+                    if ($image_creative_set) {
+                        $images = $image_creative_set->imageSets;
                     } else {
-                        $card_data = $api->createVideoWebsiteCard($media->media_key, $card);
+                        throw('No creative set found.');
                     }
 
-                    foreach ($card['tweetTexts'] as $tweet_text) {
-                        $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweet_text);
-                        $promoted_tweet = $api->createPromotedTweet($line_item_data->getId(), $tweet_data);
+                    foreach ($imges as $image) {
+                        $media = $this->api()->uploadMedia($promotable_users, $image['hq_800x800_image']);
+                        $media_library = $this->api()->createMediaLibrary($media->media_key);
+
+                        $card_data = $api->createWebsiteCard($media->media_key, $card);
+
+                        foreach ($card['tweetTexts'] as $tweet_text) {
+                            $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweet_text);
+                            $promoted_tweet = $api->createPromotedTweet($line_item_data->getId(), $tweet_data);
+                        }
+                    }
+                } else {
+                    $videos = [];
+
+                    $video_creative_set = CreativeSet::find($content['videoSet']['id']);
+
+                    if ($video_creative_set) {
+                        $videos = $video_creative_set->videoSets;
+                    } else {
+                        throw('No creative set found.');
+                    }
+
+                    foreach ($videos as $video) {
+                        $media = $this->api()->uploadMedia($promotable_users, $video['video']);
+                        $media_library = $this->api()->createMediaLibrary($media->media_key);
+
+                        $card_data = $api->createVideoWebsiteCard($media->media_key, $card);
+
+                        foreach ($card['tweetTexts'] as $tweet_text) {
+                            $tweet_data = $api->createTweet($card_data, $promotable_users, $card, $tweet_text);
+                            $promoted_tweet = $api->createPromotedTweet($line_item_data->getId(), $tweet_data);
+                        }
                     }
                 }
             }
