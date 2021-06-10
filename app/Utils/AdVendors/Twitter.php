@@ -160,8 +160,31 @@ class Twitter extends Root implements AdVendorInterface
         try {
             $promotable_users = $this->api()->getPromotableUsers();
 
-            $campaign_data = $api->saveCampaign();
-            $line_item_data = $api->saveLineItem($campaign_data);
+            $campaign_data = $api->saveCampaign([
+                'fundingInstrument' => request('fundingInstrument'),
+                'campaignDailyBudgetAmountLocalMicro' => request('campaignDailyBudgetAmountLocalMicro'),
+                'campaignName' => request('campaignName'),
+                'campaignStatus' => request('campaignStatus'),
+                'campaignStartTime' => request('campaignStartTime'),
+                'campaignEndTime' => request('campaignEndTime'),
+                'campaignTotalBudgetAmountLocalMicro' => request('campaignTotalBudgetAmountLocalMicro')
+            ]);
+            $line_item_data = $api->saveLineItem($campaign_data, [
+                'adGroupName' => request('adGroupName'),
+                'adGroupPlacements' => request('adGroupPlacements'),
+                'adGroupObjective' => request('adGroupObjective'),
+                'adGroupStatus' => request('adGroupStatus'),
+                'adGroupCategories' => request('adGroupCategories'),
+                'adGroupAdvertiserDomain' => request('adGroupAdvertiserDomain'),
+                'adGroupBidAmountLocalMicro' => request('adGroupBidAmountLocalMicro'),
+                'adGroupStartTime' => request('adGroupStartTime'),
+                'adGroupEndTime' => request('adGroupEndTime'),
+                'adGroupAutomaticallySelectBid' => request('adGroupAutomaticallySelectBid'),
+                'adGroupBidType' => request('adGroupBidType'),
+                'adGroupTotalBudgetAmountLocalMicro' => request('adGroupTotalBudgetAmountLocalMicro'),
+                'adGroupBidUnit' => request('adGroupBidUnit'),
+                'adGroupChargeBy' => request('adGroupChargeBy')
+            ]);
 
             foreach (request('cards') as $card) {
                 foreach ($card['media'] as $media_item) {
@@ -183,7 +206,7 @@ class Twitter extends Root implements AdVendorInterface
 
             Helper::pullCampaign();
         } catch (Exception $e) {
-            $this->rollback($campaign_data ?? null, $line_item_data ?? null, $card_data ?? null);
+            $this->rollback($campaign_data ?? null, $line_item_data ?? null, $card_data ?? null, request('provider'), request('account'), request('advertiser'));
             if ($e instanceof TwitterAdsException && is_array($e->getErrors())) {
                 return [
                     'errors' => [$e->getErrors()[0]->message]
@@ -198,18 +221,18 @@ class Twitter extends Root implements AdVendorInterface
         return [];
     }
 
-    private function rollback($campaign_data = null, $line_item_data = null, $card_data = null)
+    private function rollback($campaign_data, $line_item_data, $card_data, $provider, $account, $advertiser)
     {
         if ($campaign_data) {
-            DeleteCampaign::dispatch(auth()->user(), $campaign_data->getId(), request('provider'), request('account'), request('advertiser'))->onQueue('highest');
+            DeleteCampaign::dispatch(auth()->user(), $campaign_data->getId(), $provider, $account, $advertiser)->onQueue('highest');
         }
 
         if ($line_item_data) {
-            DeleteAdGroup::dispatch(auth()->user(), $line_item_data->getId(), request('provider'), request('account'), request('advertiser'))->onQueue('highest');
+            DeleteAdGroup::dispatch(auth()->user(), $line_item_data->getId(), $provider, $account, $advertiser)->onQueue('highest');
         }
 
         if ($card_data) {
-            DeleteCard::dispatch(auth()->user(), $card_data->getId(), request('provider'), request('account'), request('advertiser'))->onQueue('highest');
+            DeleteCard::dispatch(auth()->user(), $card_data->getId(), $provider, $account, $advertiser)->onQueue('highest');
         }
     }
 
@@ -218,8 +241,31 @@ class Twitter extends Root implements AdVendorInterface
         try {
             $api = new TwitterAPI(auth()->user()->providers()->where('provider_id', $campaign->provider_id)->where('open_id', $campaign->open_id)->first(), $campaign->advertiser_id);
 
-            $campaign_data = $api->saveCampaign($campaign->campaign_id);
-            $line_item_data = $api->saveLineItem($campaign_data, request('adGroupID'));
+            $campaign_data = $api->saveCampaign([
+                'fundingInstrument' => request('fundingInstrument'),
+                'campaignDailyBudgetAmountLocalMicro' => request('campaignDailyBudgetAmountLocalMicro'),
+                'campaignName' => request('campaignName'),
+                'campaignStatus' => request('campaignStatus'),
+                'campaignStartTime' => request('campaignStartTime'),
+                'campaignEndTime' => request('campaignEndTime'),
+                'campaignTotalBudgetAmountLocalMicro' => request('campaignTotalBudgetAmountLocalMicro')
+            ], $campaign->campaign_id);
+            $line_item_data = $api->saveLineItem($campaign_data, [
+                'adGroupName' => request('adGroupName'),
+                'adGroupPlacements' => request('adGroupPlacements'),
+                'adGroupObjective' => request('adGroupObjective'),
+                'adGroupStatus' => request('adGroupStatus'),
+                'adGroupCategories' => request('adGroupCategories'),
+                'adGroupAdvertiserDomain' => request('adGroupAdvertiserDomain'),
+                'adGroupBidAmountLocalMicro' => request('adGroupBidAmountLocalMicro'),
+                'adGroupStartTime' => request('adGroupStartTime'),
+                'adGroupEndTime' => request('adGroupEndTime'),
+                'adGroupAutomaticallySelectBid' => request('adGroupAutomaticallySelectBid'),
+                'adGroupBidType' => request('adGroupBidType'),
+                'adGroupTotalBudgetAmountLocalMicro' => request('adGroupTotalBudgetAmountLocalMicro'),
+                'adGroupBidUnit' => request('adGroupBidUnit'),
+                'adGroupChargeBy' => request('adGroupChargeBy')
+            ], request('adGroupID'));
 
             if (!request('saveCard')) {
                 $promotable_users = $this->api()->getPromotableUsers();
@@ -810,10 +856,33 @@ class Twitter extends Root implements AdVendorInterface
         try {
             $promotable_users = $this->api()->getPromotableUsers();
 
-            $campaign_data = $api->saveCampaign();
-            $line_item_data = $api->saveLineItem($campaign_data);
+            $campaign_data = $api->saveCampaign([
+                'fundingInstrument' => $vendor['fundingInstrument'],
+                'campaignDailyBudgetAmountLocalMicro' => $vendor['campaignDailyBudgetAmountLocalMicro'],
+                'campaignName' => request('campaignName'),
+                'campaignStatus' => $vendor['campaignStatus'],
+                'campaignStartTime' => $vendor['campaignStartTime'],
+                'campaignEndTime' => $vendor['campaignEndTime'],
+                'campaignTotalBudgetAmountLocalMicro' => $vendor['campaignTotalBudgetAmountLocalMicro']
+            ]);
+            $line_item_data = $api->saveLineItem($campaign_data, [
+                'adGroupName' => $vendor['adGroupName'],
+                'adGroupPlacements' => $vendor['adGroupPlacements'],
+                'adGroupObjective' => $vendor['adGroupObjective'],
+                'adGroupStatus' => $vendor['adGroupStatus'],
+                'adGroupCategories' => $vendor['adGroupCategories'],
+                'adGroupAdvertiserDomain' => $vendor['adGroupAdvertiserDomain'],
+                'adGroupBidAmountLocalMicro' => $vendor['adGroupBidAmountLocalMicro'],
+                'adGroupStartTime' => $vendor['adGroupStartTime'],
+                'adGroupEndTime' => $vendor['adGroupEndTime'],
+                'adGroupAutomaticallySelectBid' => $vendor['adGroupAutomaticallySelectBid'],
+                'adGroupBidType' => $vendor['adGroupBidType'],
+                'adGroupTotalBudgetAmountLocalMicro' => $vendor['adGroupTotalBudgetAmountLocalMicro'],
+                'adGroupBidUnit' => $vendor['adGroupBidUnit'],
+                'adGroupChargeBy' => $vendor['adGroupChargeBy']
+            ]);
 
-            foreach (request('cards') as $card) {
+            foreach (request('contents') as $card) {
                 foreach ($card['media'] as $media_item) {
                     $media = $this->api()->uploadMedia($promotable_users, $media_item['media']);
                     $media_library = $this->api()->createMediaLibrary($media->media_key);
@@ -833,7 +902,7 @@ class Twitter extends Root implements AdVendorInterface
 
             Helper::pullCampaign();
         } catch (Exception $e) {
-            $this->rollback($campaign_data ?? null, $line_item_data ?? null, $card_data ?? null);
+            $this->rollback($campaign_data ?? null, $line_item_data ?? null, $card_data ?? null, 3, $vendor['selectedAccount'], $vendor['selectedAdvertiser']);
 
             if ($e instanceof TwitterAdsException && is_array($e->getErrors())) {
                 event(new \App\Events\CampaignVendorCreated(auth()->id(), [
