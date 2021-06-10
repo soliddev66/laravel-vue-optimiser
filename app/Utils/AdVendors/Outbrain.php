@@ -848,7 +848,7 @@ class Outbrain extends Root implements AdVendorInterface
             }
 
             try {
-                foreach ($vendor['contents'] as $content) {
+                foreach (request('contents') as $content) {
                     $titles = [];
 
                     $title_creative_set = null;

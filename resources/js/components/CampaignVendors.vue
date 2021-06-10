@@ -548,9 +548,14 @@ export default {
       }
 
       window.Echo.private('campaign.' + this.userId).listen('CampaignVendorCreated', response => {
-        console.log('Processed.');
-
         processedTime ++
+        console.log('Processed.', totalVendor, processedTime);
+
+        if (response.data.success) {
+          this.$dialog.alert('Save campaign for ' + response.data.vendorName + ' successfully.');
+        } else {
+          alert(response.data.errors[0]);
+        }
 
         if (processedTime == totalVendor) {
           this.isLoading = false
@@ -558,12 +563,6 @@ export default {
           this.$dialog.alert('All vendors have been processed!').then(() => {
             window.location = '/campaigns';
           });
-        } else {
-          if (response.data.success) {
-            this.$dialog.alert('Save campaign for ' + response.data.vendorName + ' successfully.');
-          } else {
-            alert(response.data.errors[0]);
-          }
         }
       });
 
