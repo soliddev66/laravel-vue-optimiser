@@ -276,6 +276,7 @@ return [
         [
             'text' => 'Rules',
             'url'  => 'rules',
+            'active' => ['rules*'],
             'icon' => 'fas fa-puzzle-piece',
         ],
         [

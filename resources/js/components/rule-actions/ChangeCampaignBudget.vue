@@ -7,7 +7,7 @@
             <div class="form-group row">
               <label for="" class="col-sm-2 control-label">Campaign</label>
               <div class="col-sm-10">
-                <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" :settings="{ placeholder: 'Select campaign' }" />
+                <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" :settings="{ templateSelection: formatState, templateResult: formatState, multiple: false, placeholder: 'Select Campaign' }" />
               </div>
             </div>
             <div class="form-group">
@@ -24,7 +24,6 @@
                 </select>
               </div>
             </div>
-
             <div class="form-group">
               <div class="input-group">
                 <div class="input-group-prepend">
@@ -36,7 +35,6 @@
                 </div>
               </div>
             </div>
-
             <div class="form-group">
               <div class="input-group">
                 <div class="input-group-prepend">
@@ -62,6 +60,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import _ from 'lodash'
 import Select2 from 'v-select2-component'
@@ -85,18 +84,16 @@ export default {
     Loading,
     Select2,
   },
-  computed: {
-  },
+  computed: {},
   mounted() {
     this.loadCampaigns()
   },
-  watch: {
-  },
+  watch: {},
   data() {
     let postData = this.submitData
 
     if (!postData.ruleCampaigns) {
-      postData.ruleCampaigns = [{id: null, data: {budget: '', budgetSetType: 1, budgetUnit: 1, budgetMin: '', budgetMax: ''}}]
+      postData.ruleCampaigns = [{ id: null, data: { budget: '', budgetSetType: 1, budgetUnit: 1, budgetMin: '', budgetMax: '' } }]
     }
 
     return {
@@ -108,16 +105,26 @@ export default {
     }
   },
   methods: {
+    formatState(state) {
+      if (!state.id) {
+        return state.text;
+      }
+      var $state = $(
+        '<span><img src="' + state.icon + '" width="20px" height="20px" /> ' + state.text + '</span>'
+      );
+      return $state;
+    },
     loadCampaigns() {
       this.isLoading = true
       axios.get('/campaigns/user-campaigns').then(response => {
         this.campaignSelections = response.data.campaigns
-        .map(function (campaign) {
-          return {
-            id: campaign.id,
-            text: campaign.name
-          };
-        })
+          .map(function(campaign) {
+            return {
+              id: campaign.id,
+              text: campaign.name,
+              icon: campaign.icon
+            };
+          })
       }).catch(err => {
         console.log(err)
       }).finally(() => {
@@ -125,7 +132,7 @@ export default {
       })
     },
     addRuleCampaign() {
-      this.ruleCampaigns.push({id: null, data: {budget: '', budgetSetType: 1, budgetUnit: 1, budgetMin: '', budgetMax: ''}})
+      this.ruleCampaigns.push({ id: null, data: { budget: '', budgetSetType: 1, budgetUnit: 1, budgetMin: '', budgetMax: '' } })
     },
     removeRuleCampaign(index) {
       this.ruleCampaigns.splice(index, 1);

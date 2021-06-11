@@ -10,7 +10,7 @@
             <div class="form-group row">
               <label for="" class="col-sm-2 control-label">Campaign</label>
               <div class="col-sm-10">
-                <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" @change="ruleCampaignSelected(ruleCampaign.id)" />
+                <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" :settings="{ allowClear:true, templateSelection: formatState, templateResult: formatState, multiple: false, placeholder: 'Select Campaign' }" @change="ruleCampaignSelected(ruleCampaign.id)" />
               </div>
             </div>
             <div class="form-group row">
@@ -33,6 +33,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import _ from 'lodash'
 import Select2 from 'v-select2-component'
@@ -56,18 +57,16 @@ export default {
     Loading,
     Select2,
   },
-  computed: {
-  },
+  computed: {},
   mounted() {
     this.loadCampaigns()
   },
-  watch: {
-  },
+  watch: {},
   data() {
     let postData = this.submitData
 
     if (!postData.ruleCampaigns) {
-      postData.ruleCampaigns = [{id: null, data: {widgets: []}}]
+      postData.ruleCampaigns = [{ id: null, data: { widgets: [] } }]
     }
 
     return {
@@ -80,16 +79,26 @@ export default {
     }
   },
   methods: {
+    formatState(state) {
+      if (!state.id) {
+        return state.text;
+      }
+      var $state = $(
+        '<span><img src="' + state.icon + '" width="20px" height="20px" /> ' + state.text + '</span>'
+      );
+      return $state;
+    },
     loadCampaigns() {
       this.isLoading = true
       axios.get('/campaigns/user-campaigns').then(response => {
         this.campaignSelections = response.data.campaigns
-        .map(function (campaign) {
-          return {
-            id: campaign.id,
-            text: campaign.name
-          };
-        })
+          .map(function(campaign) {
+            return {
+              id: campaign.id,
+              text: campaign.name,
+              icon: campaign.icon
+            };
+          })
       }).catch(err => {
         console.log(err)
       }).finally(() => {
@@ -97,7 +106,7 @@ export default {
       })
     },
     addRuleCampaign() {
-      this.ruleCampaigns.push({id: null, data: {widgets: []}})
+      this.ruleCampaigns.push({ id: null, data: { widgets: [] } })
     },
     removeRuleCampaign(index) {
       this.ruleCampaigns.splice(index, 1);

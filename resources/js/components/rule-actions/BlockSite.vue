@@ -7,12 +7,13 @@
       <div class="form-group row">
         <label for="" class="col-sm-2 control-label">Campaigns</label>
         <div class="col-sm-10">
-          <select2 name="campaigns" v-model="postData.ruleCampaigns" :options="campaignSelections" :settings="{ multiple: true }" />
+          <select2 name="campaigns" v-model="postData.ruleCampaigns" :options="campaignSelections" :settings="{ allowClear:true, templateSelection: formatState, templateResult: formatState, multiple: true, placeholder: 'Select Campaigns' }" />
         </div>
       </div>
     </div>
   </div>
 </template>
+
 <script>
 import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
@@ -39,13 +40,11 @@ export default {
     Loading,
     Select2,
   },
-  computed: {
-  },
+  computed: {},
   mounted() {
     this.loadCampaigns()
   },
-  watch: {
-  },
+  watch: {},
   data() {
     return {
       isLoading: false,
@@ -55,16 +54,26 @@ export default {
     }
   },
   methods: {
+    formatState(state) {
+      if (!state.id) {
+        return state.text;
+      }
+      var $state = $(
+        '<span><img src="' + state.icon + '" width="20px" height="20px" /> ' + state.text + '</span>'
+      );
+      return $state;
+    },
     loadCampaigns() {
       this.isLoading = true
       axios.get('/campaigns/user-campaigns').then(response => {
         this.campaignSelections = response.data.campaigns
-        .map(function (campaign) {
-          return {
-            id: campaign.id,
-            text: campaign.name
-          };
-        })
+          .map(function(campaign) {
+            return {
+              id: campaign.id,
+              text: campaign.name,
+              icon: campaign.icon
+            };
+          })
       }).catch(err => {
         console.log(err)
       }).finally(() => {

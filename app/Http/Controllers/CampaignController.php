@@ -37,7 +37,7 @@ class CampaignController extends Controller
     public function userCampaigns()
     {
         return response()->json([
-            'campaigns' => auth()->user()->campaigns()->select(DB::raw('MAX(id) as id'), 'campaign_id', 'provider_id', DB::raw('MAX(name) as name'))->groupBy('campaign_id')->groupBy('provider_id')->get()
+            'campaigns' => auth()->user()->campaigns()->select(DB::raw('MAX(providers.icon) as icon'), DB::raw('MAX(campaigns.id) as id'), 'campaign_id', 'provider_id', DB::raw('MAX(name) as name'))->leftJoin('providers', 'providers.id', '=', 'campaigns.provider_id')->groupBy('campaign_id')->groupBy('provider_id')->get()
         ]);
     }
 
