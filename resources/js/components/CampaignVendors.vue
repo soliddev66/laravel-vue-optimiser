@@ -5,9 +5,9 @@
     </div>
 
     <div class="row justify-content-center">
-      <div class="col vendors mt-3" v-if="currentStep == 1">
-        <div class="row vendor" v-for="vendor in vendors" :key="vendor.id">
-          <div class="col">
+      <div class="col" v-if="currentStep == 1">
+        <div class="row">
+          <div class="col-md-6 col-lg-4 vendor mt-3" v-for="vendor in vendors" :key="vendor.id">
             <div class="card" v-bind:class="{active: vendor.selected}" @click="vendorClick($event, vendor)">
               <div class="card-body">
                 <img :src="vendor.icon" alt="" width="40">
@@ -600,9 +600,7 @@ export default {
         processedTime ++
         console.log('Processed.', totalVendor, processedTime);
 
-        if (response.data.success) {
-          this.$dialog.alert('Save campaign for ' + response.data.vendorName + ' successfully.');
-        } else {
+        if (!response.data.success) {
           alert(response.data.errors[0]);
         }
 
@@ -642,8 +640,7 @@ export default {
   color: #344eb4;
 }
 
-.vendors {
-  max-width: 350px;
+.vendor {
   cursor: pointer;
 }
 
