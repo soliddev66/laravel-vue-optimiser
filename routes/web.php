@@ -83,15 +83,15 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
 Route::group(['middleware' => 'auth', 'prefix' => 'creatives'], function() {
     Route::get('/', [App\Http\Controllers\CreativeController::class, 'index'])->name('creatives.index');
     Route::get('/data', [App\Http\Controllers\CreativeController::class, 'data'])->name('creatives.data');
-    Route::get('/title-sets/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'titleSets'])->name('creatives.titleSets');
-    Route::get('/image-sets/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'imageSets'])->name('creatives.imageSets');
-    Route::get('/video-sets/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'videoSets'])->name('creatives.videoSets');
-    Route::get('/description-sets/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'descriptionSets'])->name('creatives.descriptionSets');
+    Route::get('/title-sets/{creative_set}', [App\Http\Controllers\CreativeController::class, 'titleSets'])->name('creatives.titleSets');
+    Route::get('/image-sets/{creative_set}', [App\Http\Controllers\CreativeController::class, 'imageSets'])->name('creatives.imageSets');
+    Route::get('/video-sets/{creative_set}', [App\Http\Controllers\CreativeController::class, 'videoSets'])->name('creatives.videoSets');
+    Route::get('/description-sets/{creative_set}', [App\Http\Controllers\CreativeController::class, 'descriptionSets'])->name('creatives.descriptionSets');
     Route::get('/create', [App\Http\Controllers\CreativeController::class, 'create'])->name('creatives.create');
-    Route::get('/edit/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'edit'])->name('creatives.edit');
-    Route::post('/delete/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'delete'])->name('creatives.delete');
+    Route::get('/edit/{creative_set}', [App\Http\Controllers\CreativeController::class, 'edit'])->name('creatives.edit');
+    Route::post('/delete/{creative_set}', [App\Http\Controllers\CreativeController::class, 'delete'])->name('creatives.delete');
     Route::post('/', [App\Http\Controllers\CreativeController::class, 'store'])->name('creatives.store');
-    Route::post('/update/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'update'])->name('creatives.update');
+    Route::post('/update/{creative_set}', [App\Http\Controllers\CreativeController::class, 'update'])->name('creatives.update');
 });
 
 Route::post('user-providers', [\App\Http\Controllers\UserProviderController::class, 'store'])->name('userProviders.store');

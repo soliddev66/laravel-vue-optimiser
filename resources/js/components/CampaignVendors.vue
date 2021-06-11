@@ -66,111 +66,131 @@
             <div v-if="currentStep == 4">
               <fieldset class="mb-3 p-3 rounded border" v-for="(content, index) in contents" :key="index">
                 <div class="row">
-                    <div class="col-sm-7">
-                      <div class="form-group row">
-                        <label for="title" class="col-sm-4 control-label mt-2">Title Set</label>
-                        <div class="col-sm-8">
-                          <button type="button" class="btn btn-primary" @click="loadCreativeSet('title', index)">Load Set</button>
-                          <span v-if="content.titleSet.id" class="selected-set">{{ content.titleSet.name }}<span class="close" @click="removeTitleSet(index)"><i class="fas fa-times"></i></span></span>
-                        </div>
+                  <div class="col-sm-7">
+                    <div class="form-group row">
+                      <label for="title" class="col-sm-4 control-label mt-2">Title Set</label>
+                      <div class="col-sm-8">
+                        <button type="button" class="btn btn-primary" @click="loadCreativeSet('title', index)">Load Set</button>
+                        <span v-if="content.titleSet.id" class="selected-set">{{ content.titleSet.name }}<span class="close" @click="removeTitleSet(index)"><i class="fas fa-times"></i></span></span>
                       </div>
-                      <div class="form-group row">
-                        <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name / Principal</label>
-                        <div class="col-sm-8">
-                          <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" />
-                        </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name / Principal</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" />
                       </div>
-                      <div class="form-group row">
-                        <label for="description" class="col-sm-4 control-label mt-2">Description Set</label>
-                        <div class="col-sm-8">
-                          <button class="btn btn-primary" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('description', index)">Load from Sets</button>
-                          <span v-if="content.descriptionSet.id" class="selected-set">{{ content.descriptionSet.name }}<span class="close" @click="removeDescriptionSet(index)"><i class="fas fa-times"></i></span></span>
-                        </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="description" class="col-sm-4 control-label mt-2">Description Set</label>
+                      <div class="col-sm-8">
+                        <button class="btn btn-primary" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('description', index)">Load from Sets</button>
+                        <span v-if="content.descriptionSet.id" class="selected-set">{{ content.descriptionSet.name }}<span class="close" @click="removeDescriptionSet(index)"><i class="fas fa-times"></i></span></span>
                       </div>
+                    </div>
 
-                      <div class="form-group row">
-                        <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
-                        <div class="col-sm-8">
-                          <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" />
-                          <small class="text-danger" v-if="content.displayUrl && !validURL(content.displayUrl)">URL is invalid. You might need http/https at the beginning.</small>
-                        </div>
+                    <div class="form-group row">
+                      <label for="display_url" class="col-sm-4 control-label mt-2">Display Url</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="display_url" placeholder="Enter a url" class="form-control" v-model="content.displayUrl" />
+                        <small class="text-danger" v-if="content.displayUrl && !validURL(content.displayUrl)">URL is invalid. You might need http/https at the beginning.</small>
                       </div>
-                      <div class="form-group row">
-                        <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
-                        <div class="col-sm-8">
-                          <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" />
-                          <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
-                        </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
+                      <div class="col-sm-8">
+                        <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" />
+                        <small class="text-danger" v-if="content.targetUrl && !validURL(content.targetUrl)">URL is invalid. You might need http/https at the beginning.</small>
                       </div>
+                    </div>
 
-                      <div class="form-group row">
-                        <label for="ad_type" class="col-sm-4 control-label mt-2">Ad Type</label>
-                        <div class="col-sm-8">
-                          <div class="btn-group btn-group-toggle">
-                            <label class="btn bg-olive" :class="{ active: content.adType === 'IMAGE' }">
-                              <input type="radio" name="ad_type" autocomplete="off" value="IMAGE" v-model="content.adType"> IMAGE
-                            </label>
-                            <label class="btn bg-olive" :class="{ active: content.adType === 'VIDEO' }">
-                              <input type="radio" name="ad_type" autocomplete="off" value="VIDEO" v-model="content.adType"> VIDEO
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div v-if="content.adType == 'IMAGE'">
-                        <div class="form-group row">
-                          <label for="image_hq_url" class="col-sm-4 control-label mt-2">Image Set</label>
-                          <div class="col">
-                            <button class="btn btn-primary" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
-                            <span v-if="content.imageSet.id" class="selected-set">{{ content.imageSet.name }}<span class="close" @click="removeImageSet(index)"><i class="fas fa-times"></i></span></span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div v-if="content.adType == 'VIDEO'">
-                        <div class="form-group row">
-                          <label for="image_hq_url" class="col-sm-4 control-label mt-2">Video Set</label>
-                          <div class="col">
-                            <button class="btn btn-primary" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('video', index)">Load from Sets</button>
-                            <span v-if="content.videoSet.id" class="selected-set">{{ content.videoSet.name }}<span class="close" @click="removeVideoSet(index)"><i class="fas fa-times"></i></span></span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="form-group row">
-                        <label for="tweet_nullcast" class="col-sm-4 control-label mt-2">Tweet Nullcast</label>
-                        <div class="col-lg-4 col-xl-3">
-                          <div class="btn-group btn-group-toggle">
-                            <label class="btn bg-olive" :class="{ active: content.tweetNullcast }">
-                              <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" v-model="content.tweetNullcast">TRUE
-                            </label>
-                            <label class="btn bg-olive" :class="{ active: !content.tweetNullcast }">
-                              <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" v-model="content.tweetNullcast">FALSE
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="form-group row">
-                        <label for="card_name" class="col-sm-4 control-label mt-2">Card Name</label>
-                        <div class="col-lg-10 col-xl-8">
-                          <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="content.name" />
-                        </div>
-                      </div>
-
-                      <div class="form-group row">
-                        <label for="card_website_title" class="col-sm-4 control-label mt-2">Card Website Title</label>
-                        <div class="col-lg-10 col-xl-8">
-                          <input type="text" name="card_website_title" placeholder="Enter website title" class="form-control" v-model="content.websiteTitle" />
+                    <div class="form-group row">
+                      <label for="ad_type" class="col-sm-4 control-label mt-2">Ad Type</label>
+                      <div class="col-sm-8">
+                        <div class="btn-group btn-group-toggle">
+                          <label class="btn bg-olive" :class="{ active: content.adType === 'IMAGE' }">
+                            <input type="radio" name="ad_type" autocomplete="off" value="IMAGE" v-model="content.adType"> IMAGE
+                          </label>
+                          <label class="btn bg-olive" :class="{ active: content.adType === 'VIDEO' }">
+                            <input type="radio" name="ad_type" autocomplete="off" value="VIDEO" v-model="content.adType"> VIDEO
+                          </label>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div class="row" v-if="index > 0">
-                    <div class="col text-right">
-                      <button class="btn btn-warning btn-sm" @click.prevent="removeContent(index)">Remove</button>
+
+                    <div v-if="content.adType == 'IMAGE'">
+                      <div class="form-group row">
+                        <label for="image_hq_url" class="col-sm-4 control-label mt-2">Image Set</label>
+                        <div class="col">
+                          <button class="btn btn-primary" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
+                          <span v-if="content.imageSet.id" class="selected-set">{{ content.imageSet.name }}<span class="close" @click="removeImageSet(index)"><i class="fas fa-times"></i></span></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div v-if="content.adType == 'VIDEO'">
+                      <div class="form-group row">
+                        <label for="image_hq_url" class="col-sm-4 control-label mt-2">Video Set</label>
+                        <div class="col">
+                          <button class="btn btn-primary" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('video', index)">Load from Sets</button>
+                          <span v-if="content.videoSet.id" class="selected-set">{{ content.videoSet.name }}<span class="close" @click="removeVideoSet(index)"><i class="fas fa-times"></i></span></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group row">
+                      <label for="tweet_nullcast" class="col-sm-4 control-label mt-2">Tweet Nullcast</label>
+                      <div class="col-lg-4 col-xl-3">
+                        <div class="btn-group btn-group-toggle">
+                          <label class="btn bg-olive" :class="{ active: content.tweetNullcast }">
+                            <input type="radio" name="tweet_nullcast" id="tweetNullcast1" autocomplete="off" :value="true" v-model="content.tweetNullcast">TRUE
+                          </label>
+                          <label class="btn bg-olive" :class="{ active: !content.tweetNullcast }">
+                            <input type="radio" name="tweet_nullcast" id="tweetNullcast2" autocomplete="off" :value="false" v-model="content.tweetNullcast">FALSE
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group row">
+                      <label for="card_name" class="col-sm-4 control-label mt-2">Card Name</label>
+                      <div class="col-lg-10 col-xl-8">
+                        <input type="text" name="card_name" placeholder="Enter a name" class="form-control" v-model="content.name" />
+                      </div>
+                    </div>
+
+                    <div class="form-group row">
+                      <label for="card_website_title" class="col-sm-4 control-label mt-2">Card Website Title</label>
+                      <div class="col-lg-10 col-xl-8">
+                        <input type="text" name="card_website_title" placeholder="Enter website title" class="form-control" v-model="content.websiteTitle" />
+                      </div>
                     </div>
                   </div>
+
+                  <div class="col-sm-5">
+                    <h1>Preview</h1>
+                    <section v-for="(title, indexTitle) in content.titleSet.sets" :key="indexTitle">
+                      <section v-for="(image, indexImage) in content.imageSet.sets" :key="indexImage">
+                        <div class="row no-gutters mb-2" v-if="image.image">
+                          <div class="col-sm-5" v-if="content.adType == 'IMAGE'">
+                            <img :src="storageUrl + '/storage/images/' + image.image" class="card-img-top h-100">
+                          </div>
+                          <div class="col-sm-7">
+                            <div class="card-body">
+                              <h3 class="card-title">{{ title.title }}</h3>
+                              <h6 class="card-text mt-5"><i>{{ content.brandname }}</i></h6>
+                              <p>{{ content.descriptionSet.sets[0].description || '' }}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+                    </section>
+                  </div>
+                </div>
+                <div class="row" v-if="index > 0">
+                  <div class="col text-right">
+                    <button class="btn btn-warning btn-sm" @click.prevent="removeContent(index)">Remove</button>
+                  </div>
+                </div>
               </fieldset>
               <button class="btn btn-primary btn-sm d-none" @click.prevent="addContent()">Add New</button>
             </div>
@@ -385,6 +405,7 @@ export default {
       currentStep: this.step,
       currentVendor: vendors[0],
       vendors: vendors,
+      storageUrl: process.env.MIX_APP_URL,
       contents: [{
         adType: 'IMAGE',
         titleSet: '',
@@ -534,18 +555,58 @@ export default {
     selectCreativeSet(set) {
       if (this.setType == 'title') {
         this.contents[this.adSelectorIndex].titleSet = set
+        this.loadTitleSets(this.adSelectorIndex)
       }
       if (this.setType == 'image') {
         this.contents[this.adSelectorIndex].imageSet = set
+        this.loadImageSets(this.adSelectorIndex)
       }
       if (this.setType == 'video') {
         this.contents[this.adSelectorIndex].videoSet = set
+        this.loadVideoSets(this.adSelectorIndex)
       }
       if (this.setType == 'description') {
         this.contents[this.adSelectorIndex].descriptionSet = set
+        this.loadDescriptionSets(this.adSelectorIndex)
       }
 
       $('#creative-set-modal').modal('hide')
+    },
+
+    loadTitleSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/title-sets/${this.contents[index].titleSet.id}`).then(response => {
+        this.contents[index].titleSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+
+    loadImageSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/image-sets/${this.contents[index].imageSet.id}`).then(response => {
+        this.contents[index].imageSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+
+    loadVideoSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/video-sets/${this.contents[index].videoSet.id}`).then(response => {
+        this.contents[index].videoSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+
+    loadDescriptionSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/description-sets/${this.contents[index].descriptionSet.id}`).then(response => {
+        this.contents[index].descriptionSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
     },
 
     removeImageSet(index) {
