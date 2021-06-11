@@ -16,6 +16,7 @@ use App\Models\TwitterReport;
 use App\Models\User;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
+use App\Models\CreativeSet;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use App\Vngodev\ResourceImporter;
@@ -854,17 +855,18 @@ class Twitter extends Root implements AdVendorInterface
         ])->first(), $vendor['selectedAdvertiser']);
 
         try {
-            $promotable_users = $this->api()->getPromotableUsers();
+            $promotable_users = $api->getPromotableUsers();
 
             $campaign_data = $api->saveCampaign([
-                'fundingInstrument' => $vendor['fundingInstrument'],
+                'fundingInstrument' => $vendor['selectedFundingInstrument'],
                 'campaignDailyBudgetAmountLocalMicro' => $vendor['campaignDailyBudgetAmountLocalMicro'],
                 'campaignName' => request('campaignName'),
                 'campaignStatus' => $vendor['campaignStatus'],
                 'campaignStartTime' => $vendor['campaignStartTime'],
-                'campaignEndTime' => $vendor['campaignEndTime'],
-                'campaignTotalBudgetAmountLocalMicro' => $vendor['campaignTotalBudgetAmountLocalMicro']
+                'campaignEndTime' => $vendor['campaignEndTime'] ?? '',
+                'campaignTotalBudgetAmountLocalMicro' => $vendor['campaignTotalBudgetAmountLocalMicro'] ?? ''
             ]);
+
             $line_item_data = $api->saveLineItem($campaign_data, [
                 'adGroupName' => $vendor['adGroupName'],
                 'adGroupPlacements' => $vendor['adGroupPlacements'],
@@ -874,10 +876,10 @@ class Twitter extends Root implements AdVendorInterface
                 'adGroupAdvertiserDomain' => $vendor['adGroupAdvertiserDomain'],
                 'adGroupBidAmountLocalMicro' => $vendor['adGroupBidAmountLocalMicro'],
                 'adGroupStartTime' => $vendor['adGroupStartTime'],
-                'adGroupEndTime' => $vendor['adGroupEndTime'],
-                'adGroupAutomaticallySelectBid' => $vendor['adGroupAutomaticallySelectBid'],
-                'adGroupBidType' => $vendor['adGroupBidType'],
-                'adGroupTotalBudgetAmountLocalMicro' => $vendor['adGroupTotalBudgetAmountLocalMicro'],
+                'adGroupEndTime' => $vendor['adGroupEndTime'] ?? '',
+                'adGroupAutomaticallySelectBid' => $vendor['adGroupAutomaticallySelectBid'] ?? false,
+                'adGroupBidType' => $vendor['adGroupBidType'] ?? '',
+                'adGroupTotalBudgetAmountLocalMicro' => $vendor['adGroupTotalBudgetAmountLocalMicro'] ?? '',
                 'adGroupBidUnit' => $vendor['adGroupBidUnit'],
                 'adGroupChargeBy' => $vendor['adGroupChargeBy']
             ]);
@@ -896,7 +898,7 @@ class Twitter extends Root implements AdVendorInterface
                     throw('No creative set found.');
                 }
 
-                if ($card['type'] == 'IMAGE') {
+                if ($card['adType'] == 'IMAGE') {
                     $imges = [];
 
                     $image_creative_set = CreativeSet::find($card['imageSet']['id']);
@@ -908,8 +910,8 @@ class Twitter extends Root implements AdVendorInterface
                     }
 
                     foreach ($imges as $image) {
-                        $media = $this->api()->uploadMedia($promotable_users, $image['hq_800x800_image']);
-                        $media_library = $this->api()->createMediaLibrary($media->media_key);
+                        $media = $api->uploadMedia($promotable_users, $image['hq_800x800_image']);
+                        $media_library = $api->createMediaLibrary($media->media_key);
 
                         $card_data = $api->createWebsiteCard($media->media_key, $card);
 
@@ -963,8 +965,8 @@ class Twitter extends Root implements AdVendorInterface
                     }
 
                     foreach ($videos as $video) {
-                        $media = $this->api()->uploadMedia($promotable_users, $video['video']);
-                        $media_library = $this->api()->createMediaLibrary($media->media_key);
+                        $media = $api->uploadMedia($promotable_users, $video['video']);
+                        $media_library = $api->createMediaLibrary($media->media_key);
 
                         $card_data = $api->createVideoWebsiteCard($media->media_key, $card);
 
