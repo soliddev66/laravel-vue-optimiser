@@ -337,6 +337,7 @@ export default {
           campaignBudgetType: 'DAILY',
           campaignConversionCounting: 'ALL_PER_INTERACTION',
           scheduleType: 'IMMEDIATELY',
+          campaignLocation: [],
           supportedSiteCollections: []
         })
       } else if (this.providers[i].slug == 'outbrain') {

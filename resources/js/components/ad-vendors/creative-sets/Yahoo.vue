@@ -335,7 +335,7 @@ export default {
     },
 
     vendorState() {
-      return this.vendor.campaignBudget > 0 && this.vendor.adGroupName && this.vendor.bidAmount > 0
+      return this.vendor.campaignBudget > 0 && this.vendor.adGroupName && this.vendor.bidAmount > 0 && this.vendor.campaignLocation.length > 0
     }
   },
   mounted() {
