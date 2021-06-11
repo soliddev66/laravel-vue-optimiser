@@ -24,7 +24,7 @@
 
                 <div class="row mt-2" v-if="vendor.selected">
                   <div class="col">
-                    <select class="form-control" v-model="vendor.selectedAdvertiser">
+                    <select class="form-control" v-model="vendor.selectedAdvertiser" @change="selectedAdvertiserChanged(vendor.id)">
                       <option value="">Select Advertiser</option>
                       <option :value="vendor.slug == 'taboola' ? advertiser.account_id : advertiser.id" v-for="advertiser in vendor.advertisers" :key="advertiser.id">{{ vendor.slug == 'taboola' ? advertiser.account_id : advertiser.id }} - {{ advertiser.advertiserName || advertiser.name }}</option>
                     </select>
@@ -353,6 +353,7 @@ export default {
         })
       } else if (this.providers[i].slug == 'twitter') {
         Object.assign(vendor, {
+          selectedFundingInstrument: '',
           campaignStartTime: this.$moment().format('YYYY-MM-DD'),
           campaignStatus: 'PAUSED',
           adGroupObjective: 'APP_ENGAGEMENTS',
@@ -423,6 +424,15 @@ export default {
       }).finally(() => {
         this.isLoading = false
       })
+    },
+
+    selectedAdvertiserChanged(vendorId) {
+      for (let i = 0; i < this.vendors.length; i++) {
+        if (this.vendors[i].id == vendorId) {
+          this.vendors[i].loaded = false
+          return
+        }
+      }
     },
 
     validURL(str) {
