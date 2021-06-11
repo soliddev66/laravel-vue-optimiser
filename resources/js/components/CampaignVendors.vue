@@ -44,7 +44,6 @@
             <label class="p-2" :class="{ 'bg-primary': currentStep === 3 }">Vendors</label>
             <i class="fas fa-arrow-right"></i>
             <label class="p-2" :class="{ 'bg-primary': currentStep === 4 }">Ad Content</label>
-            <i class="fas fa-arrow-right"></i>
           </div>
           <div class="card-body">
             <div v-if="currentStep == 2">
