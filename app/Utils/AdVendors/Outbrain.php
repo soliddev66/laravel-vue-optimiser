@@ -837,7 +837,7 @@ class Outbrain extends Root implements AdVendorInterface
                     ],
                     'suffixTrackingCode' => $vendor['campaignTrackingCode'] ?? null,
                     'onAirType' => $vendor['campaignStartTime'] ? 'StartHour' : 'Scheduled',
-                    'startHour' => strtoupper($vendor['campaignStartTime']),
+                    'startHour' => strtoupper($vendor['campaignStartTime']) ?? '',
                     'objective' => $vendor['campaignObjective']
                 ]);
 
