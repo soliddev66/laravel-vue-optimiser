@@ -148,9 +148,9 @@ class Outbrain extends Root implements AdVendorInterface
                                 'user_id' => auth()->id(),
                                 'provider_id' => 2,
                                 'campaign_id' => $campaign_data['id'],
-                                'advertiser_id' => $vendor['selectedAdvertiser'],
+                                'advertiser_id' => request('selectedAdvertiser'),
                                 'ad_group_id' => 'NA',
-                                'open_id' => $vendor['selectedAccount']
+                                'open_id' => request('account')
                             ]);
 
                             $db_ad->name = $title['title'];
