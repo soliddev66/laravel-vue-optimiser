@@ -103,21 +103,51 @@ class Outbrain extends Root implements AdVendorInterface
                 foreach (request('ads') as $ad) {
                     foreach ($ad['titles'] as $title) {
                         foreach ($ad['images'] as $image) {
-                            $ads[] = [
+                            $ad_data = $api->createAd($campaign_data['id'], [
                                 'text' => $title['title'],
-                                'url' => $ad['targetUrl'],
+                                'url' => $content['targetUrl'],
                                 'enabled' => true,
                                 'imageMetadata' => [
-                                    'url' => $image['url']
+                                    'url' => Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['hq_1200x628_image'])
                                 ]
-                            ];
+                            ]);
+
+                            $db_ad = Ad::firstOrNew([
+                                'ad_id' => $ad_data['id'],
+                                'user_id' => auth()->id(),
+                                'provider_id' => 2,
+                                'campaign_id' => $campaign_data['id'],
+                                'advertiser_id' => $vendor['selectedAdvertiser'],
+                                'ad_group_id' => 'NA',
+                                'open_id' => $vendor['selectedAccount']
+                            ]);
+
+                            $db_ad->name = $title['title'];
+                            $db_ad->image = $ad_data['imageMetadata']['originalImageUrl'];
+                            $db_ad->status = $ad_data['status'];
+                            $db_ad->description = $description;
+
+                            $db_ad->save();
+
+                            $db_ad->creativeSets()->detach();
+
+                            if ($title_creative_set) {
+                                $db_ad->creativeSets()->save($title_creative_set);
+                            }
+
+                            if ($description_creative_set) {
+                                $db_ad->creativeSets()->save($description_creative_set);
+                            }
+
+                            if ($video_creative_set) {
+                                $db_ad->creativeSets()->save($video_creative_set);
+                            }
+
+                            if ($image_creative_set) {
+                                $db_ad->creativeSets()->save($image_creative_set);
+                            }
                         }
                     }
-                }
-
-                foreach ($ads as $key => $ad) {
-                    $ad_data = $api->createAd($campaign_data['id'], $ad);
-                    Log::info('OUTBRAIN: Created ad: ' . $ad_data['id']);
                 }
 
                 Helper::pullCampaign();
