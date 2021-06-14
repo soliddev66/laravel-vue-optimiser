@@ -101,14 +101,45 @@ class Outbrain extends Root implements AdVendorInterface
                 $ads = [];
 
                 foreach (request('ads') as $ad) {
-                    foreach ($ad['titles'] as $title) {
-                        foreach ($ad['images'] as $image) {
+                    $titles = [];
+
+                    $title_creative_set = null;
+                    $image_creative_set = null;
+
+                    if (isset($ad['titleSet']['id'])) {
+                        $title_creative_set = CreativeSet::find($ad['titleSet']['id']);
+
+                        if ($title_creative_set) {
+                            $titles = $title_creative_set->titleSets;
+                        } else {
+                            throw('No creative set found.');
+                        }
+                    } else {
+                        $titles = $ad['titles'];
+                    }
+
+                    foreach ($titles as $title) {
+                        $imges = [];
+
+                        if (isset($ad['imageSet']['id'])) {
+                            $image_creative_set = CreativeSet::find($ad['imageSet']['id']);
+
+                            if ($image_creative_set) {
+                                $images = $image_creative_set->imageSets;
+                            } else {
+                                throw('No creative set found.');
+                            }
+                        } else {
+                            $images = $ad['images'];
+                        }
+
+                        foreach ($images as $image) {
                             $ad_data = $api->createAd($campaign_data['id'], [
                                 'text' => $title['title'],
-                                'url' => $content['targetUrl'],
+                                'url' => $ad['targetUrl'],
                                 'enabled' => true,
                                 'imageMetadata' => [
-                                    'url' => Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['hq_1200x628_image'])
+                                    'url' => Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'])
                                 ]
                             ]);
 
@@ -125,7 +156,6 @@ class Outbrain extends Root implements AdVendorInterface
                             $db_ad->name = $title['title'];
                             $db_ad->image = $ad_data['imageMetadata']['originalImageUrl'];
                             $db_ad->status = $ad_data['status'];
-                            $db_ad->description = $description;
 
                             $db_ad->save();
 
@@ -133,14 +163,6 @@ class Outbrain extends Root implements AdVendorInterface
 
                             if ($title_creative_set) {
                                 $db_ad->creativeSets()->save($title_creative_set);
-                            }
-
-                            if ($description_creative_set) {
-                                $db_ad->creativeSets()->save($description_creative_set);
-                            }
-
-                            if ($video_creative_set) {
-                                $db_ad->creativeSets()->save($video_creative_set);
                             }
 
                             if ($image_creative_set) {
@@ -882,24 +904,12 @@ class Outbrain extends Root implements AdVendorInterface
                     $titles = [];
 
                     $title_creative_set = null;
-                    $description_creative_set = null;
                     $image_creative_set = null;
-                    $video_creative_set = null;
 
                     $title_creative_set = CreativeSet::find($content['titleSet']['id']);
 
                     if ($title_creative_set) {
                         $titles = $title_creative_set->titleSets;
-                    } else {
-                        throw('No creative set found.');
-                    }
-
-                    $description = '';
-
-                    $description_creative_set = CreativeSet::find($content['descriptionSet']['id']);
-
-                    if ($description_creative_set) {
-                        $description = $description_creative_set->descriptionSets[0]['description'];
                     } else {
                         throw('No creative set found.');
                     }
@@ -921,7 +931,7 @@ class Outbrain extends Root implements AdVendorInterface
                                 'url' => $content['targetUrl'],
                                 'enabled' => true,
                                 'imageMetadata' => [
-                                    'url' => Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['hq_1200x628_image'])
+                                    'url' => Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'])
                                 ]
                             ]);
 
@@ -938,7 +948,6 @@ class Outbrain extends Root implements AdVendorInterface
                             $db_ad->name = $title['title'];
                             $db_ad->image = $ad_data['imageMetadata']['originalImageUrl'];
                             $db_ad->status = $ad_data['status'];
-                            $db_ad->description = $description;
 
                             $db_ad->save();
 
@@ -946,14 +955,6 @@ class Outbrain extends Root implements AdVendorInterface
 
                             if ($title_creative_set) {
                                 $db_ad->creativeSets()->save($title_creative_set);
-                            }
-
-                            if ($description_creative_set) {
-                                $db_ad->creativeSets()->save($description_creative_set);
-                            }
-
-                            if ($video_creative_set) {
-                                $db_ad->creativeSets()->save($video_creative_set);
                             }
 
                             if ($image_creative_set) {

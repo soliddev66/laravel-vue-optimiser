@@ -217,7 +217,7 @@
                         </div>
                       </div>
 
-                      <div class="form-group row">
+                      <!-- <div class="form-group row">
                         <label for="ad_type" class="col-sm-4 control-label mt-2">Ad Type</label>
                         <div class="col-sm-8">
                           <div class="btn-group btn-group-toggle">
@@ -229,7 +229,7 @@
                             </label>
                           </div>
                         </div>
-                      </div>
+                      </div> -->
 
                       <div class="form-group row">
                         <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
@@ -255,32 +255,19 @@
                         <label for="image_url" class="col-sm-4 control-label mt-2">Media URL (Video / Image)</label>
                         <div class="col-sm-8">
                           <input type="text" name="image_url" placeholder="Select media" class="form-control" v-model="content.imageUrl" disabled="true" />
-                        </div>
-                        <div class="col-sm-8 offset-sm-4">
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose File</button>
+                          <div class="row mt-2 mb-2">
+                            <div class="col">
+                              <span v-if="content.imageSet.id" class="selected-set">{{ content.imageSet.name }}<span class="close" @click="removeImageSet(index)"><i class="fas fa-times"></i></span></span>
+                            </div>
+                          </div>
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)" :disabled="content.imageSet.id">Choose File</button>
+                          <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
                         </div>
                         <div class="col-sm-8 offset-sm-4">
                           <small class="text-danger" v-for="(image, indexImage) in content.images" :key="indexImage">
                             <span class="d-inline-block" v-if="image.url && !validURL(image.url)">URL {{ image.url }} is invalid. You might need http/https at the beginning.</span>
                             <span class="d-inline-block" v-if="image.url && !image.state">Image {{ image.url }} is invalid. You might need an 1200 x 800 image.</span>
                           </small>
-                        </div>
-                      </div>
-
-                      <div v-if="content.adType == 'IMAGE'">
-                        <div class="row mt-2 mb-2">
-                          <div class="col">
-                            <span v-if="content.imageSet.id" class="selected-set">{{ content.imageSet.name }}<span class="close" @click="removeImageSet(index)"><i class="fas fa-times"></i></span></span>
-                          </div>
-                        </div>
-                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
-                      </div>
-
-                      <div v-if="content.adType == 'VIDEO'">
-                        <div class="row mt-2 mb-2">
-                          <div class="col">
-                            <span v-if="content.videoSet.id" class="selected-set">{{ content.videoSet.name }}<span class="close" @click="removeVideoSet(index)"><i class="fas fa-times"></i></span></span>
-                          </div>
                         </div>
                       </div>
                     </div>
@@ -538,6 +525,7 @@ export default {
       ads = [{
         adId: '',
         adType: 'IMAGE',
+        titleSet: '',
         titles: [{
           title: '',
           existing: false
@@ -546,6 +534,7 @@ export default {
         cpc: '',
         brandname: '',
         imageUrl: '',
+        imageSet: '',
         images: []
       }]
 
@@ -681,25 +670,53 @@ export default {
 
     selectCreativeSet(set) {
       if (this.setType == 'title') {
-        this.campaignItems[this.adSelectorIndex].titleSet = set
+        this.ads[this.adSelectorIndex].titleSet = set
+        this.loadTitleSets(this.adSelectorIndex).then(() => {
+          this.ads[this.adSelectorIndex].titles = this.ads[this.adSelectorIndex].titleSet.sets.map(item => {
+            return {
+              title: item.title
+            }
+          })
+        })
       }
       if (this.setType == 'image') {
-        this.campaignItems[this.adSelectorIndex].imageSet = set
-      }
-      if (this.setType == 'video') {
-        this.campaignItems[this.adSelectorIndex].videoSet = set
-      }
-      if (this.setType == 'description') {
-        this.campaignItems[this.adSelectorIndex].descriptionSet = set
+        this.ads[this.adSelectorIndex].imageSet = set
+        this.loadImageSets(this.adSelectorIndex).then(() => {
+          this.ads[this.adSelectorIndex].images = this.ads[this.adSelectorIndex].imageSet.sets.map(item => {
+            return {
+              url: process.env.MIX_APP_URL + '/storage/images/' + item.hq_image,
+              state: true
+            }
+          })
+        })
       }
 
       $('#creative-set-modal').modal('hide')
+    },
+
+    loadTitleSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/title-sets/${this.ads[index].titleSet.id}`).then(response => {
+        this.ads[index].titleSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+
+    loadImageSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/image-sets/${this.ads[index].imageSet.id}`).then(response => {
+        this.ads[index].imageSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
     },
 
     addAd() {
       this.ads.push({
         adId: '',
         adType: 'IMAGE',
+        titleSet: '',
         titles: [{
           title: '',
           existing: false
@@ -708,6 +725,7 @@ export default {
         cpc: '',
         brandname: '',
         imageUrl: '',
+        imageSet: '',
         images: []
       })
     },
