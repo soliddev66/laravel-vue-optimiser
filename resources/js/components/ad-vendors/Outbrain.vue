@@ -539,10 +539,12 @@ export default {
       }]
 
     if (this.instance) {
+      console.log(this.instance.ads)
       ads = []
       for (let i = 0; i < this.instance.ads.length; i++) {
         ads.push({
           adId: this.instance.ads[i].id,
+          titleSet: this.instance.ads[i]['titleSet'] || '',
           titles: [{
             title: this.instance.ads[i].text,
             existing: true
@@ -551,6 +553,7 @@ export default {
           cpc: this.instance.ads[i].cpc,
           brandname: this.instance.ads[i].siteName,
           imageUrl: this.instance.ads[i].imageMetadata.originalImageUrl,
+          imageSet: this.instance.ads[i]['imageSet'] || '',
           images: [{
             url: this.instance.ads[i].imageMetadata.originalImageUrl,
             state: true,

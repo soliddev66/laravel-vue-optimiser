@@ -139,7 +139,7 @@ class Outbrain extends Root implements AdVendorInterface
                                 'url' => $ad['targetUrl'],
                                 'enabled' => true,
                                 'imageMetadata' => [
-                                    'url' => Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'])
+                                    'url' => Helper::encodeUrl('https://wallpaperaccess.com/full/4263881.jpg')
                                 ]
                             ]);
 
@@ -299,6 +299,39 @@ class Outbrain extends Root implements AdVendorInterface
             $instance['open_id'] = $campaign['open_id'];
             $instance['instance_id'] = $campaign['id'];
             $instance['ads'] = $api->getPromotedLinks($campaign->campaign_id)['promotedLinks'];
+
+            var_dump($instance['ads']); exit;
+
+            foreach ($instance['ads'] as &$ad) {
+                var_dump($ad); exit;
+                $db_ad = Ad::where('ad_id', $ad['id'])->first();
+
+                if ($db_ad) {
+                    $image_set = $db_ad->creativeSets()->where('type', 1)->first();
+                    if ($image_set) {
+                        $ad['imageSet'] = $image_set;
+                        $ad['imageSet']['sets'] = $image_set->imageSets;
+                    }
+
+                    $video_set = $db_ad->creativeSets()->where('type', 2)->first();
+                    if ($video_set) {
+                        $ad['videoSet'] = $video_set;
+                        $ad['videoSet']['sets'] = $video_set->videoSets;
+                    }
+
+                    $title_set = $db_ad->creativeSets()->where('type', 3)->first();
+                    if ($title_set) {
+                        $ad['titleSet'] = $title_set;
+                        $ad['titleSet']['sets'] = $title_set->titleSets;
+                    }
+
+                    $description_set = $db_ad->creativeSets()->where('type', 4)->first();
+                    if ($description_set) {
+                        $ad['descriptionSet'] = $description_set;
+                        $ad['descriptionSet']['sets'] = $description_set->descriptionSets;
+                    }
+                }
+            }
 
             return $instance;
         } catch (Exception $e) {
