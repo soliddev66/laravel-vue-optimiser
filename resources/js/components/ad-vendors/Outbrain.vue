@@ -517,7 +517,7 @@ export default {
   data() {
     let dataAttributes = [],
       ads = [{
-        adId: '',
+        id: '',
         adType: 'IMAGE',
         titleSet: '',
         titles: [{
@@ -536,7 +536,7 @@ export default {
       let ad;
       for (let i = 0; i < this.instance.ads.length; i++) {
         ad = {
-          adId: this.instance.ads[i].id,
+          id: this.instance.ads[i].id,
           adType: 'IMAGE',
           titleSet: this.instance.ads[i]['titleSet'] || '',
           titles: [{
@@ -721,9 +721,21 @@ export default {
       });
     },
 
+    removeImageSet(index) {
+      this.ads[index].imageSet = ''
+      this.ads[index].images = []
+    },
+
+    removeTitleSet(index) {
+      this.ads[index].titleSet = ''
+      this.ads[index].titles = [{
+        title: ''
+      }]
+    },
+
     addAd() {
       this.ads.push({
-        adId: '',
+        id: '',
         adType: 'IMAGE',
         titleSet: '',
         titles: [{

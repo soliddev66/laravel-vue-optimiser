@@ -98,16 +98,14 @@ class Outbrain extends Root implements AdVendorInterface
             }
 
             try {
-                $ads = [];
-
-                foreach (request('ads') as $ad) {
+                foreach (request('ads') as $content) {
                     $titles = [];
 
                     $title_creative_set = null;
                     $image_creative_set = null;
 
-                    if (isset($ad['titleSet']['id'])) {
-                        $title_creative_set = CreativeSet::find($ad['titleSet']['id']);
+                    if (isset($content['titleSet']['id'])) {
+                        $title_creative_set = CreativeSet::find($content['titleSet']['id']);
 
                         if ($title_creative_set) {
                             $titles = $title_creative_set->titleSets;
@@ -115,14 +113,14 @@ class Outbrain extends Root implements AdVendorInterface
                             throw('No creative set found.');
                         }
                     } else {
-                        $titles = $ad['titles'];
+                        $titles = $content['titles'];
                     }
 
                     foreach ($titles as $title) {
                         $imges = [];
 
-                        if (isset($ad['imageSet']['id'])) {
-                            $image_creative_set = CreativeSet::find($ad['imageSet']['id']);
+                        if (isset($content['imageSet']['id'])) {
+                            $image_creative_set = CreativeSet::find($content['imageSet']['id']);
 
                             if ($image_creative_set) {
                                 $images = $image_creative_set->imageSets;
@@ -130,16 +128,16 @@ class Outbrain extends Root implements AdVendorInterface
                                 throw('No creative set found.');
                             }
                         } else {
-                            $images = $ad['images'];
+                            $images = $content['images'];
                         }
 
                         foreach ($images as $image) {
                             $ad_data = $api->createAd($campaign_data['id'], [
                                 'text' => $title['title'],
-                                'url' => $ad['targetUrl'],
+                                'url' => $content['targetUrl'],
                                 'enabled' => true,
                                 'imageMetadata' => [
-                                    'url' => Helper::encodeUrl('https://wallpaperaccess.com/full/4263881.jpg')
+                                    'url' => Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'])
                                 ]
                             ]);
 
@@ -236,42 +234,87 @@ class Outbrain extends Root implements AdVendorInterface
             $budget_data = $api->updateBudget(request('budgetId'));
             $campaign_data = $api->updateCampaign($campaign->campaign_id);
 
-            $ads = [];
-            $updated_ads = [];
-
             foreach (request('ads') as $content) {
-                foreach ($content['titles'] as $title) {
-                    foreach ($content['images'] as $image) {
-                        $ad = [
-                            'text' => $title['title'],
-                            'url' => $content['targetUrl'],
-                            'enabled' => true,
-                            'imageMetadata' => [
-                                'url' => $image['url']
-                            ]
-                        ];
+                $titles = [];
 
-                        if ($title['existing'] && $image['existing']) {
-                            $ad['id'] = $content['aId'];
+                $title_creative_set = null;
+                $image_creative_set = null;
 
-                            $updated_ads[] = $ad;
+                if (isset($content['titleSet']['id'])) {
+                    $title_creative_set = CreativeSet::find($content['titleSet']['id']);
+
+                    if ($title_creative_set) {
+                        $titles = $title_creative_set->titleSets;
+                    } else {
+                        throw('No creative set found.');
+                    }
+                } else {
+                    $titles = $content['titles'];
+                }
+
+                foreach ($titles as $title) {
+                    $imges = [];
+
+                    if (isset($content['imageSet']['id'])) {
+                        $image_creative_set = CreativeSet::find($content['imageSet']['id']);
+
+                        if ($image_creative_set) {
+                            $images = $image_creative_set->imageSets;
                         } else {
-                            $ads[] = $ad;
+                            throw('No creative set found.');
+                        }
+                    } else {
+                        $images = $content['images'];
+                    }
+
+                    foreach ($images as $image) {
+                        if (isset($content['id'])) {
+                            $ad_data = $api->updateAd($campaign->campaign_id, [
+                                'id' => $content['id'],
+                                'text' => $title['title'],
+                                'url' => $content['targetUrl'],
+                                'enabled' => true,
+                                'imageMetadata' => [
+                                    'url' => Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'])
+                                ]
+                            ]);
+                        } else {
+                            $ad_data = $api->createAd($campaign_data['id'], [
+                                'text' => $title['title'],
+                                'url' => $content['targetUrl'],
+                                'enabled' => true,
+                                'imageMetadata' => [
+                                    'url' => Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'])
+                                ]
+                            ]);
+                        }
+
+                        $db_ad = Ad::firstOrNew([
+                            'ad_id' => $ad_data['id'],
+                            'user_id' => auth()->id(),
+                            'provider_id' => 2,
+                            'campaign_id' => $campaign_data['id'],
+                            'advertiser_id' => request('selectedAdvertiser'),
+                            'ad_group_id' => 'NA',
+                            'open_id' => request('account')
+                        ]);
+
+                        $db_ad->name = $title['title'];
+                        $db_ad->image = $ad_data['imageMetadata']['originalImageUrl'];
+                        $db_ad->status = $ad_data['approvalStatus'];
+
+                        $db_ad->save();
+
+                        $db_ad->creativeSets()->detach();
+
+                        if ($title_creative_set) {
+                            $db_ad->creativeSets()->save($title_creative_set);
+                        }
+
+                        if ($image_creative_set) {
+                            $db_ad->creativeSets()->save($image_creative_set);
                         }
                     }
-                }
-            }
-
-            if (count($updated_ads) > 0) {
-                foreach ($updated_ads as $key => $ad) {
-                    $ad_data = $api->updateAd($campaign->campaign_id, $ad);
-                }
-            }
-
-            if (count($ads) > 0) {
-                foreach ($ads as $key => $ad) {
-                    $ad_data = $api->createAd($campaign_data['id'], $ad);
-                    Log::info('OUTBRAIN: Created ad: ' . $ad_data['id']);
                 }
             }
         } catch (RequestException $e) {
@@ -465,7 +508,7 @@ class Outbrain extends Root implements AdVendorInterface
                             'ad_group_id' => 'NA',
                             'open_id' => $user_provider->open_id,
                             'name' => $ad['text'],
-                            'status' => $ad['status'],
+                            'status' => $ad['approvalStatus'],
                             'image' => $ad['imageMetadata']['originalImageUrl'],
                             'updated_at' => $updated_at
                         ];
