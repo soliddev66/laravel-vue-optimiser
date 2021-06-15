@@ -137,7 +137,7 @@ class Outbrain extends Root implements AdVendorInterface
                                 'url' => $content['targetUrl'],
                                 'enabled' => true,
                                 'imageMetadata' => [
-                                    'url' => Helper::encodeUrl('https://wallpaperaccess.com/full/4263881.jpg')
+                                    'url' => Helper::encodeUrl($image_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'] : $image['url'])
                                 ]
                             ]);
 
@@ -275,7 +275,7 @@ class Outbrain extends Root implements AdVendorInterface
                                 'url' => $content['targetUrl'],
                                 'enabled' => true,
                                 'imageMetadata' => [
-                                    'url' => Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'])
+                                    'url' => Helper::encodeUrl($image_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'] : $image['url'])
                                 ]
                             ]);
                         } else {
@@ -284,7 +284,7 @@ class Outbrain extends Root implements AdVendorInterface
                                 'url' => $content['targetUrl'],
                                 'enabled' => true,
                                 'imageMetadata' => [
-                                    'url' => Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'])
+                                    'url' => Helper::encodeUrl($image_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'] : $image['url'])
                                 ]
                             ]);
                         }
