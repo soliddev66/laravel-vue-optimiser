@@ -155,7 +155,7 @@ class Outbrain extends Root implements AdVendorInterface
 
                             $db_ad->name = $title['title'];
                             $db_ad->image = $ad_data['imageMetadata']['originalImageUrl'];
-                            $db_ad->status = $ad_data['status'];
+                            $db_ad->status = $ad_data['approvalStatus'];
 
                             $db_ad->save();
 
@@ -300,10 +300,7 @@ class Outbrain extends Root implements AdVendorInterface
             $instance['instance_id'] = $campaign['id'];
             $instance['ads'] = $api->getPromotedLinks($campaign->campaign_id)['promotedLinks'];
 
-            var_dump($instance['ads']); exit;
-
             foreach ($instance['ads'] as &$ad) {
-                var_dump($ad); exit;
                 $db_ad = Ad::where('ad_id', $ad['id'])->first();
 
                 if ($db_ad) {
@@ -313,22 +310,10 @@ class Outbrain extends Root implements AdVendorInterface
                         $ad['imageSet']['sets'] = $image_set->imageSets;
                     }
 
-                    $video_set = $db_ad->creativeSets()->where('type', 2)->first();
-                    if ($video_set) {
-                        $ad['videoSet'] = $video_set;
-                        $ad['videoSet']['sets'] = $video_set->videoSets;
-                    }
-
                     $title_set = $db_ad->creativeSets()->where('type', 3)->first();
                     if ($title_set) {
                         $ad['titleSet'] = $title_set;
                         $ad['titleSet']['sets'] = $title_set->titleSets;
-                    }
-
-                    $description_set = $db_ad->creativeSets()->where('type', 4)->first();
-                    if ($description_set) {
-                        $ad['descriptionSet'] = $description_set;
-                        $ad['descriptionSet']['sets'] = $description_set->descriptionSets;
                     }
                 }
             }
@@ -980,7 +965,7 @@ class Outbrain extends Root implements AdVendorInterface
 
                             $db_ad->name = $title['title'];
                             $db_ad->image = $ad_data['imageMetadata']['originalImageUrl'];
-                            $db_ad->status = $ad_data['status'];
+                            $db_ad->status = $ad_data['approvalStatus'];
 
                             $db_ad->save();
 
@@ -1034,5 +1019,9 @@ class Outbrain extends Root implements AdVendorInterface
         ]));
 
         return [];
+    }
+
+    public function delete($campaign) {
+
     }
 }
