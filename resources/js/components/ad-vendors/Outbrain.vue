@@ -238,12 +238,6 @@
                         </div>
                       </div>
                       <div class="form-group row">
-                        <label for="cpc" class="col-sm-4 control-label mt-2">CPC</label>
-                        <div class="col-sm-8">
-                          <input type="number" name="cpc" placeholder="Enter cpc" class="form-control" v-model="content.cpc" :disabled="instance" />
-                        </div>
-                      </div>
-                      <div class="form-group row">
                         <label for="target_url" class="col-sm-4 control-label mt-2">Target Url</label>
                         <div class="col-sm-8">
                           <input type="text" name="target_url" placeholder="Enter a url" class="form-control" v-model="content.targetUrl" :disabled="instance" />
@@ -469,7 +463,7 @@ export default {
     },
     submitStep2State() {
       for (let i = 0; i < this.ads.length; i++) {
-        if (!this.ads[i].brandname || !this.ads[i].cpc || this.ads[i].cpc <= 0 || !this.ads[i].targetUrl || !this.validURL(this.ads[i].targetUrl)) {
+        if (!this.ads[i].brandname || !this.ads[i].targetUrl || !this.validURL(this.ads[i].targetUrl)) {
           return false
         }
 
@@ -531,7 +525,6 @@ export default {
           existing: false
         }],
         targetUrl: '',
-        cpc: '',
         brandname: '',
         imageUrl: '',
         imageSet: '',
@@ -539,27 +532,40 @@ export default {
       }]
 
     if (this.instance) {
-      console.log(this.instance.ads)
       ads = []
+      let ad;
       for (let i = 0; i < this.instance.ads.length; i++) {
-        ads.push({
+        ad = {
           adId: this.instance.ads[i].id,
+          adType: 'IMAGE',
           titleSet: this.instance.ads[i]['titleSet'] || '',
           titles: [{
             title: this.instance.ads[i].text,
             existing: true
           }],
           targetUrl: this.instance.ads[i].url,
-          cpc: this.instance.ads[i].cpc,
           brandname: this.instance.ads[i].siteName,
           imageUrl: this.instance.ads[i].imageMetadata.originalImageUrl,
-          imageSet: this.instance.ads[i]['imageSet'] || '',
           images: [{
             url: this.instance.ads[i].imageMetadata.originalImageUrl,
             state: true,
             existing: true
           }]
-        })
+        }
+
+        if (this.instance.ads[i]['imageSet']) {
+          ad.imageSet = this.instance.ads[i]['imageSet']
+          ad.images = ad.imageSet.sets.map(item => {
+            return {
+              url: process.env.MIX_APP_URL + '/storage/images/' + item.hq_image,
+              state: true
+            }
+          })
+        }
+
+        console.log(ad.images)
+
+        ads.push(ad)
       }
     }
 
@@ -725,7 +731,6 @@ export default {
           existing: false
         }],
         targetUrl: '',
-        cpc: '',
         brandname: '',
         imageUrl: '',
         imageSet: '',
