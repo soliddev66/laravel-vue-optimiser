@@ -40,10 +40,10 @@ class PullAdGroup implements ShouldQueue
         }
 
         foreach ($this->user->providers as $user_provider) {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($user_provider->provider->slug);
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($user_provider->provider->slug);
 
             try {
-                (new $adVendorClass())->pullAdGroup($user_provider);
+                (new $ad_vendor_class())->pullAdGroup($user_provider);
             } catch (Exception $e) {
                 Log::error($e->getMessage());
             }

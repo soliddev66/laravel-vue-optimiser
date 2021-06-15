@@ -366,15 +366,8 @@ import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
-import Treeselect from '@riophae/vue-treeselect'
-import { LOAD_ROOT_OPTIONS } from '@riophae/vue-treeselect'
-
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css'
 import 'vue-loading-overlay/dist/vue-loading.css'
-
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-
-let adPreviewCancels = []
 
 export default {
   props: {
@@ -406,12 +399,11 @@ export default {
   components: {
     Loading,
     VueCtkDateTimePicker,
-    Select2,
-    Treeselect
+    Select2
   },
   computed: {
     submitStep1State() {
-      return !this.selectedAdvertiser || !this.campaignName || !this.campaignGoals.length || !this.campaignBudget || this.campaignBudget <= 0 || !this.campaignStartDate || !this.adGroupName
+      return !this.selectedAdvertiser || !this.campaignName || !this.campaignGoal || !this.campaignBudget || this.campaignBudget <= 0 || !this.campaignStartDate || !this.adGroupName
     },
     submitStep2State() {
       for (let i = 0; i < this.contents.length; i++) {
@@ -462,7 +454,6 @@ export default {
     }
   },
   mounted() {
-    console.log('Component mounted.')
     let vm = this
     this.$root.$on('fm-selected-items', (values) => {
       if (this.openingFileSelector === 'imagePath') {
@@ -731,11 +722,13 @@ export default {
 
       this.$modal.show('imageModal')
     },
+
     loadCreativeSet(type, index) {
       this.setType = type
       this.adSelectorIndex = index
       $('#creative-set-modal').modal('show')
     },
+
     selectCreativeSet(set) {
       if (this.setType == 'title') {
         this.contents[this.adSelectorIndex].titleSet = set
@@ -773,6 +766,7 @@ export default {
 
       $('#creative-set-modal').modal('hide')
     },
+
     loadTitleSets(index) {
       this.isLoading = true
       return axios.get(`/creatives/title-sets/${this.contents[index].titleSet.id}`).then(response => {
@@ -781,6 +775,7 @@ export default {
         this.isLoading = false
       });
     },
+
     loadImageSets(index) {
       this.isLoading = true
       return axios.get(`/creatives/image-sets/${this.contents[index].imageSet.id}`).then(response => {
@@ -789,6 +784,7 @@ export default {
         this.isLoading = false
       });
     },
+
     loadVideoSets(index) {
       this.isLoading = true
       return axios.get(`/creatives/video-sets/${this.contents[index].videoSet.id}`).then(response => {
@@ -797,13 +793,16 @@ export default {
         this.isLoading = false
       });
     },
+
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
     },
+
     validDimensions(fileWidth, fileHeight, width, height) {
       return fileWidth == width && fileHeight == height
     },
+
     addContent() {
       this.contents.push({
         id: '',
@@ -832,9 +831,11 @@ export default {
         imagePath: ''
       })
     },
+
     removeContent(index) {
       this.contents.splice(index, 1);
     },
+
     addTitle(index) {
       this.contents[index].headlines.push({
         headline: '',
@@ -852,29 +853,25 @@ export default {
         existing: false
       })
     },
+
     removeVideo(index, videoIndex) {
       this.contents[index].videos.splice(videoIndex, 1)
     },
 
     removeImageSet(index) {
       this.contents[index].imageSet = ''
-      this.contents[index].images = [{
-        imageUrlHQ: '',
-        imageUrlHQState: true,
-        imageUrl: '',
-        imageUrlState: true,
-        existing: false
-      }]
+      this.contents[index].images = []
     },
+
     removeVideoSet(index) {
       this.contents[index].videoSet = ''
       this.contents[index].videos = [{
-        videoPrimaryUrl: '',
-        videoPortraitUrl: '',
-        imagePortraitUrl: '',
+        videoPath: '',
+        videoThumbnailPath: '',
         existing: false
       }]
     },
+
     removeTitleSet(index) {
       this.contents[index].titleSet = ''
       this.contents[index].titles = [{
@@ -882,6 +879,7 @@ export default {
         existing: false
       }]
     },
+
     removeDescriptionSet(index) {
       this.contents[index].descriptionSet = ''
     },

@@ -104,7 +104,6 @@ export default {
     Loading
   },
   mounted() {
-    console.log('Component mounted.')
     this.data = this.rules
     console.log(this.data)
   },

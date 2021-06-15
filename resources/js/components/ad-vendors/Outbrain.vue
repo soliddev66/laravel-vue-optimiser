@@ -201,17 +201,23 @@
                         <div class="col-sm-8">
                           <div class="row mb-2" v-for="(title, indexTitle) in content.titles" :key="indexTitle">
                             <div class="col-sm-8">
-                              <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" />
+                              <input type="text" name="title" placeholder="Enter a title" class="form-control" v-model="title.title" :disabled="content.titleSet.id" />
                             </div>
                             <div class="col-sm-4">
-                              <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle)" v-if="indexTitle > 0"><i class="fa fa-minus"></i></button>
-                              <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length"><i class="fa fa-plus"></i></button>
+                              <button type="button" class="btn btn-light" @click.prevent="removeTitle(index, indexTitle)" v-if="indexTitle > 0" :disabled="content.titleSet.id"><i class="fa fa-minus"></i></button>
+                              <button type="button" class="btn btn-primary" @click.prevent="addTitle(index)" v-if="indexTitle + 1 == content.titles.length" :disabled="content.id || content.titleSet.id"><i class="fa fa-plus"></i></button>
+                              <button type="button" class="btn btn-primary" v-if="indexTitle == 0" @click="loadCreativeSet('title', index)"><i class="far fa-folder-open"></i></button>
+                            </div>
+                          </div>
+                          <div class="row" v-if="content.titleSet.id">
+                            <div class="col">
+                              <span class="selected-set">{{ content.titleSet.name }}<span class="close" @click="removeTitleSet(index)"><i class="fas fa-times"></i></span></span>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      <div class="form-group row">
+                      <!-- <div class="form-group row">
                         <label for="ad_type" class="col-sm-4 control-label mt-2">Ad Type</label>
                         <div class="col-sm-8">
                           <div class="btn-group btn-group-toggle">
@@ -223,7 +229,7 @@
                             </label>
                           </div>
                         </div>
-                      </div>
+                      </div> -->
 
                       <div class="form-group row">
                         <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
@@ -249,9 +255,13 @@
                         <label for="image_url" class="col-sm-4 control-label mt-2">Media URL (Video / Image)</label>
                         <div class="col-sm-8">
                           <input type="text" name="image_url" placeholder="Select media" class="form-control" v-model="content.imageUrl" disabled="true" />
-                        </div>
-                        <div class="col-sm-8 offset-sm-4">
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)">Choose File</button>
+                          <div class="row mt-2 mb-2">
+                            <div class="col">
+                              <span v-if="content.imageSet.id" class="selected-set">{{ content.imageSet.name }}<span class="close" @click="removeImageSet(index)"><i class="fas fa-times"></i></span></span>
+                            </div>
+                          </div>
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)" :disabled="content.imageSet.id">Choose File</button>
+                          <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
                         </div>
                         <div class="col-sm-8 offset-sm-4">
                           <small class="text-danger" v-for="(image, indexImage) in content.images" :key="indexImage">
@@ -374,6 +384,18 @@
         </div>
       </div>
     </div>
+
+    <div class="modal fade creative-set-modal" id="creative-set-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="col mt-3">
+            <h1>Select Creative Set</h1>
+          </div>
+          <creative-set-sets :type="setType" @selectCreativeSet="selectCreativeSet"></creative-set-sets>
+        </div>
+      </div>
+    </div>
+
     <modal width="60%" height="80%" name="imageModal">
       <file-manager v-bind:settings="settings" :props="{
           upload: true,
@@ -472,7 +494,6 @@ export default {
     }
   },
   mounted() {
-    console.log('Component mounted.')
     let vm = this
     this.$root.$on('fm-selected-items', (values) => {
       if (this.openingFileSelector === 'imageModal') {
@@ -504,6 +525,7 @@ export default {
       ads = [{
         adId: '',
         adType: 'IMAGE',
+        titleSet: '',
         titles: [{
           title: '',
           existing: false
@@ -512,6 +534,7 @@ export default {
         cpc: '',
         brandname: '',
         imageUrl: '',
+        imageSet: '',
         images: []
       }]
 
@@ -580,7 +603,9 @@ export default {
         baseUrl: '/file-manager', // overwrite base url Axios
         windowsConfig: 2, // overwrite config
         lang: 'en'
-      }
+      },
+      adSelectorIndex: 0,
+      setType: 'image'
     }
   },
   methods: {
@@ -589,13 +614,16 @@ export default {
       this.fileSelectorIndex = index
       this.$modal.show(name)
     },
+
     validURL(str) {
       var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
       return !!pattern.test(str);
     },
+
     validDimensions(fileWidth, fileHeight, width, height) {
       return fileWidth == width && fileHeight == height
     },
+
     getLanguages() {
       this.isLoading = true
       this.languages = []
@@ -614,6 +642,7 @@ export default {
         this.isLoading = false
       })
     },
+
     getCountries() {
       this.isLoading = true
       this.countries = []
@@ -632,10 +661,62 @@ export default {
         this.isLoading = false
       })
     },
+
+    loadCreativeSet(type, index) {
+      this.setType = type
+      this.adSelectorIndex = index
+      $('#creative-set-modal').modal('show')
+    },
+
+    selectCreativeSet(set) {
+      if (this.setType == 'title') {
+        this.ads[this.adSelectorIndex].titleSet = set
+        this.loadTitleSets(this.adSelectorIndex).then(() => {
+          this.ads[this.adSelectorIndex].titles = this.ads[this.adSelectorIndex].titleSet.sets.map(item => {
+            return {
+              title: item.title
+            }
+          })
+        })
+      }
+      if (this.setType == 'image') {
+        this.ads[this.adSelectorIndex].imageSet = set
+        this.loadImageSets(this.adSelectorIndex).then(() => {
+          this.ads[this.adSelectorIndex].images = this.ads[this.adSelectorIndex].imageSet.sets.map(item => {
+            return {
+              url: process.env.MIX_APP_URL + '/storage/images/' + item.hq_image,
+              state: true
+            }
+          })
+        })
+      }
+
+      $('#creative-set-modal').modal('hide')
+    },
+
+    loadTitleSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/title-sets/${this.ads[index].titleSet.id}`).then(response => {
+        this.ads[index].titleSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+
+    loadImageSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/image-sets/${this.ads[index].imageSet.id}`).then(response => {
+        this.ads[index].imageSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+
     addAd() {
       this.ads.push({
         adId: '',
         adType: 'IMAGE',
+        titleSet: '',
         titles: [{
           title: '',
           existing: false
@@ -644,24 +725,30 @@ export default {
         cpc: '',
         brandname: '',
         imageUrl: '',
+        imageSet: '',
         images: []
       })
     },
+
     removeAd(index) {
       this.ads.splice(index, 1)
     },
+
     addTitle(index) {
       this.ads[index].titles.push({
         title: '',
         existing: false
       })
     },
+
     removeTitle(index, indexTitle) {
       this.ads[index].titles.splice(indexTitle, 1)
     },
+
     removeAttibute(index) {
       this.attributes.splice(index, 1);
     },
+
     addNewAttibute() {
       this.attributes.push({
         name: '',
@@ -670,6 +757,7 @@ export default {
         targetUrl: this.targetUrl
       })
     },
+
     getAdvertisers() {
       this.advertisers = []
       this.isLoading = true
@@ -681,6 +769,7 @@ export default {
         this.isLoading = false
       })
     },
+
     signUp() {
       this.isLoading = true
       axios.post('/account/sign-up', {
@@ -698,6 +787,7 @@ export default {
         this.isLoading = false
       })
     },
+
     submitStep1() {
       const step1Data = {
         provider: this.selectedProvider,
@@ -727,6 +817,7 @@ export default {
       this.postData = {...this.postData, ...step1Data }
       this.currentStep = 2
     },
+
     submitStep2() {
       const step2Data = {
         ads: this.ads,
@@ -741,6 +832,7 @@ export default {
       }
       this.currentStep = 3
     },
+
     submitStep3() {
       const step3Data = {
         attributes: this.attributes
@@ -748,6 +840,7 @@ export default {
       this.postData = {...this.postData, ...step3Data }
       this.currentStep = 4
     },
+
     submitStep4() {
       this.isLoading = true
       let url = '/campaigns';
@@ -760,7 +853,7 @@ export default {
         if (response.data.errors) {
           alert(response.data.errors[0])
         } else {
-          this.$dialog.alert('Save successfully!').then(function(dialog) {
+          this.$dialog.alert('Save successfully!').then(() => {
             window.location = '/campaigns';
           });
         }

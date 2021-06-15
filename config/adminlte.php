@@ -256,6 +256,11 @@ return [
                     'icon' => 'fas fa-plus',
                 ],
                 [
+                    'text' => 'Multiple Vendors',
+                    'url'  => 'campaign-vendors',
+                    'icon' => 'fas fa-atom'
+                ],
+                [
                     'text' => 'Queue',
                     'url'  => 'queue',
                     'icon' => 'fas fa-list',

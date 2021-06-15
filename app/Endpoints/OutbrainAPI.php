@@ -78,17 +78,9 @@ class OutbrainAPI
         return $this->client->call('GET', 'marketers/' . $id . '/campaigns?offset=' . $offset);
     }
 
-    public function createBudget()
+    public function createBudget($advertiser, $body)
     {
-        return $this->client->call('POST', 'marketers/' . request('selectedAdvertiser') . '/budgets', [
-            'name' => request('campaignName') . '_' . Carbon::now(),
-            'amount' => request('campaignBudget'),
-            'startDate' => request('campaignStartDate'),
-            'endDate' => request('campaignEndDate'),
-            'runForever' => request('campaignEndDate') ? false : true,
-            'type' => request('campaignBudgetType'),
-            'pacing' => request('campaignPacing')
-        ]);
+        return $this->client->call('POST', 'marketers/' . $advertiser . '/budgets', $body);
     }
 
     public function updateBudget($budget_id)
@@ -116,25 +108,9 @@ class OutbrainAPI
         ]);
     }
 
-    public function createCampaign($budget_data)
+    public function createCampaign($body)
     {
-        return $this->client->call('POST', 'campaigns', [
-            'name' => request('campaignName'),
-            'cpc' => request('campaignCostPerClick'),
-            'enabled' => true,
-            'budgetId' => $budget_data['id'],
-            'targeting' => [
-                'platform' => request('campaginPlatform'),
-                'locations' => request('campaignLocation'),
-                'operatingSystems' => request('campaignOperatingSystem'),
-                'browsers' => request('campaignBrowser'),
-                'excludeAdBlockUsers' => request('campaignExcludeAdBlockUsers')
-            ],
-            'suffixTrackingCode' => request('campaignTrackingCode'),
-            'onAirType' => request('campaignStartTime') ? 'StartHour' : 'Scheduled',
-            'startHour' => strtoupper(request('campaignStartTime')),
-            'objective' => request('campaignObjective')
-        ]);
+        return $this->client->call('POST', 'campaigns', $body);
     }
 
     public function updateCampaign($campaign_id)

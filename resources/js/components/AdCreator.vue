@@ -39,7 +39,6 @@ export default {
 
   computed: {},
   mounted() {
-    console.log('Component mounted.')
   },
   watch: {
 

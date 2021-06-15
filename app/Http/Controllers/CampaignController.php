@@ -78,8 +78,8 @@ class CampaignController extends Controller
             $summary_data_query->where('open_id', $campaign->open_id);
             $summary_data_query->whereBetween('date', [request('start'), request('end')]);
         } else {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            $summary_data_query = (new $adVendorClass())->getSummaryDataQuery(request()->all(), $campaign);
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            $summary_data_query = (new $ad_vendor_class())->getSummaryDataQuery(request()->all(), $campaign);
         }
 
         return [
@@ -89,31 +89,31 @@ class CampaignController extends Controller
 
     public function targets(Campaign $campaign)
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass)->targets($campaign, request('status'));
+        return (new $ad_vendor_class)->targets($campaign, request('status'));
     }
 
     public function widgets(Campaign $campaign)
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-        $widgets_query = (new $adVendorClass())->getWidgetQuery($campaign, request()->all());
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $widgets_query = (new $ad_vendor_class())->getWidgetQuery($campaign, request()->all());
 
         return new DataTableCollectionResource($widgets_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
 
     public function publishers(Campaign $campaign)
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-        $widgets_query = (new $adVendorClass())->getPublisherQuery($campaign, request()->all());
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $widgets_query = (new $ad_vendor_class())->getPublisherQuery($campaign, request()->all());
 
         return new DataTableCollectionResource($widgets_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
 
     public function contents(Campaign $campaign)
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-        $contents_query = (new $adVendorClass())->getContentQuery($campaign, request()->all());
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $contents_query = (new $ad_vendor_class())->getContentQuery($campaign, request()->all());
 
         return new DataTableCollectionResource($contents_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
@@ -131,8 +131,8 @@ class CampaignController extends Controller
             $ad_groups_query->where('open_id', $campaign->open_id);
             $ad_groups_query->where('name', 'LIKE', '%' . request('search') . '%');
         } else {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            $ad_groups_query = (new $adVendorClass())->getAdGroupQuery($campaign, request()->all());
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            $ad_groups_query = (new $ad_vendor_class())->getAdGroupQuery($campaign, request()->all());
         }
 
         return new DataTableCollectionResource($ad_groups_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
@@ -169,8 +169,8 @@ class CampaignController extends Controller
             }
             $domains_query->groupBy('sub1');
         } else {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            $domains_query = (new $adVendorClass())->getDomainQuery($campaign, request()->all());
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            $domains_query = (new $ad_vendor_class())->getDomainQuery($campaign, request()->all());
         }
 
         return new DataTableCollectionResource($domains_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
@@ -213,8 +213,8 @@ class CampaignController extends Controller
             ->whereBetween('date', [request('start'), request('end')]);
             $performance_query->groupBy('date');
         } else {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            $performance_query = (new $adVendorClass())->getPerformanceQuery($campaign, request()->all());
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            $performance_query = (new $ad_vendor_class())->getPerformanceQuery($campaign, request()->all());
         }
 
         return $performance_query->get();
@@ -270,8 +270,8 @@ class CampaignController extends Controller
             $campaigns_query->groupBy('campaigns.id');
         } else {
             $provider = Provider::find(request('provider'));
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
-            $campaigns_query = (new $adVendorClass())->getCampaignQuery(request()->all());
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
+            $campaigns_query = (new $ad_vendor_class())->getCampaignQuery(request()->all());
         }
         foreach (request()->all() as $session_key => $session_value) {
             session([$session_key => $session_value]);
@@ -289,8 +289,8 @@ class CampaignController extends Controller
 
             if (request('account')) {
                 $provider = Provider::where('id', request('provider'))->first();
-                $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
-                $remote_advertisers = (new $adVendorClass())->advertisers();
+                $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
+                $remote_advertisers = (new $ad_vendor_class())->advertisers();
                 if ($provider->id === 2) {
                     $remote_advertisers = $remote_advertisers['marketers'];
                 }
@@ -342,9 +342,9 @@ class CampaignController extends Controller
             }
         } else {
             $provider = Provider::where('id', request('provider'))->first();
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($provider->slug);
 
-            $summary_data_query = (new $adVendorClass())->getSummaryDataQuery(request()->all());
+            $summary_data_query = (new $ad_vendor_class())->getSummaryDataQuery(request()->all());
         }
 
         return [
@@ -372,8 +372,8 @@ class CampaignController extends Controller
         $instance = null;
 
         if ($campaign) {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-            $adVendor = new $adVendorClass();
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            $adVendor = new $ad_vendor_class();
             $instance = $adVendor->getCampaignInstance($campaign);
 
             if (isset($instance['id'])) {
@@ -400,23 +400,23 @@ class CampaignController extends Controller
 
     public function storeAd(Campaign $campaign, $ad_group_id = null)
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass())->storeAd($campaign, $ad_group_id);
+        return (new $ad_vendor_class())->storeAd($campaign, $ad_group_id);
     }
 
     public function updateAd(Campaign $campaign, $ad_group_id = null)
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass())->updateAd($campaign, $ad_group_id);
+        return (new $ad_vendor_class())->updateAd($campaign, $ad_group_id);
     }
 
     public function edit(Campaign $campaign)
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        $instance = (new $adVendorClass())->getCampaignInstance($campaign);
+        $instance = (new $ad_vendor_class())->getCampaignInstance($campaign);
 
         if (!isset($instance['id'])) {
             return view('error', [
@@ -429,17 +429,17 @@ class CampaignController extends Controller
 
     public function update(Campaign $campaign)
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
         Helper::pullCampaign();
 
-        return (new $adVendorClass())->update($campaign);
+        return (new $ad_vendor_class())->update($campaign);
     }
 
     public function status(Campaign $campaign)
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass())->status($campaign);
+        return (new $ad_vendor_class())->status($campaign);
     }
 
     public function adGroupStatus($campaign_id, $ad_group_id)
@@ -448,9 +448,9 @@ class CampaignController extends Controller
         if (!$campaign) {
             $campaign = Campaign::where('campaign_id', $campaign_id)->first();
         }
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass())->adGroupStatus($campaign, $ad_group_id);
+        return (new $ad_vendor_class())->adGroupStatus($campaign, $ad_group_id);
     }
 
     public function getCloneAd($campaign_id, $ad_group_id, $ad_id)
@@ -460,8 +460,8 @@ class CampaignController extends Controller
             $campaign = Campaign::where('campaign_id', $campaign_id)->first();
         }
         $instance = null;
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
-        $adVendor = new $adVendorClass();
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $adVendor = new $ad_vendor_class();
         $instance = $adVendor->getAdInstance($campaign, $ad_group_id, $ad_id);
         if (isset($instance['id'])) {
             $adVendor->cloneAdName($instance);
@@ -479,52 +479,52 @@ class CampaignController extends Controller
         if (!$campaign) {
             $campaign = Campaign::where('campaign_id', $campaign_id)->first();
         }
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass())->adStatus($campaign, $ad_group_id, $ad_id);
+        return (new $ad_vendor_class())->adStatus($campaign, $ad_group_id, $ad_id);
     }
 
     public function itemStatus()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass())->itemStatus();
+        return (new $ad_vendor_class())->itemStatus();
     }
 
     public function adGroupData(Campaign $campaign)
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass())->adGroupData($campaign);
+        return (new $ad_vendor_class())->adGroupData($campaign);
     }
 
     public function adGroupSelection(Campaign $campaign)
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass())->adGroupSelection($campaign);
+        return (new $ad_vendor_class())->adGroupSelection($campaign);
     }
 
     public function delete(Campaign $campaign)
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
         Helper::pullCampaign();
 
-        return (new $adVendorClass())->delete($campaign);
+        return (new $ad_vendor_class())->delete($campaign);
     }
 
     public function media()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass())->media();
+        return (new $ad_vendor_class())->media();
     }
 
     public function store()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass())->store();
+        return (new $ad_vendor_class())->store();
     }
 
     public function exportExcel()
@@ -539,15 +539,31 @@ class CampaignController extends Controller
 
     public function blockSite(Campaign $campaign, $domain_id)
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass())->blockSite($campaign, $domain_id);
+        return (new $ad_vendor_class())->blockSite($campaign, $domain_id);
     }
 
     public function unBlockSite(Campaign $campaign, $domain_id)
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $adVendorClass())->unBlockSite($campaign, $domain_id);
+        return (new $ad_vendor_class())->unBlockSite($campaign, $domain_id);
+    }
+
+    public function campaignVendors()
+    {
+        return view('campaigns.campaignVendors');
+    }
+
+    public function storeCampaignVendors()
+    {
+        foreach (request('vendors') as $vendor) {
+            if ($vendor['selected']) {
+                \App\Jobs\CreateCampaignVendor::dispatchNow($vendor);
+            }
+        }
+
+        return [];
     }
 }

@@ -40,7 +40,6 @@ export default {
   components: {
   },
   mounted() {
-    console.log('Component mounted.')
     this.getData().then(() => {
       $('#ruleTemplatesTable').DataTable({
         retrieve: true,

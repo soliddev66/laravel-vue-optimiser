@@ -99,22 +99,22 @@ class TwitterAPI
         }
     }
 
-    public function saveCampaign($campaign_id = null)
+    public function saveCampaign($data, $campaign_id = null)
     {
         try {
             $campaign = new Campaign($campaign_id);
-            $campaign->setFundingInstrumentId(request('fundingInstrument'));
-            $campaign->setDailyBudgetAmountLocalMicro(request('campaignDailyBudgetAmountLocalMicro') * 1E6);
-            $campaign->setName(request('campaignName'));
-            $campaign->setEntityStatus(request('campaignStatus'));
-            $campaign->setStartTime(request('campaignStartTime'));
+            $campaign->setFundingInstrumentId($data['fundingInstrument']);
+            $campaign->setDailyBudgetAmountLocalMicro($data['campaignDailyBudgetAmountLocalMicro'] * 1E6);
+            $campaign->setName($data['campaignName']);
+            $campaign->setEntityStatus($data['campaignStatus']);
+            $campaign->setStartTime($data['campaignStartTime']);
 
-            if (!empty(request('campaignEndTime'))) {
-                $campaign->setEndTime(request('campaignEndTime'));
+            if (!empty($data['campaignEndTime'])) {
+                $campaign->setEndTime($data['campaignEndTime']);
             }
 
-            if (!empty(request('campaignTotalBudgetAmountLocalMicro'))) {
-                $campaign->setTotalBudgetAmountLocalMicro(request('campaignTotalBudgetAmountLocalMicro') * 1E6);
+            if (!empty($data['campaignTotalBudgetAmountLocalMicro'])) {
+                $campaign->setTotalBudgetAmountLocalMicro($data['campaignTotalBudgetAmountLocalMicro'] * 1E6);
             }
 
             return $campaign->save();
@@ -175,51 +175,51 @@ class TwitterAPI
         }
     }
 
-    public function saveLineItem($campaign, $line_item_id = null)
+    public function saveLineItem($campaign, $data, $line_item_id = null)
     {
         try {
             $line_item = new LineItem($line_item_id);
             $line_item->setCampaignId($campaign->getId());
-            $line_item->setName(request('adGroupName'));
+            $line_item->setName($data['adGroupName']);
             $line_item->setProductType('PROMOTED_TWEETS');
-            $line_item->setPlacements(request('adGroupPlacements'));
-            $line_item->setObjective(request('adGroupObjective'));
-            $line_item->setEntityStatus(request('adGroupStatus'));
-            $line_item->setCategories(request('adGroupCategories'));
-            $line_item->setAdvertiserDomain(request('adGroupAdvertiserDomain'));
+            $line_item->setPlacements($data['adGroupPlacements']);
+            $line_item->setObjective($data['adGroupObjective']);
+            $line_item->setEntityStatus($data['adGroupStatus']);
+            $line_item->setCategories($data['adGroupCategories']);
+            $line_item->setAdvertiserDomain($data['adGroupAdvertiserDomain']);
 
-            if (!empty(request('adGroupBidAmountLocalMicro'))) {
-                $line_item->setBidAmountLocalMicro(request('adGroupBidAmountLocalMicro') * 1E6);
+            if (!empty($data['adGroupBidAmountLocalMicro'])) {
+                $line_item->setBidAmountLocalMicro($data['adGroupBidAmountLocalMicro'] * 1E6);
             }
 
-            if (!empty(request('adGroupStartTime'))) {
-                $line_item->setStartTime(request('adGroupStartTime'));
+            if (!empty($data['adGroupStartTime'])) {
+                $line_item->setStartTime($data['adGroupStartTime']);
             }
 
-            if (!empty(request('adGroupEndTime'))) {
-                $line_item->setEndTime(request('adGroupEndTime'));
+            if (!empty($data['adGroupEndTime'])) {
+                $line_item->setEndTime($data['adGroupEndTime']);
             }
 
-            if (request('adGroupAutomaticallySelectBid')) {
+            if ($data['adGroupAutomaticallySelectBid']) {
                 $line_item->setAutomaticallySelectBid(true);
             }
 
-            if (request('adGroupAutomaticallySelectBid') && !empty(request('adGroupBidType'))) {
-                $line_item->setBidType(request('adGroupBidType'));
+            if ($data['adGroupAutomaticallySelectBid'] && !empty($data['adGroupBidType'])) {
+                $line_item->setBidType($data['adGroupBidType']);
             }
 
-            if (!empty(request('adGroupTotalBudgetAmountLocalMicro'))) {
-                $line_item->setTotalBudgetAmountLocalMicro(request('adGroupTotalBudgetAmountLocalMicro'));
+            if (!empty($data['adGroupTotalBudgetAmountLocalMicro'])) {
+                $line_item->setTotalBudgetAmountLocalMicro($data['adGroupTotalBudgetAmountLocalMicro']);
             }
 
             $line_item->setOptimization('DEFAULT');
 
-            if (!empty(request('adGroupBidUnit'))) {
-                $line_item->setBidUnit(request('adGroupBidUnit'));
+            if (!empty($data['adGroupBidUnit'])) {
+                $line_item->setBidUnit($data['adGroupBidUnit']);
             }
 
-            if (!empty(request('adGroupChargeBy'))) {
-                $line_item->setChargeBy(request('adGroupChargeBy'));
+            if (!empty($data['adGroupChargeBy'])) {
+                $line_item->setChargeBy($data['adGroupChargeBy']);
             }
 
             return $line_item->save();

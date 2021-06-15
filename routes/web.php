@@ -36,10 +36,12 @@ Route::group(['middleware' => 'auth', 'prefix' => 'general'], function() {
 });
 
 Route::get('/create-campaign', [App\Http\Controllers\CampaignController::class, 'create'])->name('campaigns.createCampaign');
+Route::get('/campaign-vendors', [App\Http\Controllers\CampaignController::class, 'campaignVendors'])->name('campaigns.campaignVendors');
 Route::get('/queue', [App\Http\Controllers\CampaignController::class, 'queue'])->name('campaigns.queue');
 Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/', [App\Http\Controllers\CampaignController::class, 'index'])->name('campaigns.index');
     Route::post('/', [App\Http\Controllers\CampaignController::class, 'store'])->name('campaigns.store');
+    Route::post('/store-campaign-vendors', [App\Http\Controllers\CampaignController::class, 'storeCampaignVendors'])->name('campaigns.storeCampaignVendors');
     Route::post('/filters', [App\Http\Controllers\CampaignController::class, 'filters'])->name('campaigns.filters');
     Route::post('/data', [App\Http\Controllers\CampaignController::class, 'data'])->name('campaigns.data');
     Route::post('/search', [App\Http\Controllers\CampaignController::class, 'search'])->name('campaigns.search');
@@ -81,15 +83,15 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
 Route::group(['middleware' => 'auth', 'prefix' => 'creatives'], function() {
     Route::get('/', [App\Http\Controllers\CreativeController::class, 'index'])->name('creatives.index');
     Route::get('/data', [App\Http\Controllers\CreativeController::class, 'data'])->name('creatives.data');
-    Route::get('/title-sets/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'titleSets'])->name('creatives.titleSets');
-    Route::get('/image-sets/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'imageSets'])->name('creatives.imageSets');
-    Route::get('/video-sets/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'videoSets'])->name('creatives.videoSets');
-    Route::get('/description-sets/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'descriptionSets'])->name('creatives.descriptionSets');
+    Route::get('/title-sets/{creative_set}', [App\Http\Controllers\CreativeController::class, 'titleSets'])->name('creatives.titleSets');
+    Route::get('/image-sets/{creative_set}', [App\Http\Controllers\CreativeController::class, 'imageSets'])->name('creatives.imageSets');
+    Route::get('/video-sets/{creative_set}', [App\Http\Controllers\CreativeController::class, 'videoSets'])->name('creatives.videoSets');
+    Route::get('/description-sets/{creative_set}', [App\Http\Controllers\CreativeController::class, 'descriptionSets'])->name('creatives.descriptionSets');
     Route::get('/create', [App\Http\Controllers\CreativeController::class, 'create'])->name('creatives.create');
-    Route::get('/edit/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'edit'])->name('creatives.edit');
-    Route::post('/delete/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'delete'])->name('creatives.delete');
+    Route::get('/edit/{creative_set}', [App\Http\Controllers\CreativeController::class, 'edit'])->name('creatives.edit');
+    Route::post('/delete/{creative_set}', [App\Http\Controllers\CreativeController::class, 'delete'])->name('creatives.delete');
     Route::post('/', [App\Http\Controllers\CreativeController::class, 'store'])->name('creatives.store');
-    Route::post('/update/{creativeSet}', [App\Http\Controllers\CreativeController::class, 'update'])->name('creatives.update');
+    Route::post('/update/{creative_set}', [App\Http\Controllers\CreativeController::class, 'update'])->name('creatives.update');
 });
 
 Route::post('user-providers', [\App\Http\Controllers\UserProviderController::class, 'store'])->name('userProviders.store');

@@ -42,9 +42,9 @@ class AccountController extends Controller
         $provider = Provider::where('slug', request('provider'))->first();
         $account = auth()->user()->providers()->where('provider_id', $provider->id)->where('open_id', request('account'))->first();
 
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        $advertisers = (new $adVendorClass())->advertisers();
+        $advertisers = (new $ad_vendor_class())->advertisers();
 
         if (request('provider') === 'outbrain') {
             $advertisers = $advertisers['marketers'];
@@ -67,8 +67,8 @@ class AccountController extends Controller
 
     public function advertisers()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
-        $remote_advertisers = (new $adVendorClass())->advertisers();
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $remote_advertisers = (new $ad_vendor_class())->advertisers();
         if (request('provider') == 'outbrain') {
             $remote_advertisers = $remote_advertisers['marketers'];
         }
@@ -89,23 +89,23 @@ class AccountController extends Controller
 
     public function fundingInstruments()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass())->fundingInstruments();
+        return (new $ad_vendor_class())->fundingInstruments();
     }
 
     public function adGroupCategories()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass())->adGroupCategories();
+        return (new $ad_vendor_class())->adGroupCategories();
     }
 
     public function signUp()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass())->signUp();
+        return (new $ad_vendor_class())->signUp();
     }
 
     public function trafficSources()

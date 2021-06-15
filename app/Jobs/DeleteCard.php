@@ -40,8 +40,8 @@ class DeleteCard implements ShouldQueue
      */
     public function handle()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($this->provider);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($this->provider);
 
-        (new $adVendorClass)->deleteCard($this->user, $this->card_id, $this->provider, $this->account, $this->advertiser);
+        (new $ad_vendor_class)->deleteCard($this->user, $this->card_id, $this->provider, $this->account, $this->advertiser);
     }
 }

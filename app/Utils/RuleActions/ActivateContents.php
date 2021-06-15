@@ -16,9 +16,9 @@ class ActivateContents extends Root
             'ad' => $ad
         ];
         try {
-            $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-            (new $adVendorClass)->adStatus($campaign, $ad->ad_group_id, $ad->ad_id, Campaign::STATUS_ACTIVE);
+            (new $ad_vendor_class)->adStatus($campaign, $ad->ad_group_id, $ad->ad_id, Campaign::STATUS_ACTIVE);
             $log['effect']['activated'] = true;
             echo 'Ad was being activated', "\n";
         } catch (Exception $e) {

@@ -62,7 +62,6 @@ export default {
     Loading
   },
   mounted() {
-    console.log('Component mounted.')
     this.data = this.creativeSets
   },
   data() {

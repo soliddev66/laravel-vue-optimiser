@@ -13,6 +13,7 @@ use App\Models\RedtrackReport;
 use App\Models\TaboolaReport;
 use App\Models\UserProvider;
 use App\Models\UserTracker;
+use App\Models\CreativeSet;
 use App\Vngodev\AdVendorInterface;
 use App\Vngodev\Helper;
 use App\Vngodev\ResourceImporter;
@@ -78,63 +79,163 @@ class Taboola extends Root implements AdVendorInterface
 
             $campaign_data = $api->createCampaign(request('advertiser'), $data);
 
-            $ads = [];
-
             foreach (request('campaignItems') as $campaign_item) {
-                foreach ($campaign_item['titles'] as $title) {
+                $titles = [];
+
+                $title_creative_set = null;
+                $description_creative_set = null;
+                $image_creative_set = null;
+                $video_creative_set = null;
+
+                if (isset($campaign_item['titleSet']['id'])) {
+                    $title_creative_set = CreativeSet::find($campaign_item['titleSet']['id']);
+
+                    if ($title_creative_set) {
+                        $titles = $title_creative_set->titleSets;
+                    } else {
+                        throw('No creative set found.');
+                    }
+                } else {
+                    $titles = $campaign_item['titles'];
+                }
+
+                $description = '';
+
+                if (isset($campaign_item['descriptionSet']['id'])) {
+                    $description_creative_set = CreativeSet::find($campaign_item['descriptionSet']['id']);
+
+                    if ($description_creative_set) {
+                        $description = $description_creative_set->descriptionSets[0]['description'];
+                    } else {
+                        throw('No creative set found.');
+                    }
+                } else {
+                    $description = $campaign_item['description'];
+                }
+
+                foreach ($titles as $title) {
                     if ($campaign_item['adType'] == 'IMAGE') {
-                        foreach ($campaign_item['images'] as $image) {
+                        $imges = [];
+
+                        if (isset($campaign_item['imageSet']['id'])) {
+                            $image_creative_set = CreativeSet::find($campaign_item['imageSet']['id']);
+
+                            if ($image_creative_set) {
+                                $images = $image_creative_set->imageSets;
+                            } else {
+                                throw('No creative set found.');
+                            }
+                        } else {
+                            $images = $campaign_item['images'];
+                        }
+
+                        foreach ($images as $image) {
                             $campaign_item_data = $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
 
-                            $ads[] = [
+                            $db_ad = Ad::firstOrNew([
                                 'ad_id' => $campaign_item_data['id'],
                                 'user_id' => auth()->id(),
                                 'provider_id' => 4,
                                 'campaign_id' => $campaign_data['id'],
-                                'ad_group_id' => 'taboola',
                                 'advertiser_id' => request('advertiser'),
-                                'open_id' => request('account'),
-                                'name' => $title['title'],
-                                'type' => 1,
-                                'image' => $image['image'],
-                                'status' => $campaign_item_data['status'],
-                                'description' => $campaign_item['description'],
-                                'synced' => 0
-                            ];
+                                'ad_group_id' => 'taboola',
+                                'open_id' => request('account')
+                            ]);
+
+                            $db_ad->name = $title['title'];
+                            $db_ad->type = 1;
+                            $db_ad->image = Helper::encodeUrl($image_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['image']);
+                            $db_ad->status = $campaign_item_data['status'];
+                            $db_ad->description = $description;
+                            $db_ad->synced = 0;
+
+                            $db_ad->save();
+
+                            $db_ad->creativeSets()->detach();
+
+                            if ($title_creative_set) {
+                                $db_ad->creativeSets()->save($title_creative_set);
+                            }
+
+                            if ($description_creative_set) {
+                                $db_ad->creativeSets()->save($description_creative_set);
+                            }
+
+                            if ($video_creative_set) {
+                                $db_ad->creativeSets()->save($video_creative_set);
+                            }
+
+                            if ($image_creative_set) {
+                                $db_ad->creativeSets()->save($image_creative_set);
+                            }
                         }
                     } else {
-                        foreach ($campaign_item['videos'] as $video) {
+                        $videos = [];
+
+                        if (isset($campaign_item['videoSet']['id'])) {
+                            $video_creative_set = CreativeSet::find($campaign_item['videoSet']['id']);
+
+                            if ($video_creative_set) {
+                                $videos = $video_creative_set->videoSets;
+                            } else {
+                                throw('No creative set found.');
+                            }
+                        } else {
+                            $videos = $campaign_item['videos'];
+                        }
+
+                        foreach ($videos as $video) {
                             $campaign_item_data = $api->createCampaignVideoItem(request('advertiser'), $campaign_data['id'], [
                                 'url' => $campaign_item['url'],
                                 'title' => $title['title'],
-                                'description' => $campaign_item['description'],
-                                'video_url' => $video['videoUrl'],
+                                'description' => $description,
+                                'video_url' => Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl']),
                                 'fallback_url' => $video['imageUrl']
                             ]);
 
-                            $ads[] = [
+                            $db_ad = Ad::firstOrNew([
                                 'ad_id' => $campaign_item_data['id'],
                                 'user_id' => auth()->id(),
                                 'provider_id' => 4,
                                 'campaign_id' => $campaign_data['id'],
                                 'ad_group_id' => 'taboola',
                                 'advertiser_id' => request('advertiser'),
-                                'open_id' => request('account'),
-                                'name' => $title['title'],
-                                'type' => 2,
-                                'video' => $video['videoUrl'],
-                                'image' => $video['imageUrl'],
-                                'status' => $campaign_item_data['status'],
-                                'description' => $campaign_item['description'],
-                                'synced' => 1
-                            ];
+                                'open_id' => request('account')
+                            ]);
+
+                            $db_ad->name = $title['title'];
+                            $db_ad->type = 2;
+                            $db_ad->video = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl']);
+                            $db_ad->image = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['landscape_image']) : $video['imageUrl']);
+                            $db_ad->status = $campaign_item_data['status'];
+                            $db_ad->description = $description;
+                            $db_ad->synced = 1;
+
+                            $db_ad->save();
+
+                            $db_ad->creativeSets()->detach();
+
+                            if ($title_creative_set) {
+                                $db_ad->creativeSets()->save($title_creative_set);
+                            }
+
+                            if ($description_creative_set) {
+                                $db_ad->creativeSets()->save($description_creative_set);
+                            }
+
+                            if ($video_creative_set) {
+                                $db_ad->creativeSets()->save($video_creative_set);
+                            }
+
+                            if ($image_creative_set) {
+                                $db_ad->creativeSets()->save($image_creative_set);
+                            }
                         }
                     }
                 }
             }
 
             $resource_importer = new ResourceImporter();
-            $resource_importer->insertOrUpdate('ads', $ads, ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
 
             $resource_importer->insertOrUpdate('campaigns', [[
                 'campaign_id' => $campaign_data['id'],
@@ -192,19 +293,64 @@ class Taboola extends Root implements AdVendorInterface
 
             $campaign_data = $api->updateCampaign($campaign->advertiser_id, $campaign->campaign_id, $data);
 
-            $ads = [];
-
             foreach (request('campaignItems') as $campaign_item) {
-                foreach ($campaign_item['titles'] as $title) {
+                $titles = [];
+
+                $title_creative_set = null;
+                $description_creative_set = null;
+                $image_creative_set = null;
+                $video_creative_set = null;
+
+                if (isset($campaign_item['titleSet']['id'])) {
+                    $title_creative_set = CreativeSet::find($campaign_item['titleSet']['id']);
+
+                    if ($title_creative_set) {
+                        $titles = $title_creative_set->titleSets;
+                    } else {
+                        throw('No creative set found.');
+                    }
+                } else {
+                    $titles = $campaign_item['titles'];
+                }
+
+                $description = '';
+
+                if (isset($campaign_item['descriptionSet']['id'])) {
+                    $description_creative_set = CreativeSet::find($campaign_item['descriptionSet']['id']);
+
+                    if ($description_creative_set) {
+                        $description = $description_creative_set->descriptionSets[0]['description'];
+                    } else {
+                        throw('No creative set found.');
+                    }
+                } else {
+                    $description = $campaign_item['description'];
+                }
+
+                foreach ($titles as $title) {
                     if ($campaign_item['adType'] == 'IMAGE') {
-                        foreach ($campaign_item['images'] as $image) {
+                        $imges = [];
+
+                        if (isset($campaign_item['imageSet']['id'])) {
+                            $image_creative_set = CreativeSet::find($campaign_item['imageSet']['id']);
+
+                            if ($image_creative_set) {
+                                $images = $image_creative_set->imageSets;
+                            } else {
+                                throw('No creative set found.');
+                            }
+                        } else {
+                            $images = $campaign_item['images'];
+                        }
+
+                        foreach ($images as $image) {
                             $synced = 0;
-                            if ($title['existing'] && $image['existing']) {
+                            if (isset($campaign_item['id'])) {
                                 $campaign_item_data = $api->updateCampaignItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['id'], [
                                     'url' => $campaign_item['url'],
                                     'title' => $title['title'],
                                     'description' => $campaign_item['description'],
-                                    'thumbnail_url' => $image['image']
+                                    'thumbnail_url' => Helper::encodeUrl($image_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['image'])
                                 ]);
 
                                 $synced = 1;
@@ -212,65 +358,118 @@ class Taboola extends Root implements AdVendorInterface
                                 $campaign_item_data = $api->createCampaignItem(request('advertiser'), $campaign_data['id'], $campaign_item['url']);
                             }
 
-                            $ads[] = [
+                            $db_ad = Ad::firstOrNew([
                                 'ad_id' => $campaign_item_data['id'],
                                 'user_id' => auth()->id(),
                                 'provider_id' => 4,
                                 'campaign_id' => $campaign_data['id'],
-                                'ad_group_id' => 'taboola',
                                 'advertiser_id' => request('advertiser'),
-                                'open_id' => request('account'),
-                                'synced' => $synced,
-                                'type' => 1,
-                                'name' => $title['title'],
-                                'image' => $image['image'],
-                                'status' => $campaign_item_data['status'],
-                                'description' => $campaign_item['description']
-                            ];
+                                'ad_group_id' => 'taboola',
+                                'open_id' => request('account')
+                            ]);
+
+                            $db_ad->synced = $synced;
+                            $db_ad->type = 1;
+                            $db_ad->name = $title['title'];
+                            $db_ad->image = Helper::encodeUrl($image_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['image']);
+                            $db_ad->status = $campaign_item_data['status'];
+                            $db_ad->description = $campaign_item['description'];
+
+                            $db_ad->save();
+
+                            $db_ad->creativeSets()->detach();
+
+                            if ($title_creative_set) {
+                                $db_ad->creativeSets()->save($title_creative_set);
+                            }
+
+                            if ($description_creative_set) {
+                                $db_ad->creativeSets()->save($description_creative_set);
+                            }
+
+                            if ($video_creative_set) {
+                                $db_ad->creativeSets()->save($video_creative_set);
+                            }
+
+                            if ($image_creative_set) {
+                                $db_ad->creativeSets()->save($image_creative_set);
+                            }
                         }
                     } else {
-                        foreach ($campaign_item['videos'] as $video) {
-                            if ($title['existing'] && $video['existing']) {
+                        $videos = [];
+
+                        if (isset($content['videoSet']['id'])) {
+                            $video_creative_set = CreativeSet::find($content['videoSet']['id']);
+
+                            if ($video_creative_set) {
+                                $videos = $video_creative_set->videoSets;
+                            } else {
+                                throw('No creative set found.');
+                            }
+                        } else {
+                            $videos = $content['videos'];
+                        }
+
+                        foreach ($videos as $video) {
+                            if (isset($campaign_item['id'])) {
                                 $campaign_item_data = $api->updateCampaignVideoItem($campaign->advertiser_id, $campaign->campaign_id, $campaign_item['id'], [
                                     'url' => $campaign_item['url'],
                                     'title' => $title['title'],
-                                    'description' => $campaign_item['description'],
-                                    'video_url' => $video['videoUrl'],
-                                    'fallback_url' => $video['imageUrl']
+                                    'description' => $description,
+                                    'video_url' => Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl']),
+                                    'fallback_url' => Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['landscape_image']) : $video['imageUrl'])
                                 ]);
                             } else {
                                 $campaign_item_data = $api->createCampaignVideoItem(request('advertiser'), $campaign_data['id'], [
                                     'url' => $campaign_item['url'],
                                     'title' => $title['title'],
-                                    'description' => $campaign_item['description'],
-                                    'video_url' => $video['videoUrl'],
-                                    'fallback_url' => $video['imageUrl']
+                                    'description' => $description,
+                                    'video_url' => Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl']),
+                                    'fallback_url' => Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['landscape_image']) : $video['imageUrl'])
                                 ]);
                             }
 
-                            $ads[] = [
+                            $db_ad = Ad::firstOrNew([
                                 'ad_id' => $campaign_item_data['id'],
                                 'user_id' => auth()->id(),
                                 'provider_id' => 4,
                                 'campaign_id' => $campaign_data['id'],
                                 'ad_group_id' => 'taboola',
                                 'advertiser_id' => request('advertiser'),
-                                'open_id' => request('account'),
-                                'type' => 2,
-                                'name' => $title['title'],
-                                'video' => $video['videoUrl'],
-                                'image' => $video['imageUrl'],
-                                'status' => $campaign_item_data['status'],
-                                'description' => $campaign_item['description'],
-                                'synced' => 1
-                            ];
+                                'open_id' => request('account')
+                            ]);
+
+                            $db_ad->type = 2;
+                            $db_ad->name = $title['title'];
+                            $db_ad->video = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl']);
+                            $db_ad->image = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['landscape_image']) : $video['imageUrl']);
+                            $db_ad->status = $campaign_item_data['status'];
+                            $db_ad->description = $description;
+                            $db_ad->synced = 1;
+
+                            $db_ad->save();
+
+                            $db_ad->creativeSets()->detach();
+
+                            if ($title_creative_set) {
+                                $db_ad->creativeSets()->save($title_creative_set);
+                            }
+
+                            if ($description_creative_set) {
+                                $db_ad->creativeSets()->save($description_creative_set);
+                            }
+
+                            if ($video_creative_set) {
+                                $db_ad->creativeSets()->save($video_creative_set);
+                            }
+
+                            if ($image_creative_set) {
+                                $db_ad->creativeSets()->save($image_creative_set);
+                            }
                         }
                     }
                 }
             }
-
-            $resource_importer = new ResourceImporter();
-            $resource_importer->insertOrUpdate('ads', $ads, ['ad_id', 'user_id', 'provider_id', 'campaign_id', 'advertiser_id', 'ad_group_id', 'open_id']);
 
             return $campaign_data;
         } catch (Exception $e) {
@@ -617,6 +816,31 @@ class Taboola extends Root implements AdVendorInterface
                         $item['thumbnail_url'] = $ad['image'];
                     }
 
+                    $image_set = $ad->creativeSets()->where('type', 1)->first();
+
+                    if ($image_set) {
+                        $item['imageSet'] = $image_set;
+                        $item['imageSet']['sets'] = $image_set->imageSets;
+                    }
+
+                    $video_set = $ad->creativeSets()->where('type', 2)->first();
+                    if ($video_set) {
+                        $item['videoSet'] = $video_set;
+                        $item['videoSet']['sets'] = $video_set->videoSets;
+                    }
+
+                    $title_set = $ad->creativeSets()->where('type', 3)->first();
+                    if ($title_set) {
+                        $item['titleSet'] = $title_set;
+                        $item['titleSet']['sets'] = $title_set->titleSets;
+                    }
+
+                    $description_set = $ad->creativeSets()->where('type', 4)->first();
+                    if ($description_set) {
+                        $item['descriptionSet'] = $description_set;
+                        $item['descriptionSet']['sets'] = $description_set->descriptionSets;
+                    }
+
                     $instance['items'][] = $item;
                 }
             }
@@ -637,6 +861,41 @@ class Taboola extends Root implements AdVendorInterface
                     }
                     if (empty($item['description'])) {
                         $item['description'] = $ad['description'];
+                    }
+
+                    if (empty($item['title'])) {
+                        $item['title'] = $ad['title'];
+                    }
+                    if (empty($item['description'])) {
+                        $item['description'] = $ad['description'];
+                    }
+                    if (empty($item['thumbnail_url'])) {
+                        $item['thumbnail_url'] = $ad['image'];
+                    }
+
+                    $image_set = $ad->creativeSets()->where('type', 1)->first();
+
+                    if ($image_set) {
+                        $item['imageSet'] = $image_set;
+                        $item['imageSet']['sets'] = $image_set->imageSets;
+                    }
+
+                    $video_set = $ad->creativeSets()->where('type', 2)->first();
+                    if ($video_set) {
+                        $item['videoSet'] = $video_set;
+                        $item['videoSet']['sets'] = $video_set->videoSets;
+                    }
+
+                    $title_set = $ad->creativeSets()->where('type', 3)->first();
+                    if ($title_set) {
+                        $item['titleSet'] = $title_set;
+                        $item['titleSet']['sets'] = $title_set->titleSets;
+                    }
+
+                    $description_set = $ad->creativeSets()->where('type', 4)->first();
+                    if ($description_set) {
+                        $item['descriptionSet'] = $description_set;
+                        $item['descriptionSet']['sets'] = $description_set->descriptionSets;
                     }
 
                     $instance['items'][] = $item;
@@ -1007,5 +1266,234 @@ class Taboola extends Root implements AdVendorInterface
         $api->updateCampaign($campaign->advertiser_id, $campaign->campaign_id, [
             'cpc' => $data->bid
         ]);
+    }
+
+    public function storeCampaignVendors($vendor) {
+        $api = new TaboolaAPI(UserProvider::where([
+            'provider_id' => 4,
+            'open_id' => $vendor['selectedAccount']
+        ])->first());
+
+        try {
+            $data = [
+                'name' => request('campaignName'),
+                'branding_text' => $vendor['campaignBrandText'],
+                'cpc' => $vendor['campaignCPC'],
+                'spending_limit' => $vendor['campaignSpendingLimit'],
+                'spending_limit_model' => $vendor['campaignSpendingLimitModel'],
+                'marketing_objective' => $vendor['campaignMarketingObjective'],
+                'is_active' => $vendor['campaignIsActive'],
+                'start_date' => $vendor['campaignStartDate'],
+                'end_date' => $vendor['campaignEndDate'] ?? ''
+            ];
+
+            $country_targeting = $vendor['campaignCountryTargeting'] ?? [];
+            $platform_targeting = $vendor['campaignPlatformTargeting'] ?? [];
+
+            if (count($country_targeting) > 0) {
+                $data['country_targeting'] = [
+                    'type' => 'INCLUDE',
+                    'value' => $country_targeting
+                ];
+            }
+
+            if (count($platform_targeting) > 0) {
+                $data['platform_targeting'] = [
+                    'type' => 'INCLUDE',
+                    'value' => $platform_targeting
+                ];
+            }
+
+            $campaign_data = $api->createCampaign($vendor['selectedAdvertiser'], $data);
+
+            foreach (request('contents') as $campaign_item) {
+                $titles = [];
+
+                $title_creative_set = null;
+                $description_creative_set = null;
+                $image_creative_set = null;
+                $video_creative_set = null;
+
+                if (isset($campaign_item['titleSet']['id'])) {
+                    $title_creative_set = CreativeSet::find($campaign_item['titleSet']['id']);
+
+                    if ($title_creative_set) {
+                        $titles = $title_creative_set->titleSets;
+                    } else {
+                        throw('No creative set found.');
+                    }
+                } else {
+                    $titles = $campaign_item['titles'];
+                }
+
+                $description = '';
+
+                if (isset($campaign_item['descriptionSet']['id'])) {
+                    $description_creative_set = CreativeSet::find($campaign_item['descriptionSet']['id']);
+
+                    if ($description_creative_set) {
+                        $description = $description_creative_set->descriptionSets[0]['description'];
+                    } else {
+                        throw('No creative set found.');
+                    }
+                } else {
+                    $description = $campaign_item['description'];
+                }
+
+                foreach ($titles as $title) {
+                    if ($campaign_item['adType'] == 'IMAGE') {
+                        $imges = [];
+
+                        if (isset($campaign_item['imageSet']['id'])) {
+                            $image_creative_set = CreativeSet::find($campaign_item['imageSet']['id']);
+
+                            if ($image_creative_set) {
+                                $images = $image_creative_set->imageSets;
+                            } else {
+                                throw('No creative set found.');
+                            }
+                        } else {
+                            $images = $campaign_item['images'];
+                        }
+
+                        foreach ($images as $image) {
+                            $campaign_item_data = $api->createCampaignItem($vendor['selectedAdvertiser'], $campaign_data['id'], $campaign_item['displayUrl']);
+
+                            $db_ad = Ad::firstOrNew([
+                                'ad_id' => $campaign_item_data['id'],
+                                'user_id' => auth()->id(),
+                                'provider_id' => 4,
+                                'campaign_id' => $campaign_data['id'],
+                                'advertiser_id' => $vendor['selectedAdvertiser'],
+                                'ad_group_id' => 'taboola',
+                                'open_id' => $vendor['selectedAccount']
+                            ]);
+
+                            $db_ad->name = $title['title'];
+                            $db_ad->type = 1;
+                            $db_ad->image = Helper::encodeUrl($image_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $image['image']) : $image['image']);
+                            $db_ad->status = $campaign_item_data['status'];
+                            $db_ad->description = $description;
+                            $db_ad->synced = 0;
+
+                            $db_ad->save();
+
+                            $db_ad->creativeSets()->detach();
+
+                            if ($title_creative_set) {
+                                $db_ad->creativeSets()->save($title_creative_set);
+                            }
+
+                            if ($description_creative_set) {
+                                $db_ad->creativeSets()->save($description_creative_set);
+                            }
+
+                            if ($video_creative_set) {
+                                $db_ad->creativeSets()->save($video_creative_set);
+                            }
+
+                            if ($image_creative_set) {
+                                $db_ad->creativeSets()->save($image_creative_set);
+                            }
+                        }
+                    } else {
+                        $videos = [];
+
+                        if (isset($campaign_item['videoSet']['id'])) {
+                            $video_creative_set = CreativeSet::find($campaign_item['videoSet']['id']);
+
+                            if ($video_creative_set) {
+                                $videos = $video_creative_set->videoSets;
+                            } else {
+                                throw('No creative set found.');
+                            }
+                        } else {
+                            $videos = $campaign_item['videos'];
+                        }
+
+                        foreach ($videos as $video) {
+                            $campaign_item_data = $api->createCampaignVideoItem($vendor['selectedAdvertiser'], $campaign_data['id'], [
+                                'url' => $campaign_item['displayUrl'],
+                                'title' => $title['title'],
+                                'description' => $description,
+                                'video_url' => Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl']),
+                                'fallback_url' => $video['imageUrl']
+                            ]);
+
+                            $db_ad = Ad::firstOrNew([
+                                'ad_id' => $campaign_item_data['id'],
+                                'user_id' => auth()->id(),
+                                'provider_id' => 4,
+                                'campaign_id' => $campaign_data['id'],
+                                'ad_group_id' => 'taboola',
+                                'advertiser_id' => $vendor['selectedAdvertiser'],
+                                'open_id' => $vendor['selectedAccount']
+                            ]);
+
+                            $db_ad->name = $title['title'];
+                            $db_ad->type = 2;
+                            $db_ad->video = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['video']) : $video['videoUrl']);
+                            $db_ad->image = Helper::encodeUrl($video_creative_set ? (env('MIX_APP_URL') . '/storage/images/' . $video['landscape_image']) : $video['imageUrl']);
+                            $db_ad->status = $campaign_item_data['status'];
+                            $db_ad->description = $description;
+                            $db_ad->synced = 1;
+
+                            $db_ad->save();
+
+                            $db_ad->creativeSets()->detach();
+
+                            if ($title_creative_set) {
+                                $db_ad->creativeSets()->save($title_creative_set);
+                            }
+
+                            if ($description_creative_set) {
+                                $db_ad->creativeSets()->save($description_creative_set);
+                            }
+
+                            if ($video_creative_set) {
+                                $db_ad->creativeSets()->save($video_creative_set);
+                            }
+
+                            if ($image_creative_set) {
+                                $db_ad->creativeSets()->save($image_creative_set);
+                            }
+                        }
+                    }
+                }
+            }
+
+            $resource_importer = new ResourceImporter();
+
+            $resource_importer->insertOrUpdate('campaigns', [[
+                'campaign_id' => $campaign_data['id'],
+                'provider_id' => 4,
+                'user_id' => auth()->id(),
+                'open_id' => $vendor['selectedAccount'],
+                'advertiser_id' => $vendor['selectedAdvertiser'],
+                'name' => $campaign_data['name'],
+                'status' => $campaign_data['status']
+            ]], ['campaign_id', 'provider_id', 'user_id', 'open_id', 'advertiser_id']);
+
+            Helper::pullCampaign();
+
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'success' => 1,
+                'vendor' => 'taboola',
+                'vendorName' => 'Taboola'
+            ]));
+
+            return $campaign_data;
+
+        } catch (Exception $e) {
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'errors' => [$e->getMessage()],
+                'vendor' => 'taboola',
+                'vendorName' => 'Taboola'
+            ]));
+
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 }

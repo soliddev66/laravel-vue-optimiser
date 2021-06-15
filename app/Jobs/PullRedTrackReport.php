@@ -36,9 +36,9 @@ class PullRedTrackReport implements ShouldQueue
         $date = $this->date;
         UserProvider::chunk(10, function($user_providers) use ($date) {
             foreach ($user_providers as $user_provider) {
-                $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($user_provider->provider->slug);
+                $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($user_provider->provider->slug);
 
-                (new $adVendorClass())->pullRedTrack($user_provider, $date);
+                (new $ad_vendor_class())->pullRedTrack($user_provider, $date);
             }
         });
 

@@ -14,44 +14,44 @@ class GeneralController extends Controller
 {
     public function languages()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass)->languages();
+        return (new $ad_vendor_class)->languages();
     }
 
     public function countries()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass)->countries();
+        return (new $ad_vendor_class)->countries();
     }
 
     public function networkSetting()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass)->networkSetting();
+        return (new $ad_vendor_class)->networkSetting();
     }
 
     public function bdsxdSupportedSites()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass)->bdsxdSupportedSites();
+        return (new $ad_vendor_class)->bdsxdSupportedSites();
     }
 
     public function campaignGoals()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass)->campaignGoals();
+        return (new $ad_vendor_class)->campaignGoals();
     }
 
     public function storeNetworkSetting()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst(request('provider'));
 
-        return (new $adVendorClass)->storeNetworkSetting();
+        return (new $ad_vendor_class)->storeNetworkSetting();
     }
 
     public function preview()

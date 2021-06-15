@@ -33,7 +33,6 @@ export default {
     size: Number
   },
   mounted() {
-    console.log('Component mounted.')
   },
   data() {
     return {

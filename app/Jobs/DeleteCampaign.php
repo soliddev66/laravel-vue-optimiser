@@ -40,8 +40,8 @@ class DeleteCampaign implements ShouldQueue
      */
     public function handle()
     {
-        $adVendorClass = 'App\\Utils\\AdVendors\\' . ucfirst($this->provider);
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($this->provider);
 
-        (new $adVendorClass)->deleteCampaign($this->user, $this->campaign_id, $this->provider, $this->account, $this->advertiser);
+        (new $ad_vendor_class)->deleteCampaign($this->user, $this->campaign_id, $this->provider, $this->account, $this->advertiser);
     }
 }
