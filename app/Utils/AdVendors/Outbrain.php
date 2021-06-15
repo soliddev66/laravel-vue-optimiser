@@ -137,7 +137,7 @@ class Outbrain extends Root implements AdVendorInterface
                                 'url' => $content['targetUrl'],
                                 'enabled' => true,
                                 'imageMetadata' => [
-                                    'url' => Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'])
+                                    'url' => Helper::encodeUrl('https://wallpaperaccess.com/full/4263881.jpg')
                                 ]
                             ]);
 
@@ -153,7 +153,7 @@ class Outbrain extends Root implements AdVendorInterface
 
                             $db_ad->name = $title['title'];
                             $db_ad->image = $ad_data['imageMetadata']['originalImageUrl'];
-                            $db_ad->status = $ad_data['approvalStatus'];
+                            $db_ad->status = $ad_data['approvalStatus']['status'];
 
                             $db_ad->save();
 
@@ -279,7 +279,7 @@ class Outbrain extends Root implements AdVendorInterface
                                 ]
                             ]);
                         } else {
-                            $ad_data = $api->createAd($campaign_data['id'], [
+                            $ad_data = $api->createAd($campaign->campaign_id, [
                                 'text' => $title['title'],
                                 'url' => $content['targetUrl'],
                                 'enabled' => true,
@@ -293,7 +293,7 @@ class Outbrain extends Root implements AdVendorInterface
                             'ad_id' => $ad_data['id'],
                             'user_id' => auth()->id(),
                             'provider_id' => 2,
-                            'campaign_id' => $campaign_data['id'],
+                            'campaign_id' => $campaign->campaign_id,
                             'advertiser_id' => request('selectedAdvertiser'),
                             'ad_group_id' => 'NA',
                             'open_id' => request('account')
@@ -301,7 +301,7 @@ class Outbrain extends Root implements AdVendorInterface
 
                         $db_ad->name = $title['title'];
                         $db_ad->image = $ad_data['imageMetadata']['originalImageUrl'];
-                        $db_ad->status = $ad_data['approvalStatus'];
+                        $db_ad->status = $ad_data['approvalStatus']['status'];
 
                         $db_ad->save();
 
@@ -508,7 +508,7 @@ class Outbrain extends Root implements AdVendorInterface
                             'ad_group_id' => 'NA',
                             'open_id' => $user_provider->open_id,
                             'name' => $ad['text'],
-                            'status' => $ad['approvalStatus'],
+                            'status' => $ad['approvalStatus']['status'],
                             'image' => $ad['imageMetadata']['originalImageUrl'],
                             'updated_at' => $updated_at
                         ];
@@ -1008,7 +1008,7 @@ class Outbrain extends Root implements AdVendorInterface
 
                             $db_ad->name = $title['title'];
                             $db_ad->image = $ad_data['imageMetadata']['originalImageUrl'];
-                            $db_ad->status = $ad_data['approvalStatus'];
+                            $db_ad->status = $ad_data['approvalStatus']['status'];
 
                             $db_ad->save();
 
