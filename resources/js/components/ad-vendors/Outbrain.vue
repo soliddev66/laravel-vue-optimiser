@@ -546,6 +546,7 @@ export default {
           targetUrl: this.instance.ads[i].url,
           brandname: this.instance.ads[i].siteName,
           imageUrl: this.instance.ads[i].imageMetadata.originalImageUrl,
+          imageSet: this.instance.ads[i]['imageSet'] || '',
           images: [{
             url: this.instance.ads[i].imageMetadata.originalImageUrl,
             state: true,
