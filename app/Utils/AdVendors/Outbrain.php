@@ -104,6 +104,7 @@ class Outbrain extends Root implements AdVendorInterface
 
                     $title_creative_set = null;
                     $image_creative_set = null;
+                    $video_creative_set = null;
 
                     if (isset($content['titleSet']['id'])) {
                         $title_creative_set = CreativeSet::find($content['titleSet']['id']);
@@ -120,16 +121,30 @@ class Outbrain extends Root implements AdVendorInterface
                     foreach ($titles as $title) {
                         $imges = [];
 
-                        if (isset($content['imageSet']['id'])) {
-                            $image_creative_set = CreativeSet::find($content['imageSet']['id']);
+                        if ($content['adType'] == 'IMAGE') {
+                            if (isset($content['imageSet']['id'])) {
+                                $image_creative_set = CreativeSet::find($content['imageSet']['id']);
 
-                            if ($image_creative_set) {
-                                $images = $image_creative_set->imageSets;
+                                if ($image_creative_set) {
+                                    $images = $image_creative_set->imageSets;
+                                } else {
+                                    throw new Exception('No creative set found.');
+                                }
                             } else {
-                                throw new Exception('No creative set found.');
+                                $images = $content['images'];
                             }
                         } else {
-                            $images = $content['images'];
+                            if (isset($content['videoSet']['id'])) {
+                                $video_creative_set = CreativeSet::find($content['videoSet']['id']);
+
+                                if ($video_creative_set) {
+                                    $imges = $video_creative_set->videoSets;
+                                } else {
+                                    throw new Exception('No creative set found.');
+                                }
+                            } else {
+                                $images = $content['images'];
+                            }
                         }
 
                         foreach ($images as $image) {
@@ -249,6 +264,7 @@ class Outbrain extends Root implements AdVendorInterface
 
                 $title_creative_set = null;
                 $image_creative_set = null;
+                $video_creative_set = null;
 
                 if (isset($content['titleSet']['id'])) {
                     $title_creative_set = CreativeSet::find($content['titleSet']['id']);
