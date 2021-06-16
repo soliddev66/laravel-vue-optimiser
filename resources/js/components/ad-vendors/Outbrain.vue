@@ -252,10 +252,12 @@
                           <div class="row mt-2 mb-2">
                             <div class="col">
                               <span v-if="content.imageSet.id" class="selected-set">{{ content.imageSet.name }}<span class="close" @click="removeImageSet(index)"><i class="fas fa-times"></i></span></span>
+                              <span v-if="content.videoSet.id" class="selected-set">{{ content.videoSet.name }}<span class="close" @click="removeVideoSet(index)"><i class="fas fa-times"></i></span></span>
                             </div>
                           </div>
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)" :disabled="content.imageSet.id">Choose File</button>
-                          <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)" :disabled="content.imageSet.id || content.videoSet.id">Choose File</button>
+                          <button v-if="content.adType === 'IMAGE'" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
+                          <button v-if="content.adType === 'VIDEO'" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('video', index)">Load from Sets</button>
                         </div>
                         <div class="col-sm-8 offset-sm-4">
                           <small class="text-danger" v-for="(image, indexImage) in content.images" :key="indexImage">
@@ -473,7 +475,7 @@ export default {
           }
         }
 
-        if (this.ads[i].images.length == 0) {
+        if (!this.ads[i].imageSet.id && !this.ads[i].videoSet.id && this.ads[i].images.length == 0) {
           return false
         }
 
@@ -528,6 +530,7 @@ export default {
         brandname: '',
         imageUrl: '',
         imageSet: '',
+        videoSet: '',
         images: []
       }]
 
@@ -703,6 +706,9 @@ export default {
           })
         })
       }
+      if (this.setType == 'video') {
+        this.ads[this.adSelectorIndex].videoSet = set
+      }
 
       $('#creative-set-modal').modal('hide')
     },
@@ -730,6 +736,11 @@ export default {
       this.ads[index].images = []
     },
 
+    removeImageSet(index) {
+      this.ads[index].videoSet = ''
+      this.ads[index].images = []
+    },
+
     removeTitleSet(index) {
       this.ads[index].titleSet = ''
       this.ads[index].titles = [{
@@ -750,6 +761,7 @@ export default {
         brandname: '',
         imageUrl: '',
         imageSet: '',
+        videoSet: '',
         images: []
       })
     },
