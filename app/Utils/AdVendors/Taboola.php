@@ -93,7 +93,7 @@ class Taboola extends Root implements AdVendorInterface
                     if ($title_creative_set) {
                         $titles = $title_creative_set->titleSets;
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
                 } else {
                     $titles = $campaign_item['titles'];
@@ -107,7 +107,7 @@ class Taboola extends Root implements AdVendorInterface
                     if ($description_creative_set) {
                         $description = $description_creative_set->descriptionSets[0]['description'];
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
                 } else {
                     $description = $campaign_item['description'];
@@ -123,7 +123,7 @@ class Taboola extends Root implements AdVendorInterface
                             if ($image_creative_set) {
                                 $images = $image_creative_set->imageSets;
                             } else {
-                                throw('No creative set found.');
+                                throw new Exception('No creative set found.');
                             }
                         } else {
                             $images = $campaign_item['images'];
@@ -178,7 +178,7 @@ class Taboola extends Root implements AdVendorInterface
                             if ($video_creative_set) {
                                 $videos = $video_creative_set->videoSets;
                             } else {
-                                throw('No creative set found.');
+                                throw new Exception('No creative set found.');
                             }
                         } else {
                             $videos = $campaign_item['videos'];
@@ -307,7 +307,7 @@ class Taboola extends Root implements AdVendorInterface
                     if ($title_creative_set) {
                         $titles = $title_creative_set->titleSets;
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
                 } else {
                     $titles = $campaign_item['titles'];
@@ -321,7 +321,7 @@ class Taboola extends Root implements AdVendorInterface
                     if ($description_creative_set) {
                         $description = $description_creative_set->descriptionSets[0]['description'];
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
                 } else {
                     $description = $campaign_item['description'];
@@ -337,7 +337,7 @@ class Taboola extends Root implements AdVendorInterface
                             if ($image_creative_set) {
                                 $images = $image_creative_set->imageSets;
                             } else {
-                                throw('No creative set found.');
+                                throw new Exception('No creative set found.');
                             }
                         } else {
                             $images = $campaign_item['images'];
@@ -404,7 +404,7 @@ class Taboola extends Root implements AdVendorInterface
                             if ($video_creative_set) {
                                 $videos = $video_creative_set->videoSets;
                             } else {
-                                throw('No creative set found.');
+                                throw new Exception('No creative set found.');
                             }
                         } else {
                             $videos = $content['videos'];
@@ -1320,7 +1320,7 @@ class Taboola extends Root implements AdVendorInterface
                     if ($title_creative_set) {
                         $titles = $title_creative_set->titleSets;
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
                 } else {
                     $titles = $campaign_item['titles'];
@@ -1334,7 +1334,7 @@ class Taboola extends Root implements AdVendorInterface
                     if ($description_creative_set) {
                         $description = $description_creative_set->descriptionSets[0]['description'];
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
                 } else {
                     $description = $campaign_item['description'];
@@ -1350,7 +1350,7 @@ class Taboola extends Root implements AdVendorInterface
                             if ($image_creative_set) {
                                 $images = $image_creative_set->imageSets;
                             } else {
-                                throw('No creative set found.');
+                                throw new Exception('No creative set found.');
                             }
                         } else {
                             $images = $campaign_item['images'];
@@ -1405,7 +1405,7 @@ class Taboola extends Root implements AdVendorInterface
                             if ($video_creative_set) {
                                 $videos = $video_creative_set->videoSets;
                             } else {
-                                throw('No creative set found.');
+                                throw new Exception('No creative set found.');
                             }
                         } else {
                             $videos = $campaign_item['videos'];
