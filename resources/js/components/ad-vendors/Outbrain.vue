@@ -217,7 +217,7 @@
                         </div>
                       </div>
 
-                      <!-- <div class="form-group row">
+                      <div class="form-group row">
                         <label for="ad_type" class="col-sm-4 control-label mt-2">Ad Type</label>
                         <div class="col-sm-8">
                           <div class="btn-group btn-group-toggle">
@@ -229,7 +229,7 @@
                             </label>
                           </div>
                         </div>
-                      </div> -->
+                      </div>
 
                       <div class="form-group row">
                         <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
@@ -547,6 +547,7 @@ export default {
           brandname: this.instance.ads[i].siteName,
           imageUrl: this.instance.ads[i].imageMetadata.originalImageUrl,
           imageSet: this.instance.ads[i]['imageSet'] || '',
+          videoSet: this.instance.ads[i]['videoSet'] || '',
           images: [{
             url: this.instance.ads[i].imageMetadata.originalImageUrl,
             state: true,
@@ -564,7 +565,9 @@ export default {
           })
         }
 
-        console.log(ad.images)
+        if (this.instance.ads[i]['videoSet']) {
+          ad.videoSet = this.instance.ads[i]['videoSet']
+        }
 
         ads.push(ad)
       }
