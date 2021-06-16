@@ -133,14 +133,23 @@ class Outbrain extends Root implements AdVendorInterface
                         }
 
                         foreach ($images as $image) {
-                            $ad_data = $api->createAd($campaign_data['id'], [
+                            $ad = [
                                 'text' => $title['title'],
                                 'url' => $content['targetUrl'],
-                                'enabled' => true,
-                                'imageMetadata' => [
+                                'enabled' => true
+                            ];
+
+                            if ($content['adType'] == 'IMAGE') {
+                                $ad['imageMetadata'] = [
                                     'url' => Helper::encodeUrl($image_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'] : $image['url'])
-                                ]
-                            ]);
+                                ];
+                            } else {
+                                $ad['imageMetadata'] = [
+                                    'url' => Helper::encodeUrl($video_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['video'] : $image['url'])
+                                ];
+                            }
+
+                            $ad_data = $api->createAd($campaign->campaign_id, $ad);
 
                             $db_ad = Ad::firstOrNew([
                                 'ad_id' => $ad_data['id'],
@@ -255,29 +264,51 @@ class Outbrain extends Root implements AdVendorInterface
 
                 foreach ($titles as $title) {
                     $imges = [];
+                    if ($content['adType'] == 'IMAGE') {
+                        if (isset($content['imageSet']['id'])) {
+                            $image_creative_set = CreativeSet::find($content['imageSet']['id']);
 
-                    if (isset($content['imageSet']['id'])) {
-                        $image_creative_set = CreativeSet::find($content['imageSet']['id']);
-
-                        if ($image_creative_set) {
-                            $images = $image_creative_set->imageSets;
+                            if ($image_creative_set) {
+                                $images = $image_creative_set->imageSets;
+                            } else {
+                                throw new Exception('No creative set found.');
+                            }
                         } else {
-                            throw new Exception('No creative set found.');
+                            $images = $content['images'];
                         }
                     } else {
-                        $images = $content['images'];
+                        if (isset($content['videoSet']['id'])) {
+                            $video_creative_set = CreativeSet::find($content['videoSet']['id']);
+
+                            if ($video_creative_set) {
+                                $imges = $video_creative_set->videoSets;
+                            } else {
+                                throw new Exception('No creative set found.');
+                            }
+                        } else {
+                            $images = $content['images'];
+                        }
                     }
 
                     foreach ($images as $image) {
                         if (isset($content['id'])) {
-                            $ad_data = $api->updateAd($campaign->campaign_id, [[
+                            $ad = [
                                 'id' => $content['id'],
                                 'text' => $title['title'],
-                                'enabled' => true,
-                                'imageMetadata' => [
+                                'enabled' => true
+                            ];
+
+                            if ($content['adType'] == 'IMAGE') {
+                                $ad['imageMetadata'] = [
                                     'url' => Helper::encodeUrl($image_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'] : $image['url'])
-                                ]
-                            ]]);
+                                ];
+                            } else {
+                                $ad['imageMetadata'] = [
+                                    'url' => Helper::encodeUrl($video_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['video'] : $image['url'])
+                                ];
+                            }
+
+                            $ad_data = $api->updateAd($campaign->campaign_id, [$ad]);
 
                             foreach ($ad_data as $item) {
                                 if (isset($item['operationStatus']) && $item['operationStatus']['status'] == 'Failure') {
@@ -287,14 +318,23 @@ class Outbrain extends Root implements AdVendorInterface
 
                             $ad_data = $ad_data[0]['promotedLink'];
                         } else {
-                            $ad_data = $api->createAd($campaign->campaign_id, [
+                            $ad = [
                                 'text' => $title['title'],
                                 'url' => $content['targetUrl'],
-                                'enabled' => true,
-                                'imageMetadata' => [
+                                'enabled' => true
+                            ];
+
+                            if ($content['adType'] == 'IMAGE') {
+                                $ad['imageMetadata'] = [
                                     'url' => Helper::encodeUrl($image_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'] : $image['url'])
-                                ]
-                            ]);
+                                ];
+                            } else {
+                                $ad['imageMetadata'] = [
+                                    'url' => Helper::encodeUrl($video_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['video'] : $image['url'])
+                                ];
+                            }
+
+                            $ad_data = $api->createAd($campaign->campaign_id, $ad);
                         }
 
                         $db_ad = Ad::firstOrNew([
@@ -359,6 +399,12 @@ class Outbrain extends Root implements AdVendorInterface
                     if ($image_set) {
                         $ad['imageSet'] = $image_set;
                         $ad['imageSet']['sets'] = $image_set->imageSets;
+                    }
+
+                    $video_set = $db_ad->creativeSets()->where('type', 2)->first();
+                    if ($video_set) {
+                        $ad['videoSet'] = $video_set;
+                        $ad['videoSet']['sets'] = $video_set->videoSets;
                     }
 
                     $title_set = $db_ad->creativeSets()->where('type', 3)->first();
