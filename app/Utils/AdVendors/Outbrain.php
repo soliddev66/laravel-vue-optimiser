@@ -19,6 +19,7 @@ use App\Vngodev\Helper;
 use App\Vngodev\ResourceImporter;
 use Carbon\Carbon;
 use DB;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -110,7 +111,7 @@ class Outbrain extends Root implements AdVendorInterface
                         if ($title_creative_set) {
                             $titles = $title_creative_set->titleSets;
                         } else {
-                            throw('No creative set found.');
+                            throw new Exception('No creative set found.');
                         }
                     } else {
                         $titles = $content['titles'];
@@ -125,7 +126,7 @@ class Outbrain extends Root implements AdVendorInterface
                             if ($image_creative_set) {
                                 $images = $image_creative_set->imageSets;
                             } else {
-                                throw('No creative set found.');
+                                throw new Exception('No creative set found.');
                             }
                         } else {
                             $images = $content['images'];
@@ -246,7 +247,7 @@ class Outbrain extends Root implements AdVendorInterface
                     if ($title_creative_set) {
                         $titles = $title_creative_set->titleSets;
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
                 } else {
                     $titles = $content['titles'];
@@ -261,7 +262,7 @@ class Outbrain extends Root implements AdVendorInterface
                         if ($image_creative_set) {
                             $images = $image_creative_set->imageSets;
                         } else {
-                            throw('No creative set found.');
+                            throw new Exception('No creative set found.');
                         }
                     } else {
                         $images = $content['images'];
@@ -269,15 +270,20 @@ class Outbrain extends Root implements AdVendorInterface
 
                     foreach ($images as $image) {
                         if (isset($content['id'])) {
-                            $ad_data = $api->updateAd($campaign->campaign_id, [
+                            $ad_data = $api->updateAd($campaign->campaign_id, [[
                                 'id' => $content['id'],
                                 'text' => $title['title'],
-                                'url' => $content['targetUrl'],
                                 'enabled' => true,
                                 'imageMetadata' => [
                                     'url' => Helper::encodeUrl($image_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'] : $image['url'])
                                 ]
-                            ]);
+                            ]]);
+
+                            foreach ($ad_data as $item) {
+                                if (isset($item['operationStatus']) && $item['operationStatus']['status'] == 'Failure') {
+                                    throw new Exception($item['operationStatus']['reason'][0]);
+                                }
+                            }
                         } else {
                             $ad_data = $api->createAd($campaign->campaign_id, [
                                 'text' => $title['title'],
@@ -972,7 +978,7 @@ class Outbrain extends Root implements AdVendorInterface
                     if ($title_creative_set) {
                         $titles = $title_creative_set->titleSets;
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
 
                     foreach ($titles as $title) {
@@ -983,7 +989,7 @@ class Outbrain extends Root implements AdVendorInterface
                         if ($image_creative_set) {
                             $images = $image_creative_set->imageSets;
                         } else {
-                            throw('No creative set found.');
+                            throw new Exception('No creative set found.');
                         }
 
                         foreach ($images as $image) {
