@@ -284,6 +284,8 @@ class Outbrain extends Root implements AdVendorInterface
                                     throw new Exception($item['operationStatus']['reason'][0]);
                                 }
                             }
+
+                            $ad_data = $ad_data[0]['promotedLink'];
                         } else {
                             $ad_data = $api->createAd($campaign->campaign_id, [
                                 'text' => $title['title'],
