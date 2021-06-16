@@ -41,6 +41,20 @@
                 </div>
                 <h2 class="mt-3">Basic info</h2>
                 <div class="form-group row">
+                  <label for="campaign_type" class="col-sm-4 control-label mt-2">Creative Type</label>
+                  <div class="col-sm-8">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: campaignCreativeFormat === 'Standard' }">
+                        <input type="radio" name="campaign_type" autocomplete="off" value="Standard" v-model="campaignCreativeFormat">Standard
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: campaignCreativeFormat === 'Clip' }">
+                        <input type="radio" name="campaign_type" autocomplete="off" value="Clip" v-model="campaignCreativeFormat">Clip
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
                   <div class="col-sm-6">
                     <label for="name" class="control-label">Name</label>
                     <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="campaignName" id="name" />
@@ -218,20 +232,6 @@
                       </div>
 
                       <div class="form-group row">
-                        <label for="ad_type" class="col-sm-4 control-label mt-2">Ad Type</label>
-                        <div class="col-sm-8">
-                          <div class="btn-group btn-group-toggle">
-                            <label class="btn bg-olive" :class="{ active: content.adType === 'IMAGE' }">
-                              <input type="radio" name="ad_type" autocomplete="off" value="IMAGE" v-model="content.adType"> IMAGE
-                            </label>
-                            <label class="btn bg-olive" :class="{ active: content.adType === 'VIDEO' }">
-                              <input type="radio" name="ad_type" autocomplete="off" value="VIDEO" v-model="content.adType"> VIDEO
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="form-group row">
                         <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
                         <div class="col-sm-8">
                           <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" />
@@ -256,8 +256,8 @@
                             </div>
                           </div>
                           <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)" :disabled="content.imageSet.id || content.videoSet.id">Choose File</button>
-                          <button v-if="content.adType === 'IMAGE'" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
-                          <button v-if="content.adType === 'VIDEO'" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('video', index)">Load from Sets</button>
+                          <button v-if="campaignCreativeFormat === 'Standard'" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
+                          <button v-if="campaignCreativeFormat === 'Clip'" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('video', index)">Load from Sets</button>
                         </div>
                         <div class="col-sm-8 offset-sm-4">
                           <small class="text-danger" v-for="(image, indexImage) in content.images" :key="indexImage">
@@ -272,7 +272,7 @@
                       <section v-for="(title, indexTitle) in content.titles" :key="indexTitle">
                         <section v-for="(image, indexImage) in content.images" :key="indexImage">
                           <div class="row no-gutters mb-2" v-if="image.url">
-                            <div class="col-sm-5" v-if="content.adType == 'IMAGE'">
+                            <div class="col-sm-5" v-if="campaignCreativeFormat == 'Standard'">
                               <img :src="image.url" class="card-img-top h-100">
                             </div>
                             <div class="col-sm-7">
@@ -345,7 +345,7 @@
                 <div class="col-sm-6" v-for="(title, indexTitle) in content.titles" :key="indexTitle">
                   <div class="row" v-for="(image, indexImage) in content.images" :key="indexImage">
                     <div v-if="image.url">
-                      <div class="col-sm-5" v-if="content.adType == 'IMAGE'">
+                      <div class="col-sm-5" v-if="campaignCreativeFormat == 'Standard'">
                         <img :src="image.url" class="card-img-top h-100">
                       </div>
                       <div class="col-sm-7">
@@ -498,7 +498,7 @@ export default {
         for (var i = 0; i < values.length; i++) {
           this.ads[this.fileSelectorIndex].images[i] = {
             url: process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
-            state: this.ads[this.fileSelectorIndex].adType == 'IMAGE' ? this.validDimensions(values[i].width, values[i].height, 1200, 800) : true,
+            state: this.campaignCreativeFormat == 'Standard' ? this.validDimensions(values[i].width, values[i].height, 1200, 800) : true,
             existing: false
           };
           paths.push(values[i].path)
@@ -520,7 +520,6 @@ export default {
     let dataAttributes = [],
       ads = [{
         id: '',
-        adType: 'IMAGE',
         titleSet: '',
         titles: [{
           title: '',
@@ -540,7 +539,6 @@ export default {
       for (let i = 0; i < this.instance.ads.length; i++) {
         ad = {
           id: this.instance.ads[i].id,
-          adType: 'IMAGE',
           titleSet: this.instance.ads[i]['titleSet'] || '',
           titles: [{
             title: this.instance.ads[i].text,
@@ -593,6 +591,7 @@ export default {
       campaignName: this.instance ? this.instance.name : '',
       campaignObjective: this.instance ? this.instance.objective : 'Awareness', // Return
       campaignType: this.instance ? this.instance.channel : 'SEARCH_AND_NATIVE',
+      campaignCreativeFormat: this.instance ? this.instance.creativeFormat : 'Standard',
       campaignLanguage: this.instance ? this.instance.language : 'en',
       campaginPlatform: this.instance ? this.instance.targeting.platform : ['DESKTOP', 'MOBILE', 'TABLET'],
       campaignLocation: this.instance ? this.instance.targeting.locations : [],
@@ -751,7 +750,6 @@ export default {
     addAd() {
       this.ads.push({
         id: '',
-        adType: 'IMAGE',
         titleSet: '',
         titles: [{
           title: '',
@@ -831,6 +829,7 @@ export default {
         selectedAdvertiser: this.selectedAdvertiser,
         campaignBudget: this.campaignBudget,
         campaignBudgetType: this.campaignBudgetType,
+        campaignCreativeFormat: this.campaignCreativeFormat,
         campaignName: this.campaignName,
         budgetId: this.instance ? this.instance.budget.id : '',
         campaignType: this.campaignType,
