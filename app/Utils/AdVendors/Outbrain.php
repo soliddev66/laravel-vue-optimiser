@@ -122,7 +122,7 @@ class Outbrain extends Root implements AdVendorInterface
                     foreach ($titles as $title) {
                         $images = [];
 
-                        if (request('campaignCreativeFormat')) {
+                        if (request('campaignCreativeFormat') == 'Standard') {
                             if (isset($content['imageSet']['id'])) {
                                 $image_creative_set = CreativeSet::find($content['imageSet']['id']);
 
@@ -155,7 +155,7 @@ class Outbrain extends Root implements AdVendorInterface
                                 'enabled' => true
                             ];
 
-                            if (request('campaignCreativeFormat')) {
+                            if (request('campaignCreativeFormat') == 'Standard') {
                                 $ad['imageMetadata'] = [
                                     'url' => Helper::encodeUrl($image_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'] : $image['url'])
                                 ];
@@ -281,7 +281,7 @@ class Outbrain extends Root implements AdVendorInterface
 
                 foreach ($titles as $title) {
                     $images = [];
-                    if (request('campaignCreativeFormat')) {
+                    if (request('campaignCreativeFormat') == 'Standard') {
                         if (isset($content['imageSet']['id'])) {
                             $image_creative_set = CreativeSet::find($content['imageSet']['id']);
 
@@ -315,7 +315,7 @@ class Outbrain extends Root implements AdVendorInterface
                                 'enabled' => true
                             ];
 
-                            if (request('campaignCreativeFormat')) {
+                            if (request('campaignCreativeFormat') == 'Standard') {
                                 $ad['imageMetadata'] = [
                                     'url' => Helper::encodeUrl($image_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'] : $image['url'])
                                 ];
@@ -341,7 +341,7 @@ class Outbrain extends Root implements AdVendorInterface
                                 'enabled' => true
                             ];
 
-                            if (request('campaignCreativeFormat')) {
+                            if (request('campaignCreativeFormat') == 'Standard') {
                                 $ad['imageMetadata'] = [
                                     'url' => Helper::encodeUrl($image_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'] : $image['url'])
                                 ];
