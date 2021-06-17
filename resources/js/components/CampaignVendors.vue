@@ -11,7 +11,7 @@
             <div class="card" v-bind:class="{active: vendor.selected}" @click="vendorClick($event, vendor)">
               <div class="card-body">
                 <img :src="vendor.icon" alt="" width="40">
-                <span class="pl-3">{{ vendor.label }}</span>
+                <h3 class="pl-3 d-inline">{{ vendor.label }}</h3>
 
                 <div class="row mt-3" v-if="vendor.selected">
                   <div class="col">
@@ -28,6 +28,12 @@
                       <option value="">Select Advertiser</option>
                       <option :value="vendor.slug == 'taboola' ? advertiser.account_id : advertiser.id" v-for="advertiser in vendor.advertisers" :key="advertiser.id">{{ vendor.slug == 'taboola' ? advertiser.account_id : advertiser.id }} - {{ advertiser.advertiserName || advertiser.name }}</option>
                     </select>
+                  </div>
+                </div>
+
+                <div class="row mt-2" v-if="vendor.selected">
+                  <div class="col">
+                    <select2 v-model="vendor.campaigns" :options="vendor.campaignSelections" :settings="{ templateSelection: formatState, templateResult: formatState, placeholder: 'Select Campaign' }" />
                   </div>
                 </div>
               </div>
@@ -425,6 +431,16 @@ export default {
     }
   },
   methods: {
+    formatState(state) {
+      if (!state.id) {
+        return state.text;
+      }
+      var $state = $(
+        '<span><img src="' + state.icon + '" width="20px" height="20px" /> ' + state.text + '</span>'
+      );
+      return $state;
+    },
+
     getAccounts(vendor) {
       this.isLoading = true
       return axios.get(`/account/accounts?provider=${vendor.slug}`).then(response => {
@@ -451,9 +467,24 @@ export default {
       for (let i = 0; i < this.vendors.length; i++) {
         if (this.vendors[i].id == vendorId) {
           this.vendors[i].loaded = false
-          return
+          break
         }
       }
+
+      this.isLoading = true
+      axios.get('/campaigns/user-campaigns?provider=' + this.vendors[i].id).then(response => {
+        this.vendors[i].campaignSelections = response.data.campaigns.map(campaign => {
+          return {
+            id: campaign.id,
+            text: campaign.name,
+            icon: campaign.icon
+          }
+        })
+      }).catch(err => {
+        console.log(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
     },
 
     validURL(str) {
@@ -462,7 +493,12 @@ export default {
     },
 
     vendorClick(event, vendor) {
-      if (event.target.className == 'form-control') {
+      let abandonClasses = [
+        'form-control',
+        'select2',
+        'select2-selection__rendered',
+      ]
+      if (abandonClasses.includes(event.target.className)) {
         return
       }
 
@@ -704,19 +740,14 @@ export default {
   cursor: pointer;
 }
 
-.vendor span {
+.vendor h3 {
   font-size: 1.3em;
 }
 
 .vendor .card {
   border: none;
   transition: all 0.3s linear;
-  height: 80px;
   overflow: hidden;
-}
-
-.vendor .card.active {
-  height: 180px;
 }
 
 .vendor .card.active, .vendor .card:hover {
