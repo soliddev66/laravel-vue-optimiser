@@ -41,7 +41,7 @@
                 </div>
                 <h2 class="mt-3">Basic info</h2>
                 <div class="form-group row">
-                  <label for="campaign_type" class="col-sm-4 control-label mt-2">Creative Type</label>
+                  <label for="campaign_type" class="col-sm-2 control-label mt-2">Creative Type</label>
                   <div class="col-sm-8">
                     <div class="btn-group btn-group-toggle">
                       <label class="btn bg-olive" :class="{ active: campaignCreativeFormat === 'Standard' }">
@@ -272,8 +272,11 @@
                       <section v-for="(title, indexTitle) in content.titles" :key="indexTitle">
                         <section v-for="(image, indexImage) in content.images" :key="indexImage">
                           <div class="row no-gutters mb-2" v-if="image.url">
-                            <div class="col-sm-5" v-if="campaignCreativeFormat == 'Standard'">
-                              <img :src="image.url" class="card-img-top h-100">
+                            <div class="col-sm-5">
+                              <img v-if="campaignCreativeFormat == 'Standard'" :src="image.url" class="card-img-top h-100">
+                              <video v-if="campaignCreativeFormat == 'Clip'" class="card-img-top h-100">
+                                <source :src="image.url" type="video/mp4">
+                              </video>
                             </div>
                             <div class="col-sm-7">
                               <div class="card-body">
@@ -345,8 +348,12 @@
                 <div class="col-sm-6" v-for="(title, indexTitle) in content.titles" :key="indexTitle">
                   <div class="row" v-for="(image, indexImage) in content.images" :key="indexImage">
                     <div v-if="image.url">
-                      <div class="col-sm-5" v-if="campaignCreativeFormat == 'Standard'">
-                        <img :src="image.url" class="card-img-top h-100">
+                      <div class="col-sm-5">
+                        <img v-if="campaignCreativeFormat == 'Standard'" :src="image.url" class="card-img-top h-100">
+
+                        <video v-if="campaignCreativeFormat == 'Clip'" class="card-img-top h-100">
+                          <source :src="image.url" type="video/mp4">
+                        </video>
                       </div>
                       <div class="col-sm-7">
                         <div class="card-body">
@@ -707,6 +714,14 @@ export default {
       }
       if (this.setType == 'video') {
         this.ads[this.adSelectorIndex].videoSet = set
+        this.loadVideoSets(this.adSelectorIndex).then(() => {
+          this.ads[this.adSelectorIndex].images = this.ads[this.adSelectorIndex].videoSet.sets.map(item => {
+            return {
+              url: process.env.MIX_APP_URL + '/storage/images/' + item.video,
+              state: true
+            }
+          })
+        })
       }
 
       $('#creative-set-modal').modal('hide')
@@ -725,6 +740,15 @@ export default {
       this.isLoading = true
       return axios.get(`/creatives/image-sets/${this.ads[index].imageSet.id}`).then(response => {
         this.ads[index].imageSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+
+    loadVideoSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/video-sets/${this.ads[index].videoSet.id}`).then(response => {
+        this.ads[index].videoSet.sets = response.data.sets
       }).finally(() => {
         this.isLoading = false
       });
