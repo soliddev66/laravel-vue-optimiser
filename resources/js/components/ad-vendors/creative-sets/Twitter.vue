@@ -245,6 +245,7 @@ export default {
       this.loadAdGroupCategories()
     },
     loadFundingInstruments() {
+      this.vendor.selectedFundingInstrument = ''
       this.isLoading = true
       axios.get(`/account/funding-instruments?provider=twitter&account=${this.vendor.selectedAccount}&advertiser=${this.vendor.selectedAdvertiser}`).then(response => {
         this.fundingInstruments = response.data

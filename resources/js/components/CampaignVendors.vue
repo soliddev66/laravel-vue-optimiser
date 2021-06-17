@@ -7,7 +7,7 @@
     <div class="row justify-content-center">
       <div class="col" v-if="currentStep == 1">
         <div class="row">
-          <div class="col-md-6 col-lg-4 vendor mt-3" v-for="vendor in vendors" :key="vendor.id">
+          <div class="col-md-6 col-lg-4 vendor mt-3" v-for="(vendor, index) in vendors" :key="index">
             <div class="card" v-bind:class="{active: vendor.selected}" @click="vendorClick($event, vendor)">
               <div class="card-body">
                 <img :src="vendor.icon" alt="" width="40">
@@ -24,16 +24,31 @@
 
                 <div class="row mt-2" v-if="vendor.selected">
                   <div class="col">
-                    <select class="form-control" v-model="vendor.selectedAdvertiser" @change="selectedAdvertiserChanged(vendor.id)">
+                    <select class="form-control" v-model="vendor.selectedAdvertiser" @change="selectedAdvertiserChanged(index)">
                       <option value="">Select Advertiser</option>
                       <option :value="vendor.slug == 'taboola' ? advertiser.account_id : advertiser.id" v-for="advertiser in vendor.advertisers" :key="advertiser.id">{{ vendor.slug == 'taboola' ? advertiser.account_id : advertiser.id }} - {{ advertiser.advertiserName || advertiser.name }}</option>
                     </select>
                   </div>
                 </div>
 
-                <div class="row mt-2" v-if="vendor.selected">
-                  <div class="col">
-                    <select2 v-model="vendor.campaigns" :options="vendor.campaignSelections" :settings="{ templateSelection: formatState, templateResult: formatState, placeholder: 'Select Campaign' }" />
+                <div v-if="vendor.selected">
+                  <fieldset class="mb-2 mt-2 p-2 rounded border" v-for="(campaign, indexCampaign) in vendor.campaigns" :key="indexCampaign">
+                    <div class="row">
+                      <div class="col">
+                        <select2 v-model="campaign.id" :options="vendor.campaignSelections" :settings="{ templateSelection: formatState, templateResult: formatState, placeholder: 'Select Campaign' }" />
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col">
+                        <select2 v-model="campaign.adGroups" :options="campaign.adGroupSelections" :settings="{ multiple: true, placeholder: 'Select Ad Groups' }" />
+                      </div>
+                    </div>
+                  </fieldset>
+
+                  <div class="row mt-2">
+                    <div class="col">
+                      <button type="button" class="btn btn-sm btn-light" @click="addCampaign()">ADD</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -349,7 +364,11 @@ export default {
         selectedAccount: '',
         selectedAdvertiser: '',
         selected: false,
-        loaded: false
+        loaded: false,
+        campaigns: [{
+          id: null,
+          adGroups: []
+        }]
       }
 
       if (this.providers[i].slug == 'yahoo') {
@@ -463,17 +482,12 @@ export default {
       })
     },
 
-    selectedAdvertiserChanged(vendorId) {
-      for (let i = 0; i < this.vendors.length; i++) {
-        if (this.vendors[i].id == vendorId) {
-          this.vendors[i].loaded = false
-          break
-        }
-      }
+    selectedAdvertiserChanged(index) {
+      this.vendors[index].loaded = false
 
       this.isLoading = true
-      axios.get('/campaigns/user-campaigns?provider=' + this.vendors[i].id).then(response => {
-        this.vendors[i].campaignSelections = response.data.campaigns.map(campaign => {
+      axios.get('/campaigns/user-campaigns?provider=' + this.vendors[index].id).then(response => {
+        this.vendors[index].campaignSelections = response.data.campaigns.map(campaign => {
           return {
             id: campaign.id,
             text: campaign.name,
@@ -495,9 +509,11 @@ export default {
     vendorClick(event, vendor) {
       let abandonClasses = [
         'form-control',
-        'select2',
         'select2-selection__rendered',
+        'select2-search__field',
+        'btn-sm'
       ]
+
       if (abandonClasses.includes(event.target.className)) {
         return
       }
@@ -679,6 +695,10 @@ export default {
 
     removeContent(index) {
       this.contents.splice(index, 1);
+    },
+
+    addCampaign() {
+      this.ruleCampaigns.push({ id: null, data: { bid: '', adGroups: [] } })
     },
 
     submitStep4() {
