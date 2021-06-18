@@ -38,14 +38,14 @@
                         <select2 v-model="campaign.id" :options="vendor.campaignSelections" :settings="{ templateSelection: formatState, templateResult: formatState, placeholder: 'Select Campaign' }" @change="campaignSelected(index, campaignIndex)" />
                       </div>
                     </div>
-                    <div class="row mt-2">
+                    <div class="row mt-2" v-if="[1, 3, 5].includes(vendor.id)">
                       <div class="col">
                         <select2 v-model="campaign.adGroups" :options="campaign.adGroupSelections" :settings="{ multiple: true, placeholder: 'Select Ad Groups' }" />
                       </div>
                     </div>
-                    <div class="row mt-2">
+                    <div class="row mt-2" v-if="campaignIndex > 0">
                       <div class="col">
-                        <button type="button" class="btn btn-sm btn-light" @click.prevent="removeCampaign(index, campaignIndex)" v-if="campaignIndex > 0"><i class="fa fa-minus"></i></button>
+                        <button type="button" class="btn btn-sm btn-light" @click.prevent="removeCampaign(index, campaignIndex)"><i class="fa fa-minus"></i></button>
                       </div>
                     </div>
                   </fieldset>
@@ -519,11 +519,15 @@ export default {
       let abandonClasses = [
         'form-control',
         'select2-selection__rendered',
+        'select2-selection select2-selection--single',
+        'select2-selection__placeholder',
         'select2-search__field',
         'btn btn-sm btn-light',
         'campaign-item',
         'fa fa-minus'
       ]
+
+      console.log(event.target.className)
 
       if (abandonClasses.includes(event.target.className)) {
         return
