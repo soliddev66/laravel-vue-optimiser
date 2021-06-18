@@ -1140,6 +1140,28 @@ class Yahoojp extends Root implements AdVendorInterface
         //
     }
 
+    public function adGroupSelection(Campaign $campaign)
+    {
+        $api = new YahooJPAPI(auth()->user()->providers()->where([
+            'provider_id' => $campaign->provider_id,
+            'open_id' => $campaign->open_id
+        ])->first());
+
+        $ad_groups = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id)['rval']['values'];
+
+        $result = [];
+
+        if (is_array($ad_groups)) {
+            foreach ($ad_groups as $ad_group) {
+                $ad_group = $ad_group['adGroup'];
+
+                $result[] = ['id' => $ad_group['adGroupId'], 'text' => $ad_group['adGroupName']];
+            }
+        }
+
+        return $result;
+    }
+
     public function adStatus(Campaign $campaign, $ad_group_id, $ad_id, $status = null)
     {
         try {

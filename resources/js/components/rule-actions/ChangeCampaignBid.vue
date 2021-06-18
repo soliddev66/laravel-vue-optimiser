@@ -13,7 +13,7 @@
                 <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" :settings="{ templateSelection: formatState, templateResult: formatState, multiple: false, placeholder: 'Select Campaign' }" @change="campaignSelected(index, ruleCampaign.id)" />
               </div>
             </div>
-            <div class="row" v-if="ruleCampaign.provider_id == 1 || ruleCampaign.provider_id == 3">
+            <div class="row" v-if="[1, 3, 5].includes(ruleCampaign.provider_id)">
               <div class="col">
                 <fieldset class="mb-3 p-3 rounded border" v-for="(campaignAdGroup, indexAdGroup) in ruleCampaign.data.adGroups" :key="indexAdGroup">
                   <div class="form-group row">
