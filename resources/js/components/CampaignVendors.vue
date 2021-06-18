@@ -8,47 +8,45 @@
       <div class="col" v-if="currentStep == 1">
         <div class="row">
           <div class="col-md-6 col-lg-4 vendor mt-3" v-for="(vendor, index) in vendors" :key="index">
-            <div class="card" v-bind:class="{active: vendor.selected}" @click="vendorClick($event, vendor)">
-              <div class="card-body">
-                <img :src="vendor.icon" alt="" width="40">
-                <h3 class="pl-3 d-inline">{{ vendor.label }}</h3>
+            <div class="block" v-bind:class="{active: vendor.selected}" @click="vendorClick($event, index)">
+              <img :src="vendor.icon" alt="" width="40">
+              <h3 class="pl-3 d-inline">{{ vendor.label }}</h3>
 
-                <div class="row mt-3" v-if="vendor.selected">
-                  <div class="col">
-                    <select class="form-control" v-model="vendor.selectedAccount">
-                      <option value="">Select Account</option>
-                      <option :value="account.open_id" v-for="account in vendor.accounts" :key="account.id">{{ account.open_id }}</option>
-                    </select>
-                  </div>
+              <div class="row mt-3" v-if="vendor.selected">
+                <div class="col">
+                  <select class="form-control" v-model="vendor.selectedAccount">
+                    <option value="">Select Account</option>
+                    <option :value="account.open_id" v-for="account in vendor.accounts" :key="account.id">{{ account.open_id }}</option>
+                  </select>
                 </div>
+              </div>
 
-                <div class="row mt-2" v-if="vendor.selected">
-                  <div class="col">
-                    <select class="form-control" v-model="vendor.selectedAdvertiser" @change="selectedAdvertiserChanged(index)">
-                      <option value="">Select Advertiser</option>
-                      <option :value="vendor.slug == 'taboola' ? advertiser.account_id : advertiser.id" v-for="advertiser in vendor.advertisers" :key="advertiser.id">{{ vendor.slug == 'taboola' ? advertiser.account_id : advertiser.id }} - {{ advertiser.advertiserName || advertiser.name }}</option>
-                    </select>
-                  </div>
+              <div class="row mt-2" v-if="vendor.selected">
+                <div class="col">
+                  <select class="form-control" v-model="vendor.selectedAdvertiser" @change="selectedAdvertiserChanged(index)">
+                    <option value="">Select Advertiser</option>
+                    <option :value="vendor.slug == 'taboola' ? advertiser.account_id : advertiser.id" v-for="advertiser in vendor.advertisers" :key="advertiser.id">{{ vendor.slug == 'taboola' ? advertiser.account_id : advertiser.id }} - {{ advertiser.advertiserName || advertiser.name }}</option>
+                  </select>
                 </div>
+              </div>
 
-                <div v-if="vendor.selected">
-                  <fieldset class="mb-2 mt-2 p-2 rounded border" v-for="(campaign, indexCampaign) in vendor.campaigns" :key="indexCampaign">
-                    <div class="row">
-                      <div class="col">
-                        <select2 v-model="campaign.id" :options="vendor.campaignSelections" :settings="{ templateSelection: formatState, templateResult: formatState, placeholder: 'Select Campaign' }" />
-                      </div>
+              <div v-if="vendor.selected">
+                <fieldset class="mb-2 mt-2 p-2 rounded border" v-for="(campaign, indexCampaign) in vendor.campaigns" :key="indexCampaign">
+                  <div class="row">
+                    <div class="col">
+                      <select2 v-model="campaign.id" :options="vendor.campaignSelections" :settings="{ templateSelection: formatState, templateResult: formatState, placeholder: 'Select Campaign' }" />
                     </div>
-                    <div class="row mt-2">
-                      <div class="col">
-                        <select2 v-model="campaign.adGroups" :options="campaign.adGroupSelections" :settings="{ multiple: true, placeholder: 'Select Ad Groups' }" />
-                      </div>
-                    </div>
-                  </fieldset>
-
+                  </div>
                   <div class="row mt-2">
                     <div class="col">
-                      <button type="button" class="btn btn-sm btn-light" @click="addCampaign()">ADD</button>
+                      <select2 v-model="campaign.adGroups" :options="campaign.adGroupSelections" :settings="{ multiple: true, placeholder: 'Select Ad Groups' }" />
                     </div>
+                  </div>
+                </fieldset>
+
+                <div class="row mt-2">
+                  <div class="col">
+                    <button type="button" class="btn btn-sm btn-light" @click="addCampaign(index)">ADD</button>
                   </div>
                 </div>
               </div>
@@ -485,6 +483,10 @@ export default {
     selectedAdvertiserChanged(index) {
       this.vendors[index].loaded = false
 
+      this.loadVendorCampaigns(index)
+    },
+
+    loadVendorCampaigns(index) {
       this.isLoading = true
       axios.get('/campaigns/user-campaigns?provider=' + this.vendors[index].id).then(response => {
         this.vendors[index].campaignSelections = response.data.campaigns.map(campaign => {
@@ -506,29 +508,31 @@ export default {
       return !!pattern.test(str);
     },
 
-    vendorClick(event, vendor) {
+    vendorClick(event, index) {
       let abandonClasses = [
         'form-control',
         'select2-selection__rendered',
         'select2-search__field',
-        'btn-sm'
+        'btn btn-sm btn-light'
       ]
 
       if (abandonClasses.includes(event.target.className)) {
         return
       }
 
-      if (vendor.accounts.length == 0) {
-        this.getAccounts(vendor).then(() => {
-          vendor.selected = !vendor.selected
+      if (this.vendors[index].accounts.length == 0) {
+        this.getAccounts(this.vendors[index]).then(() => {
+          this.vendors[index].selected = !this.vendors[index].selected
 
-          this.getAdvertisers(vendor)
+          this.getAdvertisers(this.vendors[index]).then(() => {
+            this.loadVendorCampaigns(index)
+          })
         })
       } else {
-        vendor.selected = !vendor.selected
+        this.vendors[index].selected = !this.vendors[index].selected
       }
 
-      vendor.loaded = false
+      this.vendors[index].loaded = false
     },
 
     submitStep1() {
@@ -697,8 +701,8 @@ export default {
       this.contents.splice(index, 1);
     },
 
-    addCampaign() {
-      this.ruleCampaigns.push({ id: null, data: { bid: '', adGroups: [] } })
+    addCampaign(index) {
+      this.vendors[index].campaigns.push({ id: null, adGroups: [] })
     },
 
     submitStep4() {
@@ -764,13 +768,13 @@ export default {
   font-size: 1.3em;
 }
 
-.vendor .card {
+.vendor .block {
   border: none;
   transition: all 0.3s linear;
   overflow: hidden;
 }
 
-.vendor .card.active, .vendor .card:hover {
+.vendor .block.active, .vendor .block:hover {
   background: #607cef;
   color: #fff;
 
