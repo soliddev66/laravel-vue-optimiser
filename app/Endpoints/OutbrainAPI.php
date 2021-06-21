@@ -56,6 +56,17 @@ class OutbrainAPI
     }
 
     /**
+     * Fetch sections.
+     *
+     * @return mixed
+     * @throws GuzzleException
+     */
+    public function getSections($section_ids)
+    {
+        return $this->client->call('POST', 'sections', $section_ids);
+    }
+
+    /**
      * Fetch budgets.
      *
      * @return mixed
