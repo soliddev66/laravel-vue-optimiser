@@ -895,7 +895,7 @@ class Twitter extends Root implements AdVendorInterface
                 if ($title_creative_set) {
                     $titles = $title_creative_set->titleSets;
                 } else {
-                    throw('No creative set found.');
+                    throw new Exception('No creative set found.');
                 }
 
                 if ($card['adType'] == 'IMAGE') {
@@ -906,7 +906,7 @@ class Twitter extends Root implements AdVendorInterface
                     if ($image_creative_set) {
                         $images = $image_creative_set->imageSets;
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
 
                     foreach ($imges as $image) {
@@ -961,7 +961,7 @@ class Twitter extends Root implements AdVendorInterface
                     if ($video_creative_set) {
                         $videos = $video_creative_set->videoSets;
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
 
                     foreach ($videos as $video) {

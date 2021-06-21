@@ -294,7 +294,7 @@ class Yahoo extends Root implements AdVendorInterface
                         if ($title_creative_set) {
                             $titles = $title_creative_set->titleSets;
                         } else {
-                            throw('No creative set found.');
+                            throw new Exception('No creative set found.');
                         }
                     } else {
                         $titles = $content['titles'];
@@ -308,7 +308,7 @@ class Yahoo extends Root implements AdVendorInterface
                         if ($description_creative_set) {
                             $description = $description_creative_set->descriptionSets[0]['description'];
                         } else {
-                            throw('No creative set found.');
+                            throw new Exception('No creative set found.');
                         }
                     } else {
                         $description = $content['description'];
@@ -336,7 +336,7 @@ class Yahoo extends Root implements AdVendorInterface
                                 if ($video_creative_set) {
                                     $videos = $video_creative_set->videoSets;
                                 } else {
-                                    throw('No creative set found.');
+                                    throw new Exception('No creative set found.');
                                 }
                             } else {
                                 $videos = $content['videos'];
@@ -359,7 +359,7 @@ class Yahoo extends Root implements AdVendorInterface
                                 if ($image_creative_set) {
                                     $images = $image_creative_set->imageSets;
                                 } else {
-                                    throw('No creative set found.');
+                                    throw new Exception('No creative set found.');
                                 }
                             } else {
                                 $images = $content['images'];
@@ -488,7 +488,7 @@ class Yahoo extends Root implements AdVendorInterface
                     if ($title_creative_set) {
                         $titles = $title_creative_set->titleSets;
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
                 } else {
                     $titles = $content['titles'];
@@ -502,7 +502,7 @@ class Yahoo extends Root implements AdVendorInterface
                     if ($description_creative_set) {
                         $description = $description_creative_set->descriptionSets[0]['description'];
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
                 } else {
                     $description = $content['description'];
@@ -530,7 +530,7 @@ class Yahoo extends Root implements AdVendorInterface
                             if ($video_creative_set) {
                                 $videos = $video_creative_set->videoSets;
                             } else {
-                                throw('No creative set found.');
+                                throw new Exception('No creative set found.');
                             }
                         } else {
                             $videos = $content['videos'];
@@ -553,7 +553,7 @@ class Yahoo extends Root implements AdVendorInterface
                             if ($image_creative_set) {
                                 $images = $image_creative_set->imageSets;
                             } else {
-                                throw('No creative set found.');
+                                throw new Exception('No creative set found.');
                             }
                         } else {
                             $images = $content['images'];
@@ -622,7 +622,7 @@ class Yahoo extends Root implements AdVendorInterface
                     if ($title_creative_set) {
                         $titles = $title_creative_set->titleSets;
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
                 } else {
                     $titles = $content['titles'];
@@ -636,7 +636,7 @@ class Yahoo extends Root implements AdVendorInterface
                     if ($description_creative_set) {
                         $description = $description_creative_set->descriptionSets[0]['description'];
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
                 } else {
                     $description = $content['description'];
@@ -664,7 +664,7 @@ class Yahoo extends Root implements AdVendorInterface
                             if ($video_creative_set) {
                                 $videos = $video_creative_set->videoSets;
                             } else {
-                                throw('No creative set found.');
+                                throw new Exception('No creative set found.');
                             }
                         } else {
                             $videos = $content['videos'];
@@ -694,7 +694,7 @@ class Yahoo extends Root implements AdVendorInterface
                             if ($image_creative_set) {
                                 $images = $image_creative_set->imageSets;
                             } else {
-                                throw('No creative set found.');
+                                throw new Exception('No creative set found.');
                             }
                         } else {
                             $images = $content['images'];
@@ -1606,7 +1606,7 @@ class Yahoo extends Root implements AdVendorInterface
                     if ($title_creative_set) {
                         $titles = $title_creative_set->titleSets;
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
 
                     $description = '';
@@ -1616,7 +1616,7 @@ class Yahoo extends Root implements AdVendorInterface
                     if ($description_creative_set) {
                         $description = $description_creative_set->descriptionSets[0]['description'];
                     } else {
-                        throw('No creative set found.');
+                        throw new Exception('No creative set found.');
                     }
 
                     foreach ($titles as $title) {
@@ -1640,7 +1640,7 @@ class Yahoo extends Root implements AdVendorInterface
                             if ($video_creative_set) {
                                 $videos = $video_creative_set->videoSets;
                             } else {
-                                throw('No creative set found.');
+                                throw new Exception('No creative set found.');
                             }
 
                             foreach ($videos as $video) {
@@ -1659,7 +1659,7 @@ class Yahoo extends Root implements AdVendorInterface
                             if ($image_creative_set) {
                                 $images = $image_creative_set->imageSets;
                             } else {
-                                throw('No creative set found.');
+                                throw new Exception('No creative set found.');
                             }
 
                             foreach ($images as $image) {

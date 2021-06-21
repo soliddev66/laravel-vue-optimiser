@@ -137,9 +137,9 @@ class OutbrainAPI
         return $this->client->call('POST', 'campaigns/' . $campaign_id . '/promotedLinks', $ad);
     }
 
-    public function updateAd($campaign_id, $ad)
+    public function updateAd($campaign_id, $ads)
     {
-        return $this->client->call('PUT', 'campaigns/' . $campaign_id . '/promotedLinks', $ad);
+        return $this->client->call('PUT', 'campaigns/' . $campaign_id . '/promotedLinks', $ads);
     }
 
     public function deleteCampaign($campaign_id)
