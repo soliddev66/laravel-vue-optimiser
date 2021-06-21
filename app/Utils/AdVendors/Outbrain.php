@@ -157,11 +157,11 @@ class Outbrain extends Root implements AdVendorInterface
 
                             if (request('campaignCreativeFormat') == 'Standard') {
                                 $ad['imageMetadata'] = [
-                                    'url' => Helper::encodeUrl($image_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'] : $image['url'])
+                                    'url' => Helper::encodeUrl('https://wallpaperaccess.com/full/1940048.jpg')
                                 ];
                             } else {
                                 $ad['imageMetadata'] = [
-                                    'url' => Helper::encodeUrl($video_creative_set ? env('MIX_APP_URL') . '/storage/images/' . $image['video'] : $image['url'])
+                                    'url' => Helper::encodeUrl('https://perfane.com/sample.mp4')
                                 ];
                             }
 

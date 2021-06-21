@@ -8,21 +8,15 @@
         <div class="row">
           <div class="col-sm-11">
             <div class="form-group row">
-              <label class="col-sm-2 control-label">Campaign</label>
+              <label for="" class="col-sm-2 control-label">Campaign</label>
               <div class="col-sm-10">
-                <select2 :id="'campaign' + index" v-model="ruleCampaign.id" :options="campaignSelections" :settings="{ templateSelection: formatState, templateResult: formatState, multiple: false, placeholder: 'Select Campaign' }" @change="ruleCampaignSelected(ruleCampaign.id)" />
+                <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" :settings="{ templateSelection: formatState, templateResult: formatState, multiple: false, placeholder: 'Select Campaign' }" @change="ruleCampaignSelected(ruleCampaign.id)" />
               </div>
             </div>
             <div class="form-group row">
-              <label class="col-sm-2 control-label">Publishers</label>
+              <label for="" class="col-sm-2 control-label">Publishers</label>
               <div class="col-sm-10">
-                <select2 :id="'sections' + index" v-model="ruleCampaign.data.sections" :options="publisherSelections[ruleCampaign.id]" :settings="{ multiple: true }" />
-              </div>
-            </div>
-            <div class="form-group row">
-              <label class="col-sm-2 control-label">CPC Adjustment</label>
-              <div class="col-sm-10">
-                <input type="text" v-model="ruleCampaign.data.cpcAdjustment" class="form-control" placeholder="Enter CPC Adjustment">
+                <select2 name="publishers" v-model="ruleCampaign.data.publishers" :options="publisherSelections[ruleCampaign.id]" :settings="{ multiple: true }" />
               </div>
             </div>
           </div>
@@ -71,8 +65,9 @@ export default {
   data() {
     let postData = this.submitData
 
-    if (!postData.ruleCampaigns) {
-      postData.ruleCampaigns = [{ id: null, data: { sections: [], cpcAdjustment: '' } }]
+    if (!postData.ruleCampaigns) { << << << < HEAD
+      postData.ruleCampaigns = [{ id: null, data: { sections: [], cpcAdjustment: '' } }] === === =
+        postData.ruleCampaigns = [{ id: null, data: { publisher: [] } }] >>> >>> > Change publisher bid rule
     }
 
     return {
@@ -111,8 +106,9 @@ export default {
         this.isLoading = false
       })
     },
-    addRuleCampaign() {
-      this.ruleCampaigns.push({ id: null, data: { sections: [], cpcAdjustment: '' } })
+    addRuleCampaign() { << << << < HEAD
+      this.ruleCampaigns.push({ id: null, data: { sections: [], cpcAdjustment: '' } }) === === =
+        this.ruleCampaigns.push({ id: null, data: { publishers: [] } }) >>> >>> > Change publisher bid rule
     },
     removeRuleCampaign(index) {
       this.ruleCampaigns.splice(index, 1);
@@ -121,15 +117,16 @@ export default {
       if (this.publisherSelections[campaignId]) {
         return
       }
-      this.isLoading = true
-      axios.get(`/campaigns/${campaignId}/publisher-selections`).then(response => {
-        this.publisherSelections[campaignId] = response.data
-      }).catch(err => {
-        console.log(err)
-      }).finally(() => {
-        this.isLoading = false
-      })
+      this.isLoading = true << << << < HEAD
+      axios.get(`/campaigns/${campaignId}/publisher-selections`).then(response => { === === =
+          axios.get(`/campaigns/${campaignId}/targets?status=active`).then(response => { >>> >>> > Change publisher bid rule
+            this.publisherSelections[campaignId] = response.data
+          }).catch(err => {
+            console.log(err)
+          }).finally(() => {
+            this.isLoading = false
+          })
+        }
+      }
     }
-  }
-}
 </script>
