@@ -41,6 +41,20 @@
                 </div>
                 <h2 class="mt-3">Basic info</h2>
                 <div class="form-group row">
+                  <label for="campaign_type" class="col-sm-2 control-label mt-2">Creative Type</label>
+                  <div class="col-sm-8">
+                    <div class="btn-group btn-group-toggle">
+                      <label class="btn bg-olive" :class="{ active: campaignCreativeFormat === 'Standard' }">
+                        <input type="radio" name="campaign_type" autocomplete="off" value="Standard" v-model="campaignCreativeFormat">Standard
+                      </label>
+                      <label class="btn bg-olive" :class="{ active: campaignCreativeFormat === 'Clip' }">
+                        <input type="radio" name="campaign_type" autocomplete="off" value="Clip" v-model="campaignCreativeFormat">Clip
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
                   <div class="col-sm-6">
                     <label for="name" class="control-label">Name</label>
                     <input type="text" name="name" placeholder="Enter a name" class="form-control" v-model="campaignName" id="name" />
@@ -217,30 +231,10 @@
                         </div>
                       </div>
 
-                      <!-- <div class="form-group row">
-                        <label for="ad_type" class="col-sm-4 control-label mt-2">Ad Type</label>
-                        <div class="col-sm-8">
-                          <div class="btn-group btn-group-toggle">
-                            <label class="btn bg-olive" :class="{ active: content.adType === 'IMAGE' }">
-                              <input type="radio" name="ad_type" autocomplete="off" value="IMAGE" v-model="content.adType"> IMAGE
-                            </label>
-                            <label class="btn bg-olive" :class="{ active: content.adType === 'VIDEO' }">
-                              <input type="radio" name="ad_type" autocomplete="off" value="VIDEO" v-model="content.adType"> VIDEO
-                            </label>
-                          </div>
-                        </div>
-                      </div> -->
-
                       <div class="form-group row">
                         <label for="brand_name" class="col-sm-4 control-label mt-2">Company Name</label>
                         <div class="col-sm-8">
                           <input type="text" name="brand_name" placeholder="Enter a brandname" class="form-control" v-model="content.brandname" />
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="cpc" class="col-sm-4 control-label mt-2">CPC</label>
-                        <div class="col-sm-8">
-                          <input type="number" name="cpc" placeholder="Enter cpc" class="form-control" v-model="content.cpc" :disabled="instance" />
                         </div>
                       </div>
                       <div class="form-group row">
@@ -258,10 +252,12 @@
                           <div class="row mt-2 mb-2">
                             <div class="col">
                               <span v-if="content.imageSet.id" class="selected-set">{{ content.imageSet.name }}<span class="close" @click="removeImageSet(index)"><i class="fas fa-times"></i></span></span>
+                              <span v-if="content.videoSet.id" class="selected-set">{{ content.videoSet.name }}<span class="close" @click="removeVideoSet(index)"><i class="fas fa-times"></i></span></span>
                             </div>
                           </div>
-                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)" :disabled="content.imageSet.id">Choose File</button>
-                          <button class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
+                          <button type="button" class="btn btn-sm btn-default border" @click="openChooseFile('imageModal', index)" :disabled="content.imageSet.id || content.videoSet.id">Choose File</button>
+                          <button v-if="campaignCreativeFormat === 'Standard'" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('image', index)">Load from Sets</button>
+                          <button v-if="campaignCreativeFormat === 'Clip'" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".creative-set-modal" @click.prevent="loadCreativeSet('video', index)">Load from Sets</button>
                         </div>
                         <div class="col-sm-8 offset-sm-4">
                           <small class="text-danger" v-for="(image, indexImage) in content.images" :key="indexImage">
@@ -276,8 +272,11 @@
                       <section v-for="(title, indexTitle) in content.titles" :key="indexTitle">
                         <section v-for="(image, indexImage) in content.images" :key="indexImage">
                           <div class="row no-gutters mb-2" v-if="image.url">
-                            <div class="col-sm-5" v-if="content.adType == 'IMAGE'">
-                              <img :src="image.url" class="card-img-top h-100">
+                            <div class="col-sm-5">
+                              <img v-if="campaignCreativeFormat == 'Standard'" :src="image.url" class="card-img-top h-100">
+                              <video v-if="campaignCreativeFormat == 'Clip'" class="card-img-top h-100">
+                                <source :src="image.url" type="video/mp4">
+                              </video>
                             </div>
                             <div class="col-sm-7">
                               <div class="card-body">
@@ -349,8 +348,12 @@
                 <div class="col-sm-6" v-for="(title, indexTitle) in content.titles" :key="indexTitle">
                   <div class="row" v-for="(image, indexImage) in content.images" :key="indexImage">
                     <div v-if="image.url">
-                      <div class="col-sm-5" v-if="content.adType == 'IMAGE'">
-                        <img :src="image.url" class="card-img-top h-100">
+                      <div class="col-sm-5">
+                        <img v-if="campaignCreativeFormat == 'Standard'" :src="image.url" class="card-img-top h-100">
+
+                        <video v-if="campaignCreativeFormat == 'Clip'" class="card-img-top h-100">
+                          <source :src="image.url" type="video/mp4">
+                        </video>
                       </div>
                       <div class="col-sm-7">
                         <div class="card-body">
@@ -469,7 +472,7 @@ export default {
     },
     submitStep2State() {
       for (let i = 0; i < this.ads.length; i++) {
-        if (!this.ads[i].brandname || !this.ads[i].cpc || this.ads[i].cpc <= 0 || !this.ads[i].targetUrl || !this.validURL(this.ads[i].targetUrl)) {
+        if (!this.ads[i].brandname || !this.ads[i].targetUrl || !this.validURL(this.ads[i].targetUrl)) {
           return false
         }
 
@@ -479,7 +482,7 @@ export default {
           }
         }
 
-        if (this.ads[i].images.length == 0) {
+        if (!this.ads[i].imageSet.id && !this.ads[i].videoSet.id && this.ads[i].images.length == 0) {
           return false
         }
 
@@ -502,7 +505,7 @@ export default {
         for (var i = 0; i < values.length; i++) {
           this.ads[this.fileSelectorIndex].images[i] = {
             url: process.env.MIX_APP_URL + '/storage/images/' + values[i].path,
-            state: this.ads[this.fileSelectorIndex].adType == 'IMAGE' ? this.validDimensions(values[i].width, values[i].height, 1200, 800) : true,
+            state: this.campaignCreativeFormat == 'Standard' ? this.validDimensions(values[i].width, values[i].height, 1200, 800) : true,
             existing: false
           };
           paths.push(values[i].path)
@@ -523,40 +526,58 @@ export default {
   data() {
     let dataAttributes = [],
       ads = [{
-        adId: '',
-        adType: 'IMAGE',
+        id: '',
         titleSet: '',
         titles: [{
           title: '',
           existing: false
         }],
         targetUrl: '',
-        cpc: '',
         brandname: '',
         imageUrl: '',
         imageSet: '',
+        videoSet: '',
         images: []
       }]
 
     if (this.instance) {
       ads = []
+      let ad;
       for (let i = 0; i < this.instance.ads.length; i++) {
-        ads.push({
-          adId: this.instance.ads[i].id,
+        ad = {
+          id: this.instance.ads[i].id,
+          titleSet: this.instance.ads[i]['titleSet'] || '',
           titles: [{
             title: this.instance.ads[i].text,
             existing: true
           }],
           targetUrl: this.instance.ads[i].url,
-          cpc: this.instance.ads[i].cpc,
           brandname: this.instance.ads[i].siteName,
           imageUrl: this.instance.ads[i].imageMetadata.originalImageUrl,
+          imageSet: this.instance.ads[i]['imageSet'] || '',
+          videoSet: this.instance.ads[i]['videoSet'] || '',
           images: [{
             url: this.instance.ads[i].imageMetadata.originalImageUrl,
             state: true,
             existing: true
           }]
-        })
+        }
+
+        if (this.instance.ads[i]['imageSet']) {
+          ad.imageSet = this.instance.ads[i]['imageSet']
+          ad.images = ad.imageSet.sets.map(item => {
+            return {
+              url: process.env.MIX_APP_URL + '/storage/images/' + item.hq_image,
+              state: true
+            }
+          })
+        }
+
+        if (this.instance.ads[i]['videoSet']) {
+          ad.videoSet = this.instance.ads[i]['videoSet']
+        }
+
+        ads.push(ad)
       }
     }
 
@@ -577,6 +598,7 @@ export default {
       campaignName: this.instance ? this.instance.name : '',
       campaignObjective: this.instance ? this.instance.objective : 'Awareness', // Return
       campaignType: this.instance ? this.instance.channel : 'SEARCH_AND_NATIVE',
+      campaignCreativeFormat: this.instance ? this.instance.creativeFormat : 'Standard',
       campaignLanguage: this.instance ? this.instance.language : 'en',
       campaginPlatform: this.instance ? this.instance.targeting.platform : ['DESKTOP', 'MOBILE', 'TABLET'],
       campaignLocation: this.instance ? this.instance.targeting.locations : [],
@@ -690,6 +712,17 @@ export default {
           })
         })
       }
+      if (this.setType == 'video') {
+        this.ads[this.adSelectorIndex].videoSet = set
+        this.loadVideoSets(this.adSelectorIndex).then(() => {
+          this.ads[this.adSelectorIndex].images = this.ads[this.adSelectorIndex].videoSet.sets.map(item => {
+            return {
+              url: process.env.MIX_APP_URL + '/storage/images/' + item.video,
+              state: true
+            }
+          })
+        })
+      }
 
       $('#creative-set-modal').modal('hide')
     },
@@ -712,20 +745,45 @@ export default {
       });
     },
 
+    loadVideoSets(index) {
+      this.isLoading = true
+      return axios.get(`/creatives/video-sets/${this.ads[index].videoSet.id}`).then(response => {
+        this.ads[index].videoSet.sets = response.data.sets
+      }).finally(() => {
+        this.isLoading = false
+      });
+    },
+
+    removeImageSet(index) {
+      this.ads[index].imageSet = ''
+      this.ads[index].images = []
+    },
+
+    removeImageSet(index) {
+      this.ads[index].videoSet = ''
+      this.ads[index].images = []
+    },
+
+    removeTitleSet(index) {
+      this.ads[index].titleSet = ''
+      this.ads[index].titles = [{
+        title: ''
+      }]
+    },
+
     addAd() {
       this.ads.push({
-        adId: '',
-        adType: 'IMAGE',
+        id: '',
         titleSet: '',
         titles: [{
           title: '',
           existing: false
         }],
         targetUrl: '',
-        cpc: '',
         brandname: '',
         imageUrl: '',
         imageSet: '',
+        videoSet: '',
         images: []
       })
     },
@@ -795,6 +853,7 @@ export default {
         selectedAdvertiser: this.selectedAdvertiser,
         campaignBudget: this.campaignBudget,
         campaignBudgetType: this.campaignBudgetType,
+        campaignCreativeFormat: this.campaignCreativeFormat,
         campaignName: this.campaignName,
         budgetId: this.instance ? this.instance.budget.id : '',
         campaignType: this.campaignType,

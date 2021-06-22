@@ -7,11 +7,11 @@
     <div class="row justify-content-center">
       <div class="col" v-if="currentStep == 1">
         <div class="row">
-          <div class="col-md-6 col-lg-4 vendor mt-3" v-for="vendor in vendors" :key="vendor.id">
-            <div class="card" v-bind:class="{active: vendor.selected}" @click="vendorClick($event, vendor)">
+          <div class="col-md-6 col-lg-4 vendor mt-3" v-for="(vendor, index) in vendors" :key="index">
+            <div class="card" v-bind:class="{active: vendor.selected}" @click="vendorClick($event, index)">
               <div class="card-body">
                 <img :src="vendor.icon" alt="" width="40">
-                <span class="pl-3">{{ vendor.label }}</span>
+                <h3 class="pl-3 d-inline">{{ vendor.label }}</h3>
 
                 <div class="row mt-3" v-if="vendor.selected">
                   <div class="col">
@@ -24,10 +24,36 @@
 
                 <div class="row mt-2" v-if="vendor.selected">
                   <div class="col">
-                    <select class="form-control" v-model="vendor.selectedAdvertiser" @change="selectedAdvertiserChanged(vendor.id)">
+                    <select class="form-control" v-model="vendor.selectedAdvertiser" @change="selectedAdvertiserChanged(index)">
                       <option value="">Select Advertiser</option>
                       <option :value="vendor.slug == 'taboola' ? advertiser.account_id : advertiser.id" v-for="advertiser in vendor.advertisers" :key="advertiser.id">{{ vendor.slug == 'taboola' ? advertiser.account_id : advertiser.id }} - {{ advertiser.advertiserName || advertiser.name }}</option>
                     </select>
+                  </div>
+                </div>
+
+                <div v-if="vendor.selected">
+                  <fieldset class="mb-2 mt-2 p-2 rounded border" v-for="(campaign, campaignIndex) in vendor.campaigns" :key="campaignIndex">
+                    <div class="row">
+                      <div class="col">
+                        <select2 v-model="campaign.id" :options="vendor.campaignSelections" :settings="{ templateSelection: formatState, templateResult: formatState, placeholder: 'Select Campaign' }" @change="campaignSelected(index, campaignIndex)" />
+                      </div>
+                    </div>
+                    <div class="row mt-2" v-if="[1, 3, 5].includes(vendor.id)">
+                      <div class="col">
+                        <select2 v-model="campaign.adGroups" :options="campaign.adGroupSelections" :settings="{ multiple: true, placeholder: 'Select Ad Groups' }" />
+                      </div>
+                    </div>
+                    <div class="row mt-2" v-if="campaignIndex > 0">
+                      <div class="col">
+                        <button type="button" class="btn btn-sm btn-light" @click.prevent="removeCampaign(index, campaignIndex)"><i class="fa fa-minus"></i></button>
+                      </div>
+                    </div>
+                  </fieldset>
+
+                  <div class="row mt-2">
+                    <div class="col">
+                      <button type="button" class="btn btn-sm btn-light" @click="addCampaign(index)">ADD</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -343,7 +369,11 @@ export default {
         selectedAccount: '',
         selectedAdvertiser: '',
         selected: false,
-        loaded: false
+        loaded: false,
+        campaigns: [{
+          id: null,
+          adGroups: []
+        }]
       }
 
       if (this.providers[i].slug == 'yahoo') {
@@ -425,6 +455,16 @@ export default {
     }
   },
   methods: {
+    formatState(state) {
+      if (!state.id) {
+        return state.text;
+      }
+      var $state = $(
+        '<span class="campaign-item"><img src="' + state.icon + '" width="20px" height="20px" /> ' + state.text + '</span>'
+      );
+      return $state;
+    },
+
     getAccounts(vendor) {
       this.isLoading = true
       return axios.get(`/account/accounts?provider=${vendor.slug}`).then(response => {
@@ -447,13 +487,27 @@ export default {
       })
     },
 
-    selectedAdvertiserChanged(vendorId) {
-      for (let i = 0; i < this.vendors.length; i++) {
-        if (this.vendors[i].id == vendorId) {
-          this.vendors[i].loaded = false
-          return
-        }
-      }
+    selectedAdvertiserChanged(index) {
+      this.vendors[index].loaded = false
+
+      this.loadVendorCampaigns(index)
+    },
+
+    loadVendorCampaigns(index) {
+      this.isLoading = true
+      axios.get('/campaigns/user-campaigns?provider=' + this.vendors[index].id).then(response => {
+        this.vendors[index].campaignSelections = response.data.campaigns.map(campaign => {
+          return {
+            id: campaign.id,
+            text: campaign.name,
+            icon: campaign.icon
+          }
+        })
+      }).catch(err => {
+        console.log(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
     },
 
     validURL(str) {
@@ -461,22 +515,37 @@ export default {
       return !!pattern.test(str);
     },
 
-    vendorClick(event, vendor) {
-      if (event.target.className == 'form-control') {
+    vendorClick(event, index) {
+      let abandonClasses = [
+        'form-control',
+        'select2-selection__rendered',
+        'select2-selection select2-selection--single',
+        'select2-selection__placeholder',
+        'select2-search__field',
+        'btn btn-sm btn-light',
+        'campaign-item',
+        'fa fa-minus'
+      ]
+
+      console.log(event.target.className)
+
+      if (abandonClasses.includes(event.target.className)) {
         return
       }
 
-      if (vendor.accounts.length == 0) {
-        this.getAccounts(vendor).then(() => {
-          vendor.selected = !vendor.selected
+      if (this.vendors[index].accounts.length == 0) {
+        this.getAccounts(this.vendors[index]).then(() => {
+          this.vendors[index].selected = !this.vendors[index].selected
 
-          this.getAdvertisers(vendor)
+          this.getAdvertisers(this.vendors[index]).then(() => {
+            this.loadVendorCampaigns(index)
+          })
         })
       } else {
-        vendor.selected = !vendor.selected
+        this.vendors[index].selected = !this.vendors[index].selected
       }
 
-      vendor.loaded = false
+      this.vendors[index].loaded = false
     },
 
     submitStep1() {
@@ -645,6 +714,31 @@ export default {
       this.contents.splice(index, 1);
     },
 
+    addCampaign(index) {
+      this.vendors[index].campaigns.push({ id: null, adGroups: [] })
+    },
+
+    removeCampaign(index, campaignIndex) {
+      this.vendors[index].campaigns.splice(campaignIndex, 1)
+    },
+
+    campaignSelected(index, campaignIndex) {
+      this.loadAdGroups(this.vendors[index].campaigns[campaignIndex])
+    },
+
+    loadAdGroups(campaign) {
+      this.isLoading = true
+      axios.get('/campaigns/' + campaign.id + '/ad-groups/selection')
+        .then((response) => {
+          campaign.adGroupSelections = response.data
+        })
+        .catch((err) => {
+          alert(err)
+        }).finally(() => {
+          this.isLoading = false
+        });
+    },
+
     submitStep4() {
       this.isLoading = true
 
@@ -700,28 +794,23 @@ export default {
   color: #344eb4;
 }
 
-.vendor {
-  cursor: pointer;
-}
-
-.vendor span {
+.vendor h3 {
   font-size: 1.3em;
 }
 
 .vendor .card {
   border: none;
+  cursor: pointer;
   transition: all 0.3s linear;
-  height: 80px;
   overflow: hidden;
 }
 
-.vendor .card.active {
-  height: 180px;
+.vendor .card-body {
+  padding: 0.5rem;
 }
 
 .vendor .card.active, .vendor .card:hover {
   background: #607cef;
   color: #fff;
-
 }
 </style>
