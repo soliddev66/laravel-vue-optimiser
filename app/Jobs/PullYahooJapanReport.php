@@ -62,16 +62,18 @@ class PullYahooJapanReport implements ShouldQueue
                         'date' => $target_date
                     ]);
 
-                    $stats['stats']['cost'] = $stats['stats']['cost'] * self::CURRENCY_RATE;
-                    $stats['stats']['avgCpc'] = $stats['stats']['avgCpc'] * self::CURRENCY_RATE;
-                    $stats['stats']['cpa'] = $stats['stats']['cpa'] * self::CURRENCY_RATE;
-                    $stats['stats']['conversionValue'] = $stats['stats']['conversionValue'] * self::CURRENCY_RATE;
-                    $stats['stats']['valuePerConversions'] = $stats['stats']['valuePerConversions'] * self::CURRENCY_RATE;
-                    $stats['stats']['allConversionValue'] = $stats['stats']['allConversionValue'] * self::CURRENCY_RATE;
-                    $stats['stats']['valuePerConversionsViaAdClick'] = $stats['stats']['valuePerConversionsViaAdClick'] * self::CURRENCY_RATE;
-                    $stats['stats']['cpaViaAdClick'] = $stats['stats']['cpaViaAdClick'] * self::CURRENCY_RATE;
-                    $stats['stats']['allCpa'] = $stats['stats']['allCpa'] * self::CURRENCY_RATE;
-                    $stats['stats']['averageCpv'] = $stats['stats']['averageCpv'] * self::CURRENCY_RATE;
+                    if (config('constants.currency_convert')) {
+                        $stats['stats']['cost'] = $stats['stats']['cost'] * self::CURRENCY_RATE;
+                        $stats['stats']['avgCpc'] = $stats['stats']['avgCpc'] * self::CURRENCY_RATE;
+                        $stats['stats']['cpa'] = $stats['stats']['cpa'] * self::CURRENCY_RATE;
+                        $stats['stats']['conversionValue'] = $stats['stats']['conversionValue'] * self::CURRENCY_RATE;
+                        $stats['stats']['valuePerConversions'] = $stats['stats']['valuePerConversions'] * self::CURRENCY_RATE;
+                        $stats['stats']['allConversionValue'] = $stats['stats']['allConversionValue'] * self::CURRENCY_RATE;
+                        $stats['stats']['valuePerConversionsViaAdClick'] = $stats['stats']['valuePerConversionsViaAdClick'] * self::CURRENCY_RATE;
+                        $stats['stats']['cpaViaAdClick'] = $stats['stats']['cpaViaAdClick'] * self::CURRENCY_RATE;
+                        $stats['stats']['allCpa'] = $stats['stats']['allCpa'] * self::CURRENCY_RATE;
+                        $stats['stats']['averageCpv'] = $stats['stats']['averageCpv'] * self::CURRENCY_RATE;
+                    }
 
                     foreach (array_keys($stats['stats']) as $key) {
                         $report->{preg_replace('/([A-Z])/', '_$1', $key)} = $stats['stats'][$key];

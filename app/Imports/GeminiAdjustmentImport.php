@@ -27,8 +27,10 @@ class GeminiAdjustmentImport implements ToArray, WithChunkReading, ShouldQueue, 
     public function array(array $rows)
     {
         if (count($rows) > 0) {
-            foreach ($rows as &$row) {
-                $row['spend'] = $row['spend'] * self::CURRENCY_RATE;
+            if (config('constants.currency_convert')) {
+                foreach ($rows as &$row) {
+                    $row['spend'] = $row['spend'] * self::CURRENCY_RATE;
+                }
             }
 
             $resource_importer = new ResourceImporter();
