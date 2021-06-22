@@ -8,15 +8,21 @@
         <div class="row">
           <div class="col-sm-11">
             <div class="form-group row">
-              <label for="" class="col-sm-2 control-label">Campaign</label>
+              <label class="col-sm-2 control-label">Campaign</label>
               <div class="col-sm-10">
-                <select2 name="campaigns" v-model="ruleCampaign.id" :options="campaignSelections" :settings="{ templateSelection: formatState, templateResult: formatState, multiple: false, placeholder: 'Select Campaign' }" @change="ruleCampaignSelected(ruleCampaign.id)" />
+                <select2 :id="'campaign' + index" v-model="ruleCampaign.id" :options="campaignSelections" :settings="{ templateSelection: formatState, templateResult: formatState, multiple: false, placeholder: 'Select Campaign' }" @change="ruleCampaignSelected(ruleCampaign.id)" />
               </div>
             </div>
             <div class="form-group row">
-              <label for="" class="col-sm-2 control-label">Publishers</label>
+              <label class="col-sm-2 control-label">Publishers</label>
               <div class="col-sm-10">
-                <select2 name="publishers" v-model="ruleCampaign.data.publishers" :options="publisherSelections[ruleCampaign.id]" :settings="{ multiple: true }" />
+                <select2 :id="'publishers' + index" v-model="ruleCampaign.data.publishers" :options="publisherSelections[ruleCampaign.id]" :settings="{ multiple: true }" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 control-label">Bid</label>
+              <div class="col-sm-10">
+                <input type="text" v-model="ruleCampaign.data.bid" class="form-control" placeholder="Enter bid">
               </div>
             </div>
           </div>
@@ -66,7 +72,7 @@ export default {
     let postData = this.submitData
 
     if (!postData.ruleCampaigns) {
-      postData.ruleCampaigns = [{ id: null, data: { publisher: [] } }]
+      postData.ruleCampaigns = [{ id: null, data: { publisher: [], bid: '' } }]
     }
 
     return {
