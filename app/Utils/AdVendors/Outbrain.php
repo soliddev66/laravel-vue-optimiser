@@ -675,7 +675,7 @@ class Outbrain extends Root implements AdVendorInterface
                 }
 
                 // Publishers stats
-                $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub5,sub3,sub4,sub7&sub9=Outbrain&tracks_view=true';
+                $url = 'https://api.redtrack.io/report?api_key=' . $tracker->api_key . '&date_from=' . $date . '&date_to=' . $date . '&group=sub5,sub3,sub4,sub6,sub7&sub9=Outbrain&tracks_view=true';
                 $response = $client->get($url);
 
                 $data = json_decode($response->getBody(), true);
@@ -845,6 +845,21 @@ class Outbrain extends Root implements AdVendorInterface
         $publishers_query->groupBy(['sub3', 'sub7']);
 
         return $publishers_query;
+    }
+
+    public function getPublisherSelections($campaign) {
+        $publishers = RedtrackPublisherStat::select('sub4', 'sub6')->where('campaign_id', $campaign->id)->get();
+
+        $results = [];
+
+        foreach ($publishers as $publisher) {
+            $results[] = [
+                'id' => $publisher['sub6'],
+                'text' => $publisher['sub4']
+            ];
+        }
+
+        return $results;
     }
 
     public function getAdGroupQuery($campaign, $data)

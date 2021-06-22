@@ -116,6 +116,12 @@ class CampaignController extends Controller
         return new DataTableCollectionResource($widgets_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
 
+    public function publisherSelections(Campaign $campaign) {
+        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+
+        return (new $ad_vendor_class())->getPublisherSelections($campaign);
+    }
+
     public function contents(Campaign $campaign)
     {
         $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
