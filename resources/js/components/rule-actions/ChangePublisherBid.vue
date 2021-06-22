@@ -65,9 +65,8 @@ export default {
   data() {
     let postData = this.submitData
 
-    if (!postData.ruleCampaigns) { << << << < HEAD
-      postData.ruleCampaigns = [{ id: null, data: { sections: [], cpcAdjustment: '' } }] === === =
-        postData.ruleCampaigns = [{ id: null, data: { publisher: [] } }] >>> >>> > Change publisher bid rule
+    if (!postData.ruleCampaigns) {
+      postData.ruleCampaigns = [{ id: null, data: { publisher: [] } }]
     }
 
     return {
@@ -106,9 +105,8 @@ export default {
         this.isLoading = false
       })
     },
-    addRuleCampaign() { << << << < HEAD
-      this.ruleCampaigns.push({ id: null, data: { sections: [], cpcAdjustment: '' } }) === === =
-        this.ruleCampaigns.push({ id: null, data: { publishers: [] } }) >>> >>> > Change publisher bid rule
+    addRuleCampaign() {
+      this.ruleCampaigns.push({ id: null, data: { publishers: [] } })
     },
     removeRuleCampaign(index) {
       this.ruleCampaigns.splice(index, 1);
@@ -117,16 +115,15 @@ export default {
       if (this.publisherSelections[campaignId]) {
         return
       }
-      this.isLoading = true << << << < HEAD
-      axios.get(`/campaigns/${campaignId}/publisher-selections`).then(response => { === === =
-          axios.get(`/campaigns/${campaignId}/targets?status=active`).then(response => { >>> >>> > Change publisher bid rule
-            this.publisherSelections[campaignId] = response.data
-          }).catch(err => {
-            console.log(err)
-          }).finally(() => {
-            this.isLoading = false
-          })
-        }
-      }
+      this.isLoading = true
+      axios.get(`/campaigns/${campaignId}/targets?status=active`).then(response => {
+        this.publisherSelections[campaignId] = response.data
+      }).catch(err => {
+        console.log(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
     }
+  }
+}
 </script>
