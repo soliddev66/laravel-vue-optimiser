@@ -1174,10 +1174,10 @@ class Outbrain extends Root implements AdVendorInterface
 
         $sections = [];
 
-        foreach ($data['sections'] as $section) {
+        foreach ($data->sections as $section) {
             $sections[] = [
                 'sectionId' => $section,
-                'cpcAdjustment' => $data['cpcAdjustment']
+                'cpcAdjustment' => $data->cpcAdjustment
             ];
         }
 
