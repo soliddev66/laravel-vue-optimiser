@@ -1168,4 +1168,23 @@ class Outbrain extends Root implements AdVendorInterface
     public function delete($campaign) {
 
     }
+
+    public function changePublishserBid($campaign, $data) {
+        $api = new OutbrainAPI(UserProvider::where(['provider_id' => $campaign->provider_id, 'open_id' => $campaign->open_id])->first());
+
+        $sections = [];
+
+        foreach ($data['sections'] as $section) {
+            $sections[] = [
+                'sectionId' => $section,
+                'cpcAdjustment' => $data['cpcAdjustment']
+            ];
+        }
+
+        $api->updateCampaignData($campaign->campaign_id, [
+            'bids' => [
+                'bySection' => $sections
+            ]
+        ]);
+    }
 }

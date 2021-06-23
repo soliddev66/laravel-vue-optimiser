@@ -16,13 +16,13 @@
             <div class="form-group row">
               <label class="col-sm-2 control-label">Publishers</label>
               <div class="col-sm-10">
-                <select2 :id="'publishers' + index" v-model="ruleCampaign.data.publishers" :options="publisherSelections[ruleCampaign.id]" :settings="{ multiple: true }" />
+                <select2 :id="'sections' + index" v-model="ruleCampaign.data.sections" :options="publisherSelections[ruleCampaign.id]" :settings="{ multiple: true }" />
               </div>
             </div>
             <div class="form-group row">
-              <label class="col-sm-2 control-label">Bid</label>
+              <label class="col-sm-2 control-label">CPC Adjustment</label>
               <div class="col-sm-10">
-                <input type="text" v-model="ruleCampaign.data.bid" class="form-control" placeholder="Enter bid">
+                <input type="text" v-model="ruleCampaign.data.cpcAdjustment" class="form-control" placeholder="Enter CPC Adjustment">
               </div>
             </div>
           </div>
@@ -72,7 +72,7 @@ export default {
     let postData = this.submitData
 
     if (!postData.ruleCampaigns) {
-      postData.ruleCampaigns = [{ id: null, data: { publisher: [], bid: '' } }]
+      postData.ruleCampaigns = [{ id: null, data: { sections: [], cpcAdjustment: '' } }]
     }
 
     return {
@@ -112,7 +112,7 @@ export default {
       })
     },
     addRuleCampaign() {
-      this.ruleCampaigns.push({ id: null, data: { publishers: [] } })
+      this.ruleCampaigns.push({ id: null, data: { sections: [], cpcAdjustment: '' } })
     },
     removeRuleCampaign(index) {
       this.ruleCampaigns.splice(index, 1);

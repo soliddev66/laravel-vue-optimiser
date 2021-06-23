@@ -4,9 +4,6 @@ namespace App\Utils\RuleActions;
 
 use Exception;
 
-use App\Models\Campaign;
-use App\Endpoints\GeminiAPI;
-
 class UnBlockSite extends Root
 {
     public function process($campaign, $data, &$log)

@@ -4,8 +4,6 @@ namespace App\Utils\RuleActions;
 
 use Exception;
 
-use App\Models\Campaign;
-
 class ActivateCampaign extends Root
 {
     public function process($campaign, &$log, $rule_data = null)
