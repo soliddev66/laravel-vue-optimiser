@@ -27,13 +27,15 @@ class GeminiProductAdPerformanceImport implements ToArray, WithChunkReading, Sho
     public function array(array $rows)
     {
         if (count($rows) > 0) {
-            foreach ($rows as &$row) {
-                $row['spend'] = $row['spend'] * self::CURRENCY_RATE;
-                $row['max_bid'] = $row['max_bid'] * self::CURRENCY_RATE;
-                $row['ad_extn_spend'] = $row['ad_extn_spend'] * self::CURRENCY_RATE;
-                $row['average_cpc'] = $row['average_cpc'] * self::CURRENCY_RATE;
-                $row['average_cpm'] = $row['average_cpm'] * self::CURRENCY_RATE;
-                $row['cost_per_video_view'] = $row['cost_per_video_view'] * self::CURRENCY_RATE;
+            if (config('constants.currency_convert')) {
+                foreach ($rows as &$row) {
+                    $row['spend'] = $row['spend'] * self::CURRENCY_RATE;
+                    $row['max_bid'] = $row['max_bid'] * self::CURRENCY_RATE;
+                    $row['ad_extn_spend'] = $row['ad_extn_spend'] * self::CURRENCY_RATE;
+                    $row['average_cpc'] = $row['average_cpc'] * self::CURRENCY_RATE;
+                    $row['average_cpm'] = $row['average_cpm'] * self::CURRENCY_RATE;
+                    $row['cost_per_video_view'] = $row['cost_per_video_view'] * self::CURRENCY_RATE;
+                }
             }
 
             $resource_importer = new ResourceImporter();
