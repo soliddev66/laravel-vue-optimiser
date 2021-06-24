@@ -869,7 +869,22 @@ class Outbrain extends Root implements AdVendorInterface
 
     public function getDomainData($campaign, $time_range)
     {
-        return $campaign->redtrackPublisherStats()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+        return $campaign->redtrackPublisherStats()->groupBy('sub4')
+            ->selectRaw('sum(approved) as approved, sum(attribution) as attribution, sum(baddevice) as baddevice,
+                sum(blacklist) as blacklist, sum(clicks) as clicks, sum(conversions) as conversions, sum(convtype1) as convtype1,
+                sum(convtype2) as convtype2, sum(convtype3) as convtype3, sum(convtype4) as convtype4, sum(convtype5) as convtype5,
+                sum(convtype6) as convtype6, sum(convtype7) as convtype7, sum(convtype8) as convtype8, sum(convtype9) as convtype9,
+                sum(convtype10) as convtype10, sum(cost) as cost, sum(cpa) as cpa, sum(cpc) as cpc, sum(cpt) as cpt, sum(cr) as cr,
+                sum(ctr) as ctr, sum(datacenter) as datacenter, sum(declined) as declined, sum(epc) as epc, sum(hour_of_day) as hour_of_day,
+                sum(impressions) as impressions, sum(impressions_visible) as impressions_visible, sum(lp_clicks) as lp_clicks,
+                sum(lp_ctr) as lp_ctr, sum(lp_views) as lp_views, sum(ok) as ok, sum(other) as other, sum(pending) as pending,
+                sum(prelp_views) as prelp_views, sum(prelp_clicks) as prelp_clicks, sum(profit) as profit, sum(pubrevenue) as pubrevenue,
+                sum(revenue) as revenue, sum(revenuetype1) as revenuetype1, sum(revenuetype2) as revenuetype2, sum(revenuetype3) as revenuetype3,
+                sum(revenuetype4) as revenuetype4, sum(revenuetype5) as revenuetype5, sum(revenuetype6) as revenuetype6, sum(revenuetype7) as revenuetype7,
+                sum(revenuetype8) as revenuetype8, sum(revenuetype9) as revenuetype9, sum(revenuetype10) as revenuetype10, sum(roi) as roi,
+                sum(total_conversions) as total_conversions, sum(total_revenue) as total_revenue, sum(tr) as tr, sum(transactions) as transactions,
+                sum(unique_clicks) as unique_clicks, sub4')
+            ->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
     }
 
     public function addSiteBlock($campaign, $data)
