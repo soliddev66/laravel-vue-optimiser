@@ -62,7 +62,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'campaigns'], function() {
     Route::get('/{campaign}/widgets', [App\Http\Controllers\CampaignController::class, 'widgets'])->name('campaigns.widgets');
     Route::get('/{campaign}/targets', [App\Http\Controllers\CampaignController::class, 'targets'])->name('campaigns.targets');
     Route::get('/{campaign}/publishers', [App\Http\Controllers\CampaignController::class, 'publishers'])->name('campaigns.publishers');
-    Route::get('/{campaign}/publisherSelections', [App\Http\Controllers\CampaignController::class, 'publisherSelections'])->name('campaigns.publisherSelections');
+    Route::get('/{campaign}/publisher-selections', [App\Http\Controllers\CampaignController::class, 'publisherSelections'])->name('campaigns.publisherSelections');
     Route::get('/{campaign}/contents', [App\Http\Controllers\CampaignController::class, 'contents'])->name('campaigns.contents');
     Route::get('/{campaign}/domains', [App\Http\Controllers\CampaignController::class, 'domains'])->name('campaigns.domains');
     Route::post('/{campaign}/domains/{domain_id}/block', [App\Http\Controllers\CampaignController::class, 'blockSite'])->name('campaigns.blockSite');
