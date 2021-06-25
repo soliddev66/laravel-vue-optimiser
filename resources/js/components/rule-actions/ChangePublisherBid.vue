@@ -73,6 +73,8 @@ export default {
 
     if (!postData.ruleCampaigns) {
       postData.ruleCampaigns = [{ id: null, data: { sections: [], cpcAdjustment: '' } }]
+    } else {
+      this.loadPubisherSelections(postData.ruleCampaigns);
     }
 
     return {
@@ -94,6 +96,7 @@ export default {
       );
       return $state;
     },
+
     loadCampaigns() {
       this.isLoading = true
       axios.get('/campaigns/user-campaigns').then(response => {
@@ -111,12 +114,32 @@ export default {
         this.isLoading = false
       })
     },
+
+    loadPubisherSelections(campaigns) {
+      let campaignIds = []
+
+      for (let i = 0; i < campaigns.length; i++) {
+        campaignIds.push(campaigns[i].id)
+      }
+
+      this.isLoading = true
+      axios.get(`/campaigns/publisher-selections?campaign_ids=${campaignIds.join(',')}`).then(response => {
+        console.log(response.data)
+      }).catch(err => {
+        console.log(err)
+      }).finally(() => {
+        this.isLoading = false
+      })
+    },
+
     addRuleCampaign() {
       this.ruleCampaigns.push({ id: null, data: { sections: [], cpcAdjustment: '' } })
     },
+
     removeRuleCampaign(index) {
       this.ruleCampaigns.splice(index, 1);
     },
+
     ruleCampaignSelected(campaignId) {
       if (this.publisherSelections[campaignId]) {
         return
