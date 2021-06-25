@@ -848,14 +848,14 @@ class Outbrain extends Root implements AdVendorInterface
     }
 
     public function getPublisherSelections($campaign) {
-        $publishers = RedtrackPublisherStat::select('sub4', 'sub6')->where('campaign_id', $campaign->id)->get();
+        $publishers = RedtrackPublisherStat::groupBy('sub6', 'sub3')->select('sub3', 'sub6')->where('campaign_id', $campaign->id)->get();
 
         $results = [];
 
         foreach ($publishers as $publisher) {
             $results[] = [
                 'id' => $publisher['sub6'],
-                'text' => $publisher['sub4']
+                'text' => $publisher['sub3']
             ];
         }
 
