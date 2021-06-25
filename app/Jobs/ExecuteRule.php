@@ -68,7 +68,7 @@ class ExecuteRule implements ShouldQueue
                         if ($this->checkConditions($campaign, $rule, $redtrack_data, $performance_data, 1)) {
                             $this->log->passed = true;
 
-                            // ActivateCampaign, PauseCampaign, BlockWidgetsPushlisher, UnBlockWidgetsPushlisher, ChangeCampaignBudget, ChangeCampaignBid
+                            // ActivateCampaign, PauseCampaign, BlockWidgetsPushlisher, UnBlockWidgetsPushlisher, ChangeCampaignBudget, ChangeCampaignBid, ChangePublisherBid
                             $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule_rule_action->ruleAction->provider;
 
                             if (class_exists($rule_action_class)) {

@@ -5,7 +5,6 @@ namespace App\Utils\RuleActions;
 use Exception;
 
 use App\Models\Campaign;
-use App\Endpoints\GeminiAPI;
 
 class ActivateContents extends Root
 {

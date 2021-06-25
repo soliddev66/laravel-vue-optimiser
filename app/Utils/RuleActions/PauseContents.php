@@ -5,7 +5,6 @@ namespace App\Utils\RuleActions;
 use Exception;
 
 use App\Models\Campaign;
-use App\Endpoints\GeminiAPI;
 
 class PauseContents extends Root
 {
