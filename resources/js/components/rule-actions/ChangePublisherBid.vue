@@ -122,7 +122,7 @@ export default {
         return
       }
       this.isLoading = true
-      axios.get(`/campaigns/${campaignId}/targets?status=active`).then(response => {
+      axios.get(`/campaigns/${campaignId}/publisher-selections`).then(response => {
         this.publisherSelections[campaignId] = response.data
       }).catch(err => {
         console.log(err)
