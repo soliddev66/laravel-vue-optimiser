@@ -723,7 +723,9 @@ export default {
     },
 
     campaignSelected(index, campaignIndex) {
-      this.loadAdGroups(this.vendors[index].campaigns[campaignIndex])
+      if ([1, 3, 5].includes(this.vendors[index].id)) {
+        this.loadAdGroups(this.vendors[index].campaigns[campaignIndex])
+      }
     },
 
     loadAdGroups(campaign) {
