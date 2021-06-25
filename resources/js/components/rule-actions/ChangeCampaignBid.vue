@@ -39,7 +39,7 @@
                 </div>
               </div>
             </div>
-            <div class="form-group row" v-if="ruleCampaign.provider_id != 1 && ruleCampaign.provider_id != 3">
+            <div class="form-group row" v-if="![1, 3, 5].includes(ruleCampaign.provider_id)">
               <label for="rule_campaign_bid" class="col-sm-2 control-label">Bid</label>
               <div class="col-sm-10">
                 <input type="text" name="rule_campaign_bid" v-model="ruleCampaign.data.bid" class="form-control" placeholder="Enter bid">

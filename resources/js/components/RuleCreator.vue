@@ -199,6 +199,7 @@ import {
   BlockWidgetsPushlisher,
   UnBlockWidgetsPushlisher,
   ChangeCampaignBid,
+  ChangePublisherBid,
 } from './rule-actions'
 
 export default {
@@ -248,6 +249,7 @@ export default {
     BlockWidgetsPushlisher,
     UnBlockWidgetsPushlisher,
     ChangeCampaignBid,
+    ChangePublisherBid
   },
   computed: {
     ruleNameState() {

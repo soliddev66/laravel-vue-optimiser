@@ -431,6 +431,11 @@ class RulesTableSeeder extends Seeder
             'provider' => 'UnBlockSite',
             'calculation_type' => 2,
             'created_at' => Carbon::now()
+        ], [
+            'name' => 'Change Publisher Bid',
+            'provider' => 'ChangePublisherBid',
+            'calculation_type' => 1,
+            'created_at' => Carbon::now()
         ]]);
     }
 }
