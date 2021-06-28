@@ -83,7 +83,7 @@
 
             <div class="d-none" :class="{ 'd-block': currentStep == 3 }">
               <div v-for="vendor in vendors" :key="vendor.id">
-                <div class="d-none" :class="{ 'd-block': vendor.selected && !vendor.generated && currentVendor && currentVendor.slug == vendor.slug }" v-if="vendor.selected && !vendor.generated">
+                <div class="d-none" :class="{ 'd-block': vendor.selected && !vendor.generated && currentVendor && currentVendor.slug == vendor.slug }" v-if="vendor.selected">
                   <component :is="vendor.slug" :vendor="vendor" :ref="vendor.slug" />
                 </div>
               </div>
@@ -289,7 +289,7 @@ import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
-import Echo from 'laravel-echo';
+import Echo from 'laravel-echo'
 
 import 'vue-loading-overlay/dist/vue-loading.css'
 
@@ -343,13 +343,13 @@ export default {
     }
   },
   mounted() {
-    window.Pusher = require('pusher-js');
+    window.Pusher = require('pusher-js')
 
     window.Echo = new Echo({
       broadcaster: 'pusher',
       key: process.env.MIX_PUSHER_APP_KEY,
       cluster: process.env.MIX_PUSHER_APP_CLUSTER
-    });
+    })
   },
   watch: {
 
@@ -457,12 +457,12 @@ export default {
   methods: {
     formatState(state) {
       if (!state.id) {
-        return state.text;
+        return state.text
       }
       var $state = $(
         '<span class="campaign-item"><img src="' + state.icon + '" width="20px" height="20px" /> ' + state.text + '</span>'
       );
-      return $state;
+      return $state
     },
 
     getAccounts(vendor) {
@@ -511,8 +511,8 @@ export default {
     },
 
     validURL(str) {
-      var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
-      return !!pattern.test(str);
+      var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g
+      return !!pattern.test(str)
     },
 
     vendorClick(event, index) {
@@ -577,8 +577,8 @@ export default {
 
       if (this.currentVendor) {
         if (!this.currentVendor.loaded) {
-          this.$refs[this.currentVendor.slug][0].preparingData();
-          this.currentVendor.loaded = true;
+          this.$refs[this.currentVendor.slug][0].preparingData()
+          this.currentVendor.loaded = true
         }
       } else {
         this.currentStep = 4
@@ -632,7 +632,7 @@ export default {
           this.currentVendor = this.vendors[i]
 
           if (!this.currentVendor.loaded) {
-            this.$refs[this.currentVendor.slug][0].preparingData();
+            this.$refs[this.currentVendor.slug][0].preparingData()
             this.currentVendor.loaded = true
           }
 
@@ -641,7 +641,7 @@ export default {
       }
 
       if (!this.currentVendor.loaded) {
-        this.$refs[this.currentVendor.slug][0].preparingData();
+        this.$refs[this.currentVendor.slug][0].preparingData()
         this.currentVendor.loaded = true
       }
 
@@ -681,7 +681,7 @@ export default {
         this.contents[index].titleSet.sets = response.data.sets
       }).finally(() => {
         this.isLoading = false
-      });
+      })
     },
 
     loadImageSets(index) {
@@ -690,7 +690,7 @@ export default {
         this.contents[index].imageSet.sets = response.data.sets
       }).finally(() => {
         this.isLoading = false
-      });
+      })
     },
 
     loadVideoSets(index) {
@@ -699,7 +699,7 @@ export default {
         this.contents[index].videoSet.sets = response.data.sets
       }).finally(() => {
         this.isLoading = false
-      });
+      })
     },
 
     loadDescriptionSets(index) {
@@ -708,7 +708,7 @@ export default {
         this.contents[index].descriptionSet.sets = response.data.sets
       }).finally(() => {
         this.isLoading = false
-      });
+      })
     },
 
     removeImageSet(index) {
@@ -744,7 +744,7 @@ export default {
     },
 
     removeContent(index) {
-      this.contents.splice(index, 1);
+      this.contents.splice(index, 1)
     },
 
     addCampaign(index) {
@@ -771,7 +771,7 @@ export default {
           alert(err)
         }).finally(() => {
           this.isLoading = false
-        });
+        })
     },
 
     submitStep4() {
@@ -787,20 +787,19 @@ export default {
 
       window.Echo.private('campaign.' + this.userId).listen('CampaignVendorCreated', response => {
         processedTime ++
-        console.log('Processed.', totalVendor, processedTime);
 
         if (!response.data.success) {
-          alert(response.data.errors[0]);
+          alert(response.data.errors[0])
         }
 
         if (processedTime == totalVendor) {
           this.isLoading = false
 
           this.$dialog.alert('All vendors have been processed!').then(() => {
-            window.location = '/campaigns';
-          });
+            window.location = '/campaigns'
+          })
         }
-      });
+      })
 
       axios.post('/campaigns/store-campaign-vendors', {
         campaignName: this.campaignName,
@@ -808,7 +807,7 @@ export default {
         contents: this.contents
       }).then(response => {
         if (response.data.errors) {
-          alert(response.data.errors[0]);
+          alert(response.data.errors[0])
         }
       }).catch(error => console.log(error)).finally(() => {
 
