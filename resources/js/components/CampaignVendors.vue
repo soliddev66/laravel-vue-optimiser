@@ -228,7 +228,7 @@
 
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep === 3">
               <div v-for="vendor in vendors" :key="vendor.id">
-                <button type="button" class="btn btn-primary" v-if="vendor.selected && currentVendor.slug == vendor.slug" @click.prevent="backVendor(vendor)">Back</button>
+                <button type="button" class="btn btn-primary" v-if="vendor.selected && !vendor.generated && currentVendor && currentVendor.slug == vendor.slug" @click.prevent="backVendor(vendor)">Back</button>
               </div>
             </div>
 
@@ -551,11 +551,11 @@ export default {
 
       for (let i = 0; i < this.vendors.length; i++) {
         if (this.vendors[i].selected) {
+          console.log(this.vendors[i])
           for (let j = 0; j < this.vendors[i].campaigns.length; j++) {
-            for (let l = 0; l < this.vendors[i].campaigns[j].length; l++) {
-              if (this.vendors[i].campaigns[j].adGroups.length > 0) {
-                this.vendors[i].generated = true
-              }
+            if (([1, 3, 5].includes(this.vendors[i].id) && this.vendors[i].campaigns[j].adGroups.length > 0) || (![1, 3, 5].includes(this.vendors[i].id) && this.vendors[i].campaigns[j].id)) {
+              this.vendors[i].generated = true
+              break
             }
           }
         }
@@ -569,6 +569,7 @@ export default {
       for (let i = 0; i < this.vendors.length; i++) {
         if (this.vendors[i].selected && !this.vendors[i].generated) {
           this.currentVendor = this.vendors[i]
+          break
         }
       }
 
