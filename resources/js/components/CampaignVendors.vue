@@ -83,7 +83,7 @@
 
             <div class="d-none" :class="{ 'd-block': currentStep == 3 }">
               <div v-for="vendor in vendors" :key="vendor.id">
-                <div class="d-none" :class="{ 'd-block': vendor.selected && currentVendor.slug == vendor.slug }" v-if="vendor.selected">
+                <div class="d-none" :class="{ 'd-block': vendor.selected && !vendor.generated && currentVendor && currentVendor.slug == vendor.slug }" v-if="vendor.selected && !vendor.generated">
                   <component :is="vendor.slug" :vendor="vendor" :ref="vendor.slug" />
                 </div>
               </div>
@@ -333,7 +333,6 @@ export default {
     },
 
     submitStep4State() {
-
       for (let i = 0; i < this.contents.length; i++) {
         if (!this.contents[i].brandname || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl) || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl) || !this.contents[i].titleSet.id || (this.contents[i].adType == 'IMAGE' && !this.contents[i].imageSet.id) || (this.contents[i].adType == 'VIDEO' && !this.contents[i].videoSet.id) || !this.contents[i].descriptionSet.id) {
           return false
@@ -370,6 +369,7 @@ export default {
         selectedAdvertiser: '',
         selected: false,
         loaded: false,
+        generated: false,
         campaigns: [{
           id: null,
           adGroups: []
@@ -433,7 +433,7 @@ export default {
       isLoading: false,
       fullPage: true,
       currentStep: this.step,
-      currentVendor: vendors[0],
+      currentVendor: null,
       vendors: vendors,
       storageUrl: process.env.MIX_APP_URL,
       contents: [{
@@ -527,8 +527,6 @@ export default {
         'fa fa-minus'
       ]
 
-      console.log(event.target.className)
-
       if (abandonClasses.includes(event.target.className)) {
         return
       }
@@ -550,21 +548,37 @@ export default {
 
     submitStep1() {
       this.currentStep = 2
+
+      for (let i = 0; i < this.vendors.length; i++) {
+        if (this.vendors[i].selected) {
+          for (let j = 0; j < this.vendors[i].campaigns.length; j++) {
+            for (let l = 0; l < this.vendors[i].campaigns[j].length; l++) {
+              if (this.vendors[i].campaigns[j].adGroups.length > 0) {
+                this.vendors[i].generated = true
+              }
+            }
+          }
+        }
+      }
     },
 
     submitStep2() {
       this.currentStep = 3
+      this.currentVendor = null
 
       for (let i = 0; i < this.vendors.length; i++) {
-        if (this.vendors[i].selected) {
+        if (this.vendors[i].selected && !this.vendors[i].generated) {
           this.currentVendor = this.vendors[i]
-          break
         }
       }
 
-      if (!this.currentVendor.loaded) {
-        this.$refs[this.currentVendor.slug][0].preparingData();
-        this.currentVendor.loaded = true;
+      if (this.currentVendor) {
+        if (!this.currentVendor.loaded) {
+          this.$refs[this.currentVendor.slug][0].preparingData();
+          this.currentVendor.loaded = true;
+        }
+      } else {
+        this.currentStep = 4
       }
     },
 
