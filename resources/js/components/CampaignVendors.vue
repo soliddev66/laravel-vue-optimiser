@@ -222,8 +222,8 @@
             </div>
           </div>
           <div class="card-footer d-flex justify-content-end" v-if="currentStep != 1">
-            <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1 && currentStep != 3">
-              <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
+            <div class="d-flex justify-content-start flex-grow-1" v-if="[2, 4].includes(currentStep)">
+              <button type="button" class="btn btn-primary" @click.prevent="backStep()">Back</button>
             </div>
 
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep === 3">
@@ -238,7 +238,7 @@
 
             <div v-if="currentStep === 3">
               <div v-for="vendor in vendors" :key="vendor.id">
-                <div class="d-flex justify-content-end" v-if="vendor.selected && currentVendor.slug == vendor.slug">
+                <div class="d-flex justify-content-end" v-if="vendor.selected &&!vendor.generated && currentVendor && currentVendor.slug == vendor.slug">
                   <button type="button" class="btn btn-primary" @click.prevent="submitVendor(vendor)" :disabled="!$refs[vendor.slug][0].vendorState">Next</button>
                 </div>
               </div>
@@ -521,6 +521,8 @@ export default {
         'select2-selection__rendered',
         'select2-selection select2-selection--single',
         'select2-selection__placeholder',
+        'select2-selection__choice',
+        'select2-selection__choice__remove',
         'select2-search__field',
         'btn btn-sm btn-light',
         'campaign-item',
@@ -551,7 +553,7 @@ export default {
 
       for (let i = 0; i < this.vendors.length; i++) {
         if (this.vendors[i].selected) {
-          console.log(this.vendors[i])
+          this.vendors[i].generated = false
           for (let j = 0; j < this.vendors[i].campaigns.length; j++) {
             if (([1, 3, 5].includes(this.vendors[i].id) && this.vendors[i].campaigns[j].adGroups.length > 0) || (![1, 3, 5].includes(this.vendors[i].id) && this.vendors[i].campaigns[j].id)) {
               this.vendors[i].generated = true
@@ -583,6 +585,22 @@ export default {
       }
     },
 
+    backStep() {
+      if (this.currentStep == 2) {
+        this.currentStep = 1
+      } else {
+        for (let i = 0; i < this.vendors.length; i++) {
+          if (this.vendors[i].selected && !this.vendors[i].generated) {
+            this.currentStep = 3
+
+            return
+          }
+        }
+
+        this.currentStep = 2
+      }
+    },
+
     backVendor(vendor) {
       let found = false
 
@@ -592,7 +610,7 @@ export default {
           continue
         }
 
-        if (found && this.vendors[i].selected) {
+        if (found && this.vendors[i].selected && !this.vendors[i].generated) {
           this.currentVendor = this.vendors[i]
           return
         }
@@ -610,12 +628,12 @@ export default {
           continue
         }
 
-        if (found && this.vendors[i].selected) {
+        if (found && this.vendors[i].selected && !this.vendors[i].generated) {
           this.currentVendor = this.vendors[i]
 
           if (!this.currentVendor.loaded) {
             this.$refs[this.currentVendor.slug][0].preparingData();
-            this.currentVendor.loaded = true;
+            this.currentVendor.loaded = true
           }
 
           return
@@ -624,7 +642,7 @@ export default {
 
       if (!this.currentVendor.loaded) {
         this.$refs[this.currentVendor.slug][0].preparingData();
-        this.currentVendor.loaded = true;
+        this.currentVendor.loaded = true
       }
 
       this.currentStep = 4
