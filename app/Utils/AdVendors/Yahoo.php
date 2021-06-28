@@ -1552,11 +1552,27 @@ class Yahoo extends Root implements AdVendorInterface
         }
     }
 
+    private function isCampaignGeneration($vendor) {
+        if (count($vendor['campaigns']) == 0) {
+            return false;
+        }
+
+        foreach ($vendor['campaigns'] as $campaign) {
+            if (isset($campaign['id']) && count($campaign['adGroups'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function storeCampaignVendors($vendor) {
         $api = new GeminiAPI(auth()->user()->providers()->where([
             'provider_id' => 1,
             'open_id' => $vendor['selectedAccount']
         ])->first());
+
+        $is_generated = $this->isCampaignGeneration($vendor);
 
         try {
             $campaign_data = $api->createCampaign([

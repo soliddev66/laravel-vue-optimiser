@@ -218,7 +218,7 @@
                   </div>
                 </div>
               </fieldset>
-              <button class="btn btn-primary btn-sm d-none" @click.prevent="addContent()">Add New</button>
+              <button class="btn btn-primary btn-sm" @click.prevent="addContent()">Add New</button>
             </div>
           </div>
           <div class="card-footer d-flex justify-content-end" v-if="currentStep != 1">
