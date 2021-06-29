@@ -137,18 +137,8 @@ export default {
             if (response.data.errors) {
               alert(response.data.errors[0])
             } else {
-              this.getData().then(() => {
-                $('#rulesTable').DataTable({
-                  retrieve: true,
-                  paging: true,
-                  ordering: true,
-                  info: true,
-                  stateSave: false,
-                  autoWidth: false,
-                  pageLength: 10,
-                });
-              });
               alert('Delete the rule successfully!');
+              location.reload();
             }
           })
           .catch(error => {
@@ -166,17 +156,7 @@ export default {
           if (response.data.errors) {
             alert(response.data.errors[0])
           } else {
-            this.getData().then(() => {
-              $('#rulesTable').DataTable({
-                retrieve: true,
-                paging: true,
-                ordering: true,
-                info: true,
-                stateSave: false,
-                autoWidth: false,
-                pageLength: 10,
-              });
-            });
+            location.reload();
           }
         })
         .catch((err) => {
