@@ -116,10 +116,30 @@ class CampaignController extends Controller
         return new DataTableCollectionResource($widgets_query->orderBy(request('column'), request('dir'))->paginate(request('length')));
     }
 
-    public function publisherSelections(Campaign $campaign) {
-        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+    public function publisherSelections(Campaign $campaign = null) {
+        if ($campaign) {
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
 
-        return (new $ad_vendor_class())->getPublisherSelections($campaign);
+            return (new $ad_vendor_class())->getPublisherSelections($campaign);
+        }
+
+        $campaign_ids = explode(',', request('campaign_ids'));
+
+        if (!count($campaign_ids)) {
+            return [];
+        }
+
+        $publisher_selections = [];
+
+        foreach ($campaign_ids as $campaign_id) {
+            $campaign = Campaign::find($campaign_id);
+
+            $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+
+            $publisher_selections[$campaign_id] = (new $ad_vendor_class())->getPublisherSelections($campaign);
+        }
+
+        return $publisher_selections;
     }
 
     public function contents(Campaign $campaign)

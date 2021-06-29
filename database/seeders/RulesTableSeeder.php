@@ -434,7 +434,7 @@ class RulesTableSeeder extends Seeder
         ], [
             'name' => 'Change Publisher Bid',
             'provider' => 'ChangePublisherBid',
-            'calculation_type' => 1,
+            'calculation_type' => 4,
             'created_at' => Carbon::now()
         ]]);
     }

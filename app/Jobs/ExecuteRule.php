@@ -68,7 +68,7 @@ class ExecuteRule implements ShouldQueue
                         if ($this->checkConditions($campaign, $rule, $redtrack_data, $performance_data, 1)) {
                             $this->log->passed = true;
 
-                            // ActivateCampaign, PauseCampaign, BlockWidgetsPushlisher, UnBlockWidgetsPushlisher, ChangeCampaignBudget, ChangeCampaignBid, ChangePublisherBid
+                            // ActivateCampaign, PauseCampaign, BlockWidgetsPushlisher, UnBlockWidgetsPushlisher, ChangeCampaignBudget, ChangeCampaignBid
                             $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule_rule_action->ruleAction->provider;
 
                             if (class_exists($rule_action_class)) {
@@ -160,6 +160,43 @@ class ExecuteRule implements ShouldQueue
                                 $this->log->data = json_encode($this->log->data_text);
                                 $this->log->save();
                             }
+                        }
+
+                        break;
+
+                    case 4:
+                        $this->log = new RuleLog();
+                        $this->log->rule_id = $this->rule_id;
+                        $this->log->start_date = $time_range[0]->format('Y-m-d');
+                        $this->log->end_date = $time_range[1]->format('Y-m-d');
+
+                        $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
+
+                        $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
+                        $redtrack_domain_data = (new $ad_vendor_class)->getDomainData($campaign, $time_range);
+
+                        if ($this->checkConditions($campaign, $rule, $redtrack_data, $redtrack_domain_data, 4)) {
+                            $this->log->passed = true;
+
+                            // ChangePublisherBid
+                            $rule_action_class = 'App\\Utils\\RuleActions\\' . $rule_rule_action->ruleAction->provider;
+
+                            if (class_exists($rule_action_class)) {
+                                if ($rule->run_type == 1) {
+                                    (new $rule_action_class())->visual($campaign, $this->log->data_text, $rule_campaign->data ?? null);
+                                }
+
+                                if ($rule->run_type == 2 || $rule->run_type == 3) {
+                                    (new $rule_action_class())->process($campaign, $this->log->data_text, $rule_campaign->data ?? null);
+                                }
+
+                                if ($rule->run_type == 1 || $rule->run_type == 3) {
+                                    $this->sendNotify();
+                                }
+                            }
+
+                            $this->log->data = json_encode($this->log->data_text);
+                            $this->log->save();
                         }
 
                         break;
