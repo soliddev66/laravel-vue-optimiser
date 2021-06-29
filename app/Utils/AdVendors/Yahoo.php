@@ -1574,7 +1574,7 @@ class Yahoo extends Root implements AdVendorInterface
         foreach ($vendor['campaigns'] as $campaign) {
             $campaign_db = Campaign::find($campaign['id']);
 
-            if ($campaign_db) {
+            if (!$campaign_db) {
                 continue;
             }
 
@@ -1583,7 +1583,7 @@ class Yahoo extends Root implements AdVendorInterface
                 'open_id' => $campaign_db->open_id
             ])->first());
 
-            $campaign_data = $api->getCampaign($campaign_db->open_id);
+            $campaign_data = $api->getCampaign($campaign_db->campaign_id);
 
             foreach ($campaign['adGroups'] as $ad_group) {
                 $ad_group_data = $api->getAdGroup($ad_group);
