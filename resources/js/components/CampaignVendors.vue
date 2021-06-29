@@ -549,7 +549,7 @@ export default {
     },
 
     submitStep1() {
-      this.currentStep = 2
+      this.currentStep = 4
 
       for (let i = 0; i < this.vendors.length; i++) {
         if (this.vendors[i].selected) {
@@ -560,6 +560,13 @@ export default {
               break
             }
           }
+        }
+      }
+
+      for (let i = 0; i < this.vendors.length; i++) {
+        if (this.vendors[i].selected && !this.vendors[i].generated) {
+          this.currentStep = 2
+          return
         }
       }
     },
@@ -597,7 +604,7 @@ export default {
           }
         }
 
-        this.currentStep = 2
+        this.currentStep = 1
       }
     },
 
