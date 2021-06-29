@@ -1571,13 +1571,19 @@ class Yahoo extends Root implements AdVendorInterface
     }
 
     private function generateAdVendors($vendor) {
-        $api = new GeminiAPI(auth()->user()->providers()->where([
-            'provider_id' => 1,
-            'open_id' => $vendor['selectedAccount']
-        ])->first());
-
         foreach ($vendor['campaigns'] as $campaign) {
-            $campaign_data = $api->getCampaign($campaign['id']);
+            $campaign_db = Campaign::find($campaign['id']);
+
+            if ($campaign_db) {
+                continue;
+            }
+
+            $api = new GeminiAPI(auth()->user()->providers()->where([
+                'provider_id' => 1,
+                'open_id' => $campaign_db->open_id
+            ])->first());
+
+            $campaign_data = $api->getCampaign($campaign_db->open_id);
 
             foreach ($campaign['adGroups'] as $ad_group) {
                 $ad_group_data = $api->getAdGroup($ad_group);
@@ -1669,12 +1675,26 @@ class Yahoo extends Root implements AdVendorInterface
 
                     Helper::pullCampaign();
                 } catch (Exception $e) {
-                    $api->deleteCampaign($campaign_data['id']);
-                    $api->deleteAdGroups([$ad_group_data['id']]);
-                    throw $e;
+                    event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                        'errors' => [$e->getMessage()],
+                        'vendor' => 'yahoo',
+                        'vendorName' => 'Yahoo'
+                    ]));
+
+                    return [
+                        'errors' => [$e->getMessage()]
+                    ];
                 }
             }
         }
+
+        event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+            'success' => 1,
+            'vendor' => 'yahoo',
+            'vendorName' => 'Yahoo'
+        ]));
+
+        return [];
     }
 
     private function createCampaignVendors($vendor) {
