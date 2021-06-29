@@ -1567,12 +1567,121 @@ class Yahoo extends Root implements AdVendorInterface
     }
 
     public function storeCampaignVendors($vendor) {
+        return $this->isCampaignGeneration($vendor) ? $this->generateAdVendors($vendor) : $this->createCampaignVendors($vendor);
+    }
+
+    private function generateAdVendors($vendor) {
         $api = new GeminiAPI(auth()->user()->providers()->where([
             'provider_id' => 1,
             'open_id' => $vendor['selectedAccount']
         ])->first());
 
-        $is_generated = $this->isCampaignGeneration($vendor);
+        foreach ($vendor['campaigns'] as $campaign) {
+            $campaign_data = $api->getCampaign($campaign['id']);
+
+            foreach ($campaign['adGroups'] as $ad_group) {
+                $ad_group_data = $api->getAdGroup($ad_group);
+
+                try {
+                    foreach (request('contents') as $content) {
+                        $ads = [];
+                        $titles = [];
+
+                        $title_creative_set = null;
+                        $description_creative_set = null;
+                        $image_creative_set = null;
+                        $video_creative_set = null;
+
+                        $title_creative_set = CreativeSet::find($content['titleSet']['id']);
+
+                        if ($title_creative_set) {
+                            $titles = $title_creative_set->titleSets;
+                        } else {
+                            throw new Exception('No creative set found.');
+                        }
+
+                        $description = '';
+
+                        $description_creative_set = CreativeSet::find($content['descriptionSet']['id']);
+
+                        if ($description_creative_set) {
+                            $description = $description_creative_set->descriptionSets[0]['description'];
+                        } else {
+                            throw new Exception('No creative set found.');
+                        }
+
+                        foreach ($titles as $title) {
+                            $ad = [
+                                'adGroupId' => $ad_group_data['id'],
+                                'advertiserId' => $vendor['selectedAdvertiser'],
+                                'campaignId' => $campaign_data['id'],
+                                'description' => $description,
+                                'displayUrl' => $content['displayUrl'],
+                                'landingUrl' => $content['targetUrl'],
+                                'sponsoredBy' => $content['brandname'],
+                                'title' => $title['title'],
+                                'status' => 'ACTIVE'
+                            ];
+
+                            if ($content['adType'] == 'VIDEO') {
+                                $videos = [];
+
+                                $video_creative_set = CreativeSet::find($content['videoSet']['id']);
+
+                                if ($video_creative_set) {
+                                    $videos = $video_creative_set->videoSets;
+                                } else {
+                                    throw new Exception('No creative set found.');
+                                }
+
+                                foreach ($videos as $video) {
+                                    if (in_array($vendor['campaignObjective'], ['INSTALL_APP', 'REENGAGE_APP', 'PROMOTE_BRAND'])) {
+                                        $ad['videoPrimaryUrl'] = Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['video']);
+                                    } else {
+                                        $ad['imagePortraitUrl'] = Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['portrait_image']);
+                                        $ad['videoPortraitUrl'] = Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $video['video']);
+                                    }
+                                }
+                            } else {
+                                $imges = [];
+
+                                $image_creative_set = CreativeSet::find($content['imageSet']['id']);
+
+                                if ($image_creative_set) {
+                                    $images = $image_creative_set->imageSets;
+                                } else {
+                                    throw new Exception('No creative set found.');
+                                }
+
+                                foreach ($images as $image) {
+                                    $ad['imageUrl'] = Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['image']);
+                                    $ad['imageUrlHQ'] = Helper::encodeUrl(env('MIX_APP_URL') . ($image['optimiser'] == 0 ? ('/storage/images/' . $image['hq_1200x627_image']) : ('/storage/images/creatives/1200x627/' . $image['hq_image'])));
+                                }
+                            }
+
+                            $ads[] = $ad;
+                        }
+
+                        $ad_data = $api->createAd($ads);
+
+                        $this->saveAd($ad_data, $campaign_data['id'], $ad_group_data['id'], $title_creative_set, $description_creative_set, $video_creative_set, $image_creative_set, $vendor['selectedAdvertiser'], $vendor['selectedAccount']);
+                    }
+
+                    Helper::pullCampaign();
+                } catch (Exception $e) {
+                    $api->deleteCampaign($campaign_data['id']);
+                    $api->deleteAdGroups([$ad_group_data['id']]);
+                    throw $e;
+                }
+            }
+        }
+    }
+
+    private function createCampaignVendors($vendor) {
+        $api = new GeminiAPI(auth()->user()->providers()->where([
+            'provider_id' => 1,
+            'open_id' => $vendor['selectedAccount']
+        ])->first());
 
         try {
             $campaign_data = $api->createCampaign([
