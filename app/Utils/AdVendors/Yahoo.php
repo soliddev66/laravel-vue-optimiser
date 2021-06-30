@@ -1571,24 +1571,24 @@ class Yahoo extends Root implements AdVendorInterface
     }
 
     private function generateAdVendors($vendor) {
-        foreach ($vendor['campaigns'] as $campaign) {
-            $campaign_db = Campaign::find($campaign['id']);
+        try {
+            foreach ($vendor['campaigns'] as $campaign) {
+                $campaign_db = Campaign::find($campaign['id']);
 
-            if (!$campaign_db) {
-                continue;
-            }
+                if (!$campaign_db) {
+                    continue;
+                }
 
-            $api = new GeminiAPI(auth()->user()->providers()->where([
-                'provider_id' => 1,
-                'open_id' => $campaign_db->open_id
-            ])->first());
+                $api = new GeminiAPI(auth()->user()->providers()->where([
+                    'provider_id' => 1,
+                    'open_id' => $campaign_db->open_id
+                ])->first());
 
-            $campaign_data = $api->getCampaign($campaign_db->campaign_id);
+                $campaign_data = $api->getCampaign($campaign_db->campaign_id);
 
-            foreach ($campaign['adGroups'] as $ad_group) {
-                $ad_group_data = $api->getAdGroup($ad_group);
+                foreach ($campaign['adGroups'] as $ad_group) {
+                    $ad_group_data = $api->getAdGroup($ad_group);
 
-                try {
                     foreach (request('contents') as $content) {
                         $ads = [];
                         $titles = [];
@@ -1672,21 +1672,21 @@ class Yahoo extends Root implements AdVendorInterface
 
                         $this->saveAd($ad_data, $campaign_data['id'], $ad_group_data['id'], $title_creative_set, $description_creative_set, $video_creative_set, $image_creative_set, $vendor['selectedAdvertiser'], $vendor['selectedAccount']);
                     }
-
-                    Helper::pullCampaign();
-                } catch (Exception $e) {
-                    event(new \App\Events\CampaignVendorCreated(auth()->id(), [
-                        'errors' => [$e->getMessage()],
-                        'vendor' => 'yahoo',
-                        'vendorName' => 'Yahoo'
-                    ]));
-
-                    return [
-                        'errors' => [$e->getMessage()]
-                    ];
                 }
             }
+        } catch (Exception $e) {
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'errors' => [$e->getMessage()],
+                'vendor' => 'yahoo',
+                'vendorName' => 'Yahoo'
+            ]));
+
+            return [
+                'errors' => [$e->getMessage()]
+            ];
         }
+
+        Helper::pullCampaign();
 
         event(new \App\Events\CampaignVendorCreated(auth()->id(), [
             'success' => 1,
