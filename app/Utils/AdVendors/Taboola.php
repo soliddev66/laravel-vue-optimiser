@@ -1274,7 +1274,7 @@ class Taboola extends Root implements AdVendorInterface
         }
 
         foreach ($vendor['campaigns'] as $campaign) {
-            if (isset($campaign['id']) && count($campaign['adGroups'])) {
+            if (isset($campaign['id'])) {
                 return true;
             }
         }
