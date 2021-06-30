@@ -1674,6 +1674,16 @@ class Yahoo extends Root implements AdVendorInterface
                     }
                 }
             }
+
+            Helper::pullCampaign();
+
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'success' => 1,
+                'vendor' => 'yahoo',
+                'vendorName' => 'Yahoo'
+            ]));
+
+            return [];
         } catch (Exception $e) {
             event(new \App\Events\CampaignVendorCreated(auth()->id(), [
                 'errors' => [$e->getMessage()],
@@ -1685,16 +1695,6 @@ class Yahoo extends Root implements AdVendorInterface
                 'errors' => [$e->getMessage()]
             ];
         }
-
-        Helper::pullCampaign();
-
-        event(new \App\Events\CampaignVendorCreated(auth()->id(), [
-            'success' => 1,
-            'vendor' => 'yahoo',
-            'vendorName' => 'Yahoo'
-        ]));
-
-        return [];
     }
 
     private function createCampaignVendors($vendor) {
@@ -1878,6 +1878,14 @@ class Yahoo extends Root implements AdVendorInterface
                 $api->deleteAds($ad_ids);
                 throw $e;
             }
+
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'success' => 1,
+                'vendor' => 'yahoo',
+                'vendorName' => 'Yahoo'
+            ]));
+
+            return [];
         } catch (Exception $e) {
             event(new \App\Events\CampaignVendorCreated(auth()->id(), [
                 'errors' => [$e->getMessage()],
@@ -1889,13 +1897,5 @@ class Yahoo extends Root implements AdVendorInterface
                 'errors' => [$e->getMessage()]
             ];
         }
-
-        event(new \App\Events\CampaignVendorCreated(auth()->id(), [
-            'success' => 1,
-            'vendor' => 'yahoo',
-            'vendorName' => 'Yahoo'
-        ]));
-
-        return [];
     }
 }
