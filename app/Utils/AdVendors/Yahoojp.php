@@ -94,7 +94,7 @@ class Yahoojp extends Root implements AdVendorInterface
             $instance['open_id'] = $campaign['open_id'];
             $instance['instance_id'] = $campaign['id'];
             $instance['id'] = $instance['campaignId'];
-            $instance['adGroups'] = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id)['rval']['values'];
+            $instance['adGroups'] = $api->getCampaignAdGroups($campaign->campaign_id, $campaign->advertiser_id)['rval']['values'];
 
             if (count($instance['adGroups']) > 0) {
                 $instance['ads'] = $api->getAds([$instance['adGroups'][0]['adGroup']['adGroupId']], $campaign->advertiser_id)['rval']['values'];
@@ -1087,7 +1087,7 @@ class Yahoojp extends Root implements AdVendorInterface
 
             $data_campaigns = $api->updateCampaignStatus($campaign);
 
-            $ad_groups = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id)['rval']['values'];
+            $ad_groups = $api->getCampaignAdGroups($campaign->campaign_id, $campaign->advertiser_id)['rval']['values'];
 
             $ad_group_body = [
                 'accountId' => $campaign->advertiser_id,
@@ -1147,7 +1147,7 @@ class Yahoojp extends Root implements AdVendorInterface
             'open_id' => $campaign->open_id
         ])->first());
 
-        $ad_groups = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id)['rval']['values'];
+        $ad_groups = $api->getCampaignAdGroups($campaign->campaign_id, $campaign->advertiser_id)['rval']['values'];
 
         $result = [];
 
@@ -1297,7 +1297,7 @@ class Yahoojp extends Root implements AdVendorInterface
 
         Campaign::where('user_id', $user_provider->user_id)->where('provider_id', 5)->chunk(10, function ($campaigns) use ($resource_importer, $api, $user_provider, &$db_ad_groups, $updated_at) {
             foreach ($campaigns as $key => $campaign) {
-                $ad_groups_response = $api->getAdGroups($campaign->campaign_id, $campaign->advertiser_id);
+                $ad_groups_response = $api->getCampaignAdGroups($campaign->campaign_id, $campaign->advertiser_id);
                 $ad_groups = $ad_groups_response['rval']['values'];
                 if (is_array($ad_groups) && count($ad_groups)) {
                     foreach ($ad_groups as $key => $ad_group) {
@@ -1759,14 +1759,14 @@ class Yahoojp extends Root implements AdVendorInterface
                 }
 
                 $api = new YahooJPAPI(UserProvider::where([
-                    'provider_id' => $campaign->provider->id,
-                    'open_id' => $campaign->open_id
+                    'provider_id' => $campaign_db->provider->id,
+                    'open_id' => $campaign_db->open_id
                 ])->first());
 
-                $campaign_data = $api->getCampaign($campaign->advertiser_id, $campaign->campaign_id)['rval']['values'][0]['campaign'];
+                $campaign_data = $api->getCampaign($campaign_db->advertiser_id, $campaign_db->campaign_id)['rval']['values'][0]['campaign'];
 
                 foreach ($campaign['adGroups'] as $ad_group) {
-                    $ad_group_data = $api->getAdGroup($ad_group);
+                    $ad_group_data = $api->getAdGroups($campaign_db->advertiser_id, [$ad_group]);
 
                     $ad_group_id = $ad_group_data['rval']['values'][0]['adGroup']['adGroupId'];
 
