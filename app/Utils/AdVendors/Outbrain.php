@@ -1021,7 +1021,144 @@ class Outbrain extends Root implements AdVendorInterface
         ]);
     }
 
+    private function isCampaignGeneration($vendor) {
+        if (count($vendor['campaigns']) == 0) {
+            return false;
+        }
+
+        foreach ($vendor['campaigns'] as $campaign) {
+            if (isset($campaign['id'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function storeCampaignVendors($vendor) {
+        return $this->isCampaignGeneration($vendor) ? $this->generateAdVendors($vendor) : $this->createCampaignVendors($vendor);
+    }
+
+    private function generateAdVendors($vendor) {
+        try {
+            foreach ($vendor['campaigns'] as $campaign) {
+                if (isset($campaign['id'])) {
+                    $campaign_db = Campaign::find($campaign['id']);
+
+                    if (!$campaign_db) {
+                        continue;
+                    }
+
+                    $api = new OutbrainAPI(UserProvider::where([
+                        'provider_id' => $campaign_db->provider_id,
+                        'open_id' => $campaign_db->open_id]
+                    )->first());
+
+                    $campaign_data = $api->getCampaign($campaign_db->campaign_id);
+
+                    $budget_data = $api->getBudget($campaign_data['budget']['id']);
+
+                    foreach (request('contents') as $content) {
+                        $titles = [];
+
+                        $title_creative_set = null;
+                        $image_creative_set = null;
+
+                        $title_creative_set = CreativeSet::find($content['titleSet']['id']);
+
+                        if ($title_creative_set) {
+                            $titles = $title_creative_set->titleSets;
+                        } else {
+                            throw new Exception('No creative set found.');
+                        }
+
+                        foreach ($titles as $title) {
+                            $images = [];
+
+                            $image_creative_set = CreativeSet::find($content['imageSet']['id']);
+
+                            if ($image_creative_set) {
+                                $images = $image_creative_set->imageSets;
+                            } else {
+                                throw new Exception('No creative set found.');
+                            }
+
+                            foreach ($images as $image) {
+                                $ad_data = $api->createAd($campaign_data['id'], [
+                                    'text' => $title['title'],
+                                    'url' => $content['targetUrl'],
+                                    'enabled' => true,
+                                    'imageMetadata' => [
+                                        'url' => Helper::encodeUrl(env('MIX_APP_URL') . '/storage/images/' . $image['hq_image'])
+                                    ]
+                                ]);
+
+                                $db_ad = Ad::firstOrNew([
+                                    'ad_id' => $ad_data['id'],
+                                    'user_id' => auth()->id(),
+                                    'provider_id' => 2,
+                                    'campaign_id' => $campaign_data['id'],
+                                    'advertiser_id' => $vendor['selectedAdvertiser'],
+                                    'ad_group_id' => 'NA',
+                                    'open_id' => $vendor['selectedAccount']
+                                ]);
+
+                                $db_ad->name = $title['title'];
+                                $db_ad->image = $ad_data['imageMetadata']['originalImageUrl'];
+                                $db_ad->status = $ad_data['approvalStatus']['status'];
+
+                                $db_ad->save();
+
+                                $db_ad->creativeSets()->detach();
+
+                                if ($title_creative_set) {
+                                    $db_ad->creativeSets()->save($title_creative_set);
+                                }
+
+                                if ($image_creative_set) {
+                                    $db_ad->creativeSets()->save($image_creative_set);
+                                }
+
+                                Log::info('OUTBRAIN: Created ad: ' . $ad_data['id']);
+                            }
+                        }
+                    }
+                }
+            }
+
+            Helper::pullCampaign();
+
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'success' => 1,
+                'vendor' => 'outbrain',
+                'vendorName' => 'Outbrain'
+            ]));
+
+            return [];
+        } catch (RequestException $e) {
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'errors' => [$e->getMessage()],
+                'vendor' => 'outbrain',
+                'vendorName' => 'Outbrain'
+            ]));
+
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        } catch (Exception $e) {
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'errors' => [$e->getMessage()],
+                'vendor' => 'outbrain',
+                'vendorName' => 'Outbrain'
+            ]));
+
+            return [
+                'errors' => [$e->getMessage()]
+            ];
+        }
+    }
+
+    private function createCampaignVendors($vendor) {
         $api = new OutbrainAPI(UserProvider::where(['provider_id' => 2, 'open_id' => $vendor['selectedAccount']])->first());
 
         try {
@@ -1127,13 +1264,21 @@ class Outbrain extends Root implements AdVendorInterface
                         }
                     }
                 }
-
-                Helper::pullCampaign();
             } catch (Exception $e) {
                 $api->deleteCampaign($campaign_data['id']);
                 $api->deleteBudget($budget_data);
                 throw $e;
             }
+
+            Helper::pullCampaign();
+
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'success' => 1,
+                'vendor' => 'outbrain',
+                'vendorName' => 'Outbrain'
+            ]));
+
+            return [];
         } catch (RequestException $e) {
             event(new \App\Events\CampaignVendorCreated(auth()->id(), [
                 'errors' => [$e->getMessage()],
@@ -1155,14 +1300,6 @@ class Outbrain extends Root implements AdVendorInterface
                 'errors' => [$e->getMessage()]
             ];
         }
-
-        event(new \App\Events\CampaignVendorCreated(auth()->id(), [
-            'success' => 1,
-            'vendor' => 'outbrain',
-            'vendorName' => 'Outbrain'
-        ]));
-
-        return [];
     }
 
     public function delete($campaign) {
