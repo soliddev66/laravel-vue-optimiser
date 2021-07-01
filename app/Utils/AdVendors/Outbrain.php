@@ -1051,12 +1051,10 @@ class Outbrain extends Root implements AdVendorInterface
 
                     $api = new OutbrainAPI(UserProvider::where([
                         'provider_id' => $campaign_db->provider_id,
-                        'open_id' => $campaign_db->open_id]
-                    )->first());
+                        'open_id' => $campaign_db->open_id
+                    ])->first());
 
                     $campaign_data = $api->getCampaign($campaign_db->campaign_id);
-
-                    $budget_data = $api->getBudget($campaign_data['budget']['id']);
 
                     foreach (request('contents') as $content) {
                         $titles = [];
