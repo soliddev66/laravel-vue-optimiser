@@ -53,7 +53,7 @@
                       <div class="col-sm-8 offset-sm-2">
                         <div class="row">
                           <div class="col-12">
-                            <input id="optimiser3" type="radio" :value="2" name="optimiser" v-model="item.optimiser">
+                            <input id="optimiser3" type="radio" :value="2" name="optimiser" v-model="item.optimiser" disabled>
                             <label for="optimiser3" class="mb-0">The image will be generated, optimized by TinyPNG</label>
                           </div>
                           <div class="col-12" v-if="compressed >= 500">
