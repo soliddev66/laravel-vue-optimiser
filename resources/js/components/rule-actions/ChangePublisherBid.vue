@@ -124,7 +124,7 @@ export default {
 
       this.isLoading = true
       axios.get(`/campaigns/publisher-selections?campaign_ids=${campaignIds.join(',')}`).then(response => {
-        console.log(response.data)
+        this.publisherSelections = response.data
       }).catch(err => {
         console.log(err)
       }).finally(() => {
