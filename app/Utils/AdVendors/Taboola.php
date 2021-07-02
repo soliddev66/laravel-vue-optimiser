@@ -1268,7 +1268,29 @@ class Taboola extends Root implements AdVendorInterface
         ]);
     }
 
+    private function isCampaignGeneration($vendor) {
+        if (count($vendor['campaigns']) == 0) {
+            return false;
+        }
+
+        foreach ($vendor['campaigns'] as $campaign) {
+            if (isset($campaign['id'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function storeCampaignVendors($vendor) {
+        return $this->isCampaignGeneration($vendor) ? $this->generateAdVendors($vendor) : $this->createCampaignVendors($vendor);
+    }
+
+    private function generateAdVendors($vendor) {
+        return [];
+    }
+
+    private function createCampaignVendors($vendor) {
         $api = new TaboolaAPI(UserProvider::where([
             'provider_id' => 4,
             'open_id' => $vendor['selectedAccount']

@@ -83,7 +83,7 @@
 
             <div class="d-none" :class="{ 'd-block': currentStep == 3 }">
               <div v-for="vendor in vendors" :key="vendor.id">
-                <div class="d-none" :class="{ 'd-block': vendor.selected && currentVendor.slug == vendor.slug }" v-if="vendor.selected">
+                <div class="d-none" :class="{ 'd-block': vendor.selected && !vendor.generated && currentVendor && currentVendor.slug == vendor.slug }" v-if="vendor.selected">
                   <component :is="vendor.slug" :vendor="vendor" :ref="vendor.slug" />
                 </div>
               </div>
@@ -218,17 +218,17 @@
                   </div>
                 </div>
               </fieldset>
-              <button class="btn btn-primary btn-sm d-none" @click.prevent="addContent()">Add New</button>
+              <button class="btn btn-primary btn-sm" @click.prevent="addContent()">Add New</button>
             </div>
           </div>
           <div class="card-footer d-flex justify-content-end" v-if="currentStep != 1">
-            <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep < 5 && currentStep > 1 && currentStep != 3">
-              <button type="button" class="btn btn-primary" @click.prevent="currentStep = currentStep - 1">Back</button>
+            <div class="d-flex justify-content-start flex-grow-1" v-if="[2, 4].includes(currentStep)">
+              <button type="button" class="btn btn-primary" @click.prevent="backStep()">Back</button>
             </div>
 
             <div class="d-flex justify-content-start flex-grow-1" v-if="currentStep === 3">
               <div v-for="vendor in vendors" :key="vendor.id">
-                <button type="button" class="btn btn-primary" v-if="vendor.selected && currentVendor.slug == vendor.slug" @click.prevent="backVendor(vendor)">Back</button>
+                <button type="button" class="btn btn-primary" v-if="vendor.selected && !vendor.generated && currentVendor && currentVendor.slug == vendor.slug" @click.prevent="backVendor(vendor)">Back</button>
               </div>
             </div>
 
@@ -238,7 +238,7 @@
 
             <div v-if="currentStep === 3">
               <div v-for="vendor in vendors" :key="vendor.id">
-                <div class="d-flex justify-content-end" v-if="vendor.selected && currentVendor.slug == vendor.slug">
+                <div class="d-flex justify-content-end" v-if="vendor.selected &&!vendor.generated && currentVendor && currentVendor.slug == vendor.slug">
                   <button type="button" class="btn btn-primary" @click.prevent="submitVendor(vendor)" :disabled="!$refs[vendor.slug][0].vendorState">Next</button>
                 </div>
               </div>
@@ -289,7 +289,7 @@ import Select2 from 'v-select2-component'
 import Loading from 'vue-loading-overlay'
 import axios from 'axios'
 
-import Echo from 'laravel-echo';
+import Echo from 'laravel-echo'
 
 import 'vue-loading-overlay/dist/vue-loading.css'
 
@@ -333,7 +333,6 @@ export default {
     },
 
     submitStep4State() {
-
       for (let i = 0; i < this.contents.length; i++) {
         if (!this.contents[i].brandname || !this.contents[i].displayUrl || !this.validURL(this.contents[i].displayUrl) || !this.contents[i].targetUrl || !this.validURL(this.contents[i].targetUrl) || !this.contents[i].titleSet.id || (this.contents[i].adType == 'IMAGE' && !this.contents[i].imageSet.id) || (this.contents[i].adType == 'VIDEO' && !this.contents[i].videoSet.id) || !this.contents[i].descriptionSet.id) {
           return false
@@ -344,13 +343,13 @@ export default {
     }
   },
   mounted() {
-    window.Pusher = require('pusher-js');
+    window.Pusher = require('pusher-js')
 
     window.Echo = new Echo({
       broadcaster: 'pusher',
       key: process.env.MIX_PUSHER_APP_KEY,
       cluster: process.env.MIX_PUSHER_APP_CLUSTER
-    });
+    })
   },
   watch: {
 
@@ -370,6 +369,7 @@ export default {
         selectedAdvertiser: '',
         selected: false,
         loaded: false,
+        generated: false,
         campaigns: [{
           id: null,
           adGroups: []
@@ -433,7 +433,7 @@ export default {
       isLoading: false,
       fullPage: true,
       currentStep: this.step,
-      currentVendor: vendors[0],
+      currentVendor: null,
       vendors: vendors,
       storageUrl: process.env.MIX_APP_URL,
       contents: [{
@@ -457,12 +457,12 @@ export default {
   methods: {
     formatState(state) {
       if (!state.id) {
-        return state.text;
+        return state.text
       }
       var $state = $(
         '<span class="campaign-item"><img src="' + state.icon + '" width="20px" height="20px" /> ' + state.text + '</span>'
       );
-      return $state;
+      return $state
     },
 
     getAccounts(vendor) {
@@ -511,8 +511,8 @@ export default {
     },
 
     validURL(str) {
-      var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
-      return !!pattern.test(str);
+      var pattern = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g
+      return !!pattern.test(str)
     },
 
     vendorClick(event, index) {
@@ -521,13 +521,13 @@ export default {
         'select2-selection__rendered',
         'select2-selection select2-selection--single',
         'select2-selection__placeholder',
+        'select2-selection__choice',
+        'select2-selection__choice__remove',
         'select2-search__field',
         'btn btn-sm btn-light',
         'campaign-item',
         'fa fa-minus'
       ]
-
-      console.log(event.target.className)
 
       if (abandonClasses.includes(event.target.className)) {
         return
@@ -549,22 +549,62 @@ export default {
     },
 
     submitStep1() {
-      this.currentStep = 2
+      this.currentStep = 4
+
+      for (let i = 0; i < this.vendors.length; i++) {
+        if (this.vendors[i].selected) {
+          this.vendors[i].generated = false
+          for (let j = 0; j < this.vendors[i].campaigns.length; j++) {
+            if (([1, 3, 5].includes(this.vendors[i].id) && this.vendors[i].campaigns[j].adGroups.length > 0) || (![1, 3, 5].includes(this.vendors[i].id) && this.vendors[i].campaigns[j].id)) {
+              this.vendors[i].generated = true
+              break
+            }
+          }
+        }
+      }
+
+      for (let i = 0; i < this.vendors.length; i++) {
+        if (this.vendors[i].selected && !this.vendors[i].generated) {
+          this.currentStep = 2
+          return
+        }
+      }
     },
 
     submitStep2() {
       this.currentStep = 3
+      this.currentVendor = null
 
       for (let i = 0; i < this.vendors.length; i++) {
-        if (this.vendors[i].selected) {
+        if (this.vendors[i].selected && !this.vendors[i].generated) {
           this.currentVendor = this.vendors[i]
           break
         }
       }
 
-      if (!this.currentVendor.loaded) {
-        this.$refs[this.currentVendor.slug][0].preparingData();
-        this.currentVendor.loaded = true;
+      if (this.currentVendor) {
+        if (!this.currentVendor.loaded) {
+          this.$refs[this.currentVendor.slug][0].preparingData()
+          this.currentVendor.loaded = true
+        }
+      } else {
+        this.currentStep = 4
+      }
+    },
+
+    backStep() {
+      if (this.currentStep == 2) {
+        this.currentStep = 1
+      } else {
+        for (let i = 0; i < this.vendors.length; i++) {
+          if (this.vendors[i].selected && !this.vendors[i].generated) {
+            this.currentStep = 3
+
+            return
+          }
+        }
+
+        this.currentStep = 1
       }
     },
 
@@ -577,7 +617,7 @@ export default {
           continue
         }
 
-        if (found && this.vendors[i].selected) {
+        if (found && this.vendors[i].selected && !this.vendors[i].generated) {
           this.currentVendor = this.vendors[i]
           return
         }
@@ -595,12 +635,12 @@ export default {
           continue
         }
 
-        if (found && this.vendors[i].selected) {
+        if (found && this.vendors[i].selected && !this.vendors[i].generated) {
           this.currentVendor = this.vendors[i]
 
           if (!this.currentVendor.loaded) {
-            this.$refs[this.currentVendor.slug][0].preparingData();
-            this.currentVendor.loaded = true;
+            this.$refs[this.currentVendor.slug][0].preparingData()
+            this.currentVendor.loaded = true
           }
 
           return
@@ -608,8 +648,8 @@ export default {
       }
 
       if (!this.currentVendor.loaded) {
-        this.$refs[this.currentVendor.slug][0].preparingData();
-        this.currentVendor.loaded = true;
+        this.$refs[this.currentVendor.slug][0].preparingData()
+        this.currentVendor.loaded = true
       }
 
       this.currentStep = 4
@@ -648,7 +688,7 @@ export default {
         this.contents[index].titleSet.sets = response.data.sets
       }).finally(() => {
         this.isLoading = false
-      });
+      })
     },
 
     loadImageSets(index) {
@@ -657,7 +697,7 @@ export default {
         this.contents[index].imageSet.sets = response.data.sets
       }).finally(() => {
         this.isLoading = false
-      });
+      })
     },
 
     loadVideoSets(index) {
@@ -666,7 +706,7 @@ export default {
         this.contents[index].videoSet.sets = response.data.sets
       }).finally(() => {
         this.isLoading = false
-      });
+      })
     },
 
     loadDescriptionSets(index) {
@@ -675,7 +715,7 @@ export default {
         this.contents[index].descriptionSet.sets = response.data.sets
       }).finally(() => {
         this.isLoading = false
-      });
+      })
     },
 
     removeImageSet(index) {
@@ -711,7 +751,7 @@ export default {
     },
 
     removeContent(index) {
-      this.contents.splice(index, 1);
+      this.contents.splice(index, 1)
     },
 
     addCampaign(index) {
@@ -723,7 +763,9 @@ export default {
     },
 
     campaignSelected(index, campaignIndex) {
-      this.loadAdGroups(this.vendors[index].campaigns[campaignIndex])
+      if ([1, 3, 5].includes(this.vendors[index].id)) {
+        this.loadAdGroups(this.vendors[index].campaigns[campaignIndex])
+      }
     },
 
     loadAdGroups(campaign) {
@@ -736,7 +778,7 @@ export default {
           alert(err)
         }).finally(() => {
           this.isLoading = false
-        });
+        })
     },
 
     submitStep4() {
@@ -752,20 +794,19 @@ export default {
 
       window.Echo.private('campaign.' + this.userId).listen('CampaignVendorCreated', response => {
         processedTime ++
-        console.log('Processed.', totalVendor, processedTime);
 
         if (!response.data.success) {
-          alert(response.data.errors[0]);
+          alert(response.data.errors[0])
         }
 
         if (processedTime == totalVendor) {
           this.isLoading = false
 
           this.$dialog.alert('All vendors have been processed!').then(() => {
-            window.location = '/campaigns';
-          });
+            window.location = '/campaigns'
+          })
         }
-      });
+      })
 
       axios.post('/campaigns/store-campaign-vendors', {
         campaignName: this.campaignName,
@@ -773,7 +814,7 @@ export default {
         contents: this.contents
       }).then(response => {
         if (response.data.errors) {
-          alert(response.data.errors[0]);
+          alert(response.data.errors[0])
         }
       }).catch(error => console.log(error)).finally(() => {
 

@@ -64,19 +64,12 @@ class YahooJPAPI
         ]);
     }
 
-    public function getCampaigns()
+    public function getAdGroups($advertiser_id, $ad_group_ids)
     {
-        return $this->client->call('GET', 'campaign');
-    }
-
-    public function getAdGroup($ad_group_id)
-    {
-        return $this->client->call('GET', 'adgroup/' . $ad_group_id);
-    }
-
-    public function getAd($ad_id)
-    {
-        return $this->client->call('GET', 'ad/' . $ad_id);
+        return $this->client->call('POST', 'AdGroupService/get', [
+            'accountId' => $advertiser_id,
+            'adGroupIds' => $ad_group_ids
+        ]);
     }
 
     public function getAds($ad_group_ids, $advertiser_id)
@@ -122,7 +115,7 @@ class YahooJPAPI
         return $this->client->call('GET', 'targetingattribute?pt=CAMPAIGN&pi=' . $campaign_id);
     }
 
-    public function getAdGroups($campaign_id, $advertiser_id)
+    public function getCampaignAdGroups($campaign_id, $advertiser_id)
     {
         return $this->client->call('POST', 'AdGroupService/get', [
             'accountId' => $advertiser_id,
