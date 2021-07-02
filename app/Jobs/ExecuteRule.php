@@ -170,12 +170,10 @@ class ExecuteRule implements ShouldQueue
                         $this->log->start_date = $time_range[0]->format('Y-m-d');
                         $this->log->end_date = $time_range[1]->format('Y-m-d');
 
-                        $redtrack_data = $campaign->redtrackReport()->whereBetween('date', [$time_range[0]->format('Y-m-d'), $time_range[1]->format('Y-m-d')])->get();
-
                         $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($campaign->provider->slug);
                         $redtrack_domain_data = (new $ad_vendor_class)->getDomainData($campaign, $time_range);
 
-                        if ($this->checkConditions($campaign, $rule, $redtrack_data, $redtrack_domain_data, 4)) {
+                        if ($this->checkConditions($campaign, $rule, $redtrack_domain_data, $redtrack_domain_data, 4)) {
                             $this->log->passed = true;
 
                             // ChangePublisherBid
@@ -205,7 +203,7 @@ class ExecuteRule implements ShouldQueue
         }
     }
 
-    private function checkConditions($campaign, $rule, $redtrack_data, $performance_data, $calculation_type)
+    private function checkConditions($campaign, $rule, $data_source_1, $data_source_2, $calculation_type)
     {
         $data = [];
         $this->log->data_text['info'] = &$data;
@@ -232,14 +230,14 @@ class ExecuteRule implements ShouldQueue
                     && (
                         (
                             $rule_condition->ruleConditionType->report_source == 1
-                            && count($redtrack_data)
-                            && $rule_condition_type_instance->check($campaign, $redtrack_data, $rule_condition, $calculation_type)
+                            && count($data_source_1)
+                            && $rule_condition_type_instance->check($campaign, $data_source_1, $rule_condition, $calculation_type)
                         )
                         ||
                         (
                             $rule_condition->ruleConditionType->report_source == 2
-                            && count($performance_data)
-                            && $rule_condition_type_instance->check($campaign, $performance_data, $rule_condition, $calculation_type)
+                            && count($data_source_2)
+                            && $rule_condition_type_instance->check($campaign, $data_source_2, $rule_condition, $calculation_type)
                         )
                     )
                 ) {
