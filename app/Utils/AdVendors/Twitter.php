@@ -848,7 +848,82 @@ class Twitter extends Root implements AdVendorInterface
         }
     }
 
+    private function isCampaignGeneration($vendor) {
+        if (count($vendor['campaigns']) == 0) {
+            return false;
+        }
+
+        foreach ($vendor['campaigns'] as $campaign) {
+            if (isset($campaign['id']) && count($campaign['adGroups'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function storeCampaignVendors($vendor) {
+        return $this->isCampaignGeneration($vendor) ? $this->generateAdVendors($vendor) : $this->createCampaignVendors($vendor);
+    }
+
+    private function generateAdVendors($vendor) {
+        try {
+            foreach ($vendor['campaigns'] as $campaign) {
+                if (isset($campaign['id']) && count($campaign['adGroups'])) {
+                    $campaign_db = Campaign::find($campaign['id']);
+
+                    if (!$campaign_db) {
+                        continue;
+                    }
+
+                    $api = new TwitterAPI(UserProvider::where([
+                        'provider_id' => $campaign_db->provider_id,
+                        'open_id' => $campaign_db->open_id
+                    ])->first(), $campaign_db->advertiser_id);
+
+                    $campaign_data = $api->getCampaign($campaign_db->campaign_id);
+
+                    foreach ($campaign['adGroups'] as $ad_group) {
+
+                    }
+                }
+            }
+
+            Helper::pullCampaign();
+
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'success' => 1,
+                'vendor' => 'twitter',
+                'vendorName' => 'Twitter'
+            ]));
+
+            return [];
+        } catch (Exception $e) {
+            if ($e instanceof TwitterAdsException && is_array($e->getErrors())) {
+                event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                    'errors' => [$e->getErrors()[0]->message],
+                    'vendor' => 'twitter',
+                    'vendorName' => 'Twitter'
+                ]));
+
+                return [
+                    'errors' => [$e->getErrors()[0]->message]
+                ];
+            } else {
+                event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                    'errors' => [$e->getMessage()],
+                    'vendor' => 'twitter',
+                    'vendorName' => 'Twitter'
+                ]));
+
+                return [
+                    'errors' => [$e->getMessage()]
+                ];
+            }
+        }
+    }
+
+    private function createCampaignVendors($vendor) {
         $api = new TwitterAPI(UserProvider::where([
             'provider_id' => 3,
             'open_id' => $vendor['selectedAccount']
@@ -1012,6 +1087,14 @@ class Twitter extends Root implements AdVendorInterface
             }
 
             Helper::pullCampaign();
+
+            event(new \App\Events\CampaignVendorCreated(auth()->id(), [
+                'success' => 1,
+                'vendor' => 'twitter',
+                'vendorName' => 'Twitter'
+            ]));
+
+            return [];
         } catch (Exception $e) {
             $this->rollback($campaign_data ?? null, $line_item_data ?? null, $card_data ?? null, 3, $vendor['selectedAccount'], $vendor['selectedAdvertiser']);
 
@@ -1037,13 +1120,5 @@ class Twitter extends Root implements AdVendorInterface
                 ];
             }
         }
-
-        event(new \App\Events\CampaignVendorCreated(auth()->id(), [
-            'success' => 1,
-            'vendor' => 'twitter',
-            'vendorName' => 'Twitter'
-        ]));
-
-        return [];
     }
 }
