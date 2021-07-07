@@ -38,7 +38,6 @@ class PullCampaign implements ShouldQueue
         if ($this->batch()->cancelled()) {
             return;
         }
-
         foreach ($this->user->providers as $user_provider) {
             $ad_vendor_class = 'App\\Utils\\AdVendors\\' . ucfirst($user_provider->provider->slug);
 
